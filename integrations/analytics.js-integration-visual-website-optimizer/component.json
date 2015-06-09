@@ -1,0 +1,18 @@
+{
+  "name": "analytics.js-integration-visual-website-optimizer",
+  "repo": "segment-integrations/analytics.js-integration-visual-website-optimizer",
+  "description": "The Visual Website Optimizer analytics.js integration.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "dependencies": {
+    "component/each": "0.0.1",
+    "segmentio/analytics.js-integration": "0.3.x",
+    "timoxley/next-tick": "0.0.2"
+  },
+  "development": {
+    "segmentio/analytics.js": "*",
+    "segmentio/clear-env": "0.2.x",
+    "segmentio/analytics.js-integration-tester": "1.4.x"
+  }
+}
