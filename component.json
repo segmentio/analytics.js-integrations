@@ -1,15 +1,18 @@
 {
-  "name": "analytics.js-integration-facebook-ads-for-websites",
-  "repo": "segment-integrations/analytics.js-integration-facebook-ads-for-websites",
-  "description": "The Facebook Ads for Websites analytics.js integration.",
+  "name": "analytics.js-integration-facebook-pixel",
+  "repo": "segment-integrations/analytics.js-integration-facebook-pixel",
+  "description": "The Facebook Pixel analytics.js integration.",
   "version": "1.0.0",
   "license": "MIT",
   "main": "lib/index.js",
   "dependencies": {
-    "segmentio/analytics.js-integration": "^1.0.0"
+    "segmentio/analytics.js-integration": "^1.0.0",
+    "ndhoule/foldl":"^1.0.3",
+    "ndhoule/each":"^1.0.3",
+    "ndhoule/includes": "^1.0.0"
     },
   "development": {
-    "segmentio/analytics.js-core": "^2.10.0",
+    "segmentio/analytics.js-core": "^2.11.1",
     "segmentio/analytics.js-integration-tester": "1.4.x",
     "segmentio/clear-env": "0.2.x"
   }

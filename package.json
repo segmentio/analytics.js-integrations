@@ -1,6 +1,6 @@
 {
-  "name": "analytics.js-integration-facebook-ads-for-websites",
-  "description": "The Facebook Ads for Websites analytics.js integration.",
+  "name": "analytics.js-integration-facebook-pixel",
+  "description": "The Facebook Pixel analytics.js integration.",
   "author": "Segment <friends@segment.com>",
   "license": "MIT",
   "main": "lib/index.js",
@@ -12,13 +12,13 @@
     "npm": ">=2.7.0"
   },
   "repository": {
-    "url": "https://github.com/segment-integrations/analytics.js-integration-facebook-ads-for-websites.git",
+    "url": "https://github.com/segment-integrations/analytics.js-integration-facebook-pixel.git",
     "type": "git"
   },
   "bugs": {
-    "url": "https://github.com/segment-integrations/analytics.js-integration-facebook-ads-for-websites/issues"
+    "url": "https://github.com/segment-integrations/analytics.js-integration-facebook-pixel/issues"
   },
-  "homepage": "https://segment.com/docs/integrations/facebook-ads-for-websites/",
+  "homepage": "https://segment.com/docs/integrations/facebook-pixel/",
   "dependencies": {},
   "devDependencies": {
     "duo": "0.12.x",

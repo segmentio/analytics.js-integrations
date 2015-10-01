@@ -1,6 +1,6 @@
-# analytics.js-integration-facebook-ads-for-websites [![Build Status][ci-badge]][ci-link]
+# analytics.js-integration-facebook-pixel [![Build Status][ci-badge]][ci-link]
 
-Facebook Ads for Websites integration for [Analytics.js][].
+Facebook Pixel integration for [Analytics.js][].
 
 ## License
 

@@ -1,148 +1,233 @@
 
-var Analytics = require('analytics.js').constructor;
+var Analytics = require('analytics.js-core').constructor;
+var tester = require('analytics.js-integration-tester');
 var integration = require('analytics.js-integration');
-var plugin = require('./');
 var sandbox = require('clear-env');
+var plugin = require('../lib');
 
-describe('Facebook Ads for Websites', function(){
-  var FacebookAdsForWebsites = plugin;
-  var facebookAdsForWebsites;
+describe('Facebook Pixel', function() {
+  var FacebookPixel = plugin;
+  var facebookPixel;
   var analytics;
   var options = {
-    // TODO: fill in this dictionary with the fake options required to test
-    // that the integration can load properly. We'll need to get test
-    // credentials for every integration, so that we can make sure it is
-    // working properly.
-    //
-    // Here's what test credentials might look like:
-    //
-    //   {
-    //     apiKey: 'V7TLXL5WWBA5NOU5MOJQW4'
-    //   }
+    legacyEvents: {
+      legacyEvent: 'asdFrkj',
+    },
+    standardEvents: {
+      standardEvent: 'standard'
+    },
+    pixelId: '123123123'
   };
 
-  beforeEach(function(){
+  beforeEach(function() {
     analytics = new Analytics;
-    facebookAdsForWebsites = new FacebookAdsForWebsites(options);
+    facebookPixel = new FacebookPixel(options);
     analytics.use(plugin);
     analytics.use(tester);
-    analytics.add(facebookAdsForWebsites);
+    analytics.add(facebookPixel);
   });
 
-  afterEach(function(){
+  afterEach(function() {
     analytics.restore();
     analytics.reset();
-    facebookAdsForWebsites.reset();
+    facebookPixel.reset();
     sandbox();
   });
 
-  it('should have the right settings', function(){
-    // TODO: add any additional options or globals from the source file itself
-    // to this list, and they will automatically get tested against, like:
-    // integration('Facebook Ads for Websites')
-    //   .global('__myIntegration')
-    //   .option('apiKey', '')
-    analytics.compare(FacebookAdsForWebsites, integration('Facebook Ads for Websites')
+  it('should have the right settings', function() {
+    analytics.compare(facebookPixel, integration('Facebook Pixel')
+      .global('fbq')
+      .option('pixelId', '')
+      .mapping('standardEvents')
+      .mapping('legacyEvents')
+      .tag('<script src="//connect.facebook.net/en_US/fbevents.js">'));
   });
 
-  describe('before loading', function(){
-    beforeEach(function(){
-      analytics.stub(facebookAdsForWebsites, 'load');
+  describe('before loading', function() {
+    beforeEach(function() {
+      analytics.stub(facebookPixel, 'load');
     });
 
-    afterEach(function(){
-      facebookAdsForWebsites.reset();
+    afterEach(function() {
+      facebookPixel.reset();
     });
 
-    describe('#initialize', function(){
-      // TODO: test .initialize();
+    describe('#initialize', function() {
+      it('should load on initialize', function() {
+        analytics.initialize();
+        analytics.called(facebookPixel.load);
+      })
     });
 
-    describe('should call #load', function(){
-      // TODO: test that .initialize() calls `.load()`
-      // you can remove this if it doesn't call `.load()`.
-    });
-  });
+    describe('#loaded', function() {
 
-  describe('loading', function(){
-    it('should load', function(done){
-      analytics.load(facebookAdsForWebsites, done);
     });
   });
 
-  describe('after loading', function(){
-    beforeEach(function(done){
+  describe('loading', function() {
+    it('should load', function(done) {
+      analytics.load(facebookPixel, done);
+    });
+  });
+
+  describe('after loading', function() {
+    beforeEach(function(done) {
       analytics.once('ready', done);
       analytics.initialize();
-      analytics.page();
     });
 
-    describe('#page', function(){
-      beforeEach(function(){
-        // TODO: stub the global API if needed
-        // example: analytics.stub(window.api, 'logEvent');
-        analytics.stub()
+    describe('#page', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
       });
 
-      it('should not track unnamed pages by default', function(){
-        // TODO: test that the integration does not track
-        // unnamed pages by default, so `.trackAllPages` option
-        // is false by default.
-      });
-
-      it('should track named pages if enabled', function(){
-        facebookAdsForWebsites.options.trackAllPages = true;
+      it('should track a pageview', function() {
         analytics.page();
-        // TODO: assert that the api was called properly
-        // analytics.called(window.api.logEvent, 'Loaded a Page');
-      });
-
-      it('should track named pages by default', function(){
-        analytics.page('Name');
-        // TODO: assert that the api was called properly
-        // analytics.called(window.api.logEvent, 'Viewed Name Page');
-      });
-
-      it('should track named pages with a category added', function(){
-        analytics.page('Category', 'Name');
-        // TODO: assert that the api was called properly
-        // analytics.called(window.api.logEvent, 'Viewed Category Name Page');
-      });
-
-      it('should track categorized pages by default', function(){
-        analytics.page('Category', 'Name');
-        // TODO: assert that the api was called properly
-        // analytics.called(window.api.logEvent, 'Viewed Category Page');
-      });
-
-      it('should not track name or categorized pages if disabled', function(){
-        facebookAdsForWebsites.options.trackNamedPages = false;
-        facebookAdsForWebsites.options.trackCategorizedPages = false;
-        analytics.page('Category', 'Name');
-        // TODO: assert that the api was not called
-        // analytics.didNotCall(window.api.logEvent);
+        analytics.called(fbq, 'track', 'PageView');
       });
     });
 
-
-
-    describe('#track', function(){
-      beforeEach(function(){
-        // TODO: stub the integration global api.
-        // for example:
-        // analytics.stub(window.api, 'logEvent');
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
       });
 
-      it('should send an event', function(){
-        analytics.track('event');
-        // TODO: assert that the event is sent.
-        // analytics.called(window.api.logEvent, 'event');
+      describe('event not mapped to legacy or standard', function() {
+        it('should send a "custom" event', function() {
+          analytics.track('event');
+          analytics.called(window.fbq, 'trackCustom', 'event');
+        });
+
+        it('should send a "custom" event and properties', function() {
+          analytics.track('event', { property: true });
+          analytics.called(window.fbq, 'trackCustom', 'event', { property: true });
+        });
+
+        it('should send properties correctly', function() {
+          analytics.track('event', {
+            currency: 'XXX',
+            revenue: 13,
+            property: true
+          });
+          analytics.called(window.fbq, 'trackCustom', 'event', {
+            currency: 'XXX',
+            value: '13.00',
+            property: true
+          });
+        });
       });
 
-      it('should send an event and properties', function(){
-        analytics.track('event', { property: true });
-        // TODO: assert that the event is sent.
-        // analytics.called(window.api.logEvent, 'event', { property: true });
+      describe('event mapped to legacy', function() {
+        it('should send a correctly mapped event', function() {
+          analytics.track('legacyEvent');
+          analytics.called(window.fbq, 'track', 'asdFrkj', {
+            currency: 'USD',
+            value: '0.00'
+          });
+        });
+
+        it('should send an event and properties', function() {
+          analytics.track('legacyEvent', { revenue: 10 });
+          analytics.called(window.fbq, 'track', 'asdFrkj', {
+            currency: 'USD',
+            value: '10.00'
+          });
+        });
+
+        it('should send only currency and revenue', function() {
+          analytics.track('legacyEvent', { revenue: 13, property: true });
+          analytics.called(window.fbq, 'track', 'asdFrkj', {
+            currency: 'USD',
+            value: '13.00'
+          });
+        });
+      });
+
+      describe('event mapped to standard', function() {
+        it('should send a correctly mapped event — no required properties', function() {
+          analytics.track('standardEvent');
+          analytics.called(window.fbq, 'track', 'standard', {});
+        });
+
+        it('should send properties correctly', function() {
+          analytics.track('standardEvent', {
+            currency: 'XXX',
+            revenue: 13,
+            property: true
+          });
+          analytics.called(window.fbq, 'track', 'standard', {
+            currency: 'XXX',
+            value: '13.00',
+            property: true
+          });
+        });
+      });
+
+      describe('segment ecommerce => FB product audiences', function() {
+        it('Viewed Product Category', function() {
+          analytics.track('Viewed Product Category', { category: 'Games' });
+          analytics.called(window.fbq, 'track', 'ViewContent', {
+            content_ids: ['Games'],
+            content_type: 'product_group'
+          });
+        });
+
+        it('Viewed Product', function() {
+          analytics.track('Viewed Product', {
+            id: '507f1f77bcf86cd799439011',
+            currency: 'USD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298'
+          });
+          analytics.called(window.fbq, 'track', 'ViewContent', {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: 'product',
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          });
+        });
+
+        it('Adding to Cart', function() {
+          analytics.track('Added Product', {
+            id: '507f1f77bcf86cd799439011',
+            currency: 'USD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298'
+          });
+          analytics.called(window.fbq, 'track', 'AddToCart', {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: 'product',
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          });
+        });
+
+        it('Completing an Order', function() {
+          analytics.track('Completed Order', {
+            products: [
+              { id: '507f1f77bcf86cd799439011' },
+              { id: '505bd76785ebb509fc183733' }
+            ],
+            currency: 'USD',
+            total: 0.50
+          });
+          analytics.called(window.fbq, 'track', 'Purchase', {
+            content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+            content_type: 'product',
+            currency: 'USD',
+            value: "0.50"
+          });
+        });
       });
     });
   });
