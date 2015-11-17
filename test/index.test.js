@@ -1,17 +1,15 @@
 
 var Analytics = require('analytics.js-core').constructor;
-var tester = require('analytics.js-integration-tester');
-var integration = require('analytics.js-integration');
 var sandbox = require('clear-env');
-var plugin = require('../lib');
+var tester = require('analytics.js-integration-tester');
+var FacebookPixel = require('../lib');
 
 describe('Facebook Pixel', function() {
-  var FacebookPixel = plugin;
-  var facebookPixel;
   var analytics;
+  var facebookPixel;
   var options = {
     legacyEvents: {
-      legacyEvent: 'asdFrkj',
+      legacyEvent: 'asdFrkj'
     },
     standardEvents: {
       standardEvent: 'standard'
@@ -20,9 +18,9 @@ describe('Facebook Pixel', function() {
   };
 
   beforeEach(function() {
-    analytics = new Analytics;
+    analytics = new Analytics();
     facebookPixel = new FacebookPixel(options);
-    analytics.use(plugin);
+    analytics.use(FacebookPixel);
     analytics.use(tester);
     analytics.add(facebookPixel);
   });
@@ -32,15 +30,6 @@ describe('Facebook Pixel', function() {
     analytics.reset();
     facebookPixel.reset();
     sandbox();
-  });
-
-  it('should have the right settings', function() {
-    analytics.compare(facebookPixel, integration('Facebook Pixel')
-      .global('fbq')
-      .option('pixelId', '')
-      .mapping('standardEvents')
-      .mapping('legacyEvents')
-      .tag('<script src="//connect.facebook.net/en_US/fbevents.js">'));
   });
 
   describe('before loading', function() {
@@ -56,7 +45,7 @@ describe('Facebook Pixel', function() {
       it('should load on initialize', function() {
         analytics.initialize();
         analytics.called(facebookPixel.load);
-      })
+      });
     });
 
     describe('#loaded', function() {
@@ -83,7 +72,7 @@ describe('Facebook Pixel', function() {
 
       it('should track a pageview', function() {
         analytics.page();
-        analytics.called(fbq, 'track', 'PageView');
+        analytics.called(window.fbq, 'track', 'PageView');
       });
     });
 
@@ -225,7 +214,7 @@ describe('Facebook Pixel', function() {
             content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
             content_type: 'product',
             currency: 'USD',
-            value: "0.50"
+            value: '0.50'
           });
         });
       });
