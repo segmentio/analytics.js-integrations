@@ -217,6 +217,28 @@ describe('Facebook Pixel', function() {
             value: '0.50'
           });
         });
+
+        it('Should send both pixel and standard event if mapped', function() {
+          facebookPixel.options.legacyEvents = { 'Completed Order': '123456' };
+          analytics.track('Completed Order', {
+            products: [
+              { id: '507f1f77bcf86cd799439011' },
+              { id: '505bd76785ebb509fc183733' }
+            ],
+            currency: 'USD',
+            total: 0.50
+          });
+          analytics.called(window.fbq, 'track', 'Purchase', {
+            content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+            content_type: 'product',
+            currency: 'USD',
+            value: '0.50'
+          });
+          analytics.called(window.fbq, 'track', '123456', {
+            currency: 'USD',
+            value: '0.50'
+          });
+        });
       });
     });
   });
