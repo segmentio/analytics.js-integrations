@@ -2,7 +2,7 @@
   "name": "analytics.js-integration-facebook-pixel",
   "repo": "segment-integrations/analytics.js-integration-facebook-pixel",
   "description": "The Facebook Pixel analytics.js integration.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "main": "lib/index.js",
   "dependencies": {

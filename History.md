@@ -1,4 +1,9 @@
 
+1.0.3 / 2016-04-26
+==================
+
+  * add flag to disable automatic pageview tracking
+
 1.0.2 / 2015-12-16
 ==================
 
