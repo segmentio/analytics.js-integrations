@@ -35,6 +35,7 @@ describe('Facebook Pixel', function() {
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(facebookPixel, 'load');
+      analytics.initialize();
     });
 
     afterEach(function() {
@@ -42,14 +43,22 @@ describe('Facebook Pixel', function() {
     });
 
     describe('#initialize', function() {
-      it('should load on initialize', function() {
-        analytics.initialize();
+      it('should call load on initialize', function() {
         analytics.called(facebookPixel.load);
       });
-    });
 
-    describe('#loaded', function() {
+      it('should set the correct agent and version', function() {
+        analytics.equal(window.fbq.agent, 'seg');
+        analytics.equal(window.fbq.version, '2.0');
+      });
 
+      it('should set disablePushState to true', function() {
+        analytics.equal(window.fbq.disablePushState, true);
+      });
+
+      it('should create fbq object', function() {
+        analytics.assert(window.fbq instanceof Function);
+      });
     });
   });
 
