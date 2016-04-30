@@ -14,7 +14,8 @@ describe('Facebook Pixel', function() {
     standardEvents: {
       standardEvent: 'standard'
     },
-    pixelId: '123123123'
+    pixelId: '123123123',
+    agent: 'test'
   };
 
   beforeEach(function() {
@@ -48,7 +49,7 @@ describe('Facebook Pixel', function() {
       });
 
       it('should set the correct agent and version', function() {
-        analytics.equal(window.fbq.agent, 'seg');
+        analytics.equal(window.fbq.agent, 'test');
         analytics.equal(window.fbq.version, '2.0');
       });
 
