@@ -2,7 +2,7 @@
   "name": "analytics.js-integration-visual-website-optimizer",
   "repo": "segment-integrations/analytics.js-integration-visual-website-optimizer",
   "description": "The Visual Website Optimizer analytics.js integration.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "main": "lib/index.js",
   "dependencies": {
