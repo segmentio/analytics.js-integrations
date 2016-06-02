@@ -196,16 +196,16 @@ describe('Facebook Pixel', function() {
       });
 
       describe('segment ecommerce => FB product audiences', function() {
-        it('Viewed Product Category', function() {
-          analytics.track('Viewed Product Category', { category: 'Games' });
+        it('Product List Viewed', function() {
+          analytics.track('Product List Viewed', { category: 'Games' });
           analytics.called(window.fbq, 'track', 'ViewContent', {
             content_ids: ['Games'],
             content_type: 'product_group'
           });
         });
 
-        it('Viewed Product', function() {
-          analytics.track('Viewed Product', {
+        it('Product Viewed', function() {
+          analytics.track('Product Viewed', {
             id: '507f1f77bcf86cd799439011',
             currency: 'USD',
             quantity: 1,
@@ -225,7 +225,7 @@ describe('Facebook Pixel', function() {
         });
 
         it('Adding to Cart', function() {
-          analytics.track('Added Product', {
+          analytics.track('Product Added', {
             id: '507f1f77bcf86cd799439011',
             currency: 'USD',
             quantity: 1,
@@ -245,7 +245,7 @@ describe('Facebook Pixel', function() {
         });
 
         it('Completing an Order', function() {
-          analytics.track('Completed Order', {
+          analytics.track('Order Completed', {
             products: [
               { id: '507f1f77bcf86cd799439011' },
               { id: '505bd76785ebb509fc183733' }
