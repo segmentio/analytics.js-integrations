@@ -1,7 +1,8 @@
+'use strict';
 
-var Analytics = require('analytics.js-core').constructor;
-var sandbox = require('clear-env');
-var tester = require('analytics.js-integration-tester');
+var Analytics = require('@segment/analytics.js-core').constructor;
+var sandbox = require('@segment/clear-env');
+var tester = require('@segment/analytics.js-integration-tester');
 var FacebookPixel = require('../lib');
 
 describe('Facebook Pixel', function() {
