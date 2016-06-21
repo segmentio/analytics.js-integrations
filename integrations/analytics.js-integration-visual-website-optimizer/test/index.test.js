@@ -1,8 +1,9 @@
+'use strict';
 
-var Analytics = require('analytics.js-core').constructor;
-var integration = require('analytics.js-integration');
-var sandbox = require('clear-env');
-var tester = require('analytics.js-integration-tester');
+var Analytics = require('@segment/analytics.js-core').constructor;
+var integration = require('@segment/analytics.js-integration');
+var sandbox = require('@segment/clear-env');
+var tester = require('@segment/analytics.js-integration-tester');
 var tick = require('next-tick');
 var VWO = require('../lib/');
 
@@ -67,24 +68,24 @@ describe('Visual Website Optimizer', function() {
 
     describe('#initialize on settings change', function() {
       it('should not call #replay if replay is disabled', function(done) {
-         vwo.options.replay = false;
-         analytics.initialize();
-         analytics.page();
-         analytics.on('ready', tick(function() {
-            analytics.didNotCall(vwo.replay);
-            done();
-          })
+        vwo.options.replay = false;
+        analytics.initialize();
+        analytics.page();
+        analytics.on('ready', tick(function() {
+          analytics.didNotCall(vwo.replay);
+          done();
+        })
          );
-       });
+      });
 
       it('should call #roots if listen is enabled', function(done) {
         vwo.options.listen = true;
         analytics.initialize();
         analytics.page();
         analytics.on('ready', tick(function() {
-           analytics.called(vwo.roots);
-           done();
-         })
+          analytics.called(vwo.roots);
+          done();
+        })
         );
       });
     });

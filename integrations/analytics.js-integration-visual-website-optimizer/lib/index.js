@@ -1,10 +1,11 @@
+'use strict';
 
 /**
  * Module dependencies.
  */
 
-var each = require('each');
-var integration = require('analytics.js-integration');
+var each = require('component-each');
+var integration = require('@segment/analytics.js-integration');
 var tick = require('next-tick');
 
 /**
