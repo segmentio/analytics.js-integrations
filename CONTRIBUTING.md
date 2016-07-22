@@ -1,6 +1,6 @@
 # Contributing
 
-We're huge fans of open-source, and we absolutely love getting good contributions to **analytics.js**! Integrations are available to thousands of Segment customers and we have hundreds of integrations in already in our queue, so it's important that you do the following _before writing a pull request_. 
+We're huge fans of open-source, and we absolutely love getting good contributions to **analytics.js**! Integrations are available to thousands of Segment customers and we have hundreds of integrations in already in our queue, so it's important that you do the following _before writing a pull request_.
 
 1. Read about our integration options and apply to be a partner: https://segment.com/partners/
 1. Hear from the Segment team before submitting your pull request.
@@ -12,7 +12,7 @@ To start, we'll get you set up with our development environment. All of our deve
 Then after forking **analytics.js-integrations** just `cd` into the folder and run `make`:
 
 ```bash
-$ cd analytics.js-integration-${ name }
+$ cd analytics.js-integration-facebook-pixel
 $ make
 ```
 
@@ -21,9 +21,8 @@ That will install all of our [npm](http://npmjs.org) and [component](http://comp
 The commands you'll want to know for development are:
 
 ```bash
-$ make               # re-compiles the development build of analytics.js for testing
-$ make test          # runs all of the tests in your terminal
-$ make test-browser  # runs all of the tests in your browser, for nicer debugging
+$ make test                          # runs all of the tests in your terminal
+$ make test-browser BROWSERS=Chrome  # runs all of the tests in Chrome for nicer debugging
 ```
 
 ## Writing Tests
