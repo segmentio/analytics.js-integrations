@@ -4,6 +4,8 @@ machine:
   environment:
     NPM_CONFIG_PROGRESS: false
     NPM_CONFIG_SPIN: false
+    SAUCE_ACCESS_KEY: 80dcffc2-c9a2-45e2-9fb7-87b29a6cd986
+    SAUCE_USERNAME: segment-oss
     TEST_REPORTS_DIR: $CIRCLE_TEST_REPORTS
 
 dependencies:
