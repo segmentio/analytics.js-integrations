@@ -21,9 +21,8 @@ That will install all of our [npm](http://npmjs.org) and [component](http://comp
 The commands you'll want to know for development are:
 
 ```bash
-$ make               # re-compiles the development build of analytics.js for testing
-$ make test          # runs all of the tests in your terminal
-$ make test-browser  # runs all of the tests in your browser, for nicer debugging
+$ make test                          # runs all of the tests in your terminal
+$ make test-browser BROWSERS=Chrome  # runs all of the tests in Chrome for nicer debugging
 ```
 
 ## Writing Tests
