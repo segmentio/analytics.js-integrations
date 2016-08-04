@@ -26,13 +26,13 @@ describe('Facebook Pixel', function() {
     analytics.use(tester);
     analytics.add(facebookPixel);
     analytics.identify('123', {
-      'name': 'Ash Ketchum',
-      'gender': 'Male',
-      'birthday': '01/13/1991',
-      'address': {
-        'city': 'Emerald',
-        'state': 'Kanto',
-        'postalCode': 123456
+      name: 'Ash Ketchum',
+      gender: 'Male',
+      birthday: '01/13/1991',
+      address: {
+        city: 'Emerald',
+        state: 'Kanto',
+        postalCode: 123456
       }
     });
   });
@@ -85,21 +85,18 @@ describe('Facebook Pixel', function() {
     });
 
     it('should call init with the user\'s traits', function() {
-      // proving that fbq has been stubbed
-      console.log(window.fbq);
-      // Expected stub to have been called?
       analytics.called(
         window.fbq,
         'init',
         options.pixelId,
         {
-          'ct': 'emerald',
-          'db': '19910113',
-          'fn': 'ash',
-          'ge': 'm',
-          'ln': 'ketchum',
-          'st': 'kanto',
-          'zp': 123456
+          ct: 'emerald',
+          db: '19910113',
+          fn: 'ash',
+          ge: 'm',
+          ln: 'ketchum',
+          st: 'kanto',
+          zp: 123456
         }
       );
     });
