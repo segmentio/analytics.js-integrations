@@ -76,8 +76,8 @@ describe('Facebook Pixel', function() {
 
   describe('loading', function() {
     beforeEach(function() {
-      analytics.initialize();
       analytics.stub(window, 'fbq');
+      analytics.initialize();
     });
 
     it('should load', function(done) {
