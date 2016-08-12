@@ -25,6 +25,16 @@ describe('Facebook Pixel', function() {
     analytics.use(FacebookPixel);
     analytics.use(tester);
     analytics.add(facebookPixel);
+    analytics.identify('123', {
+      name: 'Ash Ketchum',
+      gender: 'Male',
+      birthday: '01/13/1991',
+      address: {
+        city: 'Emerald',
+        state: 'Kanto',
+        postalCode: 123456
+      }
+    });
   });
 
   afterEach(function() {
@@ -65,8 +75,30 @@ describe('Facebook Pixel', function() {
   });
 
   describe('loading', function() {
+    beforeEach(function() {
+      analytics.stub(window, 'fbq');
+      analytics.initialize();
+    });
+
     it('should load', function(done) {
       analytics.load(facebookPixel, done);
+    });
+
+    it('should call init with the user\'s traits', function() {
+      analytics.called(
+        window.fbq,
+        'init',
+        options.pixelId,
+        {
+          ct: 'emerald',
+          db: '19910113',
+          fn: 'ash',
+          ge: 'm',
+          ln: 'ketchum',
+          st: 'kanto',
+          zp: 123456
+        }
+      );
     });
   });
 
