@@ -1,4 +1,10 @@
 
+2.1.1 / 2016-08-16
+==================
+
+  * Merge pull request #21 from segment-integrations/update/ajs-integration
+  * updating dependencies
+
 2.1.0 / 2016-08-16
 ==================
 
