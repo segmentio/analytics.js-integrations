@@ -56,7 +56,7 @@ VWO.prototype.initialize = function() {
  * https://vwo.com/knowledge/vwo-revenue-tracking-goal
  */
 
-VWO.prototype.completedOrder = function(track) {
+VWO.prototype.orderCompleted = function(track) {
   var total = track.total() || track.revenue() || 0;
   enqueue(function() {
     window._vis_opt_revenue_conversion(total);

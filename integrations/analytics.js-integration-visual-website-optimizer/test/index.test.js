@@ -139,14 +139,14 @@ describe('Visual Website Optimizer', function() {
       analytics.page();
     });
 
-    describe('#completedOrder', function() {
+    describe('#orderCompleted', function() {
       beforeEach(function() {
         analytics.stub(window._vis_opt_queue, 'push');
         analytics.stub(window, '_vis_opt_revenue_conversion');
       });
 
-      it('should track completed order', function() {
-        analytics.track('completed order', {
+      it('should track order completed', function() {
+        analytics.track('order completed', {
           orderId: '12074d48',
           tax: 16,
           total: 166,
