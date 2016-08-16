@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-visual-website-optimizer",
   "description": "The Visual Website Optimizer analytics.js integration.",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
