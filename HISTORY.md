@@ -1,4 +1,9 @@
 
+2.1.3 / 2016-08-25
+==================
+
+  * gate initialization with traits behind option
+
 2.1.2 / 2016-08-16
 ==================
 
