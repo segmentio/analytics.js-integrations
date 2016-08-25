@@ -16,7 +16,8 @@ describe('Facebook Pixel', function() {
       standardEvent: 'standard'
     },
     pixelId: '123123123',
-    agent: 'test'
+    agent: 'test',
+    initWithExistingTraits: false
   };
 
   beforeEach(function() {
@@ -47,7 +48,6 @@ describe('Facebook Pixel', function() {
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(facebookPixel, 'load');
-      analytics.initialize();
     });
 
     afterEach(function() {
@@ -56,20 +56,47 @@ describe('Facebook Pixel', function() {
 
     describe('#initialize', function() {
       it('should call load on initialize', function() {
+        analytics.initialize();
         analytics.called(facebookPixel.load);
       });
 
       it('should set the correct agent and version', function() {
+        analytics.initialize();
         analytics.equal(window.fbq.agent, 'test');
         analytics.equal(window.fbq.version, '2.0');
       });
 
       it('should set disablePushState to true', function() {
+        analytics.initialize();
         analytics.equal(window.fbq.disablePushState, true);
       });
 
       it('should create fbq object', function() {
+        analytics.initialize();
         analytics.assert(window.fbq instanceof Function);
+      });
+
+      before(function() {
+        options.initWithExistingTraits = true; 
+      });
+
+      after(function() {
+        options.initWithExistingTraits = false; 
+      });
+
+      it('should call init with the user\'s traits if option enabled', function() {
+        var payload = {
+          ct: 'emerald',
+          db: '19910113',
+          fn: 'ash',
+          ge: 'm',
+          ln: 'ketchum',
+          st: 'kanto',
+          zp: 123456
+        };
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'init', options.pixelId, payload);
       });
     });
   });
@@ -82,23 +109,6 @@ describe('Facebook Pixel', function() {
 
     it('should load', function(done) {
       analytics.load(facebookPixel, done);
-    });
-
-    it('should call init with the user\'s traits', function() {
-      analytics.called(
-        window.fbq,
-        'init',
-        options.pixelId,
-        {
-          ct: 'emerald',
-          db: '19910113',
-          fn: 'ash',
-          ge: 'm',
-          ln: 'ketchum',
-          st: 'kanto',
-          zp: 123456
-        }
-      );
     });
   });
 
