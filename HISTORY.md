@@ -1,4 +1,10 @@
 
+2.2.0 / 2016-09-07
+==================
+
+  * support ecom-specv2
+  * Switch from moment to dateformat
+
 2.1.3 / 2016-08-25
 ==================
 
