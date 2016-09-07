@@ -216,7 +216,7 @@ describe('Facebook Pixel', function() {
 
         it('Product Viewed', function() {
           analytics.track('Product Viewed', {
-            id: '507f1f77bcf86cd799439011',
+            product_id: '507f1f77bcf86cd799439011',
             currency: 'USD',
             quantity: 1,
             price: 24.75,
@@ -236,7 +236,7 @@ describe('Facebook Pixel', function() {
 
         it('Adding to Cart', function() {
           analytics.track('Product Added', {
-            id: '507f1f77bcf86cd799439011',
+            product_id: '507f1f77bcf86cd799439011',
             currency: 'USD',
             quantity: 1,
             price: 24.75,
@@ -257,8 +257,8 @@ describe('Facebook Pixel', function() {
         it('Completing an Order', function() {
           analytics.track('Order Completed', {
             products: [
-              { id: '507f1f77bcf86cd799439011' },
-              { id: '505bd76785ebb509fc183733' }
+              { product_id: '507f1f77bcf86cd799439011' },
+              { product_id: '505bd76785ebb509fc183733' }
             ],
             currency: 'USD',
             total: 0.50
@@ -275,8 +275,8 @@ describe('Facebook Pixel', function() {
           facebookPixel.options.legacyEvents = { 'Completed Order': '123456' };
           analytics.track('Completed Order', {
             products: [
-              { id: '507f1f77bcf86cd799439011' },
-              { id: '505bd76785ebb509fc183733' }
+              { product_id: '507f1f77bcf86cd799439011' },
+              { product_id: '505bd76785ebb509fc183733' }
             ],
             currency: 'USD',
             total: 0.50
