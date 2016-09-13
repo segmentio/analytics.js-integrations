@@ -13,7 +13,8 @@ describe('Facebook Pixel', function() {
       legacyEvent: 'asdFrkj'
     },
     standardEvents: {
-      standardEvent: 'standard'
+      standardEvent: 'standard',
+      'booking completed': 'Purchase'
     },
     pixelId: '123123123',
     agent: 'test',
@@ -77,11 +78,11 @@ describe('Facebook Pixel', function() {
       });
 
       before(function() {
-        options.initWithExistingTraits = true; 
+        options.initWithExistingTraits = true;
       });
 
       after(function() {
-        options.initWithExistingTraits = false; 
+        options.initWithExistingTraits = false;
       });
 
       it('should call init with the user\'s traits if option enabled', function() {
@@ -199,6 +200,18 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'standard', {
             currency: 'XXX',
+            value: '13.00',
+            property: true
+          });
+        });
+
+        it('should default currency to USD if mapped to "Purchase"', function() {
+          analytics.track('booking completed', {
+            revenue: 13,
+            property: true
+          });
+          analytics.called(window.fbq, 'track', 'Purchase', {
+            currency: 'USD',
             value: '13.00',
             property: true
           });
