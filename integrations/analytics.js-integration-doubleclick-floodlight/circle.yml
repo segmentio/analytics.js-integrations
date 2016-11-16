@@ -1,0 +1,31 @@
+machine:
+  node:
+    version: 4
+  environment:
+    NPM_CONFIG_PROGRESS: false
+    NPM_CONFIG_SPIN: false
+    SAUCE_ACCESS_KEY: 80dcffc2-c9a2-45e2-9fb7-87b29a6cd986
+    SAUCE_USERNAME: segment-oss
+    TEST_REPORTS_DIR: $CIRCLE_TEST_REPORTS
+
+dependencies:
+  pre:
+    - npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
+    - npm -g install codecov
+  override:
+    - make install
+
+test:
+  override:
+    - make test
+  post:
+    - cp -R coverage $CIRCLE_ARTIFACTS/
+    - codecov
+
+deployment:
+  publish:
+    owner: segment-integrations
+    # Works on e.g. `1.0.0-alpha.1`
+    tag: /[0-9]+(\.[0-9]+)*(-.+)?/
+    commands:
+      - npm publish .
