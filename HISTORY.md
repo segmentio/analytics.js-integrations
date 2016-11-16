@@ -1,3 +1,7 @@
+2.3.0 / 2016-11-15
+==================
+
+  * Update value for Product Added and Product Viewed to take either properties.value or properties.price
 
 2.2.1 / 2016-09-13
 ==================
