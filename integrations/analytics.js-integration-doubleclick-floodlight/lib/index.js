@@ -15,7 +15,7 @@ var qs = require('component-querystring');
 
 var Floodlight = module.exports = integration('DoubleClick Floodlight')
   .option('source', '')
-  .tag('<img src="http://ad.doubleclick.net/activity;src={{ src }};type={{ type }};cat={{ cat }};ord={{ ord }}{{ customVariables }}?">')
+  .tag('<iframe src="http://ad.doubleclick.net/activity;src={{ src }};type={{ type }};cat={{ cat }};ord={{ ord }}{{ customVariables }}?">')
   .mapping('events');
 
 /**

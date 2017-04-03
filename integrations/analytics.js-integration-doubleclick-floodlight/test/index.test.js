@@ -87,7 +87,7 @@ describe('DoubleClick Floodlight', function() {
       });
 
       it('should fire a basic floodlight tag properly', function() {
-        var imgTag = '<img src="http://ad.doubleclick.net/activity'
+        var iframe = '<iframe src="http://ad.doubleclick.net/activity'
           + ';src=' + options.source
           + ';type=' + options.events[1].value.type
           + ';cat=' + options.events[1].value.cat
@@ -95,11 +95,11 @@ describe('DoubleClick Floodlight', function() {
 
         analytics.track('Goodbye Pablo');
         analytics.called(floodlight.load);
-        analytics.loaded(imgTag);
+        analytics.loaded(iframe);
       });
 
       it('should fire a floodlight tag with custom variables properly', function() {
-        var imgTag = '<img src="http://ad.doubleclick.net/activity'
+        var iframe = '<iframe src="http://ad.doubleclick.net/activity'
           + ';src=' + options.source
           + ';type=' + options.events[0].value.type
           + ';cat=' + options.events[0].value.cat
@@ -112,7 +112,7 @@ describe('DoubleClick Floodlight', function() {
           episode: '4'
         });
         analytics.called(floodlight.load);
-        analytics.loaded(imgTag);
+        analytics.loaded(iframe);
       });
 
       describe('noops', function() {
