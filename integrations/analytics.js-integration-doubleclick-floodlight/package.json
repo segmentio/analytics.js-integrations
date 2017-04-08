@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-doubleclick-floodlight",
   "description": "The DoubleClick Floodlight analytics.js integration.",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
