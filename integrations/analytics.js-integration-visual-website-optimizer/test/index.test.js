@@ -21,7 +21,7 @@ describe('Visual Website Optimizer', function() {
 
     // set up fake VWO data to simulate the replay
     window._vwo_exp_ids = [1];
-    window._vwo_exp = { 1: { comb_n: { 1: 'Variation' }, combination_chosen: 1 } };
+    window._vwo_exp = { 1: { comb_n: { 1: 'Variation' }, combination_chosen: 1, ready: true } };
     window._vis_opt_queue = [];
   });
 
@@ -114,7 +114,7 @@ describe('Visual Website Optimizer', function() {
       analytics.stub(analytics, 'track');
     });
 
-    it('should send active experiments', function(done) {
+    it('should send active experiments if experiment is ready', function(done) {
       vwo.options.listen = true;
       analytics.initialize();
       analytics.page();
@@ -123,6 +123,24 @@ describe('Visual Website Optimizer', function() {
         window._vis_opt_queue[1]();
 
         analytics.called(analytics.track, 'Experiment Viewed', {
+          experimentId: '1',
+          variationName: 'Variation' },
+          { context: { integration: { name: 'visual-website-optimizer', version: '1.0.0' } }
+        });
+        done();
+      });
+    });
+
+    it('should not send active experiments if experiment is not ready', function(done) {
+      vwo.options.listen = true;
+      window._vwo_exp[1].ready = false;
+      analytics.initialize();
+      analytics.page();
+
+      tick(function() {
+        window._vis_opt_queue[1]();
+
+        analytics.didNotCall(analytics.track, 'Experiment Viewed', {
           experimentId: '1',
           variationName: 'Variation' },
           { context: { integration: { name: 'visual-website-optimizer', version: '1.0.0' } }

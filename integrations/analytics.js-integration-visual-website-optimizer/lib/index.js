@@ -169,5 +169,10 @@ function variation(id) {
   if (!experiments) return null;
   var experiment = experiments[id];
   var variationId = experiment.combination_chosen;
-  return variationId ? experiment.comb_n[variationId] : null;
+
+  // Send data only if experiment is marked ready by VWO and User is not previewing the VWO campaign
+  if (experiment.ready && !window._vis_debug && variationId) {
+    return experiment.comb_n[variationId];
+  }
+  return null;
 }

@@ -1,3 +1,7 @@
+2.1.2 / 2017-05-10
+==================
+
+ * Fix for VWO tracking, Send data only when VWO experiment is ready
 
 2.1.1 / 2016-08-16
 ==================
