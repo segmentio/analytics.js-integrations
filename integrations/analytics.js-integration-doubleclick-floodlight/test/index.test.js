@@ -38,6 +38,15 @@ describe('DoubleClick Floodlight', function() {
           type: 'groupTag',
           customVariable: []
         }
+      },
+      {
+        key: 'Viewed Confirmation Page',
+        value: {
+          event:'Viewed Confirmation Page',
+          cat: 'activityiTag',
+          type: 'groupTag',
+          customVariable: []
+        }
       }
     ]
   };
@@ -116,6 +125,36 @@ describe('DoubleClick Floodlight', function() {
         analytics.called(floodlight.load);
         analytics.loaded(iframe);
       });
+
+      describe('page', function() {
+        beforeEach(function() {
+          analytics.spy(floodlight, 'load');
+        });
+
+        var sandbox;
+        beforeEach(function() {
+          // stubbing cachebuster logic
+          sandbox = sinon.sandbox.create();
+        });
+
+        afterEach(function() {
+          sandbox.restore();
+        });
+
+        it('should fire a floodlight tag for named pages mapped as events', function() {
+          var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
+            + ';src=' + options.source
+            + ';type=' + options.events[1].value.type
+            + ';cat=' + options.events[1].value.cat
+            + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
+            + ';ord=2700503028455676400?">';
+
+          analytics.page('Confirmation');
+          analytics.called(floodlight.load);
+          analytics.loaded(iframe);
+        });
+      });
+
 
       describe('noops', function() {
         it('should noop if no mapped tags are found for an event', function() {

@@ -86,3 +86,9 @@ Floodlight.prototype.track = function(track) {
     return self.load(tagParams);
   }, tags);
 };
+
+Floodlight.prototype.page = function(page) {
+  var name = page.fullName();
+
+  if (name) this.track(page.track(name));
+};
