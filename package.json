@@ -27,8 +27,10 @@
     "@ndhoule/foldl": "^2.0.1",
     "@segment/analytics.js-integration": "^3.1.0",
     "dateformat": "^1.0.12",
+    "is": "^3.2.1",
     "reject": "0.0.1",
-    "segmentio-facade": "^3.1.0"
+    "segmentio-facade": "^3.1.0",
+    "to-camel-case": "^1.0.0"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",

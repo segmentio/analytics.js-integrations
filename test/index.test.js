@@ -14,7 +14,8 @@ describe('Facebook Pixel', function() {
     },
     standardEvents: {
       standardEvent: 'standard',
-      'booking completed': 'Purchase'
+      'booking completed': 'Purchase',
+      search: 'Search'
     },
     pixelId: '123123123',
     agent: 'test',
@@ -39,11 +40,14 @@ describe('Facebook Pixel', function() {
     });
   });
 
-  afterEach(function() {
-    analytics.restore();
-    analytics.reset();
-    facebookPixel.reset();
-    sandbox();
+  afterEach(function(done) {
+    analytics.waitForScripts(function() {
+      analytics.restore();
+      analytics.reset();
+      facebookPixel.reset();
+      sandbox();
+      done();
+    });
   });
 
   describe('before loading', function() {
@@ -214,6 +218,28 @@ describe('Facebook Pixel', function() {
             currency: 'USD',
             value: '13.00',
             property: true
+          });
+        });
+        
+        describe('Dyanmic Ads for Travel date parsing', function() {
+          it('should correctly pass in iso8601 formatted date objects', function() {
+            analytics.track('search', {
+              checkin_date: '2017-07-01T20:03:46Z'
+            });
+
+            analytics.called(window.fbq, 'track', 'Search', {
+              checkin_date: '2017-07-01'
+            });
+          });
+
+          it('should pass through strings that we did not recognize as dates as-is', function() {
+            analytics.track('search', {
+              checkin_date: '2017-06-23T15:30:00GMT'
+            });
+
+            analytics.called(window.fbq, 'track', 'Search', {
+              checkin_date: '2017-06-23T15:30:00GMT'
+            });
           });
         });
       });
