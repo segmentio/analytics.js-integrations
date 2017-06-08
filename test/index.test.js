@@ -40,11 +40,14 @@ describe('Facebook Pixel', function() {
     });
   });
 
-  afterEach(function() {
-    analytics.restore();
-    analytics.reset();
-    facebookPixel.reset();
-    sandbox();
+  afterEach(function(done) {
+    analytics.waitForScripts(function() {
+      analytics.restore();
+      analytics.reset();
+      facebookPixel.reset();
+      sandbox();
+      done();
+    });
   });
 
   describe('before loading', function() {
