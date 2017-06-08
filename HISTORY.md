@@ -1,3 +1,8 @@
+2.4.0 / 2017-06-08
+==================
+
+  * Fix an issue where properties for certain spec'd fb event fields (pertaining to travel events) that contain date strings were having their dates reconformed by Facade into an incompatible format for FB's API.
+
 2.3.0 / 2016-11-15
 ==================
 
