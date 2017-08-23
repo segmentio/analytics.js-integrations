@@ -220,7 +220,7 @@ describe('Facebook Pixel', function() {
             property: true
           });
         });
-        
+
         describe('Dyanmic Ads for Travel date parsing', function() {
           it('should correctly pass in iso8601 formatted date objects', function() {
             analytics.track('search', {
