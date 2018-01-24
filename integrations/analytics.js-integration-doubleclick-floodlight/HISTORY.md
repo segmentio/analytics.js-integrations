@@ -1,3 +1,8 @@
+1.4.1 / 2018-01-24
+==================
+
+  * Add support for propery lookup settings and source level tag details.
+
 1.4.0 / 2017-06-22
 ==================
 

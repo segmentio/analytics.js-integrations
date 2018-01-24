@@ -11,6 +11,8 @@ describe('DoubleClick Floodlight', function() {
   var analytics;
   var options = {
     source: '654757884637545',
+    activityTag: 'sourceLevelTagCat',
+    groupTag: 'sourceLevelTagType',
     events: [
       {
         key: 'Watched Westworld',
@@ -63,6 +65,33 @@ describe('DoubleClick Floodlight', function() {
           customVariable: [],
           isSalesTag: true,
           ordKey: 'orderId'
+        }
+      },
+      {
+        key: 'Property Lookup',
+        value: {
+          event:'Property Lookup',
+          cat: 'activityTag',
+          type: 'groupTag',
+          customVariable: [
+            {
+              key: '{{context.campaign.name}}',
+              value: 'u1'
+            }
+          ],
+          isSalesTag: false,
+          ordKey: null
+        }
+      },
+      {
+        key: 'Top Level Tag Settings',
+        value: {
+          event:'Top Level Tag Settings',
+          cat: '',
+          type: '',
+          customVariable: [],
+          isSalesTag: false,
+          ordKey: null
         }
       }
     ]
@@ -188,6 +217,35 @@ describe('DoubleClick Floodlight', function() {
         analytics.loaded(iframe);
       });
 
+      it('should handle property lookups as custom variable keys', function() {
+        var event = options.events[4];
+        var context = { campaign: { name: 'campaignName' } };
+        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
+          + ';src=' + options.source
+          + ';type=' + event.value.type
+          + ';cat=' + event.value.cat
+          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
+          + ';ord=2700503028455676400'
+          + ';u1=' + context.campaign.name + '?">';
+
+        analytics.track('Property Lookup', {}, context);
+        analytics.called(floodlight.load);
+        analytics.loaded(iframe);
+      });
+
+      it('should fallback on top level tag settings', function() {
+        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
+          + ';src=' + options.source
+          + ';type=' + options.groupTag
+          + ';cat=' + options.activityTag
+          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
+          + ';ord=2700503028455676400?">';
+
+        analytics.track('Top Level Tag Settings', {});
+        analytics.called(floodlight.load);
+        analytics.loaded(iframe);
+      });
+
       it('should fallback to properties.quantity for sales tag if no products', function() {
         var properties = {
           checkout_id: 'fksdjfsdjfisjf9sdfjsd9f',
@@ -262,6 +320,7 @@ describe('DoubleClick Floodlight', function() {
 
         it('should noop if cat is missing', function() {
           delete floodlight.options.events[0].value.cat;
+          delete floodlight.options.activityTag;
           analytics.assert(floodlight.options.source);
           analytics.assert(floodlight.options.events[0].value.type);
           analytics.track('Watched Westworld');
@@ -270,6 +329,7 @@ describe('DoubleClick Floodlight', function() {
 
         it('should noop if type is missing', function() {
           delete floodlight.options.events[0].value.type;
+          delete floodlight.options.groupTag;
           analytics.assert(floodlight.options.events[0].value.cat);
           analytics.assert(floodlight.options.source);
           analytics.track('Watched Westworld');

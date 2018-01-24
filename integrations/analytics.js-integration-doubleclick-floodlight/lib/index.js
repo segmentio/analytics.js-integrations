@@ -8,6 +8,7 @@ var integration = require('@segment/analytics.js-integration');
 var each = require('@ndhoule/each');
 var foldl = require('@ndhoule/foldl');
 var qs = require('component-querystring');
+var find = require('obj-case').find;
 
 /**
  * Expose `DoubleClick Floodlight` integration.
@@ -52,17 +53,29 @@ Floodlight.prototype.track = function(track) {
 
   // Prepare tag params for each mapped Floodlight Activity
   var tags = foldl(function(conversions, tag) {
-    // Required params. These should already be validated at the app level but just in case
-    if (!tag.event || !tag.cat || !tag.type) return conversions;
+    var type = tag.type || settings.groupTag;
+    var event = tag.event;
+    var cat = tag.cat || settings.activityTag;
+
+    if (!event || !cat || !type) return conversions;
 
     // Find matching properties if any
     var matchedVariables = {};
     each(function(variable) {
-      var segmentProp = variable.key;
       var floodlightProp = variable.value;
-      var segmentPropValue = properties[segmentProp];
+      var segmentProp = variable.key.match(/{{(.*)}}/) || variable.key;
+      var segmentPropValue;
 
-      if (segmentPropValue) matchedVariables[floodlightProp] = segmentPropValue;
+      if (Array.isArray(segmentProp)) {
+        segmentProp = segmentProp.pop();
+        segmentPropValue = find(track.json(), segmentProp);
+      } else {
+        segmentPropValue = properties[segmentProp];
+      }
+
+      if (segmentPropValue) {
+        matchedVariables[floodlightProp] = segmentPropValue;
+      }
     }, tag.customVariable);
 
     var customVariables = qs.stringify(matchedVariables).replace(/&/g, ';');
@@ -70,8 +83,8 @@ Floodlight.prototype.track = function(track) {
 
     var tagParams = {
       src: settings.source,
-      type: tag.type,
-      cat: tag.cat,
+      type: type,
+      cat: cat,
       customVariables: customVariables
     };
 
@@ -102,7 +115,10 @@ Floodlight.prototype.track = function(track) {
     conversions.push(tagParams);
 
     return conversions;
-  }, [], mappedEvents);
+  },
+  [],
+  mappedEvents
+  );
 
   // Fire each tag
   each(function(tagParams) {

@@ -33,20 +33,6 @@ var customLaunchers = {
     browserName: 'safari',
     version: '9.0'
   },
-  // FIXME (han) Some kind of compatibility issue
-  // IE 7.0.0 (Windows XP 0.0.0) ERROR
-  // Object doesn't support this property or method
-  // at http://localhost:9876/context.html:8770
-  // sl_ie_7: {
-  //   base: 'SauceLabs',
-  //   browserName: 'internet explorer',
-  //   version: '7'
-  // },
-  sl_ie_8: {
-    base: 'SauceLabs',
-    browserName: 'internet explorer',
-    version: '8'
-  },
   sl_ie_9: {
     base: 'SauceLabs',
     browserName: 'internet explorer',
