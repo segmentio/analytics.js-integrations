@@ -1,4 +1,4 @@
-'use strict';
+/* eslint-disable strict */
 
 /**
  * Module dependencies.
@@ -17,6 +17,11 @@ var VWO = module.exports = integration('Visual Website Optimizer')
   .global('_vis_opt_revenue_conversion')
   .global('_vwo_exp')
   .global('_vwo_exp_ids')
+  .option('accountId')
+  .option('useAsyncSmartCode', false)
+  .option('settingsTolerance', 2000)
+  .option('libraryTolerance', 2500)
+  .option('useExistingJQuery', false)
   .option('replay', true)
   .option('listen', false);
 
@@ -31,23 +36,41 @@ var integrationContext = {
 
 /**
  * Initialize.
- *
- * http://v2.visualwebsiteoptimizer.com/tools/get_tracking_code.php
  */
 
 VWO.prototype.initialize = function() {
+  if (this.options.useAsyncSmartCode) {
+    /* eslint-disable */
+    var account_id = this.options.accountId;
+    var settings_tolerance = this.options.settingsTolerance;
+    var library_tolerance = this.options.libraryTolerance;
+    var use_existing_jquery = this.options.useExistingJQuery;
+
+    window._vwo_code=(function(){f=false,d=document;return{use_existing_jquery:function(){return use_existing_jquery;},library_tolerance:function(){return library_tolerance;},finish:function(){if(!f){f=true;var a=d.getElementById('_vis_opt_path_hides');if(a)a.parentNode.removeChild(a);}},finished:function(){return f;},load:function(a){var b=d.createElement('script');b.src=a;b.type='text/javascript';b.innerText;b.onerror=function(){_vwo_code.finish();};d.getElementsByTagName('head')[0].appendChild(b);},init:function(){settings_timer=setTimeout('_vwo_code.finish()',settings_tolerance);var a=d.createElement('style'),b='body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}',h=d.getElementsByTagName('head')[0];a.setAttribute('id','_vis_opt_path_hides');a.setAttribute('type','text/css');if(a.styleSheet)a.styleSheet.cssText=b;else a.appendChild(d.createTextNode(b));h.appendChild(a);this.load('//dev.visualwebsiteoptimizer.com/j.php?a='+account_id+'&u='+encodeURIComponent(d.URL)+'&r='+Math.random());return settings_timer;}};}());_vwo_settings_timer=_vwo_code.init();
+    /* eslint-enable */
+  }
+
   var self = this;
+
   if (this.options.replay) {
     tick(function() {
       self.replay();
     });
   }
+
   if (this.options.listen) {
     tick(function() {
       self.roots();
     });
   }
-  this.ready();
+
+  if (this.options.useAsyncSmartCode) {
+    enqueue(function() {
+      self.ready();
+    });
+  } else {
+    self.ready();
+  }
 };
 
 /**
