@@ -9,6 +9,7 @@ var each = require('@ndhoule/each');
 var foldl = require('@ndhoule/foldl');
 var qs = require('component-querystring');
 var find = require('obj-case').find;
+var toNoCase = require('to-no-case');
 
 /**
  * Expose `DoubleClick Floodlight` integration.
@@ -17,8 +18,7 @@ var find = require('obj-case').find;
 var Floodlight = module.exports = integration('DoubleClick Floodlight')
   .option('source', '')
   .tag('counter', '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">')
-  .tag('sales', '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};qty={{ qty }};cost={{ cost }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">')
-  .mapping('events');
+  .tag('sales', '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};qty={{ qty }};cost={{ cost }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">');
 
 /**
  * Initialize.
@@ -42,8 +42,18 @@ Floodlight.prototype.initialize = function() {
  */
 
 Floodlight.prototype.track = function(track) {
-  // Returns array of objects
-  var mappedEvents = this.events(track.event());
+  var mappedEvents = [];
+  if (!this.options.events || !this.options.events.length) return;
+
+  // retrieve event mappings that match the current event
+  for (var i=0; i<this.options.events.length; i++) {
+    var item = this.options.events[i];
+    if (item.value) {
+      if (toNoCase(item.key) === toNoCase(track.event())) mappedEvents.push(item.value);
+    } else if (toNoCase(item.event) === toNoCase(track.event())) {
+      mappedEvents.push(item);
+    }
+  }
   var settings = this.options;
 
   // Must have events mapped and DoubleClick Advertiser ID

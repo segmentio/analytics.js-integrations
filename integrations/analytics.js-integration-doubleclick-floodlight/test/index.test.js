@@ -114,8 +114,7 @@ describe('DoubleClick Floodlight', function() {
 
   it('should have the correct settings', function() {
     analytics.compare(Floodlight, integration('DoubleClick Floodlight')
-      .option('source', '')
-      .mapping('events'));
+      .option('source', ''));
   });
 
   describe('after loading', function() {
