@@ -39,6 +39,24 @@ Hi @{{ .Author }}, as part of the monorepo migration, this issue has been moved 
 
 For more information, see [README.md]({{ .ReadmeURL }}).
 `
+const pullRequestTemplate = `
+**This repository has been moved to [Analytics JS integrations]({{ .MonorepoURL }}), please move the changes there and create the Pull Request**
+
+See [README](README.md) for more information. Issues/Pull Requests created in this repository are not longer monitored.
+
+Thank you,
+
+_The Segment team_
+`
+const issueTemplate = `
+**This repository has been moved to [Analytics JS integrations]({{ .MonorepoURL }}), please create the issue there**
+
+See [README](README.md) for more information. Issues/Pull Requests created in this repository are not longer monitored.
+
+Thank you,
+
+_The Segment team_
+`
 
 // Integration
 type Integration struct {
@@ -48,8 +66,10 @@ type Integration struct {
 	OpenIssues       []Issue
 	OpenPullRequests []PullRequest
 
-	readmeTmpl  *template.Template
-	commentTmpl *template.Template
+	readmeTmpl      *template.Template
+	commentTmpl     *template.Template
+	pullRequestTmpl *template.Template
+	issueTmpl       *template.Template
 }
 
 // OpenIntegration gets the project from GitHub and clones the repo locally
@@ -62,6 +82,18 @@ func OpenIntegration(github *GitHub, organization, name, dst string) (*Integrati
 	}
 
 	commentTmpl, err := template.New("integration-issue-comment").Parse(commentTemplate)
+	if err != nil {
+		LogError(err, "Error parsing template")
+		return nil, err
+	}
+
+	pullRequestTmpl, err := template.New("integration-pull-request").Parse(pullRequestTemplate)
+	if err != nil {
+		LogError(err, "Error parsing template")
+		return nil, err
+	}
+
+	issueTmpl, err := template.New("integration-issue").Parse(issueTemplate)
 	if err != nil {
 		LogError(err, "Error parsing template")
 		return nil, err
@@ -110,6 +142,8 @@ func OpenIntegration(github *GitHub, organization, name, dst string) (*Integrati
 		OpenPullRequests: pullRequests,
 		readmeTmpl:       tmpl,
 		commentTmpl:      commentTmpl,
+		pullRequestTmpl:  pullRequestTmpl,
+		issueTmpl:        issueTmpl,
 	}, nil
 
 }
@@ -141,7 +175,7 @@ func (i *Integration) MigrateToMonorepo(github *GitHub, monorepo *Monorepo) erro
 		return err
 	}
 
-	if err := i.notify(link); err != nil {
+	if err := i.notify(*monorepo, link); err != nil {
 		return err
 	}
 
@@ -224,8 +258,9 @@ func (i *Integration) pushHead() error {
 	return nil
 }
 
-// notify adds a note to the README and commits to master.
-func (i *Integration) notify(commitLink string) error {
+// notify adds a note to the README and commits to master and updates
+// the pull request/issue templates.
+func (i *Integration) notify(monorepo Monorepo, commitLink string) error {
 
 	notified, err := fileExists("README-OLD.md")
 	if err != nil {
@@ -251,9 +286,23 @@ func (i *Integration) notify(commitLink string) error {
 		return err
 	}
 
+	if err := makeDir(path.Join(i.Repo.Path(), "..", ".github")); err != nil {
+		return err
+	}
+
+	if err := i.updatePullRequestTemplate(monorepo); err != nil {
+		return err
+	}
+
+	if err := i.updateIssueTemplate(monorepo); err != nil {
+		return err
+	}
+
 	pathspec := []string{
 		"README.md",
 		"README-OLD.md",
+		path.Join(".github", "pull_request_template.md"),
+		path.Join(".github", "issue_template.md"),
 	}
 
 	if _, err := commitFiles(i.Repo, pathspec, commitMsg); err != nil {
@@ -343,4 +392,28 @@ func (i *Integration) migratePullRequests(github *GitHub, monorepo Monorepo) err
 	}
 
 	return nil
+}
+
+func (i *Integration) updatePullRequestTemplate(monorepo Monorepo) error {
+	file := path.Join(i.Repo.Path(), "..", ".github", "pull_request_template.md")
+
+	info := struct {
+		MonorepoURL string
+	}{
+		MonorepoURL: monorepo.URL,
+	}
+
+	return writeFileWithTemplate(file, i.pullRequestTmpl, info)
+}
+
+func (i *Integration) updateIssueTemplate(monorepo Monorepo) error {
+	file := path.Join(i.Repo.Path(), "..", ".github", "issue_template.md")
+
+	info := struct {
+		MonorepoURL string
+	}{
+		MonorepoURL: monorepo.URL,
+	}
+
+	return writeFileWithTemplate(file, i.issueTmpl, info)
 }

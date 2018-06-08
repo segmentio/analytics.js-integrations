@@ -121,3 +121,12 @@ func fileExists(file string) (bool, error) {
 
 	return true, nil
 }
+
+func writeFileWithTemplate(filename string, tmpl *template.Template, data interface{}) error {
+	if err := ioutil.WriteFile(filename, []byte(executeTemplate(tmpl, data)), 0644); err != nil {
+		LogError(err, "Error writing file")
+		return err
+	}
+
+	return nil
+}
