@@ -80,7 +80,7 @@ func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
 		return "", err
 	}
 
-	oid, err := commitFiles(m.repo, []string{m.integrationsPath}, m.commitMessage(integration))
+	oid, err := commitFiles(m.repo, []string{m.integrationsPath}, m.commitMigrationMessage(integration))
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +88,7 @@ func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
 	return monorepoURL + "/commit/" + oid.String(), nil
 }
 
-func (m *Monorepo) commitMessage(integration Integration) string {
+func (m *Monorepo) commitMigrationMessage(integration Integration) string {
 	info := struct {
 		Name, URL, Readme string
 	}{
@@ -98,4 +98,35 @@ func (m *Monorepo) commitMessage(integration Integration) string {
 	}
 
 	return executeTemplate(m.commitTmpl, info)
+}
+
+// ListUpdatedIntegrationsSinceCommit compare the current state of the integration with a commit
+// and return the names of the integrations that have change.
+func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]string, error) {
+
+	commit, err := m.repo.LookupCommit(commitSha)
+	if err != nil {
+		LogError(err, "Can not get commit for %s", commitSha.String())
+		return nil, err
+	}
+
+	treeToCompare, err := commit.Tree()
+	if err != nil {
+		LogError(err, "Can not retrieve tree for commit %s", commitSha.String())
+		return nil, err
+	}
+
+	options := &git.DiffOptions{}
+
+	diff, err := m.repo.DiffTreeToWorkdirWithIndex(treeToCompare, options)
+	if err != nil {
+		LogError(err, "Error getting diff")
+		return nil, err
+	}
+
+	//extractFilenames := func
+
+	diff.ForEach()
+
+	return nil, nil
 }
