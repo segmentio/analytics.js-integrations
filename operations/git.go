@@ -1,6 +1,9 @@
 package operations
 
 import (
+	"os"
+	"time"
+
 	"gopkg.in/libgit2/git2go.v27"
 )
 
@@ -88,9 +91,9 @@ func commitFiles(repo *git.Repository, pathspec []string, msg string) (*git.Oid,
 	}
 	commitTree.Free()
 
-	me, err := repo.DefaultSignature()
+	me, err := getSignature(repo)
 	if err != nil {
-		LogError(err, "Error getting default signature")
+		LogError(err, "Error getting signature")
 		return nil, err
 	}
 
@@ -154,4 +157,21 @@ func getLatestTag(repo *git.Repository) (*git.Tag, error) {
 	}
 
 	return latestTag, nil
+}
+
+// getSignature returns the default signature unless the env vars GITHUB_USER
+// and GITHUB_EMAIL are present.
+func getSignature(repo *git.Repository) (*git.Signature, error) {
+	user := os.Getenv("GITHUB_USER")
+	email := os.Getenv("GITHUB_EMAIL")
+
+	if user == "" || email == "" {
+		return repo.DefaultSignature()
+	}
+
+	return &git.Signature{
+		Name:  user,
+		Email: email,
+		When:  time.Now(),
+	}, nil
 }
