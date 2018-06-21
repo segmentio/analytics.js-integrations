@@ -1,7 +1,10 @@
 package operations
 
 import (
+	"fmt"
 	"path"
+	"path/filepath"
+	"regexp"
 	"text/template"
 
 	"gopkg.in/libgit2/git2go.v27"
@@ -105,6 +108,8 @@ func (m *Monorepo) commitMigrationMessage(integration IntegrationRepo) string {
 // and return the names of the integrations that have change.
 func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]string, error) {
 
+	diffRegexp := regexp.MustCompilePOSIX(fmt.Sprintf(`^%s/([a-z_-]+)/.*$`, m.IntegrationsPath))
+
 	commit, err := m.repo.LookupCommit(commitSha)
 	if err != nil {
 		LogError(err, "Can not get commit for %s", commitSha.String())
@@ -125,17 +130,16 @@ func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]str
 		return nil, err
 	}
 
-	doNothingForEachLine := func(line git.DiffLine) error {
-		return nil
-	}
-
-	doNothingForEachHunk := func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-		return doNothingForEachLine, nil
-	}
+	integrations := make(map[string]bool)
 
 	p := func(delta git.DiffDelta, _ float64) (git.DiffForEachHunkCallback, error) {
-		Log("Diff - New file: %s", delta.NewFile.Path)
-		Log("Diff - Old file: %s", delta.OldFile.Path)
+		for _, file := range []string{delta.NewFile.Path, delta.OldFile.Path} {
+			unixFile := filepath.ToSlash(file)
+			matches := diffRegexp.FindAllStringSubmatch(unixFile, -1)
+			if len(matches) > 0 && len(matches[0]) == 2 {
+				integrations[matches[0][1]] = true
+			}
+		}
 		return doNothingForEachHunk, nil
 	}
 
@@ -144,5 +148,10 @@ func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]str
 		return nil, err
 	}
 
-	return nil, nil
+	res := make([]string, 0, len(integrations))
+	for integration := range integrations {
+		res = append(res, integration)
+	}
+
+	return res, nil
 }

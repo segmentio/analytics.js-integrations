@@ -5,15 +5,16 @@ import (
 	"os"
 
 	"github.com/segmentio/analytics.js-integrations/operations"
+	"gopkg.in/libgit2/git2go.v27"
 )
 
-var mods string
-
-const organization = "segment-integrations"
+var commit string
+var monorepoPath string
 
 func init() {
 	flag.BoolVar(&operations.Verbose, "verbose", false, "prints more stuff")
-	flag.StringVar(&mods, "searchMods", "", "extra search parameters, like archived:no or is:private")
+	flag.StringVar(&monorepoPath, "monorepoPath", "..", "Local path where the monrepo is")
+	flag.StringVar(&commit, "commit", "e4d3f47fac92fc618b3af85d559b24793cce4861", "Commit to compare")
 }
 
 func main() {
@@ -24,58 +25,25 @@ func main() {
 
 	github := operations.NewGitHubClient()
 
-	projects, err := github.ListProjects(organization, "analytics.js-integration-", mods)
+	monorepo, err := operations.OpenMonorepo(github, "segmentio", "analytics.js-integrations", monorepoPath)
 	if err != nil {
 		os.Exit(1)
 	}
 
-	openPullRequests := 0
-	openIssues := 0
-	projectsWithForks := 0
-
-	for i, project := range projects {
-		operations.Log("Integration %s", project.RepositoryName)
-		operations.Debug(" - URL: %s", project.URL)
-		operations.Debug(" - Forks: %d", project.Forks)
-		operations.Debug(" - Open Pull Requests: %d", project.OpenPullRequests)
-		operations.Debug(" - Open Issues: %d", project.OpenIssues)
-		operations.Debug(" - Is private: %t", project.IsPrivate)
-		operations.Debug(" - Last Updated: %s", project.LastUpdated.Format("01/02/2006"))
-
-		if project.Forks > 0 {
-			projectsWithForks++
-		}
-		openIssues += project.OpenIssues
-		openPullRequests += project.OpenPullRequests
-
-		issues, err := github.GetOpenIssues(organization, project.RepositoryName)
-		if err != nil {
-			os.Exit(1)
-		}
-
-		for _, issue := range issues {
-			operations.Debug(" - Issue #%d: %s (by @%s)", issue.Number, issue.Title, issue.Author)
-		}
-
-		pullRequests, err := github.GetOpenPullRequests(organization, project.RepositoryName)
-		if err != nil {
-			os.Exit(1)
-		}
-
-		for _, pullRequest := range pullRequests {
-			operations.Debug(" - Pull Request #%d: %s (by @%s)", pullRequest.Number, pullRequest.Title, pullRequest.Author)
-		}
-
-		if i > 5 {
-			break
-		}
+	oid, err := git.NewOid(commit)
+	if err != nil {
+		operations.LogError(err, "Error looking up commit")
+		os.Exit(1)
 	}
 
-	operations.Log("---------")
-	operations.Log("Total integrations: %d", len(projects))
-	operations.Log("Open Pull Requests: %d", openPullRequests)
-	operations.Log("Open Issues: %d", openIssues)
-	operations.Log("Integrations with forks: %d", projectsWithForks)
-	operations.Log("---------")
+	integrations, err := monorepo.ListUpdatedIntegrationsSinceCommit(oid)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	operations.Log("Integrations updated since commit %s: ", commit)
+	for _, integration := range integrations {
+		operations.Log(integration)
+	}
 
 }

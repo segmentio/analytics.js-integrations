@@ -175,3 +175,11 @@ func getSignature(repo *git.Repository) (*git.Signature, error) {
 		When:  time.Now(),
 	}, nil
 }
+
+func doNothingForEachLine(line git.DiffLine) error {
+	return nil
+}
+
+func doNothingForEachHunk(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+	return doNothingForEachLine, nil
+}
