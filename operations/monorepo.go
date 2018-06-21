@@ -22,10 +22,11 @@ Readme: {{ .Readme }}
 // Monorepo
 type Monorepo struct {
 	Project
+	IntegrationsPath string
 
-	repo                   *git.Repository
-	path, integrationsPath string
-	commitTmpl             *template.Template
+	repo       *git.Repository
+	path       string
+	commitTmpl *template.Template
 }
 
 // OpenMonorepo returns the git repository of the monorepo
@@ -51,21 +52,21 @@ func OpenMonorepo(github *GitHub, organization, name, path string) (*Monorepo, e
 
 	return &Monorepo{
 		Project:          project,
+		IntegrationsPath: integrationsFolder,
 		repo:             repo,
 		path:             path,
-		integrationsPath: integrationsFolder,
 		commitTmpl:       tmpl,
 	}, nil
 }
 
-// AddIntegration adds the integration files into the monorepo as a folder, and commits
+// AddIntegrationRepo adds the integration files into the monorepo as a folder, and commits
 // the results. It returns the new commit's link.
-func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
+func (m *Monorepo) AddIntegrationRepo(integration IntegrationRepo) (string, error) {
 	Debug("Adding %s to the monorepo", integration.Name)
 
 	// Copy files into /integrations/<integration>
 	src := path.Join(integration.Repo.Path(), "..")
-	dst := path.Join(m.repo.Path(), "..", integrationsFolder, integration.Name)
+	dst := path.Join(m.repo.Path(), "..", m.IntegrationsPath, integration.Name)
 
 	exists, err := fileExists(dst)
 	if err != nil {
@@ -80,7 +81,7 @@ func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
 		return "", err
 	}
 
-	oid, err := commitFiles(m.repo, []string{m.integrationsPath}, m.commitMigrationMessage(integration))
+	oid, err := commitFiles(m.repo, []string{m.IntegrationsPath}, m.commitMigrationMessage(integration))
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +89,7 @@ func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
 	return monorepoURL + "/commit/" + oid.String(), nil
 }
 
-func (m *Monorepo) commitMigrationMessage(integration Integration) string {
+func (m *Monorepo) commitMigrationMessage(integration IntegrationRepo) string {
 	info := struct {
 		Name, URL, Readme string
 	}{
@@ -124,9 +125,24 @@ func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]str
 		return nil, err
 	}
 
-	//extractFilenames := func
+	doNothingForEachLine := func(line git.DiffLine) error {
+		return nil
+	}
 
-	diff.ForEach()
+	doNothingForEachHunk := func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+		return doNothingForEachLine, nil
+	}
+
+	p := func(delta git.DiffDelta, _ float64) (git.DiffForEachHunkCallback, error) {
+		Log("Diff - New file: %s", delta.NewFile.Path)
+		Log("Diff - Old file: %s", delta.OldFile.Path)
+		return doNothingForEachHunk, nil
+	}
+
+	if err := diff.ForEach(p, git.DiffDetailFiles); err != nil {
+		LogError(err, "Error getting diff for files")
+		return nil, err
+	}
 
 	return nil, nil
 }

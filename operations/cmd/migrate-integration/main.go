@@ -33,7 +33,7 @@ func main() {
 	}
 
 	github := operations.NewGitHubClient()
-	integration, err := operations.OpenIntegration(github, organization, integrationName, path.Join(tmpPath, integrationName))
+	integration, err := operations.OpenIntegrationRepo(github, organization, integrationName, path.Join(tmpPath, integrationName))
 	if err != nil {
 		os.Exit(1)
 	}
