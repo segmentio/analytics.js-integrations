@@ -33,7 +33,7 @@ func main() {
 	openIssues := 0
 	projectsWithForks := 0
 
-	for i, project := range projects {
+	for _, project := range projects {
 		operations.Log("Integration %s", project.RepositoryName)
 		operations.Debug(" - URL: %s", project.URL)
 		operations.Debug(" - Forks: %d", project.Forks)
@@ -66,9 +66,6 @@ func main() {
 			operations.Debug(" - Pull Request #%d: %s (by @%s)", pullRequest.Number, pullRequest.Title, pullRequest.Author)
 		}
 
-		if i > 5 {
-			break
-		}
 	}
 
 	operations.Log("---------")
