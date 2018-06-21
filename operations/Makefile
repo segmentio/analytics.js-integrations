@@ -8,6 +8,6 @@ bin/%: cmd/%/main.go
 build: $(BINS)
 
 clean:
-	rm -r bin/*
+	rm -rf bin/*
 
 .PHONY: build clean
