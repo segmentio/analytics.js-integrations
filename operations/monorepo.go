@@ -1,7 +1,10 @@
 package operations
 
 import (
+	"fmt"
 	"path"
+	"path/filepath"
+	"regexp"
 	"text/template"
 
 	"gopkg.in/libgit2/git2go.v27"
@@ -22,10 +25,11 @@ Readme: {{ .Readme }}
 // Monorepo
 type Monorepo struct {
 	Project
+	IntegrationsPath string
 
-	repo                   *git.Repository
-	path, integrationsPath string
-	commitTmpl             *template.Template
+	repo       *git.Repository
+	path       string
+	commitTmpl *template.Template
 }
 
 // OpenMonorepo returns the git repository of the monorepo
@@ -51,21 +55,21 @@ func OpenMonorepo(github *GitHub, organization, name, path string) (*Monorepo, e
 
 	return &Monorepo{
 		Project:          project,
+		IntegrationsPath: integrationsFolder,
 		repo:             repo,
 		path:             path,
-		integrationsPath: integrationsFolder,
 		commitTmpl:       tmpl,
 	}, nil
 }
 
-// AddIntegration adds the integration files into the monorepo as a folder, and commits
+// AddIntegrationRepo adds the integration files into the monorepo as a folder, and commits
 // the results. It returns the new commit's link.
-func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
+func (m *Monorepo) AddIntegrationRepo(integration IntegrationRepo) (string, error) {
 	Debug("Adding %s to the monorepo", integration.Name)
 
 	// Copy files into /integrations/<integration>
 	src := path.Join(integration.Repo.Path(), "..")
-	dst := path.Join(m.repo.Path(), "..", integrationsFolder, integration.Name)
+	dst := path.Join(m.repo.Path(), "..", m.IntegrationsPath, integration.Name)
 
 	exists, err := fileExists(dst)
 	if err != nil {
@@ -80,7 +84,11 @@ func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
 		return "", err
 	}
 
-	oid, err := commitFiles(m.repo, []string{m.integrationsPath}, m.commitMessage(integration))
+	if err := m.updatePackageURLs(integration.Name, dst); err != nil {
+		return "", err
+	}
+
+	oid, err := commitFiles(m.repo, []string{m.IntegrationsPath}, m.commitMigrationMessage(integration))
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +96,7 @@ func (m *Monorepo) AddIntegration(integration Integration) (string, error) {
 	return monorepoURL + "/commit/" + oid.String(), nil
 }
 
-func (m *Monorepo) commitMessage(integration Integration) string {
+func (m *Monorepo) commitMigrationMessage(integration IntegrationRepo) string {
 	info := struct {
 		Name, URL, Readme string
 	}{
@@ -98,4 +106,81 @@ func (m *Monorepo) commitMessage(integration Integration) string {
 	}
 
 	return executeTemplate(m.commitTmpl, info)
+}
+
+// ListUpdatedIntegrationsSinceCommit compare the current state of the integration with a commit (oid or ref)
+// and return the integrations that have change.
+func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitID string) (map[string]*Integration, error) {
+
+	diffRegexp := regexp.MustCompilePOSIX(fmt.Sprintf(`^%s/([a-z_-]+)/.*$`, m.IntegrationsPath))
+
+	integrations, err := m.OpenAllIntegrations()
+	if err != nil {
+		return nil, err
+	}
+
+	commit, err := resolveCommit(commitID, m.repo)
+	if err != nil {
+		LogError(err, "Can not get commit for %s", commitID)
+		return nil, err
+	}
+
+	treeToCompare, err := commit.Tree()
+	if err != nil {
+		LogError(err, "Can not retrieve tree for commit %s", commitID)
+		return nil, err
+	}
+
+	options := &git.DiffOptions{}
+
+	diff, err := m.repo.DiffTreeToWorkdirWithIndex(treeToCompare, options)
+	if err != nil {
+		LogError(err, "Error getting diff")
+		return nil, err
+	}
+
+	updatedIntegrations := make(map[string]*Integration)
+
+	p := func(delta git.DiffDelta, _ float64) (git.DiffForEachHunkCallback, error) {
+		for _, file := range []string{delta.NewFile.Path, delta.OldFile.Path} {
+			unixFile := filepath.ToSlash(file)
+			matches := diffRegexp.FindAllStringSubmatch(unixFile, -1)
+			if len(matches) > 0 && len(matches[0]) == 2 {
+				name := matches[0][1]
+				if i, found := integrations[name]; found {
+					updatedIntegrations[name] = i
+				}
+			}
+		}
+		return doNothingForEachHunk, nil
+	}
+
+	if err := diff.ForEach(p, git.DiffDetailFiles); err != nil {
+		LogError(err, "Error getting diff for files")
+		return nil, err
+	}
+
+	return updatedIntegrations, nil
+}
+
+// updatePackageURLs change the repo, homepage and bugs urls for a migrated
+// integration
+func (m *Monorepo) updatePackageURLs(integrationName, folder string) error {
+
+	file := path.Join(folder, "package.json")
+
+	pack, err := DecodePackage(file)
+	if err != nil {
+		return err
+	}
+
+	pack.Repository.URL = fmt.Sprintf("git+%s.git", m.Project.URL)
+	pack.Bugs.URL = fmt.Sprintf("%s/issues", m.Project.URL)
+	pack.Homepage = fmt.Sprintf("%s/blob/master/integrations/%s#readme", m.Project.URL, integrationName)
+
+	return EncodePackage(pack, file)
+}
+
+func (m *Monorepo) getIntegrationsFolder() string {
+	return path.Join(m.repo.Path(), "..", m.IntegrationsPath)
 }

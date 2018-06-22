@@ -175,3 +175,35 @@ func getSignature(repo *git.Repository) (*git.Signature, error) {
 		When:  time.Now(),
 	}, nil
 }
+
+func doNothingForEachLine(line git.DiffLine) error {
+	return nil
+}
+
+func doNothingForEachHunk(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+	return doNothingForEachLine, nil
+}
+
+// resolveCommit returns the commit from the commit's OID or reference
+func resolveCommit(id string, repo *git.Repository) (*git.Commit, error) {
+
+	var oid *git.Oid
+	var err error
+
+	// OID
+	oid, err = git.NewOid(id)
+	if err != nil {
+		// Ref
+		var ref *git.Reference
+		ref, err = repo.References.Lookup(id)
+		if err != nil {
+			LogError(err, "Can not resolve %s", id)
+			return nil, err
+		}
+
+		oid = ref.Target()
+	}
+
+	return repo.LookupCommit(oid)
+
+}

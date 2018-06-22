@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/segment-integrations/analytics.js-integration-kenshoo-infinity.git"
+    "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/segment-integrations/analytics.js-integration-kenshoo-infinity/issues"
+    "url": "https://github.com/segmentio/analytics.js-integrations/issues"
   },
-  "homepage": "https://github.com/segment-integrations/analytics.js-integration-kenshoo-infinity#readme",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/kenshoo-infinity#readme",
   "dependencies": {
     "@ndhoule/each": "^2.0.1",
     "@ndhoule/extend": "^2.0.0",
