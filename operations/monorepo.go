@@ -84,6 +84,10 @@ func (m *Monorepo) AddIntegrationRepo(integration IntegrationRepo) (string, erro
 		return "", err
 	}
 
+	if err := m.updatePackageURLs(integration.Name, dst); err != nil {
+		return "", err
+	}
+
 	oid, err := commitFiles(m.repo, []string{m.IntegrationsPath}, m.commitMigrationMessage(integration))
 	if err != nil {
 		return "", err
@@ -154,4 +158,22 @@ func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]str
 	}
 
 	return res, nil
+}
+
+// updatePackageURLs change the repo, homepage and bugs urls for a migrated
+// integration
+func (m *Monorepo) updatePackageURLs(integrationName, folder string) error {
+
+	file := path.Join(folder, "package.json")
+
+	pack, err := DecodePackage(file)
+	if err != nil {
+		return err
+	}
+
+	pack.Repository.URL = fmt.Sprintf("git+%s.git", m.Project.URL)
+	pack.Bugs.URL = fmt.Sprintf("%s/issues", m.Project.URL)
+	pack.Homepage = fmt.Sprintf("%s/blob/master/integrations/%s#readme", m.Project.URL, integrationName)
+
+	return EncodePackage(pack, file)
 }
