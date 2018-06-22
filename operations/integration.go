@@ -52,7 +52,7 @@ type Scripts map[string]string
 
 // OpenIntegration retuns a reference to the integration stored in the monorepo.
 func (m *Monorepo) OpenIntegration(name string) (*Integration, error) {
-	folder := path.Join(m.repo.Path(), "..", m.IntegrationsPath, name)
+	folder := path.Join(m.getIntegrationsFolder(), name)
 	packageJSON := path.Join(folder, "package.json")
 
 	folderExists, err := fileExists(folder)
@@ -82,6 +82,30 @@ func (m *Monorepo) OpenIntegration(name string) (*Integration, error) {
 		Package:  p,
 		monorepo: m,
 	}, nil
+}
+
+// OpenAllIntegrations scans the integration folder
+func (m *Monorepo) OpenAllIntegrations() (map[string]*Integration, error) {
+
+	entries, err := ioutil.ReadDir(m.getIntegrationsFolder())
+	if err != nil {
+		LogError(err, "Error reading directory")
+		return nil, err
+	}
+
+	integrations := make(map[string]*Integration)
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			integration, err := m.OpenIntegration(entry.Name())
+			if err == nil {
+				// Is not an integration
+				integrations[integration.Name] = integration
+			}
+		}
+	}
+
+	return integrations, nil
 }
 
 // DecodePackage parses package.json into the struct

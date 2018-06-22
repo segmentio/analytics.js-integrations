@@ -43,7 +43,7 @@ func main() {
 
 	operations.Log("Integrations updated since commit %s: ", commit)
 	for _, integration := range integrations {
-		operations.Log(integration)
+		operations.Log("%s: %s", integration.Name, integration.Package.Version)
 	}
 
 }

@@ -110,9 +110,14 @@ func (m *Monorepo) commitMigrationMessage(integration IntegrationRepo) string {
 
 // ListUpdatedIntegrationsSinceCommit compare the current state of the integration with a commit
 // and return the names of the integrations that have change.
-func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]string, error) {
+func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) (map[string]*Integration, error) {
 
 	diffRegexp := regexp.MustCompilePOSIX(fmt.Sprintf(`^%s/([a-z_-]+)/.*$`, m.IntegrationsPath))
+
+	integrations, err := m.OpenAllIntegrations()
+	if err != nil {
+		return nil, err
+	}
 
 	commit, err := m.repo.LookupCommit(commitSha)
 	if err != nil {
@@ -134,14 +139,17 @@ func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]str
 		return nil, err
 	}
 
-	integrations := make(map[string]bool)
+	updatedIntegrations := make(map[string]*Integration)
 
 	p := func(delta git.DiffDelta, _ float64) (git.DiffForEachHunkCallback, error) {
 		for _, file := range []string{delta.NewFile.Path, delta.OldFile.Path} {
 			unixFile := filepath.ToSlash(file)
 			matches := diffRegexp.FindAllStringSubmatch(unixFile, -1)
 			if len(matches) > 0 && len(matches[0]) == 2 {
-				integrations[matches[0][1]] = true
+				name := matches[0][1]
+				if i, found := integrations[name]; found {
+					updatedIntegrations[name] = i
+				}
 			}
 		}
 		return doNothingForEachHunk, nil
@@ -152,12 +160,7 @@ func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) ([]str
 		return nil, err
 	}
 
-	res := make([]string, 0, len(integrations))
-	for integration := range integrations {
-		res = append(res, integration)
-	}
-
-	return res, nil
+	return updatedIntegrations, nil
 }
 
 // updatePackageURLs change the repo, homepage and bugs urls for a migrated
@@ -176,4 +179,8 @@ func (m *Monorepo) updatePackageURLs(integrationName, folder string) error {
 	pack.Homepage = fmt.Sprintf("%s/blob/master/integrations/%s#readme", m.Project.URL, integrationName)
 
 	return EncodePackage(pack, file)
+}
+
+func (m *Monorepo) getIntegrationsFolder() string {
+	return path.Join(m.repo.Path(), "..", m.IntegrationsPath)
 }
