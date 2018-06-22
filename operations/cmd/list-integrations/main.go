@@ -8,11 +8,15 @@ import (
 )
 
 var mods string
+var monorepoPath string
+var repos bool
 
 const organization = "segment-integrations"
 
 func init() {
 	flag.BoolVar(&operations.Verbose, "verbose", false, "prints more stuff")
+	flag.BoolVar(&repos, "repositories", false, "retrieves integration repositories")
+	flag.StringVar(&monorepoPath, "monorepoPath", "..", "Local path where the monrepo is")
 	flag.StringVar(&mods, "searchMods", "", "extra search parameters, like archived:no or is:private")
 }
 
@@ -21,8 +25,17 @@ func main() {
 	operations.GetAuthToken()
 
 	flag.Parse()
-
 	github := operations.NewGitHubClient()
+
+	if repos {
+		listProjects(github)
+	} else {
+		listIntegrations(github)
+	}
+
+}
+
+func listProjects(github *operations.GitHub) {
 
 	projects, err := github.ListProjects(organization, "analytics.js-integration-", mods)
 	if err != nil {
@@ -73,6 +86,29 @@ func main() {
 	operations.Log("Open Pull Requests: %d", openPullRequests)
 	operations.Log("Open Issues: %d", openIssues)
 	operations.Log("Integrations with forks: %d", projectsWithForks)
+	operations.Log("---------")
+
+}
+
+func listIntegrations(github *operations.GitHub) {
+
+	monorepo, err := operations.OpenMonorepo(github, "segmentio", "analytics.js-integrations", monorepoPath)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	integrations, err := monorepo.OpenAllIntegrations()
+
+	for _, integration := range integrations {
+		operations.Log("Integration %s", integration.Name)
+		operations.Debug(" - Version: %s", integration.Package.Version)
+		operations.Debug(" - Dependencies: %d", len(integration.Package.Dependencies))
+		operations.Debug(" - Path: %s", integration.Path)
+
+	}
+
+	operations.Log("---------")
+	operations.Log("Total integrations: %d", len(integrations))
 	operations.Log("---------")
 
 }

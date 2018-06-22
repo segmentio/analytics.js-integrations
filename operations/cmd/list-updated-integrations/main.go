@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/segmentio/analytics.js-integrations/operations"
-	"gopkg.in/libgit2/git2go.v27"
 )
 
 var commit string
@@ -14,7 +13,7 @@ var monorepoPath string
 func init() {
 	flag.BoolVar(&operations.Verbose, "verbose", false, "prints more stuff")
 	flag.StringVar(&monorepoPath, "monorepoPath", "..", "Local path where the monrepo is")
-	flag.StringVar(&commit, "commit", "e4d3f47fac92fc618b3af85d559b24793cce4861", "Commit to compare")
+	flag.StringVar(&commit, "commit", "refs/heads/master", "Commit (or reference) to compare")
 }
 
 func main() {
@@ -30,13 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	oid, err := git.NewOid(commit)
-	if err != nil {
-		operations.LogError(err, "Error looking up commit")
-		os.Exit(1)
-	}
-
-	integrations, err := monorepo.ListUpdatedIntegrationsSinceCommit(oid)
+	integrations, err := monorepo.ListUpdatedIntegrationsSinceCommit(commit)
 	if err != nil {
 		os.Exit(1)
 	}

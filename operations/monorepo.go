@@ -108,9 +108,9 @@ func (m *Monorepo) commitMigrationMessage(integration IntegrationRepo) string {
 	return executeTemplate(m.commitTmpl, info)
 }
 
-// ListUpdatedIntegrationsSinceCommit compare the current state of the integration with a commit
-// and return the names of the integrations that have change.
-func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) (map[string]*Integration, error) {
+// ListUpdatedIntegrationsSinceCommit compare the current state of the integration with a commit (oid or ref)
+// and return the integrations that have change.
+func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitID string) (map[string]*Integration, error) {
 
 	diffRegexp := regexp.MustCompilePOSIX(fmt.Sprintf(`^%s/([a-z_-]+)/.*$`, m.IntegrationsPath))
 
@@ -119,15 +119,15 @@ func (m *Monorepo) ListUpdatedIntegrationsSinceCommit(commitSha *git.Oid) (map[s
 		return nil, err
 	}
 
-	commit, err := m.repo.LookupCommit(commitSha)
+	commit, err := resolveCommit(commitID, m.repo)
 	if err != nil {
-		LogError(err, "Can not get commit for %s", commitSha.String())
+		LogError(err, "Can not get commit for %s", commitID)
 		return nil, err
 	}
 
 	treeToCompare, err := commit.Tree()
 	if err != nil {
-		LogError(err, "Can not retrieve tree for commit %s", commitSha.String())
+		LogError(err, "Can not retrieve tree for commit %s", commitID)
 		return nil, err
 	}
 
