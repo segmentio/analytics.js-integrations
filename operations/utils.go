@@ -15,12 +15,6 @@ const authvar = "GITHUB_TOKEN"
 // Verbose prints some extra info
 var Verbose = false
 
-var ignorePaths = map[string]bool{
-	".git":            true,
-	"CONTRIBUTING.md": true,
-	"LICENSE":         true,
-}
-
 // Log prints the message to stderr
 func Log(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
@@ -41,7 +35,7 @@ func Debug(format string, args ...interface{}) {
 
 // copyFiles copies all the files/directories into
 // the destination folder.
-func copyFiles(src, dst string) error {
+func copyFiles(src, dst string, ignorePaths map[string]bool) error {
 	Debug("Copying %s into %s", src, dst)
 
 	if err := makeDir(dst); err != nil {

@@ -22,6 +22,16 @@ Original repo: {{ .URL }}
 Readme: {{ .Readme }}
 `
 
+var ignorePaths = map[string]bool{
+	".circleci":       true,
+	"circle.yml":      true,
+	".git":            true,
+	".gitignore":      true,
+	"CONTRIBUTING.md": true,
+	"LICENSE":         true,
+	"Makefile":        true,
+}
+
 // Monorepo
 type Monorepo struct {
 	Project
@@ -80,7 +90,7 @@ func (m *Monorepo) AddIntegrationRepo(integration IntegrationRepo) (string, erro
 		return "monorepoURL", nil
 	}
 
-	if err := copyFiles(src, dst); err != nil {
+	if err := copyFiles(src, dst, ignorePaths); err != nil {
 		return "", err
 	}
 
