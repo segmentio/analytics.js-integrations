@@ -58,15 +58,23 @@ fmt: install
 
 # Run browser unit tests in a browser.
 test: test-updated
-test-updated: lint install
+test-updated: install
 	export INTEGRATIONS="$(shell bin/list-updated-integrations)"
 	$(KARMA) start $(KARMA_FLAGS) $(KARMA_CONF) --single-run;
 
-test-all: lint install
+test-all: install
 	@echo WARNING: Testing all integrations. Sit down and relax
 	$(KARMA) start $(KARMA_FLAGS) $(KARMA_CONF) --single-run;
 
 .PHONY: test test-updated test-all
+
+# Publish updated integrations
+publish:
+	@for integration in $(shell bin/list-new-releases); do \
+		npm publish integrations/$$integration; \
+	done
+
+.PHONY: publish
 
 # Operations
 build-operations: $(BINS)

@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path"
 	"text/template"
+
+	"github.com/blang/semver"
 )
 
 const authvar = "GITHUB_TOKEN"
@@ -128,4 +130,23 @@ func writeFileWithTemplate(filename string, tmpl *template.Template, data interf
 	}
 
 	return nil
+}
+
+// CompareSemanticVersion returns -1, 0 or 1 if the version is older, the
+// same or newer than the other.
+// See https://godoc.org/github.com/blang/semver#Version.Compare
+func CompareSemanticVersion(version, other string) (int, error) {
+	v, err := semver.Parse(version)
+	if err != nil {
+		LogError(err, "Error parsing %s", version)
+		return 0, err
+	}
+
+	o, err := semver.Parse(other)
+	if err != nil {
+		LogError(err, "Error parsing %s", other)
+		return 0, err
+	}
+
+	return v.Compare(o), nil
 }

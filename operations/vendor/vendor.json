@@ -15,6 +15,12 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "f423Rwr9K0TMRFwPgJgjojAmZd8=",
+			"path": "github.com/blang/semver",
+			"revision": "c5e971dbed7850a93c23aa6ff69db5771d8e23b3",
+			"revisionTime": "2018-03-05T13:03:54Z"
+		},
+		{
 			"checksumSHA1": "8e94vVGc8ssfxcpgDSGLmp1hRJM=",
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "64db29d85ff91ba669cfaf009d5f400a4da8a55f",
