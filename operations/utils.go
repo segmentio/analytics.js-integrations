@@ -15,6 +15,11 @@ const authvar = "GITHUB_TOKEN"
 // Verbose prints some extra info
 var Verbose = false
 
+// Output prints the message to stdout
+func Output(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stdout, format+"\n", args...)
+}
+
 // Log prints the message to stderr
 func Log(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)

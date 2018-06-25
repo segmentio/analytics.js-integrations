@@ -17,7 +17,7 @@ var tmpPath string
 func init() {
 	flag.BoolVar(&operations.Verbose, "verbose", false, "prints more stuff")
 	flag.StringVar(&integrationName, "integration", "", "integration name")
-	flag.StringVar(&monorepoPath, "monorepoPath", "..", "Local path where the monrepo is")
+	flag.StringVar(&monorepoPath, "monorepoPath", ".", "Local path where the monrepo is")
 	flag.StringVar(&tmpPath, "tmpPath", "/tmp/integrations", "path where the integration code is going to be stored")
 }
 
@@ -38,8 +38,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	monorepo, err := operations.OpenMonorepo(github, "segmentio", "analytics.js-integrations", monorepoPath)
+	monorepo, err := operations.OpenMonorepo(monorepoPath)
 	if err != nil {
+		os.Exit(1)
+	}
+
+	if err := monorepo.ConnectToGitHub(github, "segmentio", "analytics.js-integrations"); err != nil {
 		os.Exit(1)
 	}
 
