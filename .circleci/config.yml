@@ -1,0 +1,69 @@
+version: 2
+jobs:
+  setup:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - run:
+          name: Checkout code
+          command: checkout
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Authenticate npm
+          command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
+      - run:
+          name: Install
+          command: make install
+      - save_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - persist_to_workspace:
+          root: .
+          paths: [.]
+
+  test:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run tests
+          command: make test
+      - store_artifacts:
+          path: coverage
+      - run:
+          name: Run coverage
+          command: make coverage
+
+  publish:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Publish updated packages
+          command: make publish
+      
+workflows:
+  version: 2
+  test_and_publish:
+    jobs:
+      - setup
+      - test:
+          requires:
+            - setup
+          filters:
+            tags:
+              ignore: /.*/
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

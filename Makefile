@@ -1,5 +1,6 @@
 ESLINT := node_modules/.bin/eslint
 KARMA := node_modules/.bin/karma
+CODECOV := node_modules/.bin/codecov
 OPERATIONS := $(wildcard operations/cmd/*)
 BINS := $(addprefix bin/,$(notdir $(OPERATIONS)))
 
@@ -27,6 +28,10 @@ else
 KARMA_CONF ?= karma.conf.js
 endif
 
+ifndef CI
+	OPERATIONS_PREFIX := bin/
+endif
+
 # Mocha flags.
 GREP ?= .
 
@@ -43,6 +48,10 @@ clean:
 	rm -rf *.log coverage
 	rm -f bin/*
 .PHONY: clean
+
+coverage:
+	$(CODECOV)
+.PHONY: coverage
 
 # Remove temporary files, build artifacts, and vendor dependencies.
 distclean: clean
@@ -62,18 +71,24 @@ fmt: install
 # Run browser unit tests in a browser.
 test: test-updated
 test-updated: install
-	export INTEGRATIONS="$(shell list-updated-integrations)"
+
+# If we are in master, compare with the previous commit instead
+ifeq ($(shell git rev-parse --abbrev-ref HEAD),master)
+	$(eval export INTEGRATIONS := $(shell $(OPERATIONS_PREFIX)list-updated-integrations --commit=$(shell git rev-parse --verify HEAD~)))
+else
+	$(eval export INTEGRATIONS := $(shell $(OPERATIONS_PREFIX)list-updated-integrations))
+endif
+
 	$(KARMA) start $(KARMA_FLAGS) $(KARMA_CONF) --single-run;
 
 test-all: install
-	@echo WARNING: Testing all integrations. Sit down and relax
 	$(KARMA) start $(KARMA_FLAGS) $(KARMA_CONF) --single-run;
 
 .PHONY: test test-updated test-all
 
 # Publish updated integrations
 publish:
-	@for integration in $(shell list-new-releases); do \
+	@for integration in $(shell $(OPERATIONS_PREFIX)list-new-releases); do \
 		npm publish integrations/$$integration; \
 	done
 
@@ -86,7 +101,7 @@ bin/%: operations/cmd/%/main.go
 	govendor build -o $@ $<
 	
 docker-operations: build-operations
-	docker build -f operations/Dockerfile -t 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics-js.integrations-ci .
-	docker push 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+	docker build -f operations/ci/Dockerfile -t 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci .
+	docker push 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ciz
 
 .PHONY: docker-operations build-operations

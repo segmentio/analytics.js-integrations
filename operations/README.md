@@ -51,7 +51,7 @@ Options:
 
 ## libgit2
 
-Install libgit2 v27 following [this script](install-libgit2.sh). This is also required
+Install libgit2 v27 following [this script](ci/install-libgit2). This is also required
 for the CI docker image.
 **IMPORTANT:** The following extensions need to be present for libgit2:
 - `openssl`

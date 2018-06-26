@@ -28,6 +28,13 @@ function getPreprocessors() {
 
 
 module.exports = function(config) {
+
+  if (integrations === "") {
+    console.log("Testing all integrations")
+  } else {
+    console.log(`Integrations to test: %s`, integrations)
+  }
+
   config.set({
     files: getFiles(),
 

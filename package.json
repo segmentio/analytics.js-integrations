@@ -8,5 +8,8 @@
   "private": true,
   "workspaces": [
     "integrations/*"
-  ]
+  ],
+  "devDependencies": {
+    "codecov": "^3.0.2"
+  }
 }
