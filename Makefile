@@ -3,6 +3,8 @@ KARMA := node_modules/.bin/karma
 OPERATIONS := $(wildcard operations/cmd/*)
 BINS := $(addprefix bin/,$(notdir $(OPERATIONS)))
 
+export PATH := bin:$(PATH)
+
 ##
 # Program options/flags
 ##
@@ -20,6 +22,7 @@ endif
 
 ifdef CI
 KARMA_CONF ?= karma.conf.ci.js
+
 else
 KARMA_CONF ?= karma.conf.js
 endif
@@ -59,7 +62,7 @@ fmt: install
 # Run browser unit tests in a browser.
 test: test-updated
 test-updated: install
-	export INTEGRATIONS="$(shell bin/list-updated-integrations)"
+	export INTEGRATIONS="$(shell list-updated-integrations)"
 	$(KARMA) start $(KARMA_FLAGS) $(KARMA_CONF) --single-run;
 
 test-all: install
@@ -70,7 +73,7 @@ test-all: install
 
 # Publish updated integrations
 publish:
-	@for integration in $(shell bin/list-new-releases); do \
+	@for integration in $(shell list-new-releases); do \
 		npm publish integrations/$$integration; \
 	done
 
@@ -82,4 +85,8 @@ build-operations: $(BINS)
 bin/%: operations/cmd/%/main.go
 	govendor build -o $@ $<
 	
-.PHONY: build-operations
+docker-operations: build-operations
+	docker build -f operations/Dockerfile -t 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics-js.integrations-ci .
+	docker push 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+
+.PHONY: docker-operations build-operations

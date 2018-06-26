@@ -48,3 +48,11 @@ Options:
 - `--integration=<name>`
 - `--monorepoPath=<string>`: Local path where the monorepo lives. Default to `.`.
 - `--tmpPath=<string>`: Temporal folder. Default to `/tmp/integrations`.
+
+## libgit2
+
+Install libgit2 v27 following [this script](install-libgit2.sh). This is also required
+for the CI docker image.
+**IMPORTANT:** The following extensions need to be present for libgit2:
+- `openssl`
+- `libhttp-parser-dev`
