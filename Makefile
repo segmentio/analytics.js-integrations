@@ -88,9 +88,19 @@ test-all: install
 
 # Publish updated integrations
 publish:
-	@for integration in $(shell $(OPERATIONS_PREFIX)list-new-releases); do \
+ifneq ($(shell git rev-parse --abbrev-ref HEAD),master)
+	$(error Publish is just allowed from master)
+endif
+
+	$(eval export INTEGRATIONS := $(shell $(OPERATIONS_PREFIX)list-new-releases))
+ifneq ($(INTEGRATIONS),)
+	@echo Publishing $(INTEGRATIONS)
+	@for integration in $(INTEGRATIONS); do \
 		npm publish integrations/$$integration; \
 	done
+else
+	@echo Nothing to publish
+endif
 
 .PHONY: publish
 
