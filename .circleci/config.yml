@@ -47,6 +47,9 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Authenticate npm
+          command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
+      - run:
           name: Publish updated packages
           command: make publish
       

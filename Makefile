@@ -93,7 +93,7 @@ ifneq ($(shell git rev-parse --abbrev-ref HEAD),master)
 endif
 
 	$(eval export INTEGRATIONS := $(shell $(OPERATIONS_PREFIX)list-new-releases))
-ifneq ($(INTEGRATIONS),)
+ifneq ($(INTEGRATIONS),"")
 	@echo Publishing $(INTEGRATIONS)
 	@for integration in $(INTEGRATIONS); do \
 		npm publish integrations/$$integration; \
