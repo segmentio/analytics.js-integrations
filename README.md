@@ -6,3 +6,9 @@
 ## License
 
 Released under the [MIT license](LICENSE).
+
+
+## Pull Requests and releases
+
+Make sure your PR includes the new version in `package.json`. When the PR gets
+merged, it will automatically be published.
