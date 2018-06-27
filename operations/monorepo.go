@@ -22,6 +22,17 @@ Original repo: {{ .URL }}
 Readme: {{ .Readme }}
 `
 
+var ignorePaths = map[string]bool{
+	".circleci":       true,
+	".eslintrc":       true,
+	".git":            true,
+	".gitignore":      true,
+	"circle.yml":      true,
+	"CONTRIBUTING.md": true,
+	"LICENSE":         true,
+	"Makefile":        true,
+}
+
 // Monorepo
 type Monorepo struct {
 	Project
@@ -33,13 +44,8 @@ type Monorepo struct {
 }
 
 // OpenMonorepo returns the git repository of the monorepo
-func OpenMonorepo(github *GitHub, organization, name, path string) (*Monorepo, error) {
+func OpenMonorepo(path string) (*Monorepo, error) {
 	Debug("Opening monorepo from %s", path)
-
-	project, err := github.GetProject(organization, name)
-	if err != nil {
-		return nil, err
-	}
 
 	repo, err := git.OpenRepository(path)
 	if err != nil {
@@ -47,19 +53,30 @@ func OpenMonorepo(github *GitHub, organization, name, path string) (*Monorepo, e
 		return nil, err
 	}
 
-	tmpl, err := template.New("monorepo-commit").Parse(commitTemplate)
-	if err != nil {
-		LogError(err, "Error parsing template")
-		return nil, err
-	}
-
 	return &Monorepo{
-		Project:          project,
 		IntegrationsPath: integrationsFolder,
 		repo:             repo,
 		path:             path,
-		commitTmpl:       tmpl,
 	}, nil
+}
+
+// ConnectToGitHub updates the struct containing GitHub metadata. This was separated from
+// `OpenMonorepo` because in some ocasions we don't need all GitHub information.
+func (m *Monorepo) ConnectToGitHub(github *GitHub, organization, name string) error {
+	project, err := github.GetProject(organization, name)
+	if err != nil {
+		return err
+	}
+
+	tmpl, err := template.New("monorepo-commit").Parse(commitTemplate)
+	if err != nil {
+		LogError(err, "Error parsing template")
+		return err
+	}
+
+	m.Project = project
+	m.commitTmpl = tmpl
+	return nil
 }
 
 // AddIntegrationRepo adds the integration files into the monorepo as a folder, and commits
@@ -80,7 +97,7 @@ func (m *Monorepo) AddIntegrationRepo(integration IntegrationRepo) (string, erro
 		return "monorepoURL", nil
 	}
 
-	if err := copyFiles(src, dst); err != nil {
+	if err := copyFiles(src, dst, ignorePaths); err != nil {
 		return "", err
 	}
 

@@ -12,19 +12,15 @@ var monorepoPath string
 
 func init() {
 	flag.BoolVar(&operations.Verbose, "verbose", false, "prints more stuff")
-	flag.StringVar(&monorepoPath, "monorepoPath", "..", "Local path where the monrepo is")
+	flag.StringVar(&monorepoPath, "monorepoPath", ".", "Local path where the monrepo is")
 	flag.StringVar(&commit, "commit", "refs/heads/master", "Commit (or reference) to compare")
 }
 
 func main() {
 
-	operations.GetAuthToken()
-
 	flag.Parse()
 
-	github := operations.NewGitHubClient()
-
-	monorepo, err := operations.OpenMonorepo(github, "segmentio", "analytics.js-integrations", monorepoPath)
+	monorepo, err := operations.OpenMonorepo(monorepoPath)
 	if err != nil {
 		os.Exit(1)
 	}
@@ -34,9 +30,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	operations.Log("Integrations updated since commit %s: ", commit)
+	operations.Debug("Integrations updated since commit %s: ", commit)
 	for _, integration := range integrations {
-		operations.Log("%s: %s", integration.Name, integration.Package.Version)
+		operations.Output(integration.Name)
 	}
 
 }

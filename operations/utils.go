@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path"
 	"text/template"
+
+	"github.com/blang/semver"
 )
 
 const authvar = "GITHUB_TOKEN"
@@ -15,10 +17,9 @@ const authvar = "GITHUB_TOKEN"
 // Verbose prints some extra info
 var Verbose = false
 
-var ignorePaths = map[string]bool{
-	".git":            true,
-	"CONTRIBUTING.md": true,
-	"LICENSE":         true,
+// Output prints the message to stdout
+func Output(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stdout, format+"\n", args...)
 }
 
 // Log prints the message to stderr
@@ -41,7 +42,7 @@ func Debug(format string, args ...interface{}) {
 
 // copyFiles copies all the files/directories into
 // the destination folder.
-func copyFiles(src, dst string) error {
+func copyFiles(src, dst string, ignorePaths map[string]bool) error {
 	Debug("Copying %s into %s", src, dst)
 
 	if err := makeDir(dst); err != nil {
@@ -129,4 +130,23 @@ func writeFileWithTemplate(filename string, tmpl *template.Template, data interf
 	}
 
 	return nil
+}
+
+// CompareSemanticVersion returns -1, 0 or 1 if the version is older, the
+// same or newer than the other.
+// See https://godoc.org/github.com/blang/semver#Version.Compare
+func CompareSemanticVersion(version, other string) (int, error) {
+	v, err := semver.Parse(version)
+	if err != nil {
+		LogError(err, "Error parsing %s", version)
+		return 0, err
+	}
+
+	o, err := semver.Parse(other)
+	if err != nil {
+		LogError(err, "Error parsing %s", other)
+		return 0, err
+	}
+
+	return v.Compare(o), nil
 }

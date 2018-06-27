@@ -7,21 +7,30 @@ This folder contains useful scripts and commands to update integrations in bulk.
 - `GITHUB_USER`: For commits. Optional, if not present it will use the system configuration.
 - `GITHUB_EMAIL`: For commits. Optional, if not present it will use the system configuration.
 
-## list-integrationss
+To use `SegmentDestinationsBot`, get the credentials from:
+```bash
+$ aws-okta exec prod-privileged -- chamber read -q destinations github_bot_[token|email]
+```
+
+## list-repositories
+Lists all the integrations repositories.
+Options:
+- `--verbose`
+- `--searchMods=<string>`: GitHub search mods to query the repositories (`is:private`, `is:public`).
+
+## list-integrations
 
 Lists all the integrations.
 Options:
 - `--verbose`
-- `--repositories`: If present, it will return the integrations repositories (they are getting deprecated)
-- `--searchMods=<string>`: GitHub search mods to query the repositories (`is:private`, `is:public`).
-- `--monorepoPath=<string>`: Local path where the monorepo lives. Default to `..`.
+- `--monorepoPath=<string>`: Local path where the monorepo lives. Default to `.`.
 
 ## list-updated-integrations
 
 Lists all the updated integrations since the specified commit or `refs/heads/master`.
 Options:
 - `--verbose`
-- `--monorepoPath=<string>`: Local path where the monorepo lives. Default to `..`.
+- `--monorepoPath=<string>`: Local path where the monorepo lives. Default to `.`.
 - `--commit=<string>`: Commit or reference to compare with the current workspace. Default to `refs/heads/master`.
 
 ## migrate-integration
@@ -37,5 +46,13 @@ Migrates the integration repo into the monorepo:
 Options:
 - `--verbose`
 - `--integration=<name>`
-- `--monorepoPath=<string>`: Local path where the monorepo lives. Default to `..`.
+- `--monorepoPath=<string>`: Local path where the monorepo lives. Default to `.`.
 - `--tmpPath=<string>`: Temporal folder. Default to `/tmp/integrations`.
+
+## libgit2
+
+Install libgit2 v27 following [this script](ci/install-libgit2). This is also required
+for the CI docker image.
+**IMPORTANT:** The following extensions need to be present for libgit2:
+- `openssl`
+- `libhttp-parser-dev`
