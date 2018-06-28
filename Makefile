@@ -79,7 +79,13 @@ else
 	$(eval export INTEGRATIONS := $(shell $(OPERATIONS_PREFIX)list-updated-integrations))
 endif
 
+# For now, we won't allow to run all tests in CI
+ifneq ($(CI)$(INTEGRATIONS),true)
 	$(KARMA) start $(KARMA_FLAGS) $(KARMA_CONF) --single-run;
+else
+	@echo Nothing to test
+endif
+
 
 test-all: install
 	$(KARMA) start $(KARMA_FLAGS) $(KARMA_CONF) --single-run;
