@@ -1,6 +1,7 @@
 package operations
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path"
@@ -416,4 +417,34 @@ func (i *IntegrationRepo) updateIssueTemplate(monorepo Monorepo) error {
 	}
 
 	return writeFileWithTemplate(file, i.issueTmpl, info)
+}
+
+// Archive archives the repo and removes webhooks.
+func (i *IntegrationRepo) Archive(github *GitHub) error {
+	if i.IsArchived {
+		return nil
+	}
+
+	if !i.IsMigrated() {
+		err := errors.New("The integration has not been migrated. Migrate the integration and then archive the repository")
+		LogError(err, "Unable to archive %s", i.Name)
+		return err
+	}
+
+	if err := github.DeleteAllWebHooks(i.Project); err != nil {
+		return err
+	}
+
+	return github.ArchiveRepository(i.Project)
+}
+
+// MoveToBoneyard moves the repo to the boneyard organization only if it was archived and migrated.
+func (i *IntegrationRepo) MoveToBoneyard(github *GitHub, boneyard string) error {
+	if !i.IsMigrated() || !i.IsArchived {
+		err := errors.New("The integration has not been migrated or archived. Migrate and archive the integration and then try again")
+		LogError(err, "Unable to move %s", i.Name)
+		return err
+	}
+
+	return github.Transfer(i.Project, boneyard)
 }

@@ -567,3 +567,58 @@ func (g *GitHub) UpdateTopics(topics []string, project Project) error {
 
 	return nil
 }
+
+// DeleteAllWebHooks retrieves and deletes all webhooks for the project
+func (g *GitHub) DeleteAllWebHooks(project Project) error {
+	ops := github.ListOptions{PerPage: 50}
+	hooks, _, err := g.V3.Repositories.ListHooks(context.Background(), project.Organization, project.RepositoryName, &ops)
+	if err != nil {
+		LogError(err, "Error listing hooks")
+		return err
+	}
+
+	for _, hook := range hooks {
+		if _, err := g.V3.Repositories.DeleteHook(context.Background(), project.Organization, project.RepositoryName, *hook.ID); err != nil {
+			LogError(err, "Error removing hook %d", *hook.ID)
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ArchiveRepository patches the repo and archives it
+func (g *GitHub) ArchiveRepository(project Project) error {
+	if project.IsArchived {
+		return nil
+	}
+
+	repo := github.Repository{
+		Archived: github.Bool(true),
+	}
+
+	if _, _, err := g.V3.Repositories.Edit(context.Background(), project.Organization, project.RepositoryName, &repo); err != nil {
+		LogError(err, "Error archiving repository %s", project.RepositoryName)
+		return err
+	}
+
+	return nil
+}
+
+// Transfer moves the repository to another organization
+func (g *GitHub) Transfer(project Project, organization string) error {
+	if project.Organization == organization {
+		return nil
+	}
+
+	transfer := github.TransferRequest{
+		NewOwner: organization,
+	}
+
+	if _, _, err := g.V3.Repositories.Transfer(context.Background(), project.Organization, project.RepositoryName, transfer); err != nil {
+		LogError(err, "Error transfering repository %s", project.RepositoryName)
+		return err
+	}
+
+	return nil
+}
