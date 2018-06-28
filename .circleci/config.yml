@@ -23,9 +23,24 @@ jobs:
           root: .
           paths: [.]
 
-  test:
+  test_phantomjs:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+          BROWSERS: PhantomJS
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run tests
+          command: BROWSERS=PhantomJS make test
+
+  test_chrome:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+          BROWSERS: sl_chrome_latest,sl_chrome_latest_1
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -33,6 +48,66 @@ jobs:
       - run:
           name: Run tests
           command: make test
+
+  test_firefox:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+          BROWSERS: sl_firefox_latest,sl_firefox_latest_1
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run tests
+          command: make test
+
+  test_safari:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+          BROWSERS: sl_safari_9
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run tests
+          command: make test
+    
+  test_ie:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+          BROWSERS: sl_ie_9,sl_ie_10,sl_ie_11
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run tests
+          command: make test
+
+  test_edge:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+          BROWSERS: sl_edge_latest
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run tests
+          command: make test
+
+  coverage:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
       - store_artifacts:
           path: coverage
       - run:
@@ -58,7 +133,43 @@ workflows:
   test_and_publish:
     jobs:
       - setup
-      - test:
+      - test_phantomjs:
+          requires:
+            - setup
+          filters:
+            tags:
+              ignore: /.*/
+      - test_chrome:
+          requires:
+            - setup
+          filters:
+            tags:
+              ignore: /.*/
+      - test_firefox:
+          requires:
+            - setup
+          filters:
+            tags:
+              ignore: /.*/
+      - test_safari:
+          requires:
+            - setup
+          filters:
+            tags:
+              ignore: /.*/
+      - test_ie:
+          requires:
+            - setup
+          filters:
+            tags:
+              ignore: /.*/
+      - test_edge:
+          requires:
+            - setup
+          filters:
+            tags:
+              ignore: /.*/
+      - coverage:
           requires:
             - setup
           filters:
@@ -66,7 +177,13 @@ workflows:
               ignore: /.*/
       - publish:
           requires:
-            - test
+            - test_phantomjs
+            - test_chrome
+            - test_firefox
+            - test_safari
+            - test_ie
+            - test_edge
+            - coverage
           filters:
             branches:
               only: master
