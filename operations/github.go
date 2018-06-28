@@ -604,3 +604,21 @@ func (g *GitHub) ArchiveRepository(project Project) error {
 
 	return nil
 }
+
+// Transfer moves the repository to another organization
+func (g *GitHub) Transfer(project Project, organization string) error {
+	if project.Organization == organization {
+		return nil
+	}
+
+	transfer := github.TransferRequest{
+		NewOwner: organization,
+	}
+
+	if _, _, err := g.V3.Repositories.Transfer(context.Background(), project.Organization, project.RepositoryName, transfer); err != nil {
+		LogError(err, "Error transfering repository %s", project.RepositoryName)
+		return err
+	}
+
+	return nil
+}

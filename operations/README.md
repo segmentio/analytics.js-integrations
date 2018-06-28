@@ -60,6 +60,15 @@ Options:
 - `--integration=<name>`
 - `--tmpPath=<string>`: Temporal folder. Default to `/tmp/integrations`.
 
+## boneyard-integration-repository
+
+Moves the repository to the boneyard organization.
+
+Options:
+- `--verbose`
+- `--integration=<name>`
+- `--tmpPath=<string>`: Temporal folder. Default to `/tmp/integrations`.
+
 ## libgit2
 
 Install libgit2 v27 following [this script](ci/install-libgit2). This is also required

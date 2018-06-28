@@ -437,3 +437,14 @@ func (i *IntegrationRepo) Archive(github *GitHub) error {
 
 	return github.ArchiveRepository(i.Project)
 }
+
+// MoveToBoneyard moves the repo to the boneyard organization only if it was archived and migrated.
+func (i *IntegrationRepo) MoveToBoneyard(github *GitHub, boneyard string) error {
+	if !i.IsMigrated() || !i.IsArchived {
+		err := errors.New("The integration has not been migrated or archived. Migrate and archive the integration and then try again")
+		LogError(err, "Unable to move %s", i.Name)
+		return err
+	}
+
+	return github.Transfer(i.Project, boneyard)
+}
