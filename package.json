@@ -11,5 +11,14 @@
   ],
   "devDependencies": {
     "codecov": "^3.0.2"
+  },
+  "scripts": {
+    "clean": "rm -rf *.log coverage bin/* node_modules",
+    "coverage": "codecov",
+    "fmt": "eslint --fix integrations/**/lib/ integrations/**/test/",
+    "lint": "eslint integrations/**/lib/ integrations/**/test/",
+    "publish-integrations": "scripts/publish-integrations",
+    "test-all-integrations": "karma start karma.conf.js --single-run",
+    "test-integrations": "scripts/test-integrations"
   }
 }
