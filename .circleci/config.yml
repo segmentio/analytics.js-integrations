@@ -14,7 +14,7 @@ jobs:
           command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
       - run:
           name: Install
-          command: make install
+          command: yarn install
       - save_cache:
           key: deps-{{ checksum "yarn.lock" }}
           paths:
@@ -23,7 +23,7 @@ jobs:
           root: .
           paths: [.]
 
-  test:
+  conventions:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
     steps:
@@ -31,13 +31,49 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Run tests
-          command: make test
+          name: Authenticate npm
+          command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
+      - run:
+          name: Linter
+          command: yarn lint
       - store_artifacts:
           path: coverage
       - run:
-          name: Run coverage
-          command: make coverage
+          name: Coverage
+          command: yarn coverage
+  test_phantomjs:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Test updated integrations in PhantomJS
+          command: yarn test-integrations --browsers PhantomJS
+  # TODO: Currently we just have 2 concurrent sessions in SauceLabs, but each step should 
+  # test one browser type.
+  test_chrome_firefox_safari:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Test updated integrations in Chrome, Firefox and Safari
+          command: yarn test-integrations --browsers sl_safari_9,sl_chrome_latest,sl_chrome_latest_1,sl_firefox_latest,sl_firefox_latest_1
+  test_ie_edge:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Test updated integrations in IE and Egde
+          command: yarn test-integrations --browsers sl_ie_9,sl_ie_10,sl_ie_11,sl_edge_latest
 
   publish:
     docker:
@@ -51,22 +87,30 @@ jobs:
           command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
       - run:
           name: Publish updated packages
-          command: make publish
+          command: yarn publish-integrations
       
 workflows:
   version: 2
   test_and_publish:
     jobs:
       - setup
-      - test:
+      - conventions:
           requires:
             - setup
-          filters:
-            tags:
-              ignore: /.*/
+      - test_phantomjs:
+          requires:
+            - conventions
+      - test_chrome_firefox_safari:
+          requires:
+            - conventions
+      - test_ie_edge:
+          requires:
+            - conventions
       - publish:
           requires:
-            - test
+            - test_phantomjs
+            - test_chrome_firefox_safari
+            - test_ie_edge
           filters:
             branches:
               only: master

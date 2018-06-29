@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Usage: test-integrations [<browser-type> [...]]
+
+set -e
+
+export PATH="bin/:$PATH";
+if [ "$CI" == "true" ]; then {
+    KARMA_FILE=karma.conf.ci.js;
+} else {
+    KARMA_FILE=karma.conf.js;
+} fi;
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD);
+if [ "$BRANCH" == "master" ]; then {
+    PREVIOUS_COMMIT=$(git rev-parse --verify HEAD~);
+    INTEGRATIONS=($(list-updated-integrations --commit=$PREVIOUS_COMMIT));
+} else {
+    # refs/heads/master
+    INTEGRATIONS=($(list-updated-integrations));
+} fi;
+
+if [ ${#INTEGRATIONS[@]} -eq 0 ]; then {
+    echo Nothing to test;
+    exit 0;
+} fi;
+
+env INTEGRATIONS="${INTEGRATIONS[@]}" karma start $@ $KARMA_FILE --single-run;

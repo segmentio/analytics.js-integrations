@@ -20,7 +20,7 @@ function getPreprocessors() {
   } else {
     let preprocessors = {};
     integrations.split(" ").forEach(function(integration) {
-      preprocessors['integrations/' + integration + '/test/**/*.test.js'] = 'browserify';  
+      preprocessors['integrations/' + integration + '/test/**/*.js'] = 'browserify';  
     });
     return preprocessors;
   }
