@@ -12,8 +12,6 @@ import (
 	"github.com/blang/semver"
 )
 
-const authvar = "GITHUB_TOKEN"
-
 // Verbose prints some extra info
 var Verbose = false
 
@@ -97,17 +95,6 @@ func executeTemplate(tmpl *template.Template, data interface{}) string {
 	}
 
 	return buffer.String()
-}
-
-// GetAuthToken returns the authentication token if found, if not, it exist the
-// app.
-func GetAuthToken() string {
-	token := os.Getenv(authvar)
-	if token == "" {
-		Log("Please export $%s with a personal token and try again. Exiting", authvar)
-		os.Exit(1)
-	}
-	return token
 }
 
 func fileExists(file string) (bool, error) {

@@ -23,24 +23,6 @@ jobs:
           root: .
           paths: [.]
 
-  conventions:
-    docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-    steps:
-      - attach_workspace: { at: . }
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Authenticate npm
-          command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
-      - run:
-          name: Linter
-          command: yarn lint
-      - store_artifacts:
-          path: coverage
-      - run:
-          name: Coverage
-          command: yarn coverage
   test_phantomjs:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
@@ -49,8 +31,17 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Linter
+          command: yarn lint
+      - run:
           name: Test updated integrations in PhantomJS
           command: yarn test-integrations --browsers PhantomJS
+      - store_artifacts:
+          path: coverage
+      - run:
+          name: Coverage
+          command: yarn coverage
+
   # TODO: Currently we just have 2 concurrent sessions in SauceLabs, but each step should 
   # test one browser type.
   test_chrome_firefox_safari:
@@ -94,18 +85,15 @@ workflows:
   test_and_publish:
     jobs:
       - setup
-      - conventions:
-          requires:
-            - setup
       - test_phantomjs:
           requires:
-            - conventions
+            - setup
       - test_chrome_firefox_safari:
           requires:
-            - conventions
+            - setup
       - test_ie_edge:
           requires:
-            - conventions
+            - setup
       - publish:
           requires:
             - test_phantomjs

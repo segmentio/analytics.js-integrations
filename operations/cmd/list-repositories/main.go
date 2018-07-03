@@ -21,7 +21,7 @@ func init() {
 
 func main() {
 
-	operations.GetAuthToken()
+	operations.GetGitHubAuthToken()
 
 	flag.Parse()
 	github := operations.NewGitHubClient()

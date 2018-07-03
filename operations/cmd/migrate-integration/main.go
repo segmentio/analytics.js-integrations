@@ -23,7 +23,7 @@ func init() {
 
 func main() {
 
-	operations.GetAuthToken()
+	operations.GetGitHubAuthToken()
 
 	flag.Parse()
 	if integrationName == "" {
