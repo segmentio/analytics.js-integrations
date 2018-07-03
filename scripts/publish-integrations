@@ -4,13 +4,15 @@
 
 set -e
 
+export PATH="ci/bin/:$PATH";
 BRANCH=$(git rev-parse --abbrev-ref HEAD);
 if [ "$BRANCH" != "master" ]; then {
     >&2 echo "Publish is just allowed from master";
     exit 1;
 } fi;
 
-INTEGRATIONS=($(list-new-releases));
+I="$(list-new-releases)";
+INTEGRATIONS=( $I );
 
 if [ ${#INTEGRATIONS[@]} -eq 0 ]; then {
     echo Nothing to publish;

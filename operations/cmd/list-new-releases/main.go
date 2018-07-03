@@ -29,10 +29,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	npm := &operations.NPM{}
+	yarn := operations.NewYarnClient()
 
 	for _, integration := range integrations {
-		latestPublished, err := npm.GetLatestVersion(integration.Package.Name)
+		latestPublished, err := yarn.GetLatestVersion(integration.Package.Name)
 		if err != nil {
 			if err != operations.ErrPackageNotFound {
 				os.Exit(1)

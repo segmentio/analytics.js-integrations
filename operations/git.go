@@ -16,7 +16,7 @@ func printMessage(msg string) git.ErrorCode {
 // credentialsCallback returns the default credentials
 func credentialsCallback(url, username string, t git.CredType) (git.ErrorCode, *git.Cred) {
 	Debug("Credentials called, type %d (%s, %s)", t, url, username)
-	ret, cred := git.NewCredUserpassPlaintext(GetAuthToken(), "x-oauth-basic")
+	ret, cred := git.NewCredUserpassPlaintext(GetGitHubAuthToken(), "x-oauth-basic")
 	Debug("Credentials returned, errorCode %d, type %d, hasUsername %t", ret, cred.Type(), cred.HasUsername())
 	return git.ErrOk, &cred
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 )
+
+const gitHubAuthvar = "GITHUB_TOKEN"
 
 // Look away, I'm hideous! - KramerQL
 
@@ -72,7 +75,7 @@ type PullRequest struct {
 // GitHub's V4 API.
 func NewGitHubClient() *GitHub {
 	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: GetAuthToken()},
+		&oauth2.Token{AccessToken: GetGitHubAuthToken()},
 	)
 	httpClient := oauth2.NewClient(context.Background(), src)
 
@@ -621,4 +624,15 @@ func (g *GitHub) Transfer(project Project, organization string) error {
 	}
 
 	return nil
+}
+
+// GetGitHubAuthToken returns the authentication token if found, if not, it exist the
+// app.
+func GetGitHubAuthToken() string {
+	token := os.Getenv(gitHubAuthvar)
+	if token == "" {
+		Log("Please export $%s with a personal token and try again. Exiting", gitHubAuthvar)
+		os.Exit(1)
+	}
+	return token
 }
