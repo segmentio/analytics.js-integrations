@@ -35,6 +35,10 @@
   dependencies:
     "@ndhoule/keys" "^2.0.0"
 
+"@ndhoule/entries@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@ndhoule/entries/-/entries-2.0.0.tgz#e346de224b261893e205c0ff8ca9b609740f7184"
+
 "@ndhoule/every@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@ndhoule/every/-/every-2.0.1.tgz#3907d8b6c430493dbb619c18071ce9055f8a106d"
@@ -74,6 +78,12 @@
 "@ndhoule/rest@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@ndhoule/rest/-/rest-2.0.0.tgz#0346b02a964a513ed2ba24d164f01d34f2107a0f"
+
+"@ndhoule/values@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@ndhoule/values/-/values-2.0.1.tgz#24998c43d14935c56bb77065f8a0622cd3a7ed31"
+  dependencies:
+    "@ndhoule/keys" "^2.0.0"
 
 "@segment/analytics.js-core@^3.0.0":
   version "3.6.0"
@@ -131,6 +141,31 @@
     json3 "^3.3.2"
     proclaim "^3.4.1"
 
+"@segment/analytics.js-integration@^2.0.1", "@segment/analytics.js-integration@^2.1.0":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration/-/analytics.js-integration-2.1.1.tgz#cdc58cdac19874eb3f088e4c3c74055dc4ef178c"
+  dependencies:
+    "@ndhoule/after" "^1.0.0"
+    "@ndhoule/clone" "^1.0.0"
+    "@ndhoule/defaults" "^2.0.1"
+    "@ndhoule/each" "^2.0.1"
+    "@ndhoule/every" "^2.0.1"
+    "@ndhoule/extend" "^2.0.0"
+    "@ndhoule/foldl" "^2.0.1"
+    "@ndhoule/includes" "^2.0.1"
+    "@segment/fmt" "^1.0.0"
+    "@segment/load-script" "^1.0.1"
+    analytics-events "^1.2.0"
+    component-bind "^1.0.0"
+    component-emitter "^1.2.0"
+    debug "^2.2.0"
+    domify "^1.4.0"
+    is "^3.1.0"
+    load-iframe "^1.0.0"
+    next-tick "^0.2.2"
+    slug-component "^1.1.0"
+    to-no-case "^0.1.3"
+
 "@segment/analytics.js-integration@^3.2.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration/-/analytics.js-integration-3.3.0.tgz#a44eac133e0ba1a26dc7387adc59c84b0ab15178"
@@ -167,17 +202,36 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@segment/canonical/-/canonical-1.0.0.tgz#9adb1a731d29ab975493bf17a4ce4952985c4920"
 
-"@segment/clear-ajax@^1.0.2":
+"@segment/clear-ajax@^1.0.0", "@segment/clear-ajax@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@segment/clear-ajax/-/clear-ajax-1.0.2.tgz#614c53a9e1bc69d38dd0b6aedbb1e86c3b86b59b"
   dependencies:
     "@ndhoule/each" "^2.0.1"
+
+"@segment/clear-cookies@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@segment/clear-cookies/-/clear-cookies-1.0.0.tgz#e8b52e2e3bb0f94e146524b155b760f9000c4c42"
+  dependencies:
+    component-cookie "^1.1.2"
 
 "@segment/clear-cookies@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@segment/clear-cookies/-/clear-cookies-2.0.0.tgz#c71a88d2666209703fdb2f686bd2fd40bdd78bf4"
   dependencies:
     component-cookie "^1.1.2"
+
+"@segment/clear-env@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@segment/clear-env/-/clear-env-1.0.0.tgz#40dbefd28ddf8710ab38d00e90698a033694d581"
+  dependencies:
+    "@segment/clear-ajax" "^1.0.0"
+    "@segment/clear-cookies" "^1.0.0"
+    "@segment/clear-globals" "^1.0.0"
+    "@segment/clear-images" "^1.0.0"
+    "@segment/clear-intervals" "^1.0.0"
+    "@segment/clear-listeners" "^1.0.0"
+    "@segment/clear-scripts" "^1.0.0"
+    "@segment/clear-timeouts" "^1.0.0"
 
 "@segment/clear-env@^2.0.0":
   version "2.1.0"
@@ -200,6 +254,10 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@segment/clear-images/-/clear-images-1.0.0.tgz#c3e5e8a52e899a35f37b807dce7b07860665f3de"
 
+"@segment/clear-intervals@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@segment/clear-intervals/-/clear-intervals-1.0.1.tgz#f1f208d9edd5e94a88a3e8578e1870cc5cfc65a7"
+
 "@segment/clear-intervals@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@segment/clear-intervals/-/clear-intervals-2.0.0.tgz#f5b6f1db79e359428fcd570eebe8f4806555d710"
@@ -215,6 +273,10 @@
     "@ndhoule/each" "^2.0.1"
     "@ndhoule/includes" "^2.0.1"
     component-bind "^1.0.0"
+
+"@segment/clear-timeouts@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@segment/clear-timeouts/-/clear-timeouts-1.0.0.tgz#6051cf287594c975373ee8901d8ba4d88d66ab5b"
 
 "@segment/clear-timeouts@^2.0.0":
   version "2.0.0"
@@ -402,6 +464,10 @@ align-text@^0.1.1, align-text@^0.1.3:
 amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
+
+analytics-events@^1.2.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/analytics-events/-/analytics-events-1.5.0.tgz#b030a7a82bfeb45ef0daa74d20cf9a8ba4d4bdcb"
 
 analytics-events@^2.0.2:
   version "2.2.0"

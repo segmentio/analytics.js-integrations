@@ -27,6 +27,7 @@ var ignorePaths = map[string]bool{
 	".eslintrc":        true,
 	".git":             true,
 	".gitignore":       true,
+	".github":          true,
 	"circle.yml":       true,
 	"karma.conf.ci.js": true,
 	"karma.conf.js":    true,
