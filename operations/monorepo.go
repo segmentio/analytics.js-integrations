@@ -23,14 +23,16 @@ Readme: {{ .Readme }}
 `
 
 var ignorePaths = map[string]bool{
-	".circleci":       true,
-	".eslintrc":       true,
-	".git":            true,
-	".gitignore":      true,
-	"circle.yml":      true,
-	"CONTRIBUTING.md": true,
-	"LICENSE":         true,
-	"Makefile":        true,
+	".circleci":        true,
+	".eslintrc":        true,
+	".git":             true,
+	".gitignore":       true,
+	"circle.yml":       true,
+	"karma.conf.ci.js": true,
+	"karma.conf.js":    true,
+	"CONTRIBUTING.md":  true,
+	"LICENSE":          true,
+	"Makefile":         true,
 }
 
 // Monorepo

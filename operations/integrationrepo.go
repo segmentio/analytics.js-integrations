@@ -275,7 +275,8 @@ func (i *IntegrationRepo) notify(monorepo Monorepo, commitLink string) error {
 
 	lastTag, err := getLatestTag(i.Repo)
 	if err != nil {
-		return err
+		// Let's ignore for now.
+		//return err
 	}
 
 	var lastTagName string
