@@ -1,3 +1,8 @@
+2.3.0 / 2018-07-05
+==================
+
+  * Add Experiment Viewed non-interaction option
+
 2.2.0 / 2018-02-14
 ==================
 
