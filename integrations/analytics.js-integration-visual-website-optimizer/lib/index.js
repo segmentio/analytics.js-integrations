@@ -23,7 +23,8 @@ var VWO = module.exports = integration('Visual Website Optimizer')
   .option('libraryTolerance', 2500)
   .option('useExistingJQuery', false)
   .option('replay', true)
-  .option('listen', false);
+  .option('listen', false)
+  .option('experimentNonInteraction', false);
 
 /**
  * The context for this integration.
@@ -108,15 +109,20 @@ VWO.prototype.replay = function() {
 
 VWO.prototype.roots = function() {
   var analytics = this.analytics;
+  var self = this;
 
   rootExperiments(function(err, data) {
     each(data, function(experimentId, variationName) {
+      var props = {
+        experimentId: experimentId,
+        variationName: variationName
+      };
+
+      if (self.options.experimentNonInteraction) props.nonInteraction = 1;
+
       analytics.track(
         'Experiment Viewed',
-        {
-          experimentId: experimentId,
-          variationName: variationName
-        },
+        props,
         { context: { integration: integrationContext } }
       );
     });

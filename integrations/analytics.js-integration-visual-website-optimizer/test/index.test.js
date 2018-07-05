@@ -127,6 +127,7 @@ describe('Visual Website Optimizer', function() {
           variationName: 'Variation' },
           { context: { integration: { name: 'visual-website-optimizer', version: '1.0.0' } }
         });
+
         done();
       });
     });
@@ -143,6 +144,25 @@ describe('Visual Website Optimizer', function() {
         analytics.didNotCall(analytics.track, 'Experiment Viewed', {
           experimentId: '1',
           variationName: 'Variation' },
+          { context: { integration: { name: 'visual-website-optimizer', version: '1.0.0' } }
+        });
+        done();
+      });
+    });
+
+    it('should send experiment views as non-interactive if enabled', function(done) {
+      vwo.options.listen = true;
+      vwo.options.experimentNonInteraction = true;
+      analytics.initialize();
+      analytics.page();
+
+      tick(function() {
+        window._vis_opt_queue[1]();
+
+        analytics.called(analytics.track, 'Experiment Viewed', {
+          experimentId: '1',
+          variationName: 'Variation',
+          nonInteraction: 1 },
           { context: { integration: { name: 'visual-website-optimizer', version: '1.0.0' } }
         });
         done();
