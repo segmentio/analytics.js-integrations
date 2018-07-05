@@ -18,24 +18,24 @@ type Integration struct {
 
 // Package is the representation of package.json
 type Package struct {
-	Name            string
-	Description     string
-	Version         string
-	Keywords        []string
-	Main            string
-	Scripts         Scripts
-	Author          string
-	License         string
-	Homepage        string
-	Bugs            Bugs
-	Repository      Repository
-	Dependencies    Dependencies
-	DevDependencies Dependencies
+	Name            string       `json:"name"`
+	Description     string       `json:"description"`
+	Version         string       `json:"version"`
+	Keywords        []string     `json:"keywords"`
+	Main            string       `json:"main"`
+	Scripts         Scripts      `json:"scripts"`
+	Author          string       `json:"author"`
+	License         string       `json:"license"`
+	Homepage        string       `json:"homepage"`
+	Bugs            Bugs         `json:"bugs"`
+	Repository      Repository   `json:"repository"`
+	Dependencies    Dependencies `json:"dependencies"`
+	DevDependencies Dependencies `json:"devDependencies"`
 }
 
 // Bugs from package.json
 type Bugs struct {
-	URL string
+	URL string `json:"url"`
 }
 
 // Dependencies is a map of package:version
@@ -43,8 +43,8 @@ type Dependencies map[string]string
 
 // Repository from package.json
 type Repository struct {
-	Type string
-	URL  string
+	Type string `json:"type"`
+	URL  string `json:"url"`
 }
 
 // Scripts from package.json

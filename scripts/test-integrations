@@ -4,7 +4,7 @@
 
 set -e
 
-export PATH="bin/:$PATH";
+export PATH="ci/bin/:$PATH";
 if [ "$CI" == "true" ]; then {
     KARMA_FILE=karma.conf.ci.js;
 } else {
@@ -25,4 +25,5 @@ if [ ${#INTEGRATIONS[@]} -eq 0 ]; then {
     exit 0;
 } fi;
 
-env INTEGRATIONS="${INTEGRATIONS[@]}" karma start $@ $KARMA_FILE --single-run;
+I="${INTEGRATIONS[@]}"
+env INTEGRATIONS="$I" karma start $@ $KARMA_FILE --single-run;

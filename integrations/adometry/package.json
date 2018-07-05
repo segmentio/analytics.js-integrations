@@ -1,12 +1,12 @@
 {
-  "name": "@segment/analytics.js-integration-adlearn-open-platform",
-  "description": "The Adlearn Open Platform analytics.js integration.",
+  "name": "@segment/analytics.js-integration-adometry",
+  "description": "The Adometry analytics.js integration.",
   "version": "2.0.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
     "segment",
-    "adlearn"
+    "adometry"
   ],
   "main": "lib/index.js",
   "scripts": {
@@ -21,16 +21,22 @@
   "bugs": {
     "url": "https://github.com/segmentio/analytics.js-integrations/issues"
   },
-  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/adlearn-open-platform#readme",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/adometry#readme",
   "dependencies": {
     "@ndhoule/each": "^2.0.1",
-    "@segment/analytics.js-integration": "^2.0.1"
+    "@ndhoule/entries": "^2.0.0",
+    "@ndhoule/extend": "^2.0.0",
+    "@ndhoule/map": "^2.0.1",
+    "@ndhoule/pick": "^2.0.0",
+    "@ndhoule/values": "^2.0.1",
+    "@segment/analytics.js-integration": "^2.1.0"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",
     "@segment/analytics.js-integration-tester": "^3.1.0",
-    "@segment/clear-env": "^1.0.0",
+    "@segment/clear-env": "^2.0.0",
     "@segment/eslint-config": "^3.1.1",
+    "@segment/fmt": "^1.0.0",
     "browserify": "^13.0.0",
     "browserify-istanbul": "^2.0.0",
     "eslint": "^2.9.0",
@@ -49,6 +55,7 @@
     "mocha": "^2.2.5",
     "npm-check": "^5.2.1",
     "phantomjs-prebuilt": "^2.1.7",
+    "proclaim": "^3.4.1",
     "watchify": "^3.7.0"
   }
 }
