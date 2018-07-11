@@ -166,7 +166,7 @@
     slug-component "^1.1.0"
     to-no-case "^0.1.3"
 
-"@segment/analytics.js-integration@^3.2.0":
+"@segment/analytics.js-integration@^3.1.0", "@segment/analytics.js-integration@^3.2.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration/-/analytics.js-integration-3.3.0.tgz#a44eac133e0ba1a26dc7387adc59c84b0ab15178"
   dependencies:
@@ -1076,6 +1076,16 @@ builtin-status-codes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
 
+buster-core@=0.6.4:
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/buster-core/-/buster-core-0.6.4.tgz#27bf6bad674244ea720f311d900a0ca1cb786050"
+
+buster-format@~0.5:
+  version "0.5.6"
+  resolved "https://registry.yarnpkg.com/buster-format/-/buster-format-0.5.6.tgz#2b86c322ecf5e1b0ae6e6e7905ebfcf387d2ab95"
+  dependencies:
+    buster-core "=0.6.4"
+
 bytes@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.0.0.tgz#d32815404d689699f85a4ea4fa8755dd13a96048"
@@ -1160,6 +1170,10 @@ chalk@^2.0.1, chalk@^2.4.0:
     ansi-styles "^3.2.1"
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
+
+charenc@~0.0.1:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/charenc/-/charenc-0.0.2.tgz#c0a1d2f3a7092e03774bfa83f14c0fc5790a8667"
 
 chokidar@^1.0.0, chokidar@^1.4.1:
   version "1.7.0"
@@ -1499,6 +1513,10 @@ cross-spawn@^5.0.1:
     lru-cache "^4.0.1"
     shebang-command "^1.2.0"
     which "^1.2.9"
+
+crypt@~0.0.1:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/crypt/-/crypt-0.0.2.tgz#88d7ff7ec0dfb86f713dc87bbb42d044d3e6c41b"
 
 cryptiles@3.x.x:
   version "3.1.2"
@@ -2418,6 +2436,12 @@ global-prefix@^1.0.1:
     is-windows "^1.0.1"
     which "^1.2.14"
 
+global-queue@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/global-queue/-/global-queue-1.0.1.tgz#f2f222560fb73dfc505cbec2c8aa402f0cd53fda"
+  dependencies:
+    debug "^2.2.0"
+
 globals@^9.18.0, globals@^9.2.0:
   version "9.18.0"
   resolved "https://registry.yarnpkg.com/globals/-/globals-9.18.0.tgz#aa3896b3e69b487f17e31ed2143d69a8e30c2d8a"
@@ -2757,7 +2781,7 @@ is-binary-path@^1.0.0:
   dependencies:
     binary-extensions "^1.0.0"
 
-is-buffer@^1.1.0, is-buffer@^1.1.5:
+is-buffer@^1.1.0, is-buffer@^1.1.5, is-buffer@~1.1.1:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/is-buffer/-/is-buffer-1.1.6.tgz#efaa2ea9daa0d7ab2ea13a97b2b8ad51fefbe8be"
 
@@ -2780,6 +2804,10 @@ is-dotfile@^1.0.0:
 is-email@0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/is-email/-/is-email-0.1.0.tgz#e7eb1aefe8d4a3183980a7172b851272ebd04a95"
+
+is-email@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/is-email/-/is-email-1.0.0.tgz#6e02d4145dd6246fa05eea16bfe0b2b843ac2802"
 
 is-equal-shallow@^0.1.3:
   version "0.1.3"
@@ -2920,7 +2948,7 @@ is-windows@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-windows/-/is-windows-1.0.2.tgz#d1850eb9791ecd18e6182ce12a30f396634bb19d"
 
-is@^3.0.1, is@^3.1.0:
+is@^3.0.1, is@^3.1.0, is@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/is/-/is-3.2.1.tgz#d0ac2ad55eb7b0bec926a5266f6c662aaa83dca5"
 
@@ -3334,6 +3362,14 @@ md5.js@^1.3.4:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
+
+md5@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/md5/-/md5-2.2.1.tgz#53ab38d5fe3c8891ba465329ea23fac0540126f9"
+  dependencies:
+    charenc "~0.0.1"
+    crypt "~0.0.1"
+    is-buffer "~1.1.1"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -4461,7 +4497,7 @@ script-onload@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/script-onload/-/script-onload-1.0.2.tgz#6bdca122875487192ccaf4e6884fcfdd0c7fde32"
 
-segmentio-facade@^3.0.2:
+segmentio-facade@^3.0.2, segmentio-facade@^3.2.2:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/segmentio-facade/-/segmentio-facade-3.2.3.tgz#7ddc6971801a482475b6a768184696a847e9197d"
   dependencies:
@@ -4548,6 +4584,12 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
 simple-concat@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/simple-concat/-/simple-concat-1.0.0.tgz#7344cbb8b6e26fb27d66b2fc86f9f6d5997521c6"
+
+sinon@1.7.3:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/sinon/-/sinon-1.7.3.tgz#7a69d69cd0294586c743254eeff1b583a50997f2"
+  dependencies:
+    buster-format "~0.5"
 
 sinon@^2.3.8:
   version "2.4.1"
@@ -4954,6 +4996,10 @@ to-iso-string@0.0.2:
 to-no-case@^0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/to-no-case/-/to-no-case-0.1.3.tgz#f761b1ea1931680967b79886a3303106d966e061"
+
+to-no-case@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/to-no-case/-/to-no-case-1.0.2.tgz#c722907164ef6b178132c8e69930212d1b4aa16a"
 
 tough-cookie@~2.3.3:
   version "2.3.4"
