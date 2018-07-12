@@ -7,6 +7,15 @@ import (
 	"gopkg.in/libgit2/git2go.v27"
 )
 
+// Tag is an annotated or lightweight tag
+type Tag struct {
+	Name        string
+	When        time.Time
+	IsAnnotated bool
+	Tag         *git.Tag    // for annotated
+	Commit      *git.Commit // for lightweight
+}
+
 // printMessage is the default "print" callback
 func printMessage(msg string) git.ErrorCode {
 	Debug("Message %s", msg)
@@ -126,9 +135,14 @@ func getLocalHead(repo *git.Repository) (*git.Commit, error) {
 	return head, nil
 }
 
-// getLatestTag retrieves the last *SIGNED* tag. In some situations this is not the latest tag
+func GetLatestTag(repo *git.Repository) (*Tag, error) {
+	return getLatestTag(repo)
+}
+
+// getLatestTag retrieves the last tag. In some situations this is not the latest tag
 // in the master branch. If not tags are found, it will return nil.
-func getLatestTag(repo *git.Repository) (*git.Tag, error) {
+// For lightweigh tags, it will return the empty struct with the name only.
+func getLatestTag(repo *git.Repository) (*Tag, error) {
 
 	tagNames, err := repo.Tags.List()
 	if err != nil {
@@ -136,27 +150,52 @@ func getLatestTag(repo *git.Repository) (*git.Tag, error) {
 		return nil, err
 	}
 
-	var latestTag *git.Tag
+	var latestTag *Tag
 
 	for _, name := range tagNames {
-		reference, err := repo.References.Lookup("refs/tags/" + name)
+		tag, err := resolveTag(repo, name)
 		if err != nil {
-			LogError(err, "Error getting reference for tag %s", name)
 			return nil, err
 		}
 
-		tag, err := repo.LookupTag(reference.Target())
-		if err != nil {
-			LogError(err, "Error getting tag %s", name)
-			return nil, err
-		}
-
-		if latestTag == nil || latestTag.Tagger().When.Before(tag.Tagger().When) {
+		if latestTag == nil || latestTag.When.Before(tag.When) {
 			latestTag = tag
 		}
 	}
 
 	return latestTag, nil
+}
+
+// resolveTag retrieves the tag using the name
+func resolveTag(repo *git.Repository, name string) (*Tag, error) {
+	reference, err := repo.References.Lookup("refs/tags/" + name)
+	if err != nil {
+		LogError(err, "Error getting reference for tag %s", name)
+		return nil, err
+	}
+
+	tag, err := repo.LookupTag(reference.Target())
+	if err == nil {
+		return &Tag{
+			Name:        tag.Name(),
+			When:        tag.Tagger().When,
+			IsAnnotated: true,
+			Tag:         tag,
+		}, nil
+	}
+
+	// Lightweight tag or reference
+	commit, err := repo.LookupCommit(reference.Target())
+	if err != nil {
+		LogError(err, "The tag %s is not an annotated tag or references a commit", name)
+		return nil, err
+	}
+
+	return &Tag{
+		Name:   name,
+		When:   commit.Committer().When,
+		Commit: commit,
+	}, nil
 }
 
 // getSignature returns the default signature unless the env vars GITHUB_USER

@@ -31,9 +31,6 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Linter
-          command: yarn lint
-      - run:
           name: Test updated integrations in PhantomJS
           command: yarn test-integrations --browsers PhantomJS
       - store_artifacts:

@@ -275,13 +275,12 @@ func (i *IntegrationRepo) notify(monorepo Monorepo, commitLink string) error {
 
 	lastTag, err := getLatestTag(i.Repo)
 	if err != nil {
-		// Let's ignore for now.
-		//return err
+		return err
 	}
 
 	var lastTagName string
 	if lastTag != nil {
-		lastTagName = lastTag.Name()
+		lastTagName = lastTag.Name
 	}
 
 	if err := i.updateReadme(commitLink, lastTagName); err != nil {
