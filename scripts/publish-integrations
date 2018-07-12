@@ -4,6 +4,9 @@
 
 set -e
 
+echo "IMPORTANT: This script ignores new integrations"
+echo "If you have a new a new integration to publish, ping the team and do it locally"
+
 export PATH="ci/bin/:$PATH";
 BRANCH=$(git rev-parse --abbrev-ref HEAD);
 if [ "$BRANCH" != "master" ]; then {
@@ -11,7 +14,7 @@ if [ "$BRANCH" != "master" ]; then {
     exit 1;
 } fi;
 
-I="$(list-new-releases)";
+I="$(list-new-releases --skipNewPackages)";
 INTEGRATIONS=( $I );
 
 if [ ${#INTEGRATIONS[@]} -eq 0 ]; then {

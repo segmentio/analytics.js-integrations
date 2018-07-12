@@ -9,10 +9,12 @@ import (
 )
 
 var monorepoPath string
+var skipNewPackages bool
 
 func init() {
 	flag.BoolVar(&operations.Verbose, "verbose", false, "prints more stuff")
 	flag.StringVar(&monorepoPath, "monorepoPath", ".", "Local path where the monrepo is")
+	flag.BoolVar(&skipNewPackages, "skipNewPackages", false, "Ignores new packages (not found in the registry)")
 }
 
 func main() {
@@ -37,9 +39,11 @@ func main() {
 			if err != operations.ErrPackageNotFound {
 				os.Exit(1)
 			}
-			operations.Output(integration.Name)
-			operations.Debug(" - Current version: %s", integration.Package.Version)
-			operations.Debug(" - NPM uploaded version: none")
+			if !skipNewPackages {
+				operations.Output(integration.Name)
+				operations.Debug(" - Current version: %s", integration.Package.Version)
+				operations.Debug(" - NPM uploaded version: none")
+			}
 			continue
 		}
 

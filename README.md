@@ -12,3 +12,7 @@ Released under the [MIT license](LICENSE).
 
 Make sure your PR includes the new version in `package.json`. When the PR gets
 merged, it will automatically be published.
+
+**IMPORTANT:** Auto-release is not activated for new integrations. If you
+want to publish your new, shiny integration, merge the pull request and publish
+the first version manually.

@@ -16,7 +16,7 @@ var ErrPackageNotFound = errors.New("not found")
 type Yarn struct {
 }
 
-// NewNPMClient returns a new npm client
+// NewYarnClient returns a new npm client
 func NewYarnClient() *Yarn {
 	return &Yarn{}
 }
@@ -41,11 +41,12 @@ func (y *Yarn) GetLatestVersion(pack string) (string, error) {
 		errOutput := errBuff.String()
 		Debug("Output:\n%s", errOutput)
 
-		if strings.Contains(errOutput, "404") {
+		if strings.Contains(errOutput, "404") || strings.Contains(errOutput, "Not found") {
 			return "", ErrPackageNotFound
 		}
 
-		LogError(err, "Error running npm for package %s", pack)
+		LogError(err, "Error running yarn for package %s", pack)
+
 		return "", err
 	}
 

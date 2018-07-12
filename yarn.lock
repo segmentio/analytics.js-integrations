@@ -125,6 +125,21 @@
     segmentio-facade "^3.0.2"
     uuid "^2.0.2"
 
+"@segment/analytics.js-integration-tester@^2.0.0":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration-tester/-/analytics.js-integration-tester-2.0.1.tgz#7316f2bfb7e2244851c0372cb35ab1ab65ba2832"
+  dependencies:
+    "@ndhoule/each" "^2.0.1"
+    "@ndhoule/includes" "^2.0.1"
+    "@ndhoule/keys" "^2.0.0"
+    "@segment/fmt" "^1.0.0"
+    "@segment/spy" "^1.0.0"
+    "@segment/stub" "^1.0.0"
+    component-type "^1.2.1"
+    domify "^1.4.0"
+    json3 "^3.3.2"
+    proclaim "^3.4.1"
+
 "@segment/analytics.js-integration-tester@^3.1.0", "@segment/analytics.js-integration-tester@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration-tester/-/analytics.js-integration-tester-3.1.1.tgz#0857d77d2fc43b09579c67cfb80f32907ef85cb4"
@@ -166,7 +181,7 @@
     slug-component "^1.1.0"
     to-no-case "^0.1.3"
 
-"@segment/analytics.js-integration@^3.1.0", "@segment/analytics.js-integration@^3.2.0":
+"@segment/analytics.js-integration@^3.0.0", "@segment/analytics.js-integration@^3.1.0", "@segment/analytics.js-integration@^3.2.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration/-/analytics.js-integration-3.3.0.tgz#a44eac133e0ba1a26dc7387adc59c84b0ab15178"
   dependencies:
@@ -481,7 +496,7 @@ analytics-events@^1.2.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/analytics-events/-/analytics-events-1.5.0.tgz#b030a7a82bfeb45ef0daa74d20cf9a8ba4d4bdcb"
 
-analytics-events@^2.0.2:
+analytics-events@^2.0.2, analytics-events@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/analytics-events/-/analytics-events-2.2.0.tgz#f00f55946940a6357809582f6fded6ab80034b84"
   dependencies:
@@ -2539,6 +2554,12 @@ form-data@~2.3.1:
     combined-stream "1.0.6"
     mime-types "^2.1.12"
 
+formatio@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/formatio/-/formatio-1.1.1.tgz#5ed3ccd636551097383465d996199100e86161e9"
+  dependencies:
+    samsam "~1.1"
+
 formatio@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/formatio/-/formatio-1.2.0.tgz#f3b2167d9068c4698a8d51f4f760a39a54d818eb"
@@ -3710,6 +3731,10 @@ log4js@^0.6.31:
   dependencies:
     readable-stream "~1.0.2"
     semver "~4.3.3"
+
+lolex@1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/lolex/-/lolex-1.3.2.tgz#7c3da62ffcb30f0f5a80a2566ca24e45d8a01f31"
 
 lolex@^1.6.0:
   version "1.6.0"
@@ -4946,9 +4971,17 @@ safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@^5.1.2, 
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
 
+samsam@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/samsam/-/samsam-1.1.2.tgz#bec11fdc83a9fda063401210e40176c3024d1567"
+
 samsam@1.x, samsam@^1.1.3:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/samsam/-/samsam-1.3.0.tgz#8d1d9350e25622da30de3e44ba692b5221ab7c50"
+
+samsam@~1.1:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/samsam/-/samsam-1.1.3.tgz#9f5087419b4d091f232571e7fa52e90b0f552621"
 
 sauce-connect-launcher@^1.2.2:
   version "1.2.4"
@@ -5079,6 +5112,15 @@ sinon@1.7.3:
   resolved "https://registry.yarnpkg.com/sinon/-/sinon-1.7.3.tgz#7a69d69cd0294586c743254eeff1b583a50997f2"
   dependencies:
     buster-format "~0.5"
+
+sinon@^1.17.4:
+  version "1.17.7"
+  resolved "https://registry.yarnpkg.com/sinon/-/sinon-1.17.7.tgz#4542a4f49ba0c45c05eb2e9dd9d203e2b8efe0bf"
+  dependencies:
+    formatio "1.1.1"
+    lolex "1.3.2"
+    samsam "1.1.2"
+    util ">=0.10.3 <1"
 
 sinon@^2.3.6, sinon@^2.3.8:
   version "2.4.1"
@@ -5719,6 +5761,12 @@ util@0.10.3:
   resolved "https://registry.yarnpkg.com/util/-/util-0.10.3.tgz#7afb1afe50805246489e3db7fe0ed379336ac0f9"
   dependencies:
     inherits "2.0.1"
+
+"util@>=0.10.3 <1":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/util/-/util-0.11.0.tgz#c5f391beb244103d799b21077a926fef8769e1fb"
+  dependencies:
+    inherits "2.0.3"
 
 util@~0.10.1:
   version "0.10.4"
