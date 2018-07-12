@@ -5,12 +5,13 @@ var integrationTester = require('@segment/analytics.js-integration-tester');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var FriendBuy = require('../lib/');
+var util = require('util');
 
 describe('FriendBuy', function() {
   var analytics;
   var friendbuy;
   var options = {
-    siteId: 'site-2355cb28-host', // han@segment.com's test account
+    siteId: 'site-926e4408-host', // destinations-testing test account
     widgets: [],
     siteWideWidgets: []
   };
@@ -62,7 +63,18 @@ describe('FriendBuy', function() {
 
   describe('loading', function() {
     it('should load', function(done) {
-      analytics.load(friendbuy, done);
+      // We can't use analytics.load directly
+      analytics.assert(!friendbuy.loaded(), 'Expected `integration.loaded()` to be false before loading.');
+      analytics.once('ready', function() {
+        try {
+          analytics.assert(friendbuy.loaded(), 'Expected `integration.loaded()` to be true after loading.');    
+          done();
+        } catch (err) {
+          done(err)
+        }
+      });
+      analytics.initialize();
+      analytics.page({}, { Marketo: true });
     });
   });
 

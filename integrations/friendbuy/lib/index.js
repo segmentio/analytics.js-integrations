@@ -50,7 +50,7 @@ FriendBuy.prototype.initialize = function() {
  */
 
 FriendBuy.prototype.loaded = function() {
-  return window.friendbuy && Array.prototype.push !== window.friendbuy.push;
+  return window.friendbuy;
 };
 
 /**
