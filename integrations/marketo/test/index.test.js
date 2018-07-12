@@ -13,6 +13,7 @@ var Marketo = require('../lib/');
 /**
  * FIXME: Note that some tests will fail if you do not have Marketo enabled in your integration settings
  * for the project o5v9ms0yvi
+ * Link to the source: https://app.segment.com/segment-engineering/destinations/marketo/sources/testing/configuration
  */
 
 describe('Marketo', function() {
