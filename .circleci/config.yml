@@ -14,7 +14,7 @@ jobs:
           command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
       - run:
           name: Install
-          command: yarn install
+          command: yarn install --frozen-lockfile
       - save_cache:
           key: deps-{{ checksum "yarn.lock" }}
           paths:
