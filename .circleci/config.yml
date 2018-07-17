@@ -93,6 +93,18 @@ jobs:
           name: Test updated integrations in Egde
           command: yarn test-integrations --browsers sl_edge_latest
 
+  test_snyk:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        environment:
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Snyk Setup
+          command: curl -sL https://raw.githubusercontent.com/segmentio/snyk_helpers/master/initialization/snyk.sh | sh
+
   publish:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
@@ -128,6 +140,10 @@ workflows:
           requires:
             - setup
       - test_edge:
+          requires:
+            - setup
+      - test_snyk:
+          context: snyk
           requires:
             - setup
       - publish:
