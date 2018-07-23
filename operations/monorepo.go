@@ -35,6 +35,7 @@ var ignorePaths = map[string]bool{
 	"LICENSE":           true,
 	"Makefile":          true,
 	"package-lock.json": true,
+	"yarn.lock":         true,
 }
 
 // Monorepo

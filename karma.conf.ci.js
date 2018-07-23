@@ -62,7 +62,8 @@ module.exports = function(config) {
   }
 
   config.set({
-    browserDisconnectTolerance: 1,
+    // SauceLabs could be difficult to work with
+    browserDisconnectTimeout: 20000,
 
     singleRun: true,
 

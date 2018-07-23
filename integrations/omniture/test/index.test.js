@@ -54,6 +54,9 @@ describe('Omniture', function() {
     analytics.restore();
     analytics.reset();
     omniture.reset();
+    // This conflicts with Adobe Analytics tests.
+    window.s = undefined;
+    window.s_account = undefined;
     sandbox();
   });
 
