@@ -37,7 +37,6 @@ module.exports = function(config) {
 
   config.set({
     files: getFiles(),
-
     browsers: ['PhantomJS'],
 
     frameworks: ['browserify', 'mocha'],
@@ -45,7 +44,8 @@ module.exports = function(config) {
     reporters: ['spec', 'coverage'],
 
     preprocessors: getPreprocessors(),
-
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 10,
     client: {
       mocha: {
         grep: process.env.GREP,
