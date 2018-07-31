@@ -13,7 +13,8 @@ describe('Criteo', function() {
   var options = {
     account: 42323,
     supportingPageData: {},
-    supportingUserData: {}
+    supportingUserData: {},
+    eventMappings: {}
   };
 
   beforeEach(function() {
@@ -100,6 +101,37 @@ describe('Criteo', function() {
         analytics.page('Home', { team: 'New York Giants' });
         analytics.called(window.criteo_q.push, { event: 'setData', team_page: 'New York Giants' });
         analytics.called(window.criteo_q.push, { event: 'viewHome' });
+      });
+    });
+
+    describe('#track', function() {
+      var eventTypeMappings = {
+        viewItem: 'productViewed',
+        viewList: 'productListViewed',
+        viewBasket: 'cartViewed',
+        trackTransaction: 'orderCompleted'
+      };
+
+      beforeEach(function() {
+        for (var event in eventTypeMappings) {
+          if (!eventTypeMappings.hasOwnProperty(event)) {
+            continue;
+          }
+          analytics.stub(criteo, eventTypeMappings[event]);
+        }
+      });
+
+      it('should handle custom event mappings', function() {
+        for (var eventType in eventTypeMappings) {
+          if (!eventTypeMappings.hasOwnProperty(eventType)) {
+            continue;
+          }
+          var customEventName = 'myCustomEvent';
+          var handler = eventTypeMappings[eventType];
+          criteo.options.eventMappings[customEventName] = eventType;
+          analytics.track(customEventName, {});
+          analytics.called(criteo[handler]);
+        }
       });
     });
 
