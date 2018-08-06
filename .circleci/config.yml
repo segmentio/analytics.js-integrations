@@ -32,7 +32,7 @@ jobs:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
           name: Test updated integrations in PhantomJS
-          command: yarn test-integrations --browsers PhantomJS
+          command: yarn test-integrations PhantomJS
       - store_artifacts:
           path: coverage
       - run:
@@ -48,8 +48,18 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Start SauceConnect
+          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
+          background: true
+      - run:
+          name: Wait until it is ready
+          command: inotifywait --timeout 300 --event create .
+      - run:
           name: Test updated integrations in Chrome
-          command: yarn test-integrations --browsers sl_chrome_latest,sl_chrome_latest_1
+          command: yarn test-integrations chrome
+      - run:
+          name: Killing tunnel
+          command: kill $(cat sc.pid)
   test_firefox:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
@@ -59,8 +69,18 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Start SauceConnect
+          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
+          background: true
+      - run:
+          name: Wait until it is ready
+          command: inotifywait --timeout 300 --event create .
+      - run:
           name: Test updated integrations in Firefox
-          command: yarn test-integrations --browsers sl_firefox_latest,sl_firefox_latest_1
+          command: yarn test-integrations firefox
+      - run:
+          name: Killing tunnel
+          command: kill $(cat sc.pid)
   test_safari:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
@@ -70,8 +90,18 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Start SauceConnect
+          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
+          background: true
+      - run:
+          name: Wait until it is ready
+          command: inotifywait --timeout 300 --event create .
+      - run:
           name: Test updated integrations in Safari
-          command: yarn test-integrations --browsers sl_safari_9
+          command: yarn test-integrations safari
+      - run:
+          name: Killing tunnel
+          command: kill $(cat sc.pid)
   test_ie:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
@@ -80,8 +110,18 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Start SauceConnect
+          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
+          background: true
+      - run:
+          name: Wait until it is ready
+          command: inotifywait --timeout 300 --event create .
+      - run:
           name: Test updated integrations in IE
-          command: yarn test-integrations --browsers sl_ie_9,sl_ie_10,sl_ie_11
+          command: yarn test-integrations ie
+      - run:
+          name: Killing tunnel
+          command: kill $(cat sc.pid)
   test_edge:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
@@ -90,8 +130,18 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Start SauceConnect
+          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
+          background: true
+      - run:
+          name: Wait until it is ready
+          command: inotifywait --timeout 300 --event create .
+      - run:
           name: Test updated integrations in Egde
-          command: yarn test-integrations --browsers sl_edge_latest
+          command: yarn test-integrations edge
+      - run:
+          name: Killing tunnel
+          command: kill $(cat sc.pid)
 
   test_snyk:
     docker:

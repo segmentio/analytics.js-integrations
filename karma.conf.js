@@ -1,79 +1,53 @@
 /* eslint-env node */
 'use strict';
 
-// By default, all
-const integrations = process.env.INTEGRATIONS || '';
+const getConfiguration = require('./karma/configuration');
 
-function getFiles() {
-  if (integrations === "") {
-    return ['integrations/**/test/**/*.test.js'];
-  } else {
-    return integrations.split(" ").map(function(integration) {
-      return 'integrations/' + integration + '/test/**/*.test.js';  
-    });
+/**
+ * Extract the integration names and the browser from the cli arguments.
+ * Usage: _karma arguments_ (<integration>,[...]|all) <browser-type>
+ */
+function parseArguments() {
+  const arg = {};
+
+  try {
+
+    let names = process.argv[process.argv.length-2];
+    if (names.includes('karma') || names == 'start') {
+      throw new Error('integrations and browser type are required');
+    }
+
+    if (!names || names == "all") {
+      arg.integrations = []; 
+    } else {
+      arg.integrations = names.split(',');
+    }
+
+     // Last argument is the browser
+    let browser = process.argv[process.argv.length-1];
+    if (!browser || browser.includes('karma') || browser == 'start') {
+      browser = 'phantomjs';
+    }
+    arg.browser = browser;
+
+  } catch (err) {
+    console.log(`Unrecognized arguments: ${err}`);
+    console.log('Usage: _karma arguments_ (<integration>,[...]|all) <browser-type>');
+    process.exit(10);
   }
-}
 
-function getPreprocessors() {
-  if (integrations === "") {
-    return {'integrations/**/test/**/*.js': 'browserify'};
-  } else {
-    let preprocessors = {};
-    integrations.split(" ").forEach(function(integration) {
-      preprocessors['integrations/' + integration + '/test/**/*.js'] = 'browserify';  
-    });
-    return preprocessors;
-  }
+  return arg;
 }
-
 
 module.exports = function(config) {
 
-  if (integrations === "") {
-    console.log("Testing all integrations")
+  let arg = parseArguments();
+
+  if (arg.integrations.length > 0) {
+    console.log('Integrations to test: %s in %s', arg.integrations, arg.browser);
   } else {
-    console.log(`Integrations to test: %s`, integrations)
+    console.log('Testing all integrations in %s', arg.browser);
   }
 
-  config.set({
-    files: getFiles(),
-    browsers: ['PhantomJS'],
-
-    frameworks: ['browserify', 'mocha'],
-
-    reporters: ['spec', 'coverage'],
-
-    preprocessors: getPreprocessors(),
-    browserDisconnectTimeout: 10000,
-    browserDisconnectTolerance: 10,
-    client: {
-      mocha: {
-        grep: process.env.GREP,
-        reporter: 'html',
-        timeout: 10000
-      }
-    },
-
-    browserify: {
-      debug: true,
-      transform: [
-        [
-          'browserify-istanbul',
-          {
-            instrumenterConfig: {
-              embedSource: true
-            }
-          }
-        ]
-      ]
-    },
-
-    coverageReporter: {
-      reporters: [
-        { type: 'text' },
-        { type: 'html' },
-        { type: 'json' }
-      ]
-    }
-  });
+  config.set(getConfiguration(arg));
 };
