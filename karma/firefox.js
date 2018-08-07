@@ -1,5 +1,5 @@
 
-function setFirefox(config) {
+function setFirefox (config) {
   config.customLaunchers = {
     sl_firefox_latest: {
       base: 'SauceLabs',
@@ -13,9 +13,9 @@ function setFirefox(config) {
       platform: 'linux',
       version: 'latest-1'
     }
-  };
-  config.browsers = Object.keys(config.customLaunchers);
-  return config;
+  }
+  config.browsers = Object.keys(config.customLaunchers)
+  return config
 }
 
-module.exports = setFirefox;
+module.exports = setFirefox

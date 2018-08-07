@@ -1,13 +1,12 @@
 
-
 /**
  * Base configuration for Karma.
- * 
+ *
  * Do not touch unless you know what you are doing.
  */
 module.exports = {
   exclude: [
-    "integrations/**/node_modules/**"
+    'integrations/**/node_modules/**'
   ],
   frameworks: ['browserify', 'mocha'],
   reporters: ['spec'],
@@ -35,4 +34,4 @@ module.exports = {
       ]
     ]
   }
-};
+}

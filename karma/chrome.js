@@ -1,5 +1,5 @@
 
-function setChrome(config) {
+function setChrome (config) {
   config.customLaunchers = {
     sl_chrome_latest: {
       base: 'SauceLabs',
@@ -13,9 +13,9 @@ function setChrome(config) {
       platform: 'linux',
       version: 'latest-1'
     }
-  };
-  config.browsers = Object.keys(config.customLaunchers);
-  return config;
+  }
+  config.browsers = Object.keys(config.customLaunchers)
+  return config
 }
 
-module.exports = setChrome;
+module.exports = setChrome

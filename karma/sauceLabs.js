@@ -2,33 +2,37 @@
 /**
  * Validates the credentials for Sauce Labs
  */
-function assertSauceLabs() {
+function assertSauceLabs () {
   if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
-    throw new Error('SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are required but are missing');
+    throw new Error('SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are required but are missing')
   }
 }
 
 /**
  * Sets the credentials and client settings for sauce labs.
- * 
- * @param {Karma.Configuration} config Configuration.
- * @param {String} tunnelId SauceConnect tunnel id. If undefined, it will use the default one.
+ *
+ * @param {Karma.Configuration} config Karma Configuration.
+ * @param {Object} arg Run arguments.
  */
-function configureSauceLabs(config, tunnelId) {
-  assertSauceLabs();
+function configureSauceLabs (config, arg) {
+  assertSauceLabs()
 
   config.sauceLabs = {
     recordScreenshots: false,
-    recordVideo: false,
+    recordVideo: true,
     startConnect: false,
-    testName: require('../package.json').name
-  };
-
-  if (tunnelId) {
-    config.sauceLabs.tunnelIdentifier = tunnelId;
+    testName: arg.testName || require('../package.json').name
   }
 
-  return config;
+  if (arg.tunnelId) {
+    config.sauceLabs.tunnelIdentifier = arg.tunnelId
+  }
+
+  if (arg.tags && arg.tags.length > 0) {
+    config.sauceLabs.tags = arg.tags
+  }
+
+  return config
 }
 
-module.exports = configureSauceLabs;
+module.exports = configureSauceLabs

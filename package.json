@@ -10,23 +10,26 @@
     "integrations/*"
   ],
   "devDependencies": {
-    "codecov": "^3.0.2",
+    "browserify": "^16.2.2",
     "karma": "^2.0.5",
     "karma-browserify": "^5.3.0",
-    "karma-browserstack-launcher": "^1.3.0",
     "karma-coverage": "^1.1.2",
     "karma-junit-reporter": "^1.2.0",
     "karma-mocha": "^1.3.0",
     "karma-phantomjs-launcher": "^1.0.4",
-    "karma-spec-reporter": "^0.0.32"
+    "karma-sauce-launcher": "^1.2.0",
+    "karma-spec-reporter": "^0.0.32",
+    "standard": "^11.0.1",
+    "watchify": "^3.11.0"
   },
   "scripts": {
     "clean": "rm -rf *.log coverage bin/* node_modules",
     "coverage": "codecov",
-    "fmt": "eslint --fix integrations/**/lib/ integrations/**/test/",
+    "fmt": "standard --fix",
     "lint": "eslint integrations/**/lib/ integrations/**/test/",
     "publish-integrations": "scripts/publish-integrations",
-    "test-all-integrations": "karma start karma.conf.js --single-run",
-    "test-integrations": "scripts/test-integrations"
+    "test-all-integrations": "karma start karma.conf.js all",
+    "test-integration": "karma start karma.conf.js",
+    "test-updated-integrations": "scripts/test-integrations"
   }
 }

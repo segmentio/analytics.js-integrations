@@ -32,14 +32,9 @@ jobs:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
           name: Test updated integrations in PhantomJS
-          command: yarn test-integrations PhantomJS
-      - store_artifacts:
-          path: coverage
-      - run:
-          name: Coverage
-          command: yarn coverage
+          command: yarn test-updated-integrations PhantomJS
 
-  test_chrome:
+  test_saucelabs:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
         environment:
@@ -48,97 +43,33 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Tagging tunnel
+          command: |
+            SC_TUNNEL_ID="ajs-integrations-${CIRCLE_BUILD_NUM}"
+            echo "export SC_TUNNEL_ID=${SC_TUNNEL_ID}" >> ${BASH_ENV}
+            source ${BASH_ENV}
+      - run:
           name: Start SauceConnect
-          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
+          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid -i ${SC_TUNNEL_ID}
           background: true
       - run:
           name: Wait until it is ready
-          command: inotifywait --timeout 300 --event create .
+          command: inotifywait --timeout 300 --exclude sc.pid --event create .
       - run:
           name: Test updated integrations in Chrome
-          command: yarn test-integrations chrome
-      - run:
-          name: Killing tunnel
-          command: kill $(cat sc.pid)
-  test_firefox:
-    docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        environment:
-    steps:
-      - attach_workspace: { at: . }
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Start SauceConnect
-          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
-          background: true
-      - run:
-          name: Wait until it is ready
-          command: inotifywait --timeout 300 --event create .
+          command: yarn test-updated-integrations chrome
       - run:
           name: Test updated integrations in Firefox
-          command: yarn test-integrations firefox
-      - run:
-          name: Killing tunnel
-          command: kill $(cat sc.pid)
-  test_safari:
-    docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        environment:
-    steps:
-      - attach_workspace: { at: . }
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Start SauceConnect
-          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
-          background: true
-      - run:
-          name: Wait until it is ready
-          command: inotifywait --timeout 300 --event create .
-      - run:
-          name: Test updated integrations in Safari
-          command: yarn test-integrations safari
-      - run:
-          name: Killing tunnel
-          command: kill $(cat sc.pid)
-  test_ie:
-    docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-    steps:
-      - attach_workspace: { at: . }
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Start SauceConnect
-          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
-          background: true
-      - run:
-          name: Wait until it is ready
-          command: inotifywait --timeout 300 --event create .
+          command: yarn test-updated-integrations firefox
       - run:
           name: Test updated integrations in IE
-          command: yarn test-integrations ie
-      - run:
-          name: Killing tunnel
-          command: kill $(cat sc.pid)
-  test_edge:
-    docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-    steps:
-      - attach_workspace: { at: . }
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Start SauceConnect
-          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid
-          background: true
-      - run:
-          name: Wait until it is ready
-          command: inotifywait --timeout 300 --event create .
+          command: yarn test-updated-integrations ie
       - run:
           name: Test updated integrations in Egde
-          command: yarn test-integrations edge
+          command: yarn test-updated-integrations edge
+      - run:
+          name: Test updated integrations in Safari
+          command: yarn test-updated-integrations safari
       - run:
           name: Killing tunnel
           command: kill $(cat sc.pid)
@@ -177,19 +108,7 @@ workflows:
       - test_phantomjs:
           requires:
             - setup
-      - test_chrome:
-          requires:
-            - setup
-      - test_firefox:
-          requires:
-            - setup
-      - test_safari:
-          requires:
-            - setup
-      - test_ie:
-          requires:
-            - setup
-      - test_edge:
+      - test_saucelabs:
           requires:
             - setup
       - test_snyk:
@@ -199,11 +118,7 @@ workflows:
       - publish:
           requires:
             - test_phantomjs
-            - test_chrome
-            - test_firefox
-            - test_safari
-            - test_ie
-            - test_edge
+            - test_saucelabs
           filters:
             branches:
               only: master

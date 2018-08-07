@@ -1,7 +1,7 @@
 
-function setPhantomJS(config) {
-  config.browsers = ['PhantomJS'];
-  return config;
+function setPhantomJS (config) {
+  config.browsers = ['PhantomJS']
+  return config
 }
 
-module.exports = setPhantomJS;
+module.exports = setPhantomJS
