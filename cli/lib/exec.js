@@ -1,22 +1,27 @@
 const log = require("./log");
+const ora = require("ora");
 
-const { spawn } = require("child_process");
+const { exec: nodeExec } = require("child_process");
 
-function exec(cmd, args) {
+function exec(cmd, opts) {
+  // The extra \n fixes a weird quirk of ora spinners
+  const spinner = ora(cmd + "\n").start();
+
   return new Promise((resolve, reject) => {
-    const proc = spawn(cmd, args);
+    nodeExec(cmd, opts, (error, stdout, stderr) => {
+      if (error) {
+        spinner.stop();
+        reject(error);
+        return;
+      }
 
-    proc.stdout.on("data", data => {
-      log.body(data);
-    });
+      // stderr is often used for more 'verbose' log info instead of
+      // actual "errors".
+      log.verbose(stderr);
+      log.body(stdout);
 
-    proc.stderr.on("data", data => {
-      log.verbose(data);
-    });
-
-    proc.on("close", code => {
-      if (code === 0) resolve();
-      else reject(code);
+      spinner.stop();
+      resolve(stdout, stderr);
     });
   });
 }

@@ -1,6 +1,7 @@
 "use strict";
 
 const { Builder } = require("@segment/ajs-renderer");
+const exec = require("../lib/exec");
 
 // Mocks builder's "stats" param that we don't actually use
 const fakeStats = {
@@ -9,7 +10,7 @@ const fakeStats = {
 
 const WRITE_KEY = "ajs-cli";
 
-function up() {
+function buildArgs() {
   const integrations = {
     convertro: "v1.33.7"
   };
@@ -35,7 +36,7 @@ function up() {
     }
   ];
 
-  const results = Builder.render({
+  return {
     project: {
       writeKeys: [WRITE_KEY]
     },
@@ -55,7 +56,13 @@ function up() {
       platformIntegrations: {}
     },
     schemaPlan: { track: { foo: "bar" } }
-  });
+  };
+}
+
+function up() {
+  const results = Builder.render(buildArgs());
+
+  exec("make");
 
   console.log(results);
 }
