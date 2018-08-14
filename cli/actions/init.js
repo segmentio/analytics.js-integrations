@@ -1,13 +1,15 @@
 "use strict";
 
 const log = require("../lib/log");
-const exec = require("../lib/exec");
+const spawn = require("../lib/spawn");
 const { AJS_PRIVATE_LOCATION } = require("../constants");
 
 function init() {
-  exec(
-    `git clone git@github.com:segmentio/analytics.js-private.git ${AJS_PRIVATE_LOCATION}`
-  ).catch(err => log.error(err));
+  spawn("git", [
+    "clone",
+    "git@github.com:segmentio/analytics.js-private.git",
+    AJS_PRIVATE_LOCATION
+  ]).catch(code => log.error(`git clone failed with code: ${code}`));
 }
 
 module.exports = init;

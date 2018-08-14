@@ -1,7 +1,8 @@
 "use strict";
 
 const { Builder } = require("@segment/ajs-renderer");
-const exec = require("../lib/exec");
+const spawn = require("../lib/spawn");
+const { AJS_PRIVATE_LOCATION } = require("../constants");
 
 // Mocks builder's "stats" param that we don't actually use
 const fakeStats = {
@@ -62,9 +63,7 @@ function buildArgs() {
 function up() {
   const results = Builder.render(buildArgs());
 
-  exec("make");
-
-  console.log(results);
+  spawn("make");
 }
 
 module.exports = up;

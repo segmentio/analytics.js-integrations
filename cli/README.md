@@ -1,12 +1,14 @@
 # ajs-cli
+
 > Makes ajs testing a piece of cake! 🍰
 
 `ajs-cli` exists to help you test analytics.js integrations simply and easily.
 
-## Install 
+## Install
 
 ```sh
-$ alias ajs=~/path/to/analytics.js-private/cli/index.js
+$ alias ajs=~/path/to/analytics.js-integrations/cli/index.js
+$ ajs init
 ```
 
 ## Usage
@@ -23,7 +25,7 @@ Then, we'll generate the relevant settings information for the integration with:
 $ ajs sync convertro
 ```
 
-This generates a `~/.ajs.settings.json` file in your home directory. If you already have this file, it'll add add it as a key in json. 
+This generates a `~/.ajs.settings.json` file in your home directory. If you already have this file, it'll add add it as a key in json.
 
 ```sh
 $ cat ~/.ajs.settings.json
@@ -43,4 +45,3 @@ $ ajs up
 ```
 
 Then you can connect to it on localhost:3000
-
