@@ -1,17 +1,17 @@
-'use strict';
+"use strict";
 
-const { Builder } = require('@segment/ajs-renderer');
+const { Builder } = require("@segment/ajs-renderer");
 
 // Mocks builder's "stats" param that we don't actually use
 const fakeStats = {
   incr: () => {} // noop
 };
 
-const WRITE_KEY = 'ajs-cli';
+const WRITE_KEY = "ajs-cli";
 
 function up() {
   const integrations = {
-    convertro: 'v1.33.7'
+    convertro: "v1.33.7"
   };
 
   const settings = {}; // TODO
@@ -19,19 +19,19 @@ function up() {
   const enabledConfigs = [
     {
       enabled: true,
-      metadataId: 'some-id',
+      metadataId: "some-id",
       settings
     }
   ];
 
   const destinationDefinitions = [
     {
-      name: 'convertro',
-      creationName: 'convertro',
-      id: 'some-id',
+      name: "convertro",
+      creationName: "convertro",
+      id: "some-id",
       options: settings,
-      branch: 'staging',
-      ajsVersion: '0.0.1-fake'
+      branch: "staging",
+      ajsVersion: "0.0.1-fake"
     }
   ];
 
@@ -45,16 +45,16 @@ function up() {
     destinationDefinitions,
     enabledConfigs,
     templates: {
-      unminifiedTemplate: '',
-      minifiedTemplate: '',
-      unminifiedPlatformTemplate: '',
-      minifiedPlatformTemplate: ''
+      unminifiedTemplate: "",
+      minifiedTemplate: "",
+      unminifiedPlatformTemplate: "",
+      minifiedPlatformTemplate: ""
     },
     stats: fakeStats,
     platformMetadata: {
       platformIntegrations: {}
     },
-    schemaPlan: { track: { foo: 'bar' } }
+    schemaPlan: { track: { foo: "bar" } }
   });
 
   console.log(results);
