@@ -21,9 +21,15 @@ function error(txt) {
   log(chalk.red(txt));
 }
 
+// Something that needs to be called out
+function important(txt) {
+  log(`\n  ${chalk.blue(txt)}\n`);
+}
+
 module.exports = {
   title,
   body,
   verbose,
-  error
+  error,
+  important
 };

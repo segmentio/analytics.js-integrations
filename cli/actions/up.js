@@ -1,8 +1,12 @@
 "use strict";
 
+const path = require("path");
+const fs = require("fs-extra");
 const { Builder } = require("@segment/ajs-renderer");
 const spawn = require("../lib/spawn");
 const { AJS_PRIVATE_LOCATION } = require("../constants");
+const log = require("../lib/log");
+const reportErr = require("../lib/report");
 
 // Mocks builder's "stats" param that we don't actually use
 const fakeStats = {
@@ -11,12 +15,14 @@ const fakeStats = {
 
 const WRITE_KEY = "ajs-cli";
 
-function buildArgs() {
+function buildArgs(templates) {
   const integrations = {
     convertro: "v1.33.7"
   };
 
-  const settings = {}; // TODO
+  const settings = {
+    FakeSettings: {}
+  }; // TODO
 
   const enabledConfigs = [
     {
@@ -46,12 +52,7 @@ function buildArgs() {
     },
     destinationDefinitions,
     enabledConfigs,
-    templates: {
-      unminifiedTemplate: "",
-      minifiedTemplate: "",
-      unminifiedPlatformTemplate: "",
-      minifiedPlatformTemplate: ""
-    },
+    templates,
     stats: fakeStats,
     platformMetadata: {
       platformIntegrations: {}
@@ -60,10 +61,46 @@ function buildArgs() {
   };
 }
 
-function up() {
-  const results = Builder.render(buildArgs());
+async function makeTemplates() {
+  log.title("Creating ajs templates, this might take a minute or two ⏲");
+  return spawn("make", ["build"], {
+    cwd: AJS_PRIVATE_LOCATION
+  });
+}
 
-  spawn("make");
+async function readTemplates() {
+  log.title("Reading the ajs template files");
+
+  return {
+    minifiedTemplate: await fs.readFile(
+      path.join(AJS_PRIVATE_LOCATION, "templates", "analytics.min.js")
+    ),
+    unminifiedTemplate: await fs.readFile(
+      path.join(AJS_PRIVATE_LOCATION, "templates", "analytics.js")
+    ),
+    minifiedPlatformTemplate: await fs.readFile(
+      path.join(AJS_PRIVATE_LOCATION, "templates", "platform.min.js")
+    ),
+    unminifiedPlatformTemplate: await fs.readFile(
+      path.join(AJS_PRIVATE_LOCATION, "templates", "platform.js")
+    )
+  };
+}
+
+async function makeAndReadTemplates() {
+  await makeTemplates();
+  return readTemplates();
+}
+
+function up(yargs) {
+  const { rebuild } = yargs.boolean("rebuild").argv;
+  const getTemplates = rebuild ? makeAndReadTemplates : readTemplates;
+
+  getTemplates()
+    .then(templates => buildArgs(templates))
+    .then(Builder.render)
+    .then(console.log)
+    .catch(reportErr);
 }
 
 module.exports = up;

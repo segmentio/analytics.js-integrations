@@ -11,13 +11,13 @@ function spawn(cmd, args, opts) {
     const proc = nodeSpawn(cmd, args, opts);
 
     proc.stdout.on("data", data => {
-      log.body(data);
+      log.verbose(data.toString());
     });
 
     // stderr is often used for more 'verbose' log info instead of
     // actual "errors".
     proc.stderr.on("data", data => {
-      log.verbose(data);
+      log.verbose(data.toString());
     });
 
     proc.on("close", code => {
