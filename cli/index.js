@@ -3,7 +3,7 @@
 
 const up = require("./actions/up");
 const sync = require("./actions/sync");
-const init = require("./acitons/init");
+const init = require("./actions/init");
 const yargs = require("yargs");
 
 yargs.scriptName("ajs").demandCommand(1);

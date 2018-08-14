@@ -1,5 +1,7 @@
 const log = require("./log");
 
+const { spawn } = require("child_process");
+
 function exec(cmd, args) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args);
@@ -9,7 +11,7 @@ function exec(cmd, args) {
     });
 
     proc.stderr.on("data", data => {
-      log.error(data);
+      log.verbose(data);
     });
 
     proc.on("close", code => {
