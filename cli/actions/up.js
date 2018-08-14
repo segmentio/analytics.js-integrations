@@ -8,21 +8,19 @@ const { AJS_PRIVATE_LOCATION } = require("../constants");
 const log = require("../lib/log");
 const reportErr = require("../lib/report");
 
-// Mocks builder's "stats" param that we don't actually use
-const fakeStats = {
-  incr: () => {} // noop
-};
-
-const WRITE_KEY = "ajs-cli";
-
-function buildArgs(templates) {
-  const integrations = {
-    convertro: "v1.33.7"
+/**
+ * Generates arguments for builder.render()
+ * Most of it is fluff content made to appease the type checks.
+ *
+ * @return JSON args
+ */
+function buildArgs(templates, integrations, settings) {
+  // Mocks builder's "stats" param that we don't actually use
+  const fakeStats = {
+    incr: () => {} // noop
   };
 
-  const settings = {
-    FakeSettings: {}
-  }; // TODO
+  const WRITE_KEY = "ajs-cli";
 
   const enabledConfigs = [
     {
@@ -108,8 +106,16 @@ function up(yargs) {
   // we'll crash.
   const builder = new Builder();
 
+  // TODO: Hookup current integration
+  const integrations = {
+    convertro: "v1.33.7"
+  };
+
+  // TODO: Hookup settings
+  const settings = {};
+
   getTemplates()
-    .then(templates => buildArgs(templates))
+    .then(templates => buildArgs(templates, integrations, settings))
     .then(builder.render)
     .then(console.log)
     .catch(reportErr);
