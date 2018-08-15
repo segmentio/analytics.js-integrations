@@ -56,7 +56,10 @@ function buildArgs(templates, integrations, settings) {
     platformMetadata: {
       platformIntegrations: {}
     },
-    schemaPlan: { track: { foo: "bar" } }
+    schemaPlan: { track: { foo: "bar" } },
+    metrics: {
+      sampleRate: 0.1
+    }
   };
 }
 
@@ -98,14 +101,20 @@ async function makeAndReadTemplates() {
 async function cacheLocalTemplates(templates) {
   log.title("Caching minified local template files for use in demo site");
 
+  const AJS = "analytics.js/v1/ajs-cli/analytics.js";
+  const PLATFORM = "analytics.js/v1/ajs-cli/platform/analytics.js";
+
+  if (!templates[AJS]) throw `No templates for ${AJS}`;
+  if (!templates[PLATFORM]) throw `No templates for ${PLATFORM}`;
+
   await fs.ensureDir(path.join(".", "static", ".ajs"));
   await fs.writeFile(
-    path.join(".", "static", ".ajs", "analytics.min.js"),
-    templates.minifiedTemplate
+    path.join(".", "static", ".ajs", "analytics.js"),
+    templates[AJS]
   );
   await fs.writeFile(
-    path.join(".", "static", ".ajs", "platform.min.js"),
-    templates.minifiedPlatformTemplate
+    path.join(".", "static", ".ajs", "platform.js"),
+    templates[PLATFORM]
   );
 }
 
@@ -127,15 +136,15 @@ function up(yargs) {
   };
 
   // TODO: Hookup settings
-  const settings = {};
+  const settings = {
+    metrics: "foo"
+  };
 
   getTemplates()
     .then(templates => buildArgs(templates, integrations, settings))
-    .then(builder.render)
-    .then(data => data.templates)
+    .then(args => Builder.render(args))
     .then(async templates => {
       await cacheLocalTemplates(templates);
-
       log.title("Attempting to launch next.js demo site\n");
       server();
     })

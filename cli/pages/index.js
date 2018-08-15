@@ -7,8 +7,8 @@ function dangerouslyAddScriptToDocument(path) {
 class App extends React.Component {
   componentDidMount() {
     // Oh boy we're about to do a bad thing close your eyes
-    dangerouslyAddScriptToDocument("/static/.ajs/analytics.min.js");
-    dangerouslyAddScriptToDocument("/static/.ajs/platform.min.js");
+    dangerouslyAddScriptToDocument("/static/.ajs/analytics.js");
+    dangerouslyAddScriptToDocument("/static/.ajs/platform.js");
   }
 
   render() {
