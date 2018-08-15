@@ -1,5 +1,11 @@
 const chalk = require("chalk");
 
+let isVerbose = false;
+
+function setup(yargs) {
+  isVerbose = Boolean(yargs.verbose);
+}
+
 // Headers for things we're about to do
 function title(txt) {
   console.log("-->", chalk.blue(txt));
@@ -12,6 +18,8 @@ function body(txt) {
 
 // User info that could be hidden
 function verbose(txt) {
+  if (!isVerbose) return;
+
   // Uses error by default so we can ignore the output in scripts
   console.error(chalk.dim(txt));
 }
@@ -31,5 +39,6 @@ module.exports = {
   body,
   verbose,
   error,
-  important
+  important,
+  setup
 };

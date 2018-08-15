@@ -5,7 +5,10 @@ const log = require("./lib/log");
 async function start() {
   const port = parseInt(process.env.PORT, 10) || 4000;
   const dev = process.env.NODE_ENV !== "production";
-  const app = next({ dev, quiet: true });
+
+  // without the __dirname, next will look for a `pages` directory where
+  // the command is run
+  const app = next({ dev, quiet: true, dir: __dirname });
   const handle = app.getRequestHandler();
 
   return app.prepare().then(() => {

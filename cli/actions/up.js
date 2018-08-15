@@ -135,6 +135,22 @@ async function cacheLocalTemplates(templates) {
   );
 }
 
+async function linkCurrentPackage() {
+  const { name } = await fs.readJSON("package.json");
+  if (!name.match(/@segment\/analytics.js-integration-/g)) {
+    log.error(
+      `This repo, ${name} doesn't look like an analytics.js integration.` +
+        ` Are you running "ajs up" inside the integrations root directory?`
+    );
+    process.exit(1);
+  }
+
+  log.title(`Linking ${name}`);
+
+  await spawn("npm", ["link"]);
+  await spawn("npm", ["link", name], { cwd: AJS_PRIVATE_LOCATION });
+}
+
 async function render(shouldRebuild) {
   const getTemplates = shouldRebuild ? makeAndReadTemplates : readTemplates;
 
@@ -149,12 +165,17 @@ async function render(shouldRebuild) {
   return Builder.render(buildArgs(templates, integrations, settings));
 }
 
+async function prepareSite(shouldRebuild) {
+  await linkCurrentPackage();
+  return await render(shouldRebuild);
+}
+
 function up(yargs) {
   // Run with --no-rebuild to avoid running make (which can be slow)
   // This is mostly for testing / dev of the tool
   const { rebuild = true } = yargs.boolean("rebuild").argv;
 
-  render(rebuild)
+  prepareSite(rebuild)
     .then(async templates => {
       await cacheLocalTemplates(templates);
       log.title("Attempting to launch next.js demo site\n");
