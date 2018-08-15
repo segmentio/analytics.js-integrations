@@ -8,3 +8,5 @@ integrations/**/yarn.lock
 # ajs-cli stuff
 .next
 .ajs
+*.xml
+

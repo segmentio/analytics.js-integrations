@@ -11,18 +11,23 @@ Released under the [MIT license](LICENSE).
 Use always `yarn`, not `npm` to install your packges.
 
 ### Lint
-TBD (probably `standard` without configuration).
+
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ### Tests
 Karma + Mocha. Supported browsers:
-- PhantomJS
-- Chrome latest
-- Firefox latest
-- Safari 9
-- IE 9
-- IE 10
-- IE 11
-- Edge latest
+- PhantomJS (local and CircleCI)
+- Chrome latest (CircleCI only)
+- Firefox latest (CircleCI only)
+- Safari 9 (CircleCI only)
+- IE 9 (CircleCI only)
+- IE 10 (CircleCI only)
+- IE 11 (CircleCI only)
+- Edge latest (CircleCI only)
+
+* Test one integration: `$ yarn test-integration <integration-name> <browser-type>`
+* Test updated integrations (require Golang): `$ yarn test-updated-integrations <browser-type>`
+* Test all integrarions: `$ yarn test-all-integrations <browser-type>`
 
 ### Credentials
 (Work in progress)

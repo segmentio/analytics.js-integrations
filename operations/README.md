@@ -76,3 +76,9 @@ for the CI docker image.
 **IMPORTANT:** The following extensions need to be present for libgit2:
 - `openssl`
 - `libhttp-parser-dev`
+
+## SauceConnect
+
+We use SauceConnect to make a tunnel between localhost and SauceLabs infrastructure. To install
+it, check [this script](ci/install-sc). This is also required
+for the CI docker image.

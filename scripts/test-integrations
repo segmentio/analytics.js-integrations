@@ -1,15 +1,10 @@
 #!/bin/bash
 
-# Usage: test-integrations [<browser-type> [...]]
+# Usage: test-integrations [<browser-type>]
 
 set -e
 
 export PATH="ci/bin/:$PATH";
-if [ "$CI" == "true" ]; then {
-    KARMA_FILE=karma.conf.ci.js;
-} else {
-    KARMA_FILE=karma.conf.js;
-} fi;
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD);
 if [ "$BRANCH" == "master" ]; then {
@@ -25,5 +20,9 @@ if [ ${#INTEGRATIONS[@]} -eq 0 ]; then {
     exit 0;
 } fi;
 
-I="${INTEGRATIONS[@]}"
-env INTEGRATIONS="$I" karma start $@ $KARMA_FILE --single-run;
+BROWSER="$1";
+if [ "$BROWSER" == "" ]; then {
+    BROWSER="phantomjs";
+} fi;
+
+karma start karma.conf.js $(printf ",%s" "${INTEGRATIONS[@]}") $BROWSER;
