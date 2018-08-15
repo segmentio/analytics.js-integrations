@@ -1,5 +1,5 @@
 {
-  "name": "ajs-cli",
+  "name": "@segment/ajs-cli",
   "version": "0.0.0",
   "main": "index.js",
   "dependencies": {
@@ -17,5 +17,6 @@
   },
   "bin": {
     "ajs": "./index.js"
-  }
+  },
+  "private": true
 }
