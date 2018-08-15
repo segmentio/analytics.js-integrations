@@ -8,7 +8,7 @@
 
 ```sh
 $ alias ajs=~/path/to/analytics.js-integrations/cli/index.js
-$ ajs init
+$ ajs init # clones/downloads dependencies
 ```
 
 ## Usage
@@ -45,3 +45,15 @@ $ ajs up
 ```
 
 Then you can connect to it on localhost:3000
+
+## Quirks
+
+### ajs up --no-rebuild
+
+If you would prefer that ajs does not rebuild templates (which takes awhile), you can run:
+
+```
+$ ajs up --no-rebuild
+```
+
+This can be useful if you ctrl-c and want to open up the website again without making any changes.

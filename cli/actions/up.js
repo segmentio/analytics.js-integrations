@@ -121,7 +121,7 @@ async function cacheLocalTemplates(templates) {
 function up(yargs) {
   // Run with --no-rebuild to avoid running make (which can be slow)
   // This is mostly for testing / dev of the tool
-  const { rebuild } = yargs.boolean("rebuild").argv;
+  const { rebuild = true } = yargs.boolean("rebuild").argv;
   const getTemplates = rebuild ? makeAndReadTemplates : readTemplates;
 
   // Note that even though Builder.render is "static", "static" in JS does
