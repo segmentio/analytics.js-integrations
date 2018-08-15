@@ -1,6 +1,6 @@
 {
   "name": "@segment/ajs-cli",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "dependencies": {
     "@segment/ajs-renderer": "^1.7.1",
