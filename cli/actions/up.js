@@ -7,6 +7,7 @@ const spawn = require("../lib/spawn");
 const { AJS_PRIVATE_LOCATION } = require("../constants");
 const log = require("../lib/log");
 const reportErr = require("../lib/report");
+const server = require("../server");
 
 /**
  * Generates arguments for builder.render()
@@ -94,6 +95,20 @@ async function makeAndReadTemplates() {
   return readTemplates();
 }
 
+async function cacheLocalTemplates(templates) {
+  log.title("Caching minified local template files for use in demo site");
+
+  await fs.ensureDir(path.join(".", "static", ".ajs"));
+  await fs.writeFile(
+    path.join(".", "static", ".ajs", "analytics.min.js"),
+    templates.minifiedTemplate
+  );
+  await fs.writeFile(
+    path.join(".", "static", ".ajs", "platform.min.js"),
+    templates.minifiedPlatformTemplate
+  );
+}
+
 function up(yargs) {
   // Run with --no-rebuild to avoid running make (which can be slow)
   // This is mostly for testing / dev of the tool
@@ -117,7 +132,13 @@ function up(yargs) {
   getTemplates()
     .then(templates => buildArgs(templates, integrations, settings))
     .then(builder.render)
-    .then(console.log)
+    .then(data => data.templates)
+    .then(async templates => {
+      await cacheLocalTemplates(templates);
+
+      log.title("Attempting to launch next.js demo site\n");
+      server();
+    })
     .catch(reportErr);
 }
 

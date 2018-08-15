@@ -4,3 +4,7 @@ coverage/
 *.log
 package-lock.json
 integrations/**/yarn.lock
+
+# ajs-cli stuff
+.next
+.ajs

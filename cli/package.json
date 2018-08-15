@@ -5,9 +5,14 @@
   "dependencies": {
     "@segment/ajs-renderer": "^1.7.1",
     "chalk": "^2.4.1",
+    "evergreen-ui": "^3.2.4",
+    "express": "^4.16.3",
     "fs-extra": "^7.0.0",
     "github-paths": "^0.2.5",
+    "next": "^6.1.1",
     "ora": "^3.0.0",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
     "yargs": "^12.0.1"
   },
   "bin": {
