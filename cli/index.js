@@ -14,8 +14,13 @@ yargs
 
 yargs
   .command(
-    "sync",
+    "sync [slug]",
     "creates a local settings file at ~/.ajs.settings.json",
+    {
+      slug: {
+        description: "The metadata slug for an integration (ex: 'hubspot')"
+      }
+    },
     sync
   )
   .showHelpOnFail(true);
