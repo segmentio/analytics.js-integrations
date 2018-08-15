@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const { Builder } = require("@segment/ajs-renderer");
 const spawn = require("../lib/spawn");
-const { AJS_PRIVATE_LOCATION } = require("../constants");
+const { AJS_PRIVATE_LOCATION, AJS_SETTINGS_LOCATION } = require("../constants");
 const log = require("../lib/log");
 const reportErr = require("../lib/report");
 const server = require("../server");
@@ -63,6 +63,23 @@ function buildArgs(templates, integrations, settings) {
   };
 }
 
+async function getSettings() {
+  log.title(`Reading settings from ${AJS_SETTINGS_LOCATION}`);
+
+  try {
+    return await fs.readJson(AJS_SETTINGS_LOCATION);
+  } catch (err) {
+    // "file not exist" errors are user errors here
+    if (err.code === "ENOENT") {
+      log.error(
+        "ajs-cli can't find a settings file. Did you run `ajs sync <slug>` first?"
+      );
+      process.exit(1);
+    }
+    throw err;
+  }
+}
+
 async function makeTemplates() {
   log.title("Creating ajs templates, this might take a minute or two ⏲");
   return spawn("make", ["build"], {
@@ -118,31 +135,26 @@ async function cacheLocalTemplates(templates) {
   );
 }
 
-function up(yargs) {
-  // Run with --no-rebuild to avoid running make (which can be slow)
-  // This is mostly for testing / dev of the tool
-  const { rebuild = true } = yargs.boolean("rebuild").argv;
-  const getTemplates = rebuild ? makeAndReadTemplates : readTemplates;
+async function render(shouldRebuild) {
+  const getTemplates = shouldRebuild ? makeAndReadTemplates : readTemplates;
 
-  // Note that even though Builder.render is "static", "static" in JS does
-  // not work the same way here. Newing up a new instance of Builder
-  // allows us to have a `this` inside Builder.render; without it
-  // we'll crash.
-  const builder = new Builder();
+  const settings = await getSettings(); // Call this first so user error is caught ASAP
+  const templates = await getTemplates();
 
   // TODO: Hookup current integration
   const integrations = {
     convertro: "v1.33.7"
   };
 
-  // TODO: Hookup settings
-  const settings = {
-    metrics: "foo"
-  };
+  return Builder.render(buildArgs(templates, integrations, settings));
+}
 
-  getTemplates()
-    .then(templates => buildArgs(templates, integrations, settings))
-    .then(args => Builder.render(args))
+function up(yargs) {
+  // Run with --no-rebuild to avoid running make (which can be slow)
+  // This is mostly for testing / dev of the tool
+  const { rebuild = true } = yargs.boolean("rebuild").argv;
+
+  render(rebuild)
     .then(async templates => {
       await cacheLocalTemplates(templates);
       log.title("Attempting to launch next.js demo site\n");
