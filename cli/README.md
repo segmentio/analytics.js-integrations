@@ -57,3 +57,14 @@ $ ajs up --no-rebuild
 ```
 
 This can be useful if you ctrl-c and want to open up the website again without making any changes.
+
+### ajs <cmd> --verbose
+
+Every command has a `--verbose` command that will show all the output of the commands it's running
+behind the scenes. This can be useful for debugging the app, but isn't necessary for normal operation.
+
+Example:
+
+```
+$ ajs up --verbose
+```
