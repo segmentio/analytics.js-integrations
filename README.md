@@ -1,5 +1,7 @@
 # Analytics.js Integrations
+
 [![Circle CI](https://ci.segment.com/gh/segmentio/analytics.js-integrations.svg?style=svg&circle-token=9ea127ae84700c7717d40e7f3ab2cb75a927292d)](https://ci.segment.com/gh/segmentio/analytics.js-integrations)
+[![Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## License
 
