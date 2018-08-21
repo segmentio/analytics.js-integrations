@@ -36,9 +36,6 @@
     "browserify": "^13.0.0",
     "browserify-istanbul": "^2.0.0",
     "istanbul": "^0.4.3",
-    "mocha": "^2.2.5",
-    "npm-check": "^5.2.1",
-    "phantomjs-prebuilt": "^2.1.7",
-    "watchify": "^3.7.0"
+    "mocha": "^2.2.5"
   }
 }
