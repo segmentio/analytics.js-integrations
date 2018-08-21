@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
 /**
  * Module dependencies.
  */
 
-var Identify = require('segmentio-facade').Identify;
-var convert = require('@segment/convert-dates');
-var integration = require('@segment/analytics.js-integration');
-var push = require('global-queue')('_hsq');
-var each = require('@ndhoule/each');
+var Identify = require('segmentio-facade').Identify
+var convert = require('@segment/convert-dates')
+var integration = require('@segment/analytics.js-integration')
+var push = require('global-queue')('_hsq')
+var each = require('@ndhoule/each')
 
 /**
  * Expose `HubSpot` integration.
@@ -18,7 +18,7 @@ var HubSpot = module.exports = integration('HubSpot')
   .assumesPageview()
   .global('_hsq')
   .option('portalId', null)
-  .tag('<script id="hs-analytics" src="https://js.hs-analytics.net/analytics/{{ cacheBuster }}/{{ portalId }}.js">');
+  .tag('<script id="hs-analytics" src="https://js.hs-analytics.net/analytics/{{ cacheBuster }}/{{ portalId }}.js">')
 
 /**
  * Initialize.
@@ -26,11 +26,11 @@ var HubSpot = module.exports = integration('HubSpot')
  * @api public
  */
 
-HubSpot.prototype.initialize = function() {
-  window._hsq = [];
-  var cacheBuster = Math.ceil(new Date() / 300000) * 300000;
-  this.load({ cacheBuster: cacheBuster }, this.ready);
-};
+HubSpot.prototype.initialize = function () {
+  window._hsq = []
+  var cacheBuster = Math.ceil(new Date() / 300000) * 300000
+  this.load({ cacheBuster: cacheBuster }, this.ready)
+}
 
 /**
  * Loaded?
@@ -39,9 +39,9 @@ HubSpot.prototype.initialize = function() {
  * @return {boolean}
  */
 
-HubSpot.prototype.loaded = function() {
-  return !!(window._hsq && window._hsq.push !== Array.prototype.push);
-};
+HubSpot.prototype.loaded = function () {
+  return !!(window._hsq && window._hsq.push !== Array.prototype.push)
+}
 
 /**
  * Page.
@@ -50,9 +50,9 @@ HubSpot.prototype.loaded = function() {
  * @param {Page} page
  */
 
-HubSpot.prototype.page = function() {
-  push('trackPageView');
-};
+HubSpot.prototype.page = function () {
+  push('trackPageView')
+}
 
 /**
  * Identify.
@@ -61,27 +61,27 @@ HubSpot.prototype.page = function() {
  * @param {Identify} identify
  */
 
-HubSpot.prototype.identify = function(identify) {
+HubSpot.prototype.identify = function (identify) {
   // use newer version of Identify to have access to `companyName`
   var newIdentify = new Identify({
     traits: identify.traits(),
     userId: identify.userId()
-  });
+  })
 
   if (!newIdentify.email()) {
-    return;
+    return
   }
 
-  var traits = newIdentify.traits({ firstName: 'firstname', lastName: 'lastname' });
-  traits = convertDates(traits);
-  traits = formatTraits(traits);
+  var traits = newIdentify.traits({ firstName: 'firstname', lastName: 'lastname' })
+  traits = convertDates(traits)
+  traits = formatTraits(traits)
 
   if (newIdentify.companyName() !== undefined) {
-    traits.company = newIdentify.companyName();
+    traits.company = newIdentify.companyName()
   }
 
-  push('identify', traits);
-};
+  push('identify', traits)
+}
 
 /**
  * Track.
@@ -90,14 +90,14 @@ HubSpot.prototype.identify = function(identify) {
  * @param {Track} track
  */
 
-HubSpot.prototype.track = function(track) {
+HubSpot.prototype.track = function (track) {
   // Hubspot expects properties.id to be the name of the .track() event
   // Ref: http://developers.hubspot.com/docs/methods/enterprise_events/javascript_api
-  var props = convertDates(track.properties({ id: '_id', revenue: 'value' }));
-  props.id = track.event();
+  var props = convertDates(track.properties({ id: '_id', revenue: 'value' }))
+  props.id = track.event()
 
-  push('trackEvent', track.event(), props);
-};
+  push('trackEvent', track.event(), props)
+}
 
 /**
  * Convert all the dates in the HubSpot properties to millisecond times
@@ -106,8 +106,8 @@ HubSpot.prototype.track = function(track) {
  * @param {Object} properties
  */
 
-function convertDates(properties) {
-  return convert(properties, function(date) { return date.getTime(); });
+function convertDates (properties) {
+  return convert(properties, function (date) { return date.getTime() })
 }
 
 /**
@@ -119,9 +119,9 @@ function convertDates(properties) {
  * @return {Object} ret
  */
 
-function formatTraits(traits) {
-  var ret = {};
-  each(function(value, key) {
+function formatTraits (traits) {
+  var ret = {}
+  each(function (value, key) {
     // Using split/join due to IE 11 failing to properly support regex in str.replace()
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/@@replace
     var k = key.toLowerCase()
@@ -131,9 +131,9 @@ function formatTraits(traits) {
       .split('\v').join('_') // Vertical tabs
       .split('\t').join('_') // Regular tabs
       .split('\f').join('_') // form feeds
-      .split('\r').join('_'); // Carriage returns
-    ret[k] = value;
-  }, traits);
+      .split('\r').join('_') // Carriage returns
+    ret[k] = value
+  }, traits)
 
-  return ret;
+  return ret
 }
