@@ -84,6 +84,22 @@ Criteo.prototype.page = function(page) {
   }
 };
 
+Criteo.prototype.track = function(track) {
+  var eventMappings = this.options.eventMappings || {};
+  var event = track.event();
+  var eventTypeMappings = {
+    viewItem: 'productViewed',
+    viewList: 'productListViewed',
+    viewBasket: 'cartViewed',
+    trackTransaction: 'orderCompleted'
+  };
+  var eventType = eventMappings[event];
+  
+  if (eventTypeMappings[eventType]) {
+    return this[eventTypeMappings[eventType]](track);
+  }
+};
+
 /**
  * Product Viewed
  *
