@@ -17,8 +17,11 @@ var each = require('@ndhoule/each')
 var HubSpot = module.exports = integration('HubSpot')
   .assumesPageview()
   .global('_hsq')
+  .global('hbspt')
   .option('portalId', null)
-  .tag('<script id="hs-analytics" src="https://js.hs-analytics.net/analytics/{{ cacheBuster }}/{{ portalId }}.js">')
+  .option('loadFormsSdk', false)
+  .tag('lib', '<script id="hs-analytics" src="https://js.hs-analytics.net/analytics/{{ cacheBuster }}/{{ portalId }}.js">')
+  .tag('forms', '<script src="//js.hsforms.net/forms/shell.js">')
 
 /**
  * Initialize.
@@ -26,10 +29,18 @@ var HubSpot = module.exports = integration('HubSpot')
  * @api public
  */
 
-HubSpot.prototype.initialize = function () {
-  window._hsq = []
+HubSpot.prototype.initialize = function() {
+  window._hsq = window._hsq || []
   var cacheBuster = Math.ceil(new Date() / 300000) * 300000
-  this.load({ cacheBuster: cacheBuster }, this.ready)
+  var shouldLoadLeadForms = this.options.loadFormsSdk
+  var self = this
+  this.load('lib', { cacheBuster: cacheBuster }, function() {
+    if (shouldLoadLeadForms) {
+      self.load('forms', self.ready)
+    } else {
+      self.ready()
+    }
+  })
 }
 
 /**
@@ -39,8 +50,13 @@ HubSpot.prototype.initialize = function () {
  * @return {boolean}
  */
 
-HubSpot.prototype.loaded = function () {
-  return !!(window._hsq && window._hsq.push !== Array.prototype.push)
+HubSpot.prototype.loaded = function() {
+  var libLoaded = !!(window._hsq && window._hsq.push !== Array.prototype.push)
+  if (!this.options.loadFormsSdk) {
+    return libLoaded
+  } else {
+    return libLoaded && !!(window.hbspt && window.hbspt.forms)
+  }
 }
 
 /**

@@ -10,7 +10,8 @@ describe('HubSpot', function () {
   var analytics
   var hubspot
   var options = {
-    portalId: 62515
+    portalId: 62515,
+    loadFormsSdk: false
   }
 
   beforeEach(function () {
@@ -21,7 +22,7 @@ describe('HubSpot', function () {
     analytics.add(hubspot)
   })
 
-  afterEach(function () {
+  afterEach(function() {
     analytics.restore()
     analytics.reset()
     hubspot.reset()
@@ -32,6 +33,8 @@ describe('HubSpot', function () {
     analytics.compare(HubSpot, integration('HubSpot')
       .assumesPageview()
       .global('_hsq')
+      .global('hbspt')
+      .option('loadFormsSdk', false)
       .option('portalId', null))
   })
 
@@ -50,9 +53,23 @@ describe('HubSpot', function () {
     })
   })
 
-  describe('loading', function () {
-    it('should load', function (done) {
-      analytics.load(hubspot, done)
+  describe('loading', function() {
+    // It's currently very difficult to run multiple tests against the loading behavior of a third-party script.
+    // Because Karma doesn't clear the full state of the browser between tests, we end up with errors from the Hubspot sdk saying that it is already loaded on the page.
+    // For now, we are simply testing that the forms sdk and the analytics sdk both load if the loadFormsSdk option is true.
+    // Ideally we would have a test here as well that ensure the form DOES NOT load if the option is false but limitations with Karma make this very tricky.
+    // TODO: look into solutions for full browser refreshes between tests to ensure clean loading behavior.
+    it('should load the analytics lib and the forms lib if that option is true', function(done) {
+      hubspot.options.loadFormsSdk = true
+      analytics.load(hubspot, function() {
+        try {
+          var formsSdkLoaded = !!(window.hbspt && window.hbspt.forms)
+          analytics.assert(formsSdkLoaded, 'Expected Hubspot Forms SDK to be loaded on the page')
+          done()
+        } catch (e) {
+          done(e)
+        }
+      })
     })
   })
 
