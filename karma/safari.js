@@ -4,7 +4,7 @@ function setSafari (config) {
     sl_safari_9: {
       base: 'SauceLabs',
       browserName: 'safari',
-      version: '9.0'
+      version: '9'
     }
   }
   config.browsers = Object.keys(config.customLaunchers)
