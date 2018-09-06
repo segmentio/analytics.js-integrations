@@ -86,10 +86,6 @@ describe('Wootric', function() {
       analytics.page();
     });
 
-    it('should have created the global wootric object', function() {
-      analytics.assert(typeof window.wootric === 'function');
-    });
-
     describe('#track', function() {
       it('should set email on track', function() {
         analytics.track('track_event', {
