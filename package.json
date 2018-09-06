@@ -10,7 +10,10 @@
     "integrations/*"
   ],
   "devDependencies": {
+    "@segment/eslint-config": "^4.0.0",
     "browserify": "^16.2.2",
+    "eslint-config-prettier": "^3.0.1",
+    "husky": "^0.14.3",
     "karma": "^2.0.5",
     "karma-browserify": "^5.3.0",
     "karma-coverage": "^1.1.2",
@@ -19,6 +22,8 @@
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-sauce-launcher": "^1.2.0",
     "karma-spec-reporter": "^0.0.32",
+    "lint-staged": "^7.2.2",
+    "prettier-eslint-cli": "^4.7.1",
     "standard": "^11.0.1",
     "watchify": "^3.11.0"
   },
@@ -30,9 +35,20 @@
     "publish-integrations": "scripts/publish-integrations",
     "test-all-integrations": "karma start karma.conf.js all",
     "test-integration": "karma start karma.conf.js",
-    "test-updated-integrations": "scripts/test-integrations"
+    "test-updated-integrations": "scripts/test-integrations",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "linters": {
+      "*.{js,json,md}": [
+        "prettier-eslint --write",
+        "git add"
+      ]
+    }
   },
   "standard": {
-    "env": ["mocha"]
+    "env": [
+      "mocha"
+    ]
   }
 }

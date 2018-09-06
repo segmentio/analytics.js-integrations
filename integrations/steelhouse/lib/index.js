@@ -13,11 +13,17 @@ var each = require('component-each');
  * Expose `Steelhouse`.
  */
 
-var Steelhouse = module.exports = integration('Steelhouse')
+var Steelhouse = (module.exports = integration('Steelhouse')
   .option('advertiserId', '')
   .mapping('events')
-  .tag('page', '<script src="//dx.steelhousemedia.com/spx?dxver=4.0.0&shaid={{ advertiserId }}&tdr={{ referrer }}&plh={{ location }}&cb={{ cacheBuster }}">')
-  .tag('conversion', '<script src="//dx.steelhousemedia.com/spx?conv=1&shaid={{ advertiserId }}&tdr={{ referrer }}&plh={{ location }}&cb={{ cacheBuster }}&shoid={{ orderId }}&shoamt={{ total }}&shocur={{ currency }}&shopid={{ productIds }}&shoq={{ quantities }}&shoup={{ prices }}&shpil=">');
+  .tag(
+    'page',
+    '<script src="//dx.steelhousemedia.com/spx?dxver=4.0.0&shaid={{ advertiserId }}&tdr={{ referrer }}&plh={{ location }}&cb={{ cacheBuster }}">'
+  )
+  .tag(
+    'conversion',
+    '<script src="//dx.steelhousemedia.com/spx?conv=1&shaid={{ advertiserId }}&tdr={{ referrer }}&plh={{ location }}&cb={{ cacheBuster }}&shoid={{ orderId }}&shoamt={{ total }}&shocur={{ currency }}&shopid={{ productIds }}&shoq={{ quantities }}&shoup={{ prices }}&shpil=">'
+  ));
 
 /**
  * Page load the retargeting pixel.
@@ -50,13 +56,17 @@ Steelhouse.prototype.track = function(track) {
   var referrer = track.proxy('context.page.referrer') || '';
   var href = track.proxy('context.page.url') || '';
 
-  var productInfo = foldl(function(info, product) {
-    product = new Track({ properties: product });
-    info.skus.push(product.sku());
-    info.quantities.push(product.quantity());
-    info.prices.push(product.price());
-    return info;
-  }, { skus: [], quantities: [], prices: [] }, track.products());
+  var productInfo = foldl(
+    function(info, product) {
+      product = new Track({ properties: product });
+      info.skus.push(product.sku());
+      info.quantities.push(product.quantity());
+      info.prices.push(product.price());
+      return info;
+    },
+    { skus: [], quantities: [], prices: [] },
+    track.products()
+  );
 
   var advertiserId = this.options.advertiserId;
   var events = this.events(track.event());
