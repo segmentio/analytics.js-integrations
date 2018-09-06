@@ -73,12 +73,6 @@ describe('Wootric', function() {
     });
   });
 
-  describe('loading', function() {
-    it('should load', function(done) {
-      analytics.load(wootric, done);
-    });
-  });
-
   describe('after loading', function() {
     beforeEach(function(done) {
       analytics.once('ready', done);
