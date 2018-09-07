@@ -225,7 +225,6 @@ describe('Facebook Pixel', function() {
             property: true
           });
         });
-
         describe('Dyanmic Ads for Travel date parsing', function() {
           it('should correctly pass in iso8601 formatted date objects', function() {
             analytics.track('search', {
@@ -287,6 +286,36 @@ describe('Facebook Pixel', function() {
               content_type: 'product_group'
             });
           });
+
+          it('should send the custom content type if set', function() {
+            analytics.track('Product List Viewed', {
+              content_type: 'games',
+              category: 'Games', products: [
+                {
+                  product_id: '507f1f77bcf86cd799439011',
+                  sku: '45790-32',
+                  name: 'Monopoly: 3rd Edition',
+                  price: 19,
+                  position: 1,
+                  category: 'Games',
+                  url: 'https://www.example.com/product/path',
+                  image_url: 'https://www.example.com/product/path.jpg'
+                },
+                {
+                  product_id: '505bd76785ebb509fc183733',
+                  sku: '46493-32',
+                  name: 'Uno Card Game',
+                  price: 3,
+                  position: 2,
+                  category: 'Games'
+                }
+              ]
+            });
+            analytics.called(window.fbq, 'track', 'ViewContent', {
+              content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+              content_type: 'games'
+            });
+          })
         });
 
         it('Product Viewed', function() {
@@ -332,6 +361,28 @@ describe('Facebook Pixel', function() {
           });
         });
 
+        it('should send the custom content type if set', function() {
+          analytics.track('Product Viewed', {
+            product_id: '507f1f77bcf86cd799439011',
+            currency: 'USD',
+            quantity: 1,
+            price: 44.33,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            value: 24.75,
+            content_type: 'music'
+          });
+          analytics.called(window.fbq, 'track', 'ViewContent', {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: 'music',
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          });
+        })
+
         it('Adding to Cart', function() {
           analytics.track('Product Added', {
             product_id: '507f1f77bcf86cd799439011',
@@ -375,6 +426,28 @@ describe('Facebook Pixel', function() {
           });
         });
 
+        it('should send the custom content type if set', function() {
+          analytics.track('Product Added', {
+            product_id: '507f1f77bcf86cd799439011',
+            currency: 'USD',
+            quantity: 1,
+            price: 44.33,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            value: 24.75,
+            content_type: "stuff"
+          });
+          analytics.called(window.fbq, 'track', 'AddToCart', {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: 'stuff',
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          });
+        })
+
         it('Completing an Order', function() {
           analytics.track('Order Completed', {
             products: [
@@ -413,6 +486,24 @@ describe('Facebook Pixel', function() {
             value: '0.50'
           });
         });
+
+        it('should send the custom content type if set', function() {
+          analytics.track('Order Completed', {
+            products: [
+              { product_id: '507f1f77bcf86cd799439011' },
+              { product_id: '505bd76785ebb509fc183733' }
+            ],
+            currency: 'USD',
+            total: 0.50,
+            content_type: 'home_listing'
+          });
+          analytics.called(window.fbq, 'track', 'Purchase', {
+            content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+            content_type: 'home_listing',
+            currency: 'USD',
+            value: '0.50'
+          });
+        })
       });
     });
   });
