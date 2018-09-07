@@ -76,6 +76,11 @@ describe('Facebook Pixel', function() {
         analytics.equal(window.fbq.disablePushState, true);
       });
 
+      it('should set allowDuplicatePageViews to true', function() {
+        analytics.initialize();
+        analytics.equal(window.fbq.allowDuplicatePageViews, true);
+      });
+
       it('should create fbq object', function() {
         analytics.initialize();
         analytics.assert(window.fbq instanceof Function);
@@ -258,11 +263,42 @@ describe('Facebook Pixel', function() {
       });
 
       describe('segment ecommerce => FB product audiences', function() {
-        it('Product List Viewed', function() {
-          analytics.track('Product List Viewed', { category: 'Games' });
-          analytics.called(window.fbq, 'track', 'ViewContent', {
-            content_ids: ['Games'],
-            content_type: 'product_group'
+        describe('Product List Viewed', function() {
+          it('Should map content_ids parameter to product_ids and content_type to "product" if possible', function() {
+            analytics.track('Product List Viewed', {
+              category: 'Games', products: [
+                {
+                  product_id: '507f1f77bcf86cd799439011',
+                  sku: '45790-32',
+                  name: 'Monopoly: 3rd Edition',
+                  price: 19,
+                  position: 1,
+                  category: 'Games',
+                  url: 'https://www.example.com/product/path',
+                  image_url: 'https://www.example.com/product/path.jpg'
+                },
+                {
+                  product_id: '505bd76785ebb509fc183733',
+                  sku: '46493-32',
+                  name: 'Uno Card Game',
+                  price: 3,
+                  position: 2,
+                  category: 'Games'
+                }
+              ]
+            });
+            analytics.called(window.fbq, 'track', 'ViewContent', {
+              content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+              content_type: 'product'
+            });
+          });
+
+          it('Should fallback on mapping content_ids to the product category and content_type to "product_group"', function() {
+            analytics.track('Product List Viewed', { category: 'Games' });
+            analytics.called(window.fbq, 'track', 'ViewContent', {
+              content_ids: ['Games'],
+              content_type: 'product_group'
+            });
           });
 
           it('should send the custom content type if set', function() {
