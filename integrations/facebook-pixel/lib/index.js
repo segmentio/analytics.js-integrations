@@ -191,7 +191,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
 
   window.fbq('track', 'ViewContent', {
     content_ids: contentIds,
-    content_type: contentType
+    content_type: track.proxy('properties.contentType') || contentType, 
   });
 
   // fall through for mapped legacy conversions
@@ -213,7 +213,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
 FacebookPixel.prototype.productViewed = function(track) {
   window.fbq('track', 'ViewContent', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: 'product',
+    content_type: track.proxy('properties.contentType') || 'product',
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
@@ -239,7 +239,7 @@ FacebookPixel.prototype.productViewed = function(track) {
 FacebookPixel.prototype.productAdded = function(track) {
   window.fbq('track', 'AddToCart', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: 'product',
+    content_type: track.proxy('properties.contentType') || 'product',
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
@@ -274,7 +274,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 
   window.fbq('track', 'Purchase', {
     content_ids: content_ids,
-    content_type: 'product',
+    content_type: track.proxy('properties.contentType') || 'product',
     currency: track.currency(),
     value: revenue
   });
