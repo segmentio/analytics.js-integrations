@@ -87,6 +87,20 @@ describe('Facebook Pixel', function() {
       });
 
       before(function() {
+        options.disableAutoConfig = true;
+      });
+
+      after(function() {
+        options.disableAutoConfig = false;
+      });
+
+      it('should call set autoConfig if option disableAutoConfig is enabled', function () {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'set', 'autoConfig', false, options.pixelId);
+      });
+
+      before(function() {
         options.initWithExistingTraits = true;
       });
 
