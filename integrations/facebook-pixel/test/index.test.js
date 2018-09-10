@@ -9,6 +9,7 @@ describe('Facebook Pixel', function() {
   var analytics;
   var facebookPixel;
   var options = {
+    automaticConfiguration: true,
     legacyEvents: {
       legacyEvent: 'asdFrkj'
     },
@@ -87,11 +88,11 @@ describe('Facebook Pixel', function() {
       });
 
       before(function() {
-        options.disableAutoConfig = true;
+        options.automaticConfiguration = false;
       });
 
       after(function() {
-        options.disableAutoConfig = false;
+        options.automaticConfiguration = true;
       });
 
       it('should call set autoConfig if option disableAutoConfig is enabled', function () {

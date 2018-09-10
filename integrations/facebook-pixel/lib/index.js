@@ -24,7 +24,7 @@ var FacebookPixel = module.exports = integration('Facebook Pixel')
   .option('valueIdentifier', 'value')
   .option('initWithExistingTraits', false)
   .option('traverse', false)
-  .option('disableAutoConfig', false)
+  .option('automaticConfiguration', true)
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .tag('<script src="//connect.facebook.net/en_US/fbevents.js">');
@@ -53,7 +53,7 @@ FacebookPixel.prototype.initialize = function() {
   window.fbq.version = '2.0';
   window.fbq.queue = [];
   this.load(this.ready);
-  if (this.options.disableAutoConfig) {
+  if (!this.options.automaticConfiguration) {
     window.fbq('set', 'autoConfig', false, this.options.pixelId);
   }
   if (this.options.initWithExistingTraits) {
