@@ -18,7 +18,8 @@ describe('Pinterest', function () {
     },
     pinterestCustomProperties: [
       'custom_prop'
-    ]
+    ],
+    initWithExistingTraits: false
   }
 
   beforeEach(function () {
@@ -27,6 +28,17 @@ describe('Pinterest', function () {
     analytics.use(Pinterest)
     analytics.use(tester)
     analytics.add(pinterest)
+    analytics.identify('123', {
+      name: 'Ash Ketchum',
+      email: 'ash@ketchum.com',
+      gender: 'Male',
+      birthday: '01/13/1991',
+      address: {
+        city: 'Emerald',
+        state: 'Kanto',
+        postalCode: 123456
+      }
+    });
   })
 
   afterEach(function () {
@@ -41,8 +53,26 @@ describe('Pinterest', function () {
       .global('pintrk')
       .mapping('pinterestEventMapping')
       .option('pinterestCustomProperties', [])
-      .option('tid', ''))
+      .option('tid', '')
+      .option('initWithExistingTraits', false))
   })
+
+  before(function() {
+    options.initWithExistingTraits = true;
+  });
+
+  after(function() {
+    options.initWithExistingTraits = false;
+  });
+
+  it('should call init with the user\'s traits if option enabled', function() {
+    var payload = {
+      em: 'ash@ketchum.com',
+    };
+    analytics.stub(window, 'pintrk');
+    analytics.initialize();
+    analytics.called(window.pintrk, 'init', options.tid, payload);
+  });
 
   describe('before loading', function () {
     beforeEach(function () {
