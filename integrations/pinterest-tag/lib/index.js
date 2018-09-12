@@ -14,6 +14,7 @@ var analyticsEvents = require('analytics-events')
 var Pinterest = module.exports = integration('Pinterest Tag')
   .global('pintrk')
   .option('tid', '')
+  .option('initWithExistingTraits', false)
   .option('pinterestCustomProperties', [])
   .mapping('pinterestEventMapping')
   .tag('<script src="https://s.pinimg.com/ct/core.js"></script>')
@@ -26,7 +27,13 @@ Pinterest.prototype.initialize = function () {
   (function(e){if(!window.pintrk){window.pintrk=function(){window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var n=window.pintrk;n.queue=[],n.version="3.0";}})(); // eslint-disable-line
 
   this.load(this.ready)
-  pintrk('load', this.options.tid)
+  
+  if (this.options.initWithExistingTraits) {
+    var traits = formatTraits(this.analytics)
+    pintrk('load', this.options.tid, traits)
+  } else {
+    pintrk('load', this.options.tid)
+  }
   pintrk('page') // This is treated semantically different than our own page implementation.
 
   this.createPropertyMapping()
@@ -165,4 +172,21 @@ Pinterest.prototype.generatePropertiesObject = function (track) {
   }
 
   return pinterestProps
+}
+
+
+/**
+ * Get Traits Formatted Correctly for Pinterest.
+ *
+ * https://developers.pinterest.com/docs/ad-tools/enhanced-match/
+ *
+ * @api private
+ */
+
+function formatTraits(analytics) {
+  var traits = analytics && analytics.user().traits();
+  if (!traits) return {};
+  return reject({
+    em: traits.email
+  });
 }
