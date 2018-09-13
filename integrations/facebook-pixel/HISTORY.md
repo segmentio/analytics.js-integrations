@@ -1,3 +1,8 @@
+2.5.2/ 2018-09-13
+==================
+
+  * Fixes the wrong content type for Order Completed
+
 2.5.1 / 2018-09-10
 ==================
 
