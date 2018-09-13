@@ -1,3 +1,6 @@
 {
-  "ecmaVerion": 5
+  "extends": ["prettier"],
+  "parserOptions": {
+    "ecmaVersion": 6
+  }
 }
