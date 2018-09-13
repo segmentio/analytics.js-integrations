@@ -242,12 +242,6 @@ FacebookPixel.prototype.productViewed = function(track) {
  */
 
 FacebookPixel.prototype.productAdded = function(track) {
-  var contentType = ['product']
-  var mappedContentTypes = this.contentTypes(track.category());
-  if (mappedContentTypes.length) {
-    contentType = mappedContentTypes
-  }  
-
   window.fbq('track', 'AddToCart', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
     content_type: this.mappedContentTypesOrDefault(track.category(), ['product']),
