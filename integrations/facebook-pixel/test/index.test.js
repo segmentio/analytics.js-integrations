@@ -475,7 +475,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'Purchase', {
             content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-            content_type: ['product_group'],
+            content_type: ['product'],
             currency: 'USD',
             value: '0.50'
           });
@@ -493,7 +493,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'Purchase', {
             content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-            content_type: ['product_group'],
+            content_type: ['product'],
             currency: 'USD',
             value: '0.50'
           });
