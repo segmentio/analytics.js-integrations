@@ -281,7 +281,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 
   // Order completed doesn't have a top-level category spec'd.
   // Let's default to the category of the first product. - @gabriel
-  var contentType = ['product_group'];
+  var contentType = ['product'];
   if (products.length) {
     contentType = this.mappedContentTypesOrDefault(products[0].category, contentType);
   }
