@@ -27,6 +27,7 @@ var FacebookPixel = module.exports = integration('Facebook Pixel')
   .option('automaticConfiguration', true)
   .mapping('standardEvents')
   .mapping('legacyEvents')
+  .mapping('contentTypes')
   .tag('<script src="//connect.facebook.net/en_US/fbevents.js">');
 
 /**
@@ -187,15 +188,15 @@ FacebookPixel.prototype.productListViewed = function(track) {
   // If no products have been defined, fallback on legacy behavior.
   // Facebook documents the content_type parameter decision here: https://developers.facebook.com/docs/facebook-pixel/api-reference
   if (contentIds.length) {
-    contentType = 'product';
+    contentType = ['product'];
   } else {
     contentIds.push(track.category() || '');
-    contentType = 'product_group';
+    contentType = ['product_group'];
   }
 
   window.fbq('track', 'ViewContent', {
     content_ids: contentIds,
-    content_type: track.proxy('properties.contentType') || contentType, 
+    content_type: this.mappedContentTypesOrDefault(track.category(), contentType), 
   });
 
   // fall through for mapped legacy conversions
@@ -217,7 +218,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
 FacebookPixel.prototype.productViewed = function(track) {
   window.fbq('track', 'ViewContent', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: track.proxy('properties.contentType') || 'product',
+    content_type: this.mappedContentTypesOrDefault(track.category(), ['product']),
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
@@ -241,9 +242,15 @@ FacebookPixel.prototype.productViewed = function(track) {
  */
 
 FacebookPixel.prototype.productAdded = function(track) {
+  var contentType = ['product']
+  var mappedContentTypes = this.contentTypes(track.category());
+  if (mappedContentTypes.length) {
+    contentType = mappedContentTypes
+  }  
+
   window.fbq('track', 'AddToCart', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: track.proxy('properties.contentType') || 'product',
+    content_type: this.mappedContentTypesOrDefault(track.category(), ['product']),
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
@@ -267,18 +274,27 @@ FacebookPixel.prototype.productAdded = function(track) {
  */
 
 FacebookPixel.prototype.orderCompleted = function(track) {
+  var products = track.products() || [];
+
   var content_ids = foldl(function(acc, product) {
     var item = new Track({ properties: product });
     var key = item.productId() || item.id() || item.sku();
     if (key) acc.push(key);
     return acc;
-  }, [], track.products() || []);
+  }, [], products);
 
   var revenue = formatRevenue(track.revenue());
 
+  // Order completed doesn't have a top-level category spec'd.
+  // Let's default to the category of the first product. - @gabriel
+  var contentType = ['product_group'];
+  if (products.length) {
+    contentType = this.mappedContentTypesOrDefault(products[0].category, contentType);
+  }
+
   window.fbq('track', 'Purchase', {
     content_ids: content_ids,
-    content_type: track.proxy('properties.contentType') || 'product',
+    content_type: contentType,
     currency: track.currency(),
     value: revenue
   });
@@ -292,6 +308,22 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   }, this.legacyEvents(track.event()));
 };
 
+/**
+ * mappedContentTypesOrDefault returns an array of mapped content types for
+ * the category - or returns the defaul value.
+ * @param {Facade.Track} track 
+ * @param {Array} def 
+ */
+FacebookPixel.prototype.mappedContentTypesOrDefault = function(category, def) {
+  if (!category) return def
+
+  var mapped = this.contentTypes(category);
+  if (mapped.length) {
+    return mapped
+  } 
+  
+  return def
+}
 
 /**
  * Get Revenue Formatted Correctly for FB.

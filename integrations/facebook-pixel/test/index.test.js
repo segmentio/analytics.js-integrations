@@ -18,6 +18,9 @@ describe('Facebook Pixel', function() {
       'booking completed': 'Purchase',
       search: 'Search'
     },
+    contentTypes: {
+      Cars: "vehicle"
+    },
     pixelId: '123123123',
     agent: 'test',
     initWithExistingTraits: false
@@ -274,7 +277,7 @@ describe('Facebook Pixel', function() {
                   name: 'Monopoly: 3rd Edition',
                   price: 19,
                   position: 1,
-                  category: 'Games',
+                  category: 'Cars',
                   url: 'https://www.example.com/product/path',
                   image_url: 'https://www.example.com/product/path.jpg'
                 },
@@ -284,13 +287,13 @@ describe('Facebook Pixel', function() {
                   name: 'Uno Card Game',
                   price: 3,
                   position: 2,
-                  category: 'Games'
+                  category: 'Cars'
                 }
               ]
             });
             analytics.called(window.fbq, 'track', 'ViewContent', {
               content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-              content_type: 'product'
+              content_type: ['product']
             });
           });
 
@@ -298,14 +301,13 @@ describe('Facebook Pixel', function() {
             analytics.track('Product List Viewed', { category: 'Games' });
             analytics.called(window.fbq, 'track', 'ViewContent', {
               content_ids: ['Games'],
-              content_type: 'product_group'
+              content_type: ['product_group']
             });
           });
 
-          it('should send the custom content type if set', function() {
+          it('should send the custom content type if mapped', function() {
             analytics.track('Product List Viewed', {
-              content_type: 'games',
-              category: 'Games', products: [
+              category: 'Cars', products: [
                 {
                   product_id: '507f1f77bcf86cd799439011',
                   sku: '45790-32',
@@ -328,7 +330,7 @@ describe('Facebook Pixel', function() {
             });
             analytics.called(window.fbq, 'track', 'ViewContent', {
               content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-              content_type: 'games'
+              content_type: ['vehicle']
             });
           })
         });
@@ -346,7 +348,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'ViewContent', {
             content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: 'product',
+            content_type: ['product'],
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
@@ -368,7 +370,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'ViewContent', {
             content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: 'product',
+            content_type: ['product'],
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
@@ -376,23 +378,22 @@ describe('Facebook Pixel', function() {
           });
         });
 
-        it('should send the custom content type if set', function() {
+        it('should send the custom content type if mapped', function() {
           analytics.track('Product Viewed', {
             product_id: '507f1f77bcf86cd799439011',
             currency: 'USD',
             quantity: 1,
             price: 44.33,
             name: 'my product',
-            category: 'cat 1',
+            category: 'Cars',
             sku: 'p-298',
             value: 24.75,
-            content_type: 'music'
           });
           analytics.called(window.fbq, 'track', 'ViewContent', {
             content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: 'music',
+            content_type: ['vehicle'],
             content_name: 'my product',
-            content_category: 'cat 1',
+            content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
           });
@@ -411,7 +412,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'AddToCart', {
             content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: 'product',
+            content_type: ['product'],
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
@@ -433,7 +434,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'AddToCart', {
             content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: 'product',
+            content_type: ['product'],
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
@@ -441,23 +442,23 @@ describe('Facebook Pixel', function() {
           });
         });
 
-        it('should send the custom content type if set', function() {
+        it('should send the custom content type if mapped', function() {
           analytics.track('Product Added', {
             product_id: '507f1f77bcf86cd799439011',
             currency: 'USD',
             quantity: 1,
             price: 44.33,
             name: 'my product',
-            category: 'cat 1',
+            category: 'Cars',
             sku: 'p-298',
             value: 24.75,
             content_type: "stuff"
           });
           analytics.called(window.fbq, 'track', 'AddToCart', {
             content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: 'stuff',
+            content_type: ['vehicle'],
             content_name: 'my product',
-            content_category: 'cat 1',
+            content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
           });
@@ -474,7 +475,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'Purchase', {
             content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-            content_type: 'product',
+            content_type: ['product_group'],
             currency: 'USD',
             value: '0.50'
           });
@@ -492,7 +493,7 @@ describe('Facebook Pixel', function() {
           });
           analytics.called(window.fbq, 'track', 'Purchase', {
             content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-            content_type: 'product',
+            content_type: ['product_group'],
             currency: 'USD',
             value: '0.50'
           });
@@ -502,19 +503,18 @@ describe('Facebook Pixel', function() {
           });
         });
 
-        it('should send the custom content type if set', function() {
+        it('should send the custom content type if mapped', function() {
           analytics.track('Order Completed', {
             products: [
-              { product_id: '507f1f77bcf86cd799439011' },
-              { product_id: '505bd76785ebb509fc183733' }
+              { product_id: '507f1f77bcf86cd799439011', category: 'Cars' },
+              { product_id: '505bd76785ebb509fc183733', category: 'Cars' }
             ],
             currency: 'USD',
             total: 0.50,
-            content_type: 'home_listing'
           });
           analytics.called(window.fbq, 'track', 'Purchase', {
             content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-            content_type: 'home_listing',
+            content_type: ['vehicle'],
             currency: 'USD',
             value: '0.50'
           });
