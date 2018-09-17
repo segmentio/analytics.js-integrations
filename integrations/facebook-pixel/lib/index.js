@@ -17,7 +17,7 @@ var Track = require('segmentio-facade').Track;
  * Expose `Facebook Pixel`.
  */
 
-var FacebookPixel = module.exports = integration('Facebook Pixel')
+var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .global('fbq')
   .option('pixelId', '')
   .option('agent', 'seg')
@@ -25,10 +25,11 @@ var FacebookPixel = module.exports = integration('Facebook Pixel')
   .option('initWithExistingTraits', false)
   .option('traverse', false)
   .option('automaticConfiguration', true)
+  .option('whitelistPiiProperties', [])
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
-  .tag('<script src="//connect.facebook.net/en_US/fbevents.js">');
+  .tag('<script src="//connect.facebook.net/en_US/fbevents.js">'));
 
 /**
  * Initialize Facebook Pixel.
@@ -94,46 +95,74 @@ FacebookPixel.prototype.page = function() {
 FacebookPixel.prototype.track = function(track) {
   var event = track.event();
   var revenue = formatRevenue(track.revenue());
-  var payload = foldl(function(acc, val, key) {
-    if (key === 'revenue') {
-      acc.value = revenue;
-      return acc;
-    }
-
-    /**
-    * FB requires these date fields be formatted in a specific way.
-    * The specifications are non iso8601 compliant.
-    * https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-travel/audience
-    * Therefore, we check if the property is one of these reserved fields.
-    * If so, we check if we have converted it to an iso date object already.
-    * If we have, we convert it again into Facebook's spec.
-    * If we have not, the user has likely passed in a date string that already
-    * adheres to FB's docs so we can just pass it through as is.
-    * @ccnixon
-    */
-
-    var dateFields = [
-      'checkinDate',
-      'checkoutDate',
-      'departingArrivalDate',
-      'departingDepartureDate',
-      'returningArrivalDate',
-      'returningDepartureDate',
-      'travelEnd',
-      'travelStart'
-    ];
-
-    if (dateFields.indexOf(camel(key)) >= 0) {
-      if (is.date(val)) {
-        val = val.toISOString().split('T')[0];
-        acc[key] = val;
+  var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
+  var payload = foldl(
+    function(acc, val, key) {
+      if (key === 'revenue') {
+        acc.value = revenue;
         return acc;
       }
-    }
 
-    acc[key] = val;
-    return acc;
-  }, {}, track.properties());
+      /**
+       * FB requires these date fields be formatted in a specific way.
+       * The specifications are non iso8601 compliant.
+       * https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-travel/audience
+       * Therefore, we check if the property is one of these reserved fields.
+       * If so, we check if we have converted it to an iso date object already.
+       * If we have, we convert it again into Facebook's spec.
+       * If we have not, the user has likely passed in a date string that already
+       * adheres to FB's docs so we can just pass it through as is.
+       * @ccnixon
+       */
+
+      var dateFields = [
+        'checkinDate',
+        'checkoutDate',
+        'departingArrivalDate',
+        'departingDepartureDate',
+        'returningArrivalDate',
+        'returningDepartureDate',
+        'travelEnd',
+        'travelStart'
+      ];
+
+      if (dateFields.indexOf(camel(key)) >= 0) {
+        if (is.date(val)) {
+          val = val.toISOString().split('T')[0];
+          acc[key] = val;
+          return acc;
+        }
+      }
+
+      // FB does not allow sending PII data with events. They provide a list of what they consider PII here:
+      // https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking
+      // We need to check each property key to see if it matches what FB considers to be a PII property and strip it from the payload.
+      // User's can override this by manually whitelisting keys they are ok with sending through in their integration settings.
+
+      var pii = [
+        'email',
+        'firstName',
+        'lastName',
+        'gender',
+        'city',
+        'country',
+        'phone',
+        'state',
+        'zip',
+        'birthday'
+      ];
+
+      var propertyWhitelisted = whitelistPiiProperties.indexOf(key) >= 0;
+      if (pii.indexOf(key) >= 0 && !propertyWhitelisted) {
+        return acc;
+      }
+
+      acc[key] = val;
+      return acc;
+    },
+    {},
+    track.properties()
+  );
 
   var standard = this.standardEvents(event);
   var legacy = this.legacyEvents(event);
@@ -174,7 +203,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
   var contentType;
   var contentIds = [];
   var products = track.products();
-  
+
   // First, check to see if a products array with productIds has been defined.
   if (Array.isArray(products)) {
     products.forEach(function(product) {
@@ -196,7 +225,10 @@ FacebookPixel.prototype.productListViewed = function(track) {
 
   window.fbq('track', 'ViewContent', {
     content_ids: contentIds,
-    content_type: this.mappedContentTypesOrDefault(track.category(), contentType), 
+    content_type: this.mappedContentTypesOrDefault(
+      track.category(),
+      contentType
+    )
   });
 
   // fall through for mapped legacy conversions
@@ -218,11 +250,16 @@ FacebookPixel.prototype.productListViewed = function(track) {
 FacebookPixel.prototype.productViewed = function(track) {
   window.fbq('track', 'ViewContent', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: this.mappedContentTypesOrDefault(track.category(), ['product']),
+    content_type: this.mappedContentTypesOrDefault(track.category(), [
+      'product'
+    ]),
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
-    value: this.options.valueIdentifier === 'value' ? formatRevenue(track.value()) : formatRevenue(track.price())
+    value:
+      this.options.valueIdentifier === 'value'
+        ? formatRevenue(track.value())
+        : formatRevenue(track.price())
   });
 
   // fall through for mapped legacy conversions
@@ -244,11 +281,16 @@ FacebookPixel.prototype.productViewed = function(track) {
 FacebookPixel.prototype.productAdded = function(track) {
   window.fbq('track', 'AddToCart', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: this.mappedContentTypesOrDefault(track.category(), ['product']),
+    content_type: this.mappedContentTypesOrDefault(track.category(), [
+      'product'
+    ]),
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
-    value: this.options.valueIdentifier === 'value' ? formatRevenue(track.value()) : formatRevenue(track.price())
+    value:
+      this.options.valueIdentifier === 'value'
+        ? formatRevenue(track.value())
+        : formatRevenue(track.price())
   });
 
   // fall through for mapped legacy conversions
@@ -270,12 +312,16 @@ FacebookPixel.prototype.productAdded = function(track) {
 FacebookPixel.prototype.orderCompleted = function(track) {
   var products = track.products() || [];
 
-  var content_ids = foldl(function(acc, product) {
-    var item = new Track({ properties: product });
-    var key = item.productId() || item.id() || item.sku();
-    if (key) acc.push(key);
-    return acc;
-  }, [], products);
+  var content_ids = foldl(
+    function(acc, product) {
+      var item = new Track({ properties: product });
+      var key = item.productId() || item.id() || item.sku();
+      if (key) acc.push(key);
+      return acc;
+    },
+    [],
+    products
+  );
 
   var revenue = formatRevenue(track.revenue());
 
@@ -283,7 +329,10 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   // Let's default to the category of the first product. - @gabriel
   var contentType = ['product'];
   if (products.length) {
-    contentType = this.mappedContentTypesOrDefault(products[0].category, contentType);
+    contentType = this.mappedContentTypesOrDefault(
+      products[0].category,
+      contentType
+    );
   }
 
   window.fbq('track', 'Purchase', {
@@ -305,19 +354,19 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 /**
  * mappedContentTypesOrDefault returns an array of mapped content types for
  * the category - or returns the defaul value.
- * @param {Facade.Track} track 
- * @param {Array} def 
+ * @param {Facade.Track} track
+ * @param {Array} def
  */
 FacebookPixel.prototype.mappedContentTypesOrDefault = function(category, def) {
-  if (!category) return def
+  if (!category) return def;
 
   var mapped = this.contentTypes(category);
   if (mapped.length) {
-    return mapped
-  } 
-  
-  return def
-}
+    return mapped;
+  }
+
+  return def;
+};
 
 /**
  * Get Revenue Formatted Correctly for FB.
@@ -349,17 +398,22 @@ function formatTraits(analytics) {
     firstName = traits.firstName;
     lastName = traits.lastName;
   } else {
-    var nameArray = traits.name && traits.name.toLowerCase().split(' ') || [];
+    var nameArray = (traits.name && traits.name.toLowerCase().split(' ')) || [];
     firstName = nameArray.shift();
     lastName = nameArray.pop();
   }
   var gender;
   if (traits.gender && is.string(traits.gender)) {
-    gender = traits.gender.slice(0,1).toLowerCase();
+    gender = traits.gender.slice(0, 1).toLowerCase();
   }
   var birthday = traits.birthday && dateformat(traits.birthday, 'yyyymmdd');
   var address = traits.address || {};
-  var city = address.city && address.city.split(' ').join('').toLowerCase();
+  var city =
+    address.city &&
+    address.city
+      .split(' ')
+      .join('')
+      .toLowerCase();
   var state = address.state && address.state.toLowerCase();
   var postalCode = address.postalCode;
   return reject({
