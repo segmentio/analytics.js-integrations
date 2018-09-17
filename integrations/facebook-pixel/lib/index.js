@@ -351,6 +351,60 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   }, this.legacyEvents(track.event()));
 };
 
+FacebookPixel.prototype.productsSearched = function(track) {
+  window.fbq('track', 'Search', {
+    search_string: track.proxy('properties.query')
+  });
+
+
+  // fall through for mapped legacy conversions
+  each(function(event) {
+    window.fbq('track', event, {
+      currency: track.currency(),
+      value: formatRevenue(track.revenue())
+    });
+  }, this.legacyEvents(track.event()));
+}
+
+FacebookPixel.prototype.checkoutStarted = function(track) {
+  var products = track.products() || [];
+  var contentIds = [];
+  var contents = [];
+  var contentCategory = track.category();
+
+  each(function(product) {
+    var track = new Track({ properties: product });
+    contentIds.push(track.productId() || track.id() || track.sku())
+    contents.push({
+      id: track.productId() || track.id() || track.sku(),
+      quantity: track.quantity(),
+      item_price: track.price(),
+    })
+  }, products);
+
+  // If no top-level category was defined use that of the first product. @gabriel
+  if (!contentCategory && products[0] && products[0].category) {
+    contentCategory = products[0].category
+  }
+
+  window.fbq('track', 'InitiateCheckout', {
+    content_category: contentCategory,
+    content_ids: contentIds, 
+    contents: contents,
+    currency: track.currency(),
+    num_items: contentIds.length,
+    value: formatRevenue(track.revenue())
+  });
+
+    // fall through for mapped legacy conversions
+    each(function(event) {
+      window.fbq('track', event, {
+        currency: track.currency(),
+        value: formatRevenue(track.revenue())
+      });
+    }, this.legacyEvents(track.event()));
+}
+
 /**
  * mappedContentTypesOrDefault returns an array of mapped content types for
  * the category - or returns the defaul value.

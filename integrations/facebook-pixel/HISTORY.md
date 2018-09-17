@@ -1,3 +1,8 @@
+2.5.4/ 2018-09-13
+==================
+
+  * Adds Search and InitiateCheckout event support
+
 2.5.2/ 2018-09-13
 ==================
 
