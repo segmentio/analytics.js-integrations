@@ -1,146 +1,123 @@
-2.8.0 / 2018-04-04
-==================
+# 2.9.0 / 2018-09-18
 
-  * Update SDK version to 4.1.1
+- Add support for traitsToIncrement and traitsToSetOnce settings
 
-2.7.0 / 2018-02-12
-==================
+# 2.8.0 / 2018-04-04
 
-  * anonymousID-as-deviceID + group{Type, Value}Trait support (#38)
+- Update SDK version to 4.1.1
 
-2.6.0 / 2017-09-18
-==================
+# 2.7.0 / 2018-02-12
 
-  * Update Amplitude to 3.7.0
+- anonymousID-as-deviceID + group{Type, Value}Trait support (#38)
 
-2.5.0 / 2017-08-30
-==================
+# 2.6.0 / 2017-09-18
 
-  * Improve revenue tracking from Order Completed events.
+- Update Amplitude to 3.7.0
 
-2.4.0 / 2017-05-17
-==================
+# 2.5.0 / 2017-08-30
 
-  * Patch potential duplicate track event issue when using Groups functionality.
+- Improve revenue tracking from Order Completed events.
 
-2.4.0 / 2017-05-17
-==================
+# 2.4.0 / 2017-05-17
 
-  * Add support for Amplitude's `group` functionality to both identify and track events
+- Patch potential duplicate track event issue when using Groups functionality.
 
-2.3.0 / 2017-04-11
-==================
+# 2.4.0 / 2017-05-17
 
-  * Allow mapping query params from context.page.search to a custom user/event property
+- Add support for Amplitude's `group` functionality to both identify and track events
 
-2.2.0 / 2016-11-15
-==================
+# 2.3.0 / 2017-04-11
 
-  * Update Amplitude v3.4.0 with support for forceHttps, trackGclid, saveParamsReferrerOncePerSession, deviceIdFromUrlParam options.
+- Allow mapping query params from context.page.search to a custom user/event property
 
-2.1.1 / 2016-08-08
-==================
+# 2.2.0 / 2016-11-15
 
-  * Only send revenue event if revenue is being tracked
+- Update Amplitude v3.4.0 with support for forceHttps, trackGclid, saveParamsReferrerOncePerSession, deviceIdFromUrlParam options.
 
-2.1.0 / 2016-07-21
-==================
+# 2.1.1 / 2016-08-08
 
-  * update amplitude v3.0.2 with support for logrevenueV2 option
-  * Update Karma to 1.1.0
+- Only send revenue event if revenue is being tracked
 
-2.0.0 / 2016-06-21
-==================
+# 2.1.0 / 2016-07-21
 
-  * Remove Duo compatibility
-  * Add CI setup (coverage, linting, cross-browser compatibility, etc.)
-  * Update eslint configuration
+- update amplitude v3.0.2 with support for logrevenueV2 option
+- Update Karma to 1.1.0
 
-1.0.16 / 2016-05-07
-==================
+# 2.0.0 / 2016-06-21
 
-  * Bump Analytics.js core, tester, integration to use Facade 2.x
+- Remove Duo compatibility
+- Add CI setup (coverage, linting, cross-browser compatibility, etc.)
+- Update eslint configuration
 
-1.0.15 / 2016-05-02
-===================
+# 1.0.16 / 2016-05-07
 
-  * correctly set options
+- Bump Analytics.js core, tester, integration to use Facade 2.x
 
-1.0.14 / 2016-03-16
-===================
+# 1.0.15 / 2016-05-02
 
-  * Update Amplitude v2.9.1
-  * Fix bug where saveReferrer throws exception if sessionStorage is disabled.
-  * Log messages with a try/catch to support IE 8.
-  * Validate event properties during logEvent and initialization before sending request.
-  * Add instructions for proper integration with RequireJS.
+- correctly set options
 
-1.0.13 / 2016-02-11
-===================
+# 1.0.14 / 2016-03-16
 
-  * Updating Amplitude SDK v2.9.0
+- Update Amplitude v2.9.1
+- Fix bug where saveReferrer throws exception if sessionStorage is disabled.
+- Log messages with a try/catch to support IE 8.
+- Validate event properties during logEvent and initialization before sending request.
+- Add instructions for proper integration with RequireJS.
 
-1.0.12 / 2016-01-11
-===================
+# 1.0.13 / 2016-02-11
 
-  * Merge pull request #11 from amplitude/fix-runqueuedfunctions
-  * Only runQueuedFunctions after SDK loads
-1.0.11 / 2015-12-04
-===================
+- Updating Amplitude SDK v2.9.0
 
-  * updating Amplitude SDK v2.7.0
+# 1.0.12 / 2016-01-11
 
-1.0.10 / 2015-11-07
-===================
+- Merge pull request #11 from amplitude/fix-runqueuedfunctions
+- Only runQueuedFunctions after SDK loads
+  1.0.11 / 2015-12-04
+  ===================
 
-  * updating Amplitude SDK v2.6.1
+- updating Amplitude SDK v2.7.0
 
-1.0.9 / 2015-11-03
-==================
+# 1.0.10 / 2015-11-07
 
-  * updating amplitude SDK v2.6.0
+- updating Amplitude SDK v2.6.1
 
-1.0.8 / 2015-10-21
-==================
+# 1.0.9 / 2015-11-03
 
-  * updating Amplitude SDK to v2.5.0
+- updating amplitude SDK v2.6.0
 
-1.0.7 / 2015-09-23
-==================
+# 1.0.8 / 2015-10-21
 
-  * Update Amplitude javascript sdk to v2.4.1
+- updating Amplitude SDK to v2.5.0
 
-1.0.6 / 2015-09-23
-==================
+# 1.0.7 / 2015-09-23
 
-  * Update Amplitude javascript sdk to v2.3.0
+- Update Amplitude javascript sdk to v2.4.1
 
-1.0.5 / 2015-08-26
-==================
+# 1.0.6 / 2015-09-23
 
-  * Update Amplitude version to 2.2.1
+- Update Amplitude javascript sdk to v2.3.0
 
-1.0.4 / 2015-06-30
-==================
+# 1.0.5 / 2015-08-26
 
-  * Replace analytics.js dependency with analytics.js-core
+- Update Amplitude version to 2.2.1
 
-1.0.3 / 2015-06-30
-==================
+# 1.0.4 / 2015-06-30
 
-  * Replace analytics.js dependency with analytics.js-core
+- Replace analytics.js dependency with analytics.js-core
 
-1.0.2 / 2015-06-24
-==================
+# 1.0.3 / 2015-06-30
 
-  * Bump analytics.js-integration version
+- Replace analytics.js dependency with analytics.js-core
 
-1.0.1 / 2015-06-24
-==================
+# 1.0.2 / 2015-06-24
 
-  * Bump analytics.js-integration version
+- Bump analytics.js-integration version
 
-1.0.0 / 2015-06-09
-==================
+# 1.0.1 / 2015-06-24
 
-  * Initial commit :sparkles:
+- Bump analytics.js-integration version
+
+# 1.0.0 / 2015-06-09
+
+- Initial commit :sparkles:

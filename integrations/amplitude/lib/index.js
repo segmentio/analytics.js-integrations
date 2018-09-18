@@ -28,7 +28,7 @@ var src = '//d24n15hnbwhuhn.cloudfront.net/libs/amplitude-4.1.1-min.gz.js';
  * Expose `Amplitude` integration.
  */
 
-var Amplitude = module.exports = integration('Amplitude')
+var Amplitude = (module.exports = integration('Amplitude')
   .global('amplitude')
   .option('apiKey', '')
   .option('trackAllPages', false)
@@ -47,7 +47,9 @@ var Amplitude = module.exports = integration('Amplitude')
   .option('mapQueryParams', {})
   .option('trackRevenuePerProduct', false)
   .option('preferAnonymousIdForDeviceId', false)
-  .tag('<script src="' + src + '">');
+  .option('traitsToSetOnce', [])
+  .option('traitsToIncrement', [])
+  .tag('<script src="' + src + '">'));
 
 /**
  * Initialize.
@@ -58,10 +60,10 @@ var Amplitude = module.exports = integration('Amplitude')
  */
 
 Amplitude.prototype.initialize = function() {
+  /* prettier-ignore */
   /* eslint-disable */
   (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};function r(e,t){e.prototype[t]=function(){this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));return this}}var i=function(){this._q=[];return this};var s=["add","append","clearAll","prepend","set","setOnce","unset"];for(var o=0;o<s.length;o++){r(i,s[o])}n.Identify=i;var a=function(){this._q=[];return this};var u=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"];for(var c=0;c<u.length;c++){r(a,u[c])}n.Revenue=a;var l=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId","logEventWithTimestamp","logEventWithGroups","setSessionId"];function p(e){function t(t){e[t]=function(){e._q.push([t].concat(Array.prototype.slice.call(arguments,0)))}}for(var n=0;n<l.length;n++){t(l[n])}}p(n);n.getInstance=function(e){e=(!e||e.length===0?"$default_instance":e).toLowerCase();if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};p(n._iq[e])}return n._iq[e]};e.amplitude=n})(window,document);
   /* eslint-enable */
-
   this.setDomain(window.location.href);
   window.amplitude.init(this.options.apiKey, null, {
     includeUtm: this.options.trackUtmProperties,
@@ -71,7 +73,8 @@ Amplitude.prototype.initialize = function() {
     eventUploadPeriodMillis: this.options.eventUploadPeriodMillis,
     forceHttps: this.options.forceHttps,
     includeGclid: this.options.trackGclid,
-    saveParamsReferrerOncePerSession: this.options.saveParamsReferrerOncePerSession,
+    saveParamsReferrerOncePerSession: this.options
+      .saveParamsReferrerOncePerSession,
     deviceIdFromUrlParam: this.options.deviceIdFromUrlParam
   });
 
@@ -151,6 +154,7 @@ Amplitude.prototype.identify = function(identify) {
 
   var id = identify.userId();
   var traits = identify.traits();
+
   if (id) window.amplitude.setUserId(id);
   if (traits) {
     // map query params from context url if opted in
@@ -164,16 +168,43 @@ Amplitude.prototype.identify = function(identify) {
       }, mapQueryParams);
     }
 
-    window.amplitude.setUserProperties(traits);
+    this.setTraits(traits);
   }
 
   // Set user groups: https://amplitude.zendesk.com/hc/en-us/articles/115001361248#setting-user-groups
   var groups = identify.options(this.name).groups;
   if (groups && is.object(groups)) {
     for (var group in groups) {
-      if (groups.hasOwnProperty(group)) window.amplitude.setGroup(group, groups[group]);
+      if (groups.hasOwnProperty(group))
+        window.amplitude.setGroup(group, groups[group]);
     }
   }
+};
+
+Amplitude.prototype.setTraits = function(traits) {
+  var traitsToIncrement = this.options.traitsToIncrement || [];
+  var traitsToSetOnce = this.options.traitsToSetOnce || [];
+  var amplitudeIdentify = new window.amplitude.Identify();
+
+  for (var trait in traits) {
+    if (!traits.hasOwnProperty(trait)) continue;
+
+    var shouldIncrement = traitsToIncrement.indexOf(trait) >= 0;
+    var shouldSetOnce = traitsToSetOnce.indexOf(trait) >= 0;
+
+    if (shouldIncrement) {
+      amplitudeIdentify.add(trait, traits[trait]);
+    }
+
+    if (shouldSetOnce) {
+      amplitudeIdentify.setOnce(trait, traits[trait]);
+    }
+
+    if (!shouldIncrement && !shouldSetOnce) {
+      amplitudeIdentify.set(trait, traits[trait]);
+    }
+  }
+  window.amplitude.identify(amplitudeIdentify);
 };
 
 /**
@@ -197,12 +228,12 @@ function logEvent(track, dontSetRevenue) {
   if (!is.empty(mapQueryParams)) {
     var params = {};
     var type;
-      // since we accept any arbitrary property name and we dont have conditional UI components
-      // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
+    // since we accept any arbitrary property name and we dont have conditional UI components
+    // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
     each(function(value, key) {
       // add query params to either `user_properties` or `event_properties`
       type = value;
-      type === 'user_properties' ? params[key] = query : props[key] = query;
+      type === 'user_properties' ? (params[key] = query) : (props[key] = query);
     }, mapQueryParams);
 
     if (type === 'user_properties') window.amplitude.setUserProperties(params);
@@ -218,7 +249,8 @@ function logEvent(track, dontSetRevenue) {
   // Ideally, user's will track revenue using an Order Completed event.
   // However, we have previously setRevenue for any event given it had a revenue property.
   // We need to keep this behavior around for backwards compatibility.
-  if (track.revenue() && !dontSetRevenue) this.setRevenue(mapRevenueAttributes(track));
+  if (track.revenue() && !dontSetRevenue)
+    this.setRevenue(mapRevenueAttributes(track));
 }
 
 Amplitude.prototype.orderCompleted = function(track) {
@@ -242,19 +274,22 @@ Amplitude.prototype.orderCompleted = function(track) {
   logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
 
   // Loop through products array.
-  each(function(product) {
-    var price = product.price;
-    var quantity = product.quantity;
-    clonedTrack.properties = product;
-    clonedTrack.event = 'Product Purchased';
-    // Price and quantity are both required by Amplitude:
-    // https://amplitude.zendesk.com/hc/en-us/articles/115001361248#tracking-revenue
-    // Price could potentially be 0 so handle that edge case.
-    if (trackRevenuePerProduct && price != null && quantity) this.setRevenue(mapRevenueAttributes(new Track(clonedTrack)));
-    logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
-  }.bind(this), products);
+  each(
+    function(product) {
+      var price = product.price;
+      var quantity = product.quantity;
+      clonedTrack.properties = product;
+      clonedTrack.event = 'Product Purchased';
+      // Price and quantity are both required by Amplitude:
+      // https://amplitude.zendesk.com/hc/en-us/articles/115001361248#tracking-revenue
+      // Price could potentially be 0 so handle that edge case.
+      if (trackRevenuePerProduct && price != null && quantity)
+        this.setRevenue(mapRevenueAttributes(new Track(clonedTrack)));
+      logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
+    }.bind(this),
+    products
+  );
 };
-
 
 /**
  * Group.
@@ -335,9 +370,9 @@ Amplitude.prototype.setRevenue = function(properties) {
     }
 
     var ampRevenue = new window.amplitude.Revenue()
-    .setPrice(price)
-    .setQuantity(quantity)
-    .setEventProperties(eventProps);
+      .setPrice(price)
+      .setQuantity(quantity)
+      .setEventProperties(eventProps);
 
     if (revenueType) ampRevenue.setRevenueType(revenueType);
 
@@ -345,7 +380,11 @@ Amplitude.prototype.setRevenue = function(properties) {
 
     window.amplitude.logRevenueV2(ampRevenue);
   } else {
-    window.amplitude.logRevenue(revenue || price * quantity, quantity, productId);
+    window.amplitude.logRevenue(
+      revenue || price * quantity,
+      quantity,
+      productId
+    );
   }
 };
 
@@ -360,7 +399,9 @@ function mapRevenueAttributes(track) {
   return {
     price: track.price(),
     productId: track.productId(),
-    revenueType: track.proxy('properties.revenueType') || mapRevenueType[track.event().toLowerCase()],
+    revenueType:
+      track.proxy('properties.revenueType') ||
+      mapRevenueType[track.event().toLowerCase()],
     quantity: track.quantity(),
     eventProps: track.properties(),
     revenue: track.revenue()

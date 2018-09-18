@@ -22,7 +22,9 @@ describe('Amplitude', function() {
     saveParamsReferrerOncePerSession: true,
     deviceIdFromUrlParam: false,
     trackRevenuePerProduct: false,
-    mapQueryParams: {}
+    mapQueryParams: {},
+    traitsToIncrement: [],
+    traitsToSetOnce: []
   };
 
   beforeEach(function() {
@@ -41,21 +43,26 @@ describe('Amplitude', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Amplitude, integration('Amplitude')
-      .global('amplitude')
-      .option('apiKey', '')
-      .option('trackAllPages', false)
-      .option('trackUtmProperties', true)
-      .option('trackNamedPages', true)
-      .option('trackReferrer', false)
-      .option('batchEvents', false)
-      .option('eventUploadThreshold', 30)
-      .option('eventUploadPeriodMillis', 30000)
-      .option('forceHttps', false)
-      .option('trackGclid', false)
-      .option('saveParamsReferrerOncePerSession', true)
-      .option('trackRevenuePerProduct', false)
-      .option('deviceIdFromUrlParam', false));
+    analytics.compare(
+      Amplitude,
+      integration('Amplitude')
+        .global('amplitude')
+        .option('apiKey', '')
+        .option('trackAllPages', false)
+        .option('trackUtmProperties', true)
+        .option('trackNamedPages', true)
+        .option('trackReferrer', false)
+        .option('batchEvents', false)
+        .option('eventUploadThreshold', 30)
+        .option('eventUploadPeriodMillis', 30000)
+        .option('forceHttps', false)
+        .option('trackGclid', false)
+        .option('saveParamsReferrerOncePerSession', true)
+        .option('trackRevenuePerProduct', false)
+        .option('traitsToSetOnce', [])
+        .option('traitsToIncrement', [])
+        .option('deviceIdFromUrlParam', false)
+    );
   });
 
   describe('before loading', function() {
@@ -96,15 +103,37 @@ describe('Amplitude', function() {
     });
 
     it('should init with right options', function() {
-      analytics.assert(window.amplitude.options.includeUtm === options.trackUtmProperties);
-      analytics.assert(window.amplitude.options.includeReferrer === options.trackReferrer);
-      analytics.assert(window.amplitude.options.batchEvents === options.batchEvents);
-      analytics.assert(window.amplitude.options.eventUploadThreshold === options.eventUploadThreshold);
-      analytics.assert(window.amplitude.options.eventUploadPeriodMillis === options.eventUploadPeriodMillis);
-      analytics.assert(window.amplitude.options.forceHttps === options.forceHttps);
-      analytics.assert(window.amplitude.options.includeGclid === options.trackGclid);
-      analytics.assert(window.amplitude.options.saveParamsReferrerOncePerSession === options.saveParamsReferrerOncePerSession);
-      analytics.assert(window.amplitude.options.deviceIdFromUrlParam === options.deviceIdFromUrlParam);
+      analytics.assert(
+        window.amplitude.options.includeUtm === options.trackUtmProperties
+      );
+      analytics.assert(
+        window.amplitude.options.includeReferrer === options.trackReferrer
+      );
+      analytics.assert(
+        window.amplitude.options.batchEvents === options.batchEvents
+      );
+      analytics.assert(
+        window.amplitude.options.eventUploadThreshold ===
+          options.eventUploadThreshold
+      );
+      analytics.assert(
+        window.amplitude.options.eventUploadPeriodMillis ===
+          options.eventUploadPeriodMillis
+      );
+      analytics.assert(
+        window.amplitude.options.forceHttps === options.forceHttps
+      );
+      analytics.assert(
+        window.amplitude.options.includeGclid === options.trackGclid
+      );
+      analytics.assert(
+        window.amplitude.options.saveParamsReferrerOncePerSession ===
+          options.saveParamsReferrerOncePerSession
+      );
+      analytics.assert(
+        window.amplitude.options.deviceIdFromUrlParam ===
+          options.deviceIdFromUrlParam
+      );
     });
 
     it('should set api key', function() {
@@ -168,7 +197,10 @@ describe('Amplitude', function() {
 
       it('should track named pages with a category added', function() {
         analytics.page('Category', 'Name');
-        analytics.called(window.amplitude.logEvent, 'Viewed Category Name Page');
+        analytics.called(
+          window.amplitude.logEvent,
+          'Viewed Category Name Page'
+        );
       });
 
       it('should track categorized pages by default', function() {
@@ -187,13 +219,18 @@ describe('Amplitude', function() {
         amplitude.options.trackAllPages = true;
         amplitude.options.mapQueryParams = { customProp: 'user_properties' };
         analytics.page({}, { page: { search: '?suh=dude' } });
-        analytics.called(window.amplitude.setUserProperties, { customProp: '?suh=dude' });
+        analytics.called(window.amplitude.setUserProperties, {
+          customProp: '?suh=dude'
+        });
       });
 
       it('should map query params to custom property as event properties', function() {
         amplitude.options.trackAllPages = true;
         amplitude.options.mapQueryParams = { params: 'event_properties' };
-        analytics.page({ referrer: document.referrer }, { page: { search: '?suh=dude' } });
+        analytics.page(
+          { referrer: document.referrer },
+          { page: { search: '?suh=dude' } }
+        );
         analytics.called(window.amplitude.logEvent, 'Loaded a Page', {
           params: '?suh=dude',
           path: '/context.html',
@@ -220,6 +257,9 @@ describe('Amplitude', function() {
       beforeEach(function() {
         analytics.stub(window.amplitude, 'setUserId');
         analytics.stub(window.amplitude, 'setUserProperties');
+        analytics.stub(window.amplitude.Identify.prototype, 'set');
+        analytics.stub(window.amplitude.Identify.prototype, 'setOnce');
+        analytics.stub(window.amplitude.Identify.prototype, 'add');
         analytics.stub(window.amplitude, 'setGroup');
         analytics.stub(window.amplitude, 'setDeviceId');
       });
@@ -229,26 +269,103 @@ describe('Amplitude', function() {
         analytics.called(window.amplitude.setUserId, 'id');
       });
 
-      it('should send traits', function() {
+      it('should set traits', function() {
         analytics.identify({ trait: true });
-        analytics.called(window.amplitude.setUserProperties, { trait: true });
+        analytics.called(
+          window.amplitude.Identify.prototype.set,
+          'trait',
+          true
+        );
       });
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
         analytics.called(window.amplitude.setUserId, 'id');
-        analytics.called(window.amplitude.setUserProperties, { id: 'id', trait: true });
+        analytics.called(window.amplitude.Identify.prototype.set, 'id', 'id');
+        analytics.called(
+          window.amplitude.Identify.prototype.set,
+          'trait',
+          true
+        );
       });
 
       it('should send query params under custom trait if set', function() {
         amplitude.options.mapQueryParams = { ham: 'user_properties' };
-        analytics.identify('id', { trait: true }, { page: { search: '?foo=bar' } });
+        analytics.identify(
+          'id',
+          { trait: true },
+          { page: { search: '?foo=bar' } }
+        );
         analytics.called(window.amplitude.setUserId, 'id');
-        analytics.called(window.amplitude.setUserProperties, { id: 'id', trait: true, ham: '?foo=bar' });
+        analytics.called(window.amplitude.Identify.prototype.set, 'id', 'id');
+        analytics.called(
+          window.amplitude.Identify.prototype.set,
+          'trait',
+          true
+        );
+        analytics.called(
+          window.amplitude.Identify.prototype.set,
+          'ham',
+          '?foo=bar'
+        );
+      });
+
+      it('should call add for all traitsToIncrement traits', function() {
+        amplitude.options.traitsToIncrement.push('hatTricks');
+        analytics.identify({ trait: true, hatTricks: 1 });
+        analytics.called(
+          window.amplitude.Identify.prototype.add,
+          'hatTricks',
+          1
+        );
+        analytics.didNotCall(
+          window.amplitude.Identify.prototype.set,
+          'hatTricks',
+          1
+        );
+        analytics.called(
+          window.amplitude.Identify.prototype.set,
+          'trait',
+          true
+        );
+        analytics.didNotCall(
+          window.amplitude.Identify.prototype.add,
+          'trait',
+          true
+        );
+      });
+
+      it('should call setOnce for all traitsToSetOnce traits', function() {
+        amplitude.options.traitsToSetOnce.push('yolo');
+        analytics.identify({ trait: true, yolo: true });
+        analytics.called(
+          window.amplitude.Identify.prototype.setOnce,
+          'yolo',
+          true
+        );
+        analytics.didNotCall(
+          window.amplitude.Identify.prototype.set,
+          'yolo',
+          true
+        );
+        analytics.called(
+          window.amplitude.Identify.prototype.set,
+          'trait',
+          true
+        );
+        analytics.didNotCall(
+          window.amplitude.Identify.prototype.setOnce,
+          'trait',
+          true
+        );
       });
 
       it('should set user groups if integration option `groups` is present', function() {
-        analytics.identify('id', {}, { integrations: { Amplitude: { groups: { foo: 'bar' } } } });
+        analytics.identify(
+          'id',
+          {},
+          { integrations: { Amplitude: { groups: { foo: 'bar' } } } }
+        );
         analytics.called(window.amplitude.setGroup, 'foo', 'bar');
       });
 
@@ -283,7 +400,9 @@ describe('Amplitude', function() {
 
       it('should send an event and properties', function() {
         analytics.track('event', { property: true });
-        analytics.called(window.amplitude.logEvent, 'event', { property: true });
+        analytics.called(window.amplitude.logEvent, 'event', {
+          property: true
+        });
         analytics.didNotCall(window.amplitude.logRevenue);
         analytics.didNotCall(window.amplitude.logRevenueV2);
       });
@@ -295,7 +414,11 @@ describe('Amplitude', function() {
       });
 
       it('should send a revenue event with quantity and productId', function() {
-        analytics.track('event', { revenue: 19.99, quantity: 2, productId: 'AMP1' });
+        analytics.track('event', {
+          revenue: 19.99,
+          quantity: 2,
+          productId: 'AMP1'
+        });
         analytics.called(window.amplitude.logRevenue, 19.99, 2, 'AMP1');
         analytics.didNotCall(window.amplitude.logRevenueV2);
       });
@@ -303,16 +426,27 @@ describe('Amplitude', function() {
       it('should send a revenueV2 event', function() {
         amplitude.options.useLogRevenueV2 = true;
         analytics.track('event', { revenue: 19.99 });
-        var ampRevenue = new window.amplitude.Revenue().setPrice(19.99).setEventProperties({ revenue: 19.99 });
+        var ampRevenue = new window.amplitude.Revenue()
+          .setPrice(19.99)
+          .setEventProperties({ revenue: 19.99 });
         analytics.didNotCall(window.amplitude.logRevenue);
         analytics.called(window.amplitude.logRevenueV2, ampRevenue);
       });
 
       it('should send a revenueV2 event with quantity and productId and revenueType', function() {
         amplitude.options.useLogRevenueV2 = true;
-        var props = { revenue: 20.00, quantity: 2, price: 10.00, productId: 'AMP1', revenueType: 'purchase' };
+        var props = {
+          revenue: 20.0,
+          quantity: 2,
+          price: 10.0,
+          productId: 'AMP1',
+          revenueType: 'purchase'
+        };
         analytics.track('event', props);
-        var ampRevenue = new window.amplitude.Revenue().setPrice(10.00).setQuantity(2).setProductId('AMP1');
+        var ampRevenue = new window.amplitude.Revenue()
+          .setPrice(10.0)
+          .setQuantity(2)
+          .setProductId('AMP1');
         ampRevenue.setRevenueType('purchase').setEventProperties(props);
         analytics.didNotCall(window.amplitude.logRevenue);
         analytics.called(window.amplitude.logRevenueV2, ampRevenue);
@@ -320,15 +454,29 @@ describe('Amplitude', function() {
 
       it('should send a revenueV2 event with revenue if missing price', function() {
         amplitude.options.useLogRevenueV2 = true;
-        analytics.track('event', { revenue: 20.00, quantity: 2, productId: 'AMP1' });
-        var ampRevenue = new window.amplitude.Revenue().setPrice(20.00).setProductId('AMP1');
-        ampRevenue.setEventProperties({ revenue: 20.00, quantity: 2, productId: 'AMP1' });
+        analytics.track('event', {
+          revenue: 20.0,
+          quantity: 2,
+          productId: 'AMP1'
+        });
+        var ampRevenue = new window.amplitude.Revenue()
+          .setPrice(20.0)
+          .setProductId('AMP1');
+        ampRevenue.setEventProperties({
+          revenue: 20.0,
+          quantity: 2,
+          productId: 'AMP1'
+        });
         analytics.didNotCall(window.amplitude.logRevenue);
         analytics.called(window.amplitude.logRevenueV2, ampRevenue);
       });
 
       it('should only send a revenue event if revenue is being logged', function() {
-        analytics.track('event', { price: 10.00, quantity: 2, productId: 'AMP1' });
+        analytics.track('event', {
+          price: 10.0,
+          quantity: 2,
+          productId: 'AMP1'
+        });
         analytics.called(window.amplitude.logEvent);
         analytics.didNotCall(window.amplitude.logRevenue);
         analytics.didNotCall(window.amplitude.logRevenueV2);
@@ -336,7 +484,11 @@ describe('Amplitude', function() {
 
       it('should only send a revenueV2 event if revenue is being logged', function() {
         amplitude.options.useLogRevenueV2 = true;
-        analytics.track('event', { price: 10.00, quantity: 2, productId: 'AMP1' });
+        analytics.track('event', {
+          price: 10.0,
+          quantity: 2,
+          productId: 'AMP1'
+        });
         analytics.called(window.amplitude.logEvent);
         analytics.didNotCall(window.amplitude.logRevenue);
         analytics.didNotCall(window.amplitude.logRevenueV2);
@@ -344,19 +496,41 @@ describe('Amplitude', function() {
 
       it('should send a query params under custom prop as user properties', function() {
         amplitude.options.mapQueryParams = { ham: 'user_properties' };
-        analytics.track('event', { foo: 'bar' }, { page: { search: '?foo=bar' } });
-        analytics.called(window.amplitude.setUserProperties, { ham: '?foo=bar' });
+        analytics.track(
+          'event',
+          { foo: 'bar' },
+          { page: { search: '?foo=bar' } }
+        );
+        analytics.called(window.amplitude.setUserProperties, {
+          ham: '?foo=bar'
+        });
       });
 
       it('should send a query params under custom prop as user or event properties', function() {
         amplitude.options.mapQueryParams = { ham: 'event_properties' };
-        analytics.track('event', { foo: 'bar' }, { page: { search: '?foo=bar' } });
-        analytics.called(window.amplitude.logEvent, 'event', { foo: 'bar', ham: '?foo=bar' });
+        analytics.track(
+          'event',
+          { foo: 'bar' },
+          { page: { search: '?foo=bar' } }
+        );
+        analytics.called(window.amplitude.logEvent, 'event', {
+          foo: 'bar',
+          ham: '?foo=bar'
+        });
       });
 
       it('should send an event with groups if `groups` is an integration specific option', function() {
-        analytics.track('event', { foo: 'bar' }, { integrations: { Amplitude: { groups: { sports: 'basketball' } } } });
-        analytics.called(window.amplitude.logEventWithGroups, 'event', { foo: 'bar' }, { sports: 'basketball' });
+        analytics.track(
+          'event',
+          { foo: 'bar' },
+          { integrations: { Amplitude: { groups: { sports: 'basketball' } } } }
+        );
+        analytics.called(
+          window.amplitude.logEventWithGroups,
+          'event',
+          { foo: 'bar' },
+          { sports: 'basketball' }
+        );
       });
 
       it('should set deviceId if `preferAnonymousIdForDeviceId` is set', function() {
@@ -448,7 +622,11 @@ describe('Amplitude', function() {
 
       it('should call setGroup', function() {
         analytics.group('testGroupId');
-        analytics.called(window.amplitude.setGroup, '[Segment] Group', 'testGroupId');
+        analytics.called(
+          window.amplitude.setGroup,
+          '[Segment] Group',
+          'testGroupId'
+        );
       });
 
       it('should use `groupTypeTrait` and `groupValueTrait` when both are present', function() {
@@ -462,7 +640,11 @@ describe('Amplitude', function() {
         amplitude.options.groupTypeTrait = 'foo';
         amplitude.options.groupValueTrait = 'bar';
         analytics.group('testGroupId', { notFoo: 'asdf', bar: 'fafa' });
-        analytics.called(window.amplitude.setGroup, '[Segment] Group', 'testGroupId');
+        analytics.called(
+          window.amplitude.setGroup,
+          '[Segment] Group',
+          'testGroupId'
+        );
       });
 
       it('should set deviceId if `preferAnonymousIdForDeviceId` is set', function() {
