@@ -22,13 +22,13 @@ var umd = typeof window.define === 'function' && window.define.amd;
  * Source.
  */
 
-var src = '//d24n15hnbwhuhn.cloudfront.net/libs/amplitude-4.1.1-min.gz.js';
+var src = 'https://cdn.amplitude.com/libs/amplitude-4.4.0-min.gz.js';
 
 /**
  * Expose `Amplitude` integration.
  */
 
-var Amplitude = module.exports = integration('Amplitude')
+var Amplitude = (module.exports = integration('Amplitude')
   .global('amplitude')
   .option('apiKey', '')
   .option('trackAllPages', false)
@@ -47,7 +47,7 @@ var Amplitude = module.exports = integration('Amplitude')
   .option('mapQueryParams', {})
   .option('trackRevenuePerProduct', false)
   .option('preferAnonymousIdForDeviceId', false)
-  .tag('<script src="' + src + '">');
+  .tag('<script src="' + src + '">'));
 
 /**
  * Initialize.
@@ -58,12 +58,87 @@ var Amplitude = module.exports = integration('Amplitude')
  */
 
 Amplitude.prototype.initialize = function() {
+  // amplitude snippet (lines loading amplitude cdn-served script are removed as that is already achieved via Segment tag and load methods)
   /* eslint-disable */
-  (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};function r(e,t){e.prototype[t]=function(){this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));return this}}var i=function(){this._q=[];return this};var s=["add","append","clearAll","prepend","set","setOnce","unset"];for(var o=0;o<s.length;o++){r(i,s[o])}n.Identify=i;var a=function(){this._q=[];return this};var u=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"];for(var c=0;c<u.length;c++){r(a,u[c])}n.Revenue=a;var l=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId","logEventWithTimestamp","logEventWithGroups","setSessionId"];function p(e){function t(t){e[t]=function(){e._q.push([t].concat(Array.prototype.slice.call(arguments,0)))}}for(var n=0;n<l.length;n++){t(l[n])}}p(n);n.getInstance=function(e){e=(!e||e.length===0?"$default_instance":e).toLowerCase();if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};p(n._iq[e])}return n._iq[e]};e.amplitude=n})(window,document);
+  (function(e, t) {
+    var n = e.amplitude || { _q: [], _iq: {} };
+    function s(e, t) {
+      e.prototype[t] = function() {
+        this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+        return this;
+      };
+    }
+    var o = function() {
+      this._q = [];
+      return this;
+    };
+    var a = ['add', 'append', 'clearAll', 'prepend', 'set', 'setOnce', 'unset'];
+    for (var u = 0; u < a.length; u++) {
+      s(o, a[u]);
+    }
+    n.Identify = o;
+    var c = function() {
+      this._q = [];
+      return this;
+    };
+    var l = [
+      'setProductId',
+      'setQuantity',
+      'setPrice',
+      'setRevenueType',
+      'setEventProperties'
+    ];
+    for (var p = 0; p < l.length; p++) {
+      s(c, l[p]);
+    }
+    n.Revenue = c;
+    var d = [
+      'init',
+      'logEvent',
+      'logRevenue',
+      'setUserId',
+      'setUserProperties',
+      'setOptOut',
+      'setVersionName',
+      'setDomain',
+      'setDeviceId',
+      'setGlobalUserProperties',
+      'identify',
+      'clearUserProperties',
+      'setGroup',
+      'logRevenueV2',
+      'regenerateDeviceId',
+      'logEventWithTimestamp',
+      'logEventWithGroups',
+      'setSessionId',
+      'resetSessionId'
+    ];
+    function v(e) {
+      function t(t) {
+        e[t] = function() {
+          e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+        };
+      }
+      for (var n = 0; n < d.length; n++) {
+        t(d[n]);
+      }
+    }
+    v(n);
+    n.getInstance = function(e) {
+      e = (!e || e.length === 0 ? '$default_instance' : e).toLowerCase();
+      if (!n._iq.hasOwnProperty(e)) {
+        n._iq[e] = { _q: [] };
+        v(n._iq[e]);
+      }
+      return n._iq[e];
+    };
+    e.amplitude = n;
+  })(window, document);
   /* eslint-enable */
 
   this.setDomain(window.location.href);
-  window.amplitude.init(this.options.apiKey, null, {
+
+  window.amplitude.getInstance().init(this.options.apiKey, null, {
     includeUtm: this.options.trackUtmProperties,
     includeReferrer: this.options.trackReferrer,
     batchEvents: this.options.batchEvents,
@@ -71,7 +146,8 @@ Amplitude.prototype.initialize = function() {
     eventUploadPeriodMillis: this.options.eventUploadPeriodMillis,
     forceHttps: this.options.forceHttps,
     includeGclid: this.options.trackGclid,
-    saveParamsReferrerOncePerSession: this.options.saveParamsReferrerOncePerSession,
+    saveParamsReferrerOncePerSession: this.options
+      .saveParamsReferrerOncePerSession,
     deviceIdFromUrlParam: this.options.deviceIdFromUrlParam
   });
 
@@ -91,10 +167,12 @@ Amplitude.prototype.initialize = function() {
   }
 
   this.load(function() {
-    when(loaded, function() {
+    if (window.amplitude.runQueuedFunctions) {
       window.amplitude.runQueuedFunctions();
       ready();
-    });
+    } else {
+      console.log('[Amplitude] Error: could not load SDK');
+    }
   });
 };
 
@@ -106,7 +184,7 @@ Amplitude.prototype.initialize = function() {
  */
 
 Amplitude.prototype.loaded = function() {
-  return !!(window.amplitude && window.amplitude.options);
+  return !!(window.amplitude && window.amplitude.getInstance().options);
 };
 
 /**
@@ -151,7 +229,7 @@ Amplitude.prototype.identify = function(identify) {
 
   var id = identify.userId();
   var traits = identify.traits();
-  if (id) window.amplitude.setUserId(id);
+  if (id) window.amplitude.getInstance().setUserId(id);
   if (traits) {
     // map query params from context url if opted in
     var mapQueryParams = this.options.mapQueryParams;
@@ -164,14 +242,15 @@ Amplitude.prototype.identify = function(identify) {
       }, mapQueryParams);
     }
 
-    window.amplitude.setUserProperties(traits);
+    window.amplitude.getInstance().setUserProperties(traits);
   }
 
   // Set user groups: https://amplitude.zendesk.com/hc/en-us/articles/115001361248#setting-user-groups
   var groups = identify.options(this.name).groups;
   if (groups && is.object(groups)) {
     for (var group in groups) {
-      if (groups.hasOwnProperty(group)) window.amplitude.setGroup(group, groups[group]);
+      if (groups.hasOwnProperty(group))
+        window.amplitude.getInstance().setGroup(group, groups[group]);
     }
   }
 };
@@ -197,28 +276,32 @@ function logEvent(track, dontSetRevenue) {
   if (!is.empty(mapQueryParams)) {
     var params = {};
     var type;
-      // since we accept any arbitrary property name and we dont have conditional UI components
-      // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
+    // since we accept any arbitrary property name and we dont have conditional UI components
+    // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
     each(function(value, key) {
       // add query params to either `user_properties` or `event_properties`
       type = value;
-      type === 'user_properties' ? params[key] = query : props[key] = query;
+      type === 'user_properties' ? (params[key] = query) : (props[key] = query);
     }, mapQueryParams);
 
-    if (type === 'user_properties') window.amplitude.setUserProperties(params);
+    if (type === 'user_properties')
+      window.amplitude.getInstance().setUserProperties(params);
   }
 
   // track the event
   if (options.groups) {
-    window.amplitude.logEventWithGroups(event, props, options.groups);
+    window.amplitude
+      .getInstance()
+      .logEventWithGroups(event, props, options.groups);
   } else {
-    window.amplitude.logEvent(event, props);
+    window.amplitude.getInstance().logEvent(event, props);
   }
 
   // Ideally, user's will track revenue using an Order Completed event.
   // However, we have previously setRevenue for any event given it had a revenue property.
   // We need to keep this behavior around for backwards compatibility.
-  if (track.revenue() && !dontSetRevenue) this.setRevenue(mapRevenueAttributes(track));
+  if (track.revenue() && !dontSetRevenue)
+    this.setRevenue(mapRevenueAttributes(track));
 }
 
 Amplitude.prototype.orderCompleted = function(track) {
@@ -242,19 +325,22 @@ Amplitude.prototype.orderCompleted = function(track) {
   logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
 
   // Loop through products array.
-  each(function(product) {
-    var price = product.price;
-    var quantity = product.quantity;
-    clonedTrack.properties = product;
-    clonedTrack.event = 'Product Purchased';
-    // Price and quantity are both required by Amplitude:
-    // https://amplitude.zendesk.com/hc/en-us/articles/115001361248#tracking-revenue
-    // Price could potentially be 0 so handle that edge case.
-    if (trackRevenuePerProduct && price != null && quantity) this.setRevenue(mapRevenueAttributes(new Track(clonedTrack)));
-    logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
-  }.bind(this), products);
+  each(
+    function(product) {
+      var price = product.price;
+      var quantity = product.quantity;
+      clonedTrack.properties = product;
+      clonedTrack.event = 'Product Purchased';
+      // Price and quantity are both required by Amplitude:
+      // https://amplitude.zendesk.com/hc/en-us/articles/115001361248#tracking-revenue
+      // Price could potentially be 0 so handle that edge case.
+      if (trackRevenuePerProduct && price != null && quantity)
+        this.setRevenue(mapRevenueAttributes(new Track(clonedTrack)));
+      logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
+    }.bind(this),
+    products
+  );
 };
-
 
 /**
  * Group.
@@ -269,11 +355,11 @@ Amplitude.prototype.group = function(group) {
   var groupType = group.traits()[this.options.groupTypeTrait];
   var groupValue = group.traits()[this.options.groupValueTrait];
   if (groupType && groupValue) {
-    window.amplitude.setGroup(groupType, groupValue);
+    window.amplitude.getInstance().setGroup(groupType, groupValue);
   } else {
     var groupId = group.groupId();
     if (groupId) {
-      window.amplitude.setGroup('[Segment] Group', groupId);
+      window.amplitude.getInstance().setGroup('[Segment] Group', groupId);
     }
   }
 };
@@ -314,7 +400,7 @@ Amplitude.prototype.setDeviceIdFromAnonymousId = function(facade) {
  */
 
 Amplitude.prototype.setDeviceId = function(deviceId) {
-  if (deviceId) window.amplitude.setDeviceId(deviceId);
+  if (deviceId) window.amplitude.getInstance().setDeviceId(deviceId);
 };
 
 Amplitude.prototype.setRevenue = function(properties) {
@@ -335,17 +421,19 @@ Amplitude.prototype.setRevenue = function(properties) {
     }
 
     var ampRevenue = new window.amplitude.Revenue()
-    .setPrice(price)
-    .setQuantity(quantity)
-    .setEventProperties(eventProps);
+      .setPrice(price)
+      .setQuantity(quantity)
+      .setEventProperties(eventProps);
 
     if (revenueType) ampRevenue.setRevenueType(revenueType);
 
     if (productId) ampRevenue.setProductId(productId);
 
-    window.amplitude.logRevenueV2(ampRevenue);
+    window.amplitude.getInstance().logRevenueV2(ampRevenue);
   } else {
-    window.amplitude.logRevenue(revenue || price * quantity, quantity, productId);
+    window.amplitude
+      .getInstance()
+      .logRevenue(revenue || price * quantity, quantity, productId);
   }
 };
 
@@ -360,7 +448,9 @@ function mapRevenueAttributes(track) {
   return {
     price: track.price(),
     productId: track.productId(),
-    revenueType: track.proxy('properties.revenueType') || mapRevenueType[track.event().toLowerCase()],
+    revenueType:
+      track.proxy('properties.revenueType') ||
+      mapRevenueType[track.event().toLowerCase()],
     quantity: track.quantity(),
     eventProps: track.properties(),
     revenue: track.revenue()
