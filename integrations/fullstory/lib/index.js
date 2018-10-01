@@ -52,8 +52,8 @@ FullStory.prototype.initialize = function() {
     g.setUserVars = function(v) {
       g(l, v);
     };
-    g.event = function(i, v) {
-      g('event', { n: i, p: v });
+    g.event = function(i, v, s) {
+      g('event', { n: i, p: v, s: s });
     };
     g.shutdown = function() {
       g('rec', !1);
@@ -134,7 +134,7 @@ FullStory.prototype.identify = function(identify) {
 
 FullStory.prototype.track = function(track) {
   if (this.options.passEvents) {
-    window.FS.event(track.event(), track.properties());
+    window.FS.event(track.event(), track.properties(), "segment");
   }
 };
 
