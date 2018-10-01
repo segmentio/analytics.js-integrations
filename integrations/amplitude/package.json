@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-amplitude",
   "description": "The Amplitude analytics.js integration.",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
