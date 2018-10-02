@@ -13,11 +13,11 @@ var integration = require('@segment/analytics.js-integration');
  * https://www.fullstory.com/docs/developer
  */
 
-var FullStory = (module.exports = integration('FullStory')
-  .option('org', '')
-  .option('debug', false)
-  .option('passEvents', false)
-  .tag('<script src="https://www.fullstory.com/s/fs.js"></script>'));
+var FullStory = module.exports = integration('FullStory')
+    .option('org', '')
+    .option('debug', false)
+    .option('passEvents', false)
+    .tag('<script src="https://www.fullstory.com/s/fs.js"></script>');
 
 /**
  * Initialize.
@@ -30,46 +30,15 @@ FullStory.prototype.initialize = function() {
   window._fs_namespace = 'FS';
 
   /* eslint-disable */
-  (function(m, n, e, t, l, o, g, y) {
-    if (e in m) {
-      if (m.console && m.console.log) {
-        m.console.log(
-          'FullStory namespace conflict. Please set window["_fs_namespace"].'
-        );
-      }
-      return;
-    }
-    g = m[e] = function(a, b) {
-      g.q ? g.q.push([a, b]) : g._api(a, b);
-    };
-    g.q = [];
-    g.identify = function(i, v) {
-      g(l, { uid: i });
-      if (v) g(l, v);
-    };
-    g.setUserVars = function(v) {
-      g(l, v);
-    };
-    g.event = function(i, v, s) {
-      g('event', { n: i, p: v, s: s });
-    };
-    g.shutdown = function() {
-      g('rec', !1);
-    };
-    g.restart = function() {
-      g('rec', !0);
-    };
-    g.consent = function(a) {
-      g('consent', !arguments.length || a);
-    };
-    g.identifyAccount = function(i, v) {
-      o = 'account';
-      v = v || {};
-      v.acctId = i;
-      g(o, v);
-    };
-    g.clearUserCookie = function() {};
-  })(window, document, window['_fs_namespace'], 'script', 'user');
+  (function(m,n,e,t,l,o,g,y){
+    if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+    g=m[e]=function(a,b){g.q?g.q.push([a,b]):g._api(a,b);};g.q=[];
+    g.identify=function(i,v){g(l,{uid:i});if(v)g(l,v)};g.setUserVars=function(v){g(l,v)};g.event=function(i,v,s){g('event',{n:i,p:v,s:s})};
+    g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+    g.consent=function(a){g("consent",!arguments.length||a)};
+    g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+    g.clearUserCookie=function(){};
+  })(window,document,window['_fs_namespace'],'script','user');
   /* eslint-enable */
 
   this.load(this.ready);
@@ -97,23 +66,12 @@ FullStory.prototype.loaded = function() {
 FullStory.prototype.identify = function(identify) {
   var traits = identify.traits({ name: 'displayName' });
 
-  var newTraits = foldl(
-    function(results, value, key) {
-      if (
-        value !== null &&
-        typeof value === 'object' &&
-        value.constructor !== Date
-      ) {
-        return results;
-      }
-      if (key !== 'id') {
-        results[key] = value;
-      }
-      return results;
-    },
-    {},
-    traits
-  );
+  var newTraits = foldl(function(results, value, key) {
+    if (key !== 'id') {
+      results[key] = value;
+    }
+    return results;
+  }, {}, traits);
   if (identify.userId()) {
     window.FS.identify(String(identify.userId()), newTraits);
   } else {
@@ -131,22 +89,6 @@ FullStory.prototype.identify = function(identify) {
 
 FullStory.prototype.track = function(track) {
   if (this.options.passEvents) {
-    window.FS.event(track.event(), track.properties(), "segment");
+    window.FS.event(track.event(), track.properties());
   }
 };
-
-/**
- * Check if n is a float.
- */
-
-function isFloat(n) {
-  return Number(n) === n && n % 1 !== 0;
-}
-
-/**
- * Check if n is an integer.
- */
-
-function isInt(n) {
-  return Number(n) === n && n % 1 === 0;
-}
