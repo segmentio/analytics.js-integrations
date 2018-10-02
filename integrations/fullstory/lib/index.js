@@ -4,10 +4,8 @@
  * Module dependencies.
  */
 
-var camel = require('camelcase');
 var foldl = require('@ndhoule/foldl');
 var integration = require('@segment/analytics.js-integration');
-var is = require('is');
 
 /**
  * Expose `FullStory` integration.
@@ -108,10 +106,9 @@ FullStory.prototype.identify = function(identify) {
       ) {
         return results;
       }
-      if (key !== 'id')
-        results[
-          key === 'displayName' || key === 'email' ? key : convert(key, value)
-        ] = value;
+      if (key !== 'id') {
+        results[key] = value;
+      }
       return results;
     },
     {},
@@ -137,43 +134,6 @@ FullStory.prototype.track = function(track) {
     window.FS.event(track.event(), track.properties(), "segment");
   }
 };
-
-/**
- * Convert to FullStory format.
- *
- * @param {string} trait
- * @param {*} value
- */
-
-function convert(key, value) {
-  // Handle already-tagged keys without changing it.  This means both that a
-  // user passing avg_spend_real *gets* avg_spend_real not avg_spend_real_real,
-  // AND that they get avg_spend_real even if the value happens to be a perfect
-  // integer.  (Or a string, although FullStory will flag that as an error.)
-  var parts = key.split('_');
-  if (parts.length > 1) {
-    // If we have an underbar, we have at least 2 parts; check the last as a tag
-    var tag = parts.pop();
-    if (
-      tag === 'str' ||
-      tag === 'int' ||
-      tag === 'date' ||
-      tag === 'real' ||
-      tag === 'bool'
-    ) {
-      return camel(parts.join('_')) + '_' + tag;
-    }
-  }
-
-  // No tag found, try to infer one from the value.
-  key = camel(key);
-  if (is.string(value)) return key + '_str';
-  if (isInt(value)) return key + '_int';
-  if (isFloat(value)) return key + '_real';
-  if (is.date(value)) return key + '_date';
-  if (is.bool(value)) return key + '_bool';
-  return key; // Bad FullStory type, but don't mess with the key so error messages name it
-}
 
 /**
  * Check if n is a float.
