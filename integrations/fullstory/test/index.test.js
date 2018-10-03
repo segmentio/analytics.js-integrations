@@ -31,12 +31,9 @@ describe('FullStory', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(
-      FullStory,
-      integration('FullStory')
+    analytics.compare(FullStory, integration('FullStory')
         .option('org', '')
-        .option('debug', false)
-    );
+        .option('debug', false));
   });
 
   describe('before loading', function() {
@@ -76,10 +73,8 @@ describe('FullStory', function() {
         analytics.didNotCall(window.FS.identify);
         analytics.called(window.FS.setUserVars);
         var traits = window.FS.setUserVars.args[0][0];
-        analytics.assert(
-          traits && traits.hasOwnProperty('segmentAnonymousId_str'),
-          'did not set anonymous id correctly'
-        );
+        analytics.assert(traits && traits.hasOwnProperty('segmentAnonymousId_str'),
+            'did not set anonymous id correctly');
       });
 
       it('should only send strings as the id', function() {
@@ -87,10 +82,8 @@ describe('FullStory', function() {
         analytics.called(window.FS.identify, '1');
         analytics.didNotCall(window.FS.setUserVars);
         var traits = window.FS.identify.args[0][0];
-        analytics.assert(
-          traits && !traits.hasOwnProperty('segmentAnonymousId_str'),
-          'did set anonymous id despite user id'
-        );
+        analytics.assert(traits && !traits.hasOwnProperty('segmentAnonymousId_str'),
+            'did set anonymous id despite user id');
       });
 
       it('should send an id', function() {
@@ -99,96 +92,26 @@ describe('FullStory', function() {
       });
 
       it('should camel case custom props', function() {
-        analytics.identify('id', {
-          name: 'Abc123',
-          email: 'example@pizza.com',
-          'First Name': 'Steven'
-        });
-        analytics.called(window.FS.identify, 'id', {
-          displayName: 'Abc123',
-          email: 'example@pizza.com',
-          firstName_str: 'Steven'
-        });
+        analytics.identify('id', { name: 'Abc123', email: 'example@pizza.com', 'first name': 'Steven', 'lastName': 'Brown' });
+        analytics.called(window.FS.identify, 'id', { displayName: 'Abc123', email: 'example@pizza.com', firstName: 'Steven', lastName: 'Brown' });
       });
 
       it('should map name and email', function() {
         analytics.identify('id', { name: 'Test', email: 'test@test.com' });
-        analytics.called(window.FS.identify, 'id', {
-          displayName: 'Test',
-          email: 'test@test.com'
-        });
-      });
-
-      it('should map integers properly', function() {
-        // JavaScript only has Number, so 3.0 === 3 and is an "int"
-        analytics.identify('id', { name: 'Test', revenue: 7, number: 3.0 });
-        analytics.called(window.FS.identify, 'id', {
-          displayName: 'Test',
-          revenue_int: 7,
-          number_int: 3
-        });
-      });
-
-      it('should map floats properly', function() {
-        analytics.identify('id1', {
-          name: 'Example',
-          amtAbandonedInCart: 3.84
-        });
-        analytics.called(window.FS.identify, 'id1', {
-          displayName: 'Example',
-          amtAbandonedInCart_real: 3.84
-        });
-      });
-
-      it('should map dates properly', function() {
-        analytics.identify('id2', {
-          name: 'Test123',
-          signupDate: new Date('2014-03-11T13:19:23Z')
-        });
-        analytics.called(window.FS.identify, 'id2', {
-          displayName: 'Test123',
-          signupDate_date: new Date('2014-03-11T13:19:23Z')
-        });
-      });
-
-      it('should map booleans properly', function() {
-        analytics.identify('id3', { name: 'Steven', registered: true });
-        analytics.called(window.FS.identify, 'id3', {
-          displayName: 'Steven',
-          registered_bool: true
-        });
-      });
-
-      it('should skip arrays entirely', function() {
-        analytics.identify('id3', { ok: 'string', teams: ['eng', 'redsox'] });
-        analytics.called(window.FS.identify, 'id3', { ok_str: 'string' });
-      });
-
-      it('should skip user objects entirely', function() {
-        analytics.identify('id3', {
-          ok: 7,
-          account: { level: 'premier', avg_annual: 30000 }
-        });
-        analytics.called(window.FS.identify, 'id3', { ok_int: 7 });
+        analytics.called(window.FS.identify, 'id', { displayName: 'Test', email: 'test@test.com' });
       });
 
       it('should respect existing type tags', function() {
-        analytics.identify('id3', {
-          my_real: 17,
-          my_int_str: 17,
-          my_str_int: 'foo',
-          my_int_date: 3,
-          my_int_bool: 4,
-          mystr_real: 'plugh'
-        });
-        analytics.called(window.FS.identify, 'id3', {
-          my_real: 17, // didn't become my_real_real (double tag)
-          myInt_str: 17, // all other tests check type mismatch isn't
-          myStr_int: 'foo', // "fixed" to e.g. myInt_str_int, but keeps
-          myInt_date: 3, // the user's tag (and their mismatch error)
-          myInt_bool: 4,
-          mystr_real: 'plugh'
-        });
+        // Type tags should pass through.
+        var payload = {
+          my_real: 17.0,
+          my_int_str: 'foo',
+          my_str_int: 4,
+          my_int_date: new Date(),
+          my_int_bool: true
+        };
+        analytics.identify('id3', payload);
+        analytics.called(window.FS.identify, 'id3', payload);
       });
     });
 

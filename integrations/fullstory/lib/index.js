@@ -14,15 +14,14 @@ var integration = require('@segment/analytics.js-integration');
  */
 
 var FullStory = module.exports = integration('FullStory')
-    .option('org', '')
-    .option('debug', false)
-    .option('passEvents', false)
-    .tag('<script src="https://www.fullstory.com/s/fs.js"></script>');
+  .option('org', '')
+  .option('debug', false)
+  .option('passEvents', false)
+  .tag('<script src="https://www.fullstory.com/s/fs.js"></script>');
 
 /**
  * Initialize.
  */
-
 FullStory.prototype.initialize = function() {
   window._fs_debug = this.options.debug;
   window._fs_host = 'www.fullstory.com';
@@ -49,7 +48,6 @@ FullStory.prototype.initialize = function() {
  *
  * @return {Boolean}
  */
-
 FullStory.prototype.loaded = function() {
   return !!window.FS;
 };
@@ -62,13 +60,12 @@ FullStory.prototype.loaded = function() {
  *
  * @param {Identify} identify
  */
-
 FullStory.prototype.identify = function(identify) {
   var traits = identify.traits({ name: 'displayName' });
 
   var newTraits = foldl(function(results, value, key) {
     if (key !== 'id') {
-      results[key] = value;
+      results[key === 'displayName' || key === 'email' ? key : camelCaseWs(key)] = value;
     }
     return results;
   }, {}, traits);
@@ -86,9 +83,40 @@ FullStory.prototype.identify = function(identify) {
  *
  * @param {Track} track
  */
-
 FullStory.prototype.track = function(track) {
   if (this.options.passEvents) {
     window.FS.event(track.event(), track.properties());
   }
 };
+
+/**
+ * Camel cases white space separated keys. Leaves underscores alone.
+ *
+ * NOTE: Does not fix otherwise malformed keys.
+ * FullStory will reject keys that do not conform to /^[a-zA-Z][a-zA-Z0-9_]*$/.
+ *
+ * @param {string} key
+ */
+function camelCaseWs(key) {
+  var parts = key.split(' ');
+  var keyParts = [];
+  for (var i=0; i < parts.length; i++) {
+    var tok = parts[i];
+    if (tok !== '') { // Handle multiple spaces.
+      keyParts.push(keyParts.length > 0 ? upperCaseFirstChar(tok) : tok);
+    }
+  }
+  return keyParts.join('');
+}
+
+/**
+ * Uppercases the first character in the supplied string.
+ *
+ * @param {string} str
+ */
+function upperCaseFirstChar(str) {
+  if (str === '') {
+    return str;
+  }
+  return str[0].toUpperCase() + str.substr(1);
+}
