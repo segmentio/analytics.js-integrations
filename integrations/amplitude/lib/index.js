@@ -397,6 +397,7 @@ function mapRevenueAttributes(track) {
   // Using mapper here to support future ecomm event => revenue mappings (Order Refund, etc.)
   var mapRevenueType = {
     'order completed': 'Purchase',
+    'completed order': 'Purchase',
     'product purchased': 'Purchase'
   };
 
