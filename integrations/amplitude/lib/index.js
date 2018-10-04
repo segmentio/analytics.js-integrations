@@ -47,6 +47,8 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('mapQueryParams', {})
   .option('trackRevenuePerProduct', false)
   .option('preferAnonymousIdForDeviceId', false)
+  .option('traitsToSetOnce', [])
+  .option('traitsToIncrement', [])
   .tag('<script src="' + src + '">'));
 
 /**
@@ -58,11 +60,11 @@ var Amplitude = (module.exports = integration('Amplitude')
  */
 
 Amplitude.prototype.initialize = function() {
+  /* prettier-ignore */
   // amplitude snippet (lines loading amplitude cdn-served script are removed as that is already achieved via Segment tag and load methods)
   /* eslint-disable */
   (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};;function s(e,t){e.prototype[t]=function(){this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));return this}}var o=function(){this._q=[];return this};var a=["add","append","clearAll","prepend","set","setOnce","unset"];for(var u=0;u<a.length;u++){s(o,a[u])}n.Identify=o;var c=function(){this._q=[];return this};var l=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"];for(var p=0;p<l.length;p++){s(c,l[p])}n.Revenue=c;var d=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId","logEventWithTimestamp","logEventWithGroups","setSessionId","resetSessionId"];function v(e){function t(t){e[t]=function(){e._q.push([t].concat(Array.prototype.slice.call(arguments,0)))}}for(var n=0;n<d.length;n++){t(d[n])}}v(n);n.getInstance=function(e){e=(!e||e.length===0?"$default_instance":e).toLowerCase();if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};v(n._iq[e])}return n._iq[e]};e.amplitude=n})(window,document);
   /* eslint-enable */
-
   this.setDomain(window.location.href);
 
   window.amplitude.getInstance().init(this.options.apiKey, null, {
@@ -169,7 +171,7 @@ Amplitude.prototype.identify = function(identify) {
       }, mapQueryParams);
     }
 
-    window.amplitude.getInstance().setUserProperties(traits);
+    this.setTraits(traits);
   }
 
   // Set user groups: https://amplitude.zendesk.com/hc/en-us/articles/115001361248#setting-user-groups
@@ -180,6 +182,32 @@ Amplitude.prototype.identify = function(identify) {
         window.amplitude.getInstance().setGroup(group, groups[group]);
     }
   }
+};
+
+Amplitude.prototype.setTraits = function(traits) {
+  var traitsToIncrement = this.options.traitsToIncrement || [];
+  var traitsToSetOnce = this.options.traitsToSetOnce || [];
+  var amplitudeIdentify = new window.amplitude.Identify();
+
+  for (var trait in traits) {
+    if (!traits.hasOwnProperty(trait)) continue;
+
+    var shouldIncrement = traitsToIncrement.indexOf(trait) >= 0;
+    var shouldSetOnce = traitsToSetOnce.indexOf(trait) >= 0;
+
+    if (shouldIncrement) {
+      amplitudeIdentify.add(trait, traits[trait]);
+    }
+
+    if (shouldSetOnce) {
+      amplitudeIdentify.setOnce(trait, traits[trait]);
+    }
+
+    if (!shouldIncrement && !shouldSetOnce) {
+      amplitudeIdentify.set(trait, traits[trait]);
+    }
+  }
+  window.amplitude.identify(amplitudeIdentify);
 };
 
 /**

@@ -22,7 +22,9 @@ describe('Amplitude', function() {
     saveParamsReferrerOncePerSession: true,
     deviceIdFromUrlParam: false,
     trackRevenuePerProduct: false,
-    mapQueryParams: {}
+    mapQueryParams: {},
+    traitsToIncrement: [],
+    traitsToSetOnce: []
   };
 
   beforeEach(function() {
@@ -57,6 +59,8 @@ describe('Amplitude', function() {
         .option('trackGclid', false)
         .option('saveParamsReferrerOncePerSession', true)
         .option('trackRevenuePerProduct', false)
+        .option('traitsToSetOnce', [])
+        .option('traitsToIncrement', [])
         .option('deviceIdFromUrlParam', false)
     );
   });
@@ -254,6 +258,18 @@ describe('Amplitude', function() {
 
     describe('#identify', function() {
       beforeEach(function() {
+        analytics.stub(
+          window.amplitude.getInstance().Identify.prototype,
+          'set'
+        );
+        analytics.stub(
+          window.amplitude.getInstance().Identify.prototype,
+          'setOnce'
+        );
+        analytics.stub(
+          window.amplitude.getInstance().Identify.prototype,
+          'add'
+        );
         analytics.stub(window.amplitude.getInstance(), 'setUserId');
         analytics.stub(window.amplitude.getInstance(), 'setUserProperties');
         analytics.stub(window.amplitude.getInstance(), 'setGroup');
@@ -265,20 +281,28 @@ describe('Amplitude', function() {
         analytics.called(window.amplitude.getInstance().setUserId, 'id');
       });
 
-      it('should send traits', function() {
+      it('should set traits', function() {
         analytics.identify({ trait: true });
-        analytics.called(window.amplitude.getInstance().setUserProperties, {
-          trait: true
-        });
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'trait',
+          true
+        );
       });
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
         analytics.called(window.amplitude.getInstance().setUserId, 'id');
-        analytics.called(window.amplitude.getInstance().setUserProperties, {
-          id: 'id',
-          trait: true
-        });
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'id',
+          'id'
+        );
+        analytics.called(
+          window.amplitude.Identify.prototype.set,
+          'trait',
+          true
+        );
       });
 
       it('should send query params under custom trait if set', function() {
@@ -289,11 +313,71 @@ describe('Amplitude', function() {
           { page: { search: '?foo=bar' } }
         );
         analytics.called(window.amplitude.getInstance().setUserId, 'id');
-        analytics.called(window.amplitude.getInstance().setUserProperties, {
-          id: 'id',
-          trait: true,
-          ham: '?foo=bar'
-        });
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'id',
+          'id'
+        );
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'trait',
+          true
+        );
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'ham',
+          '?foo=bar'
+        );
+      });
+
+      it('should call add for all traitsToIncrement traits', function() {
+        amplitude.options.traitsToIncrement.push('hatTricks');
+        analytics.identify({ trait: true, hatTricks: 1 });
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.add,
+          'hatTricks',
+          1
+        );
+        analytics.didNotCall(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'hatTricks',
+          1
+        );
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'trait',
+          true
+        );
+        analytics.didNotCall(
+          window.amplitude.getInstance().Identify.prototype.add,
+          'trait',
+          true
+        );
+      });
+
+      it('should call setOnce for all traitsToSetOnce traits', function() {
+        amplitude.options.traitsToSetOnce.push('yolo');
+        analytics.identify({ trait: true, yolo: true });
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.setOnce,
+          'yolo',
+          true
+        );
+        analytics.didNotCall(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'yolo',
+          true
+        );
+        analytics.called(
+          window.amplitude.getInstance().Identify.prototype.set,
+          'trait',
+          true
+        );
+        analytics.didNotCall(
+          window.amplitude.getInstance().Identify.prototype.setOnce,
+          'trait',
+          true
+        );
       });
 
       it('should set user groups if integration option `groups` is present', function() {

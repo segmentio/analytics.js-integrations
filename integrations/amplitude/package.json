@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-amplitude",
   "description": "The Amplitude analytics.js integration.",
-  "version": "2.9.0",
+  "version": "2.91.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -12,7 +12,7 @@
   "scripts": {
     "test": "make test"
   },
-  "author": "Segment \u003cfriends@segment.com\u003e",
+  "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/amplitude#readme",
   "bugs": {
