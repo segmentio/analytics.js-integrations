@@ -411,12 +411,12 @@ Amplitude.prototype.sendReferrer = function() {
   }
 
   window.amplitude.getInstance().identify(identify);
-}
+};
 
 // wrapper for testing purposes
 Amplitude.prototype.getReferrer = function() {
   return document.referrer;
-}
+};
 
 function mapRevenueAttributes(track) {
   // Revenue type can be anything such as Refund, Tax, etc.
