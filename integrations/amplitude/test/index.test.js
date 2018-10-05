@@ -254,6 +254,30 @@ describe('Amplitude', function() {
         analytics.identify('id');
         analytics.called(window.amplitude.getInstance().setDeviceId, 'example');
       });
+
+      it('should send referrer if "trackReferrer" is set', function() {
+        var spy = sinon.spy(window.amplitude.getInstance(), 'identify');
+
+        var stub = sinon.stub(amplitude, 'getReferrer')
+        stub.returns('http://examplepage.com/')
+
+        amplitude.options.trackReferrer = true;
+
+        analytics.page();
+
+        sinon.assert.calledWith(spy, sinon.match({
+          userPropertiesOperations: sinon.match({
+            $setOnce: sinon.match({
+              initial_referrer: 'http://examplepage.com/',
+              initial_referring_domain: 'examplepage.com'
+            }),
+            $set: sinon.match({
+              referrer: 'http://examplepage.com/',
+              referring_domain: 'examplepage.com'
+            })
+          })
+        }));
+      })
     });
 
     describe('#identify', function() {
