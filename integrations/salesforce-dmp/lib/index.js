@@ -118,6 +118,8 @@ SalesforceDMP.prototype.identifyV2 = SalesforceDMP.prototype.trackV2 = function 
         if (i === this.options.trackFireEvents.length - 1) return
       }
     } else {
+      // if no track events are mapped in settings, return early for 
+      // efficiency: none of the following logic will send data to SFDMP
       return
     }
 

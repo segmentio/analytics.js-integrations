@@ -11,7 +11,7 @@ describe('Salesforce DMP', function () {
   var analytics
   var salesforceDMP
   var options = {
-    confId: 'rw1to29bb',
+    confId: '123',
     useV2LogicClient: false
   }
 
@@ -56,7 +56,7 @@ describe('Salesforce DMP V2', function () {
   var analytics
   var salesforceDMP
   var optionsV2 = {
-    confId: 'rw1to29bb',
+    confId: '123',
     useV2LogicClient: true,
     sendEventNames: true,
     sendIdentifyAsEventName: true,
@@ -193,9 +193,9 @@ describe('Salesforce DMP V2', function () {
       // previously SFDMP would throw an error if a customer invoked an 
       // unmapped `track` event while `sendEventNames` setting was enabled
       // this edge case has been resolved, but we test for it anyway
-      it('throws an error if `sendEventNames` setting is enabled but no track events are whitelisted', function () {
+      it('does not throw an error if `sendEventNames` setting is enabled but no track events are whitelisted', function () {
         var edgeCaseOptions = {
-          confId: 'rw1to29bb',
+          confId: '123',
           useV2LogicClient: true,
           sendEventNames: true,
           sendIdentifyAsEventName: true,
