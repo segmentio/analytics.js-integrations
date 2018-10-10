@@ -69,7 +69,6 @@ Amplitude.prototype.initialize = function() {
 
   window.amplitude.getInstance().init(this.options.apiKey, null, {
     includeUtm: this.options.trackUtmProperties,
-    includeReferrer: this.options.trackReferrer,
     batchEvents: this.options.batchEvents,
     eventUploadThreshold: this.options.eventUploadThreshold,
     eventUploadPeriodMillis: this.options.eventUploadPeriodMillis,
@@ -125,6 +124,8 @@ Amplitude.prototype.loaded = function() {
 
 Amplitude.prototype.page = function(page) {
   this.setDeviceIdFromAnonymousId(page);
+
+  if (this.options.trackReferrer) this.sendReferrer();
 
   var category = page.category();
   var name = page.fullName();
@@ -390,6 +391,31 @@ Amplitude.prototype.setRevenue = function(properties) {
       .getInstance()
       .logRevenue(revenue || price * quantity, quantity, productId);
   }
+};
+
+// equivalent of sending includeReferrer=true in the amplitude config object when we initialize
+Amplitude.prototype.sendReferrer = function() {
+  var identify = new window.amplitude.Identify();
+
+  var referrer = this.getReferrer();
+  if (!referrer || referrer.length === 0) return;
+
+  identify.setOnce('initial_referrer', referrer);
+  identify.set('referrer', referrer);
+
+  var parts = referrer.split('/');
+  if (parts.length >= 3) {
+    var referring_domain = parts[2];
+    identify.setOnce('initial_referring_domain', referring_domain);
+    identify.set('referring_domain', referring_domain);
+  }
+
+  window.amplitude.getInstance().identify(identify);
+};
+
+// wrapper for testing purposes
+Amplitude.prototype.getReferrer = function() {
+  return document.referrer;
 };
 
 function mapRevenueAttributes(track) {
