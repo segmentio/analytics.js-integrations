@@ -5,6 +5,7 @@ var integration = require('@segment/analytics.js-integration')
 var tester = require('@segment/analytics.js-integration-tester')
 var sandbox = require('@segment/clear-env')
 var SalesforceDMP = require('../lib/')
+var Track = require('segmentio-facade').Track;
 
 describe('Salesforce DMP', function () {
   var analytics
@@ -187,6 +188,27 @@ describe('Salesforce DMP V2', function () {
         window.kruxDataLayer['event_name'] = 'do not override'
         analytics.track('event')
         analytics.assert(window.kruxDataLayer['event_name'] === 'do not override')
+      })
+
+      // previously SFDMP would throw an error if a customer invoked an 
+      // unmapped `track` event while `sendEventNames` setting was enabled
+      // this edge case has been resolved, but we test for it anyway
+      it.only('throws an error if `sendEventNames` setting is enabled but no track events are whitelisted', function () {
+        var edgeCaseOptions = {
+          confId: 'rw1to29bb',
+          useV2LogicClient: true,
+          sendEventNames: true,
+          sendIdentifyAsEventName: true,
+          namespace: 'test',
+          trackFireEvents: [],
+          eventAttributeMap: {},
+          contextTraitsMap: { trait: 'context_trait' }
+        }
+
+        salesforceDMP = new SalesforceDMP(edgeCaseOptions)
+        analytics.doesNotThrow(function() {
+          salesforceDMP.track(new Track({ name: 'Testing' }))
+        })
       })
     })
   })
