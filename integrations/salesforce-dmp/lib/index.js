@@ -117,6 +117,8 @@ SalesforceDMP.prototype.identifyV2 = SalesforceDMP.prototype.trackV2 = function 
         }
         if (i === this.options.trackFireEvents.length - 1) return
       }
+    } else {
+      return
     }
 
     // Modify the dataLayer with any defined adjustments. It's okay if they choose to make none.
@@ -137,21 +139,23 @@ SalesforceDMP.prototype.identifyV2 = SalesforceDMP.prototype.trackV2 = function 
     resetDataLayer = createDataLayer()
   }
 
-  if (this.options.sendEventNames && !window.kruxDataLayer['event_name']) {
-    var name
-    if (type === 'track') {
-      name = msg.event()
-    } else {
-      if (this.options.sendIdentifyAsEventName) {
-        name = type
+  if (window.kruxDataLayer) {
+    if (this.options.sendEventNames && !window.kruxDataLayer['event_name']) {
+      var name
+      if (type === 'track') {
+        name = msg.event()
+      } else {
+        if (this.options.sendIdentifyAsEventName) {
+          name = type
+        }
       }
+      if (name) window.kruxDataLayer['event_name'] = name
     }
-    if (name) window.kruxDataLayer['event_name'] = name
+  
+    if (msg.userId()) window.kruxDataLayer['segmentio_user_id'] = msg.userId()
+    if (msg.anonymousId()) window.kruxDataLayer['segmentio_anonymous_id'] = msg.anonymousId()
+    if (msg.proxy('context.traits.crossDomainId')) window.kruxDataLayer['segmentio_xid'] = msg.proxy('context.traits.crossDomainId')
   }
-
-  if (msg.userId()) window.kruxDataLayer['segmentio_user_id'] = msg.userId()
-  if (msg.anonymousId()) window.kruxDataLayer['segmentio_anonymous_id'] = msg.anonymousId()
-  if (msg.proxy('context.traits.crossDomainId')) window.kruxDataLayer['segmentio_xid'] = msg.proxy('context.traits.crossDomainId')
 
   this.firePixel(resetDataLayer)
 }
