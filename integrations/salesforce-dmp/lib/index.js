@@ -106,7 +106,7 @@ SalesforceDMP.prototype.identifyV2 = SalesforceDMP.prototype.trackV2 = function 
 
   if (type === 'track') {
     // Verify that this event is one we want to fire on, if a whitelist exists.
-    if (this.options.trackFireEvents.length) {
+    if (this.options.trackFireEvents.length > 0) {
       for (var i = 0; i < this.options.trackFireEvents.length; i++) {
         var event = this.options.trackFireEvents[i]
         // Continue execution if we find the event in the list. Otherwise, bail out.

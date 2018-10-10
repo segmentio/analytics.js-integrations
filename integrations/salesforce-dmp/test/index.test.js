@@ -191,3 +191,73 @@ describe('Salesforce DMP V2', function () {
     })
   })
 })
+
+// this edge case has been resolved, but we test for it anyway
+describe('Salesforce DMP V2 Edge Case', function () {
+  var analytics
+  var salesforceDMP
+  var optionsV2 = {
+    confId: 'rw1to29bb',
+    useV2LogicClient: true,
+    sendEventNames: true,
+    sendIdentifyAsEventName: true,
+    namespace: 'test',
+    trackFireEvents: [],
+    eventAttributeMap: {},
+    contextTraitsMap: { trait: 'context_trait' }
+  }
+
+  beforeEach(function () {
+    analytics = new Analytics()
+    salesforceDMP = new SalesforceDMP(optionsV2)
+    analytics.use(SalesforceDMP)
+    analytics.use(tester)
+    analytics.add(salesforceDMP)
+  })
+
+  afterEach(function () {
+    analytics.restore()
+    analytics.reset()
+    salesforceDMP.reset()
+    sandbox()
+  })
+
+  it('should have the right settings', function () {
+    analytics.compare(SalesforceDMP, integration('Salesforce DMP')
+      .option('confId', ''))
+  })
+
+  describe('before loading', function () {
+    beforeEach(function () {
+      analytics.stub(salesforceDMP, 'load')
+    })
+
+    describe('#initialize', function () {
+      it('should call #load', function () {
+        analytics.initialize()
+        analytics.page()
+        analytics.called(salesforceDMP.load)
+        analytics.assert(window.Krux)
+      })
+    })
+  })
+
+  describe('after loading', function () {
+    beforeEach(function (done) {
+      analytics.once('ready', done)
+      analytics.initialize()
+      analytics.stub(salesforceDMP, 'load')
+    })
+
+    describe('#track', function () {
+      beforeEach(function () {
+        analytics.stub(window, 'Krux')
+      })
+
+      // threw
+      it('throws an error if `sendEventNames` setting is enabled but no track events are whitelisted', function () {
+        analytics.throws(analytics.track('testing'))
+      })
+    })
+  })
+})
