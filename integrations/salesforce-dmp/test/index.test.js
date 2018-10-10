@@ -254,7 +254,6 @@ describe('Salesforce DMP V2 Edge Case', function () {
         analytics.stub(window, 'Krux')
       })
 
-      // threw
       it('throws an error if `sendEventNames` setting is enabled but no track events are whitelisted', function () {
         analytics.throws(analytics.track('testing'))
       })
