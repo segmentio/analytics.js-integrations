@@ -728,5 +728,11 @@ describe('Amplitude', function() {
         analytics.called(window.amplitude.getInstance().setDeviceId, 'example');
       });
     });
+
+    describe('getReferrer', function() {
+      it('should return the value of document.referrer', function() {
+        analytics.assert(document.referrer === amplitude.getReferrer());
+      });
+    });
   });
 });

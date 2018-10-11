@@ -83,6 +83,8 @@ Amplitude.prototype.initialize = function() {
   var ready = this.ready;
   // FIXME (wcjohnson11): Refactor the load method to include this logic
   // to better support if UMD present
+
+  /* istanbul ignore if  */
   if (umd) {
     window.require([src], function(amplitude) {
       window.amplitude = amplitude;
@@ -98,8 +100,6 @@ Amplitude.prototype.initialize = function() {
     if (window.amplitude.runQueuedFunctions) {
       window.amplitude.runQueuedFunctions();
       ready();
-    } else {
-      console.log('[Amplitude] Error: could not load SDK');
     }
   });
 };

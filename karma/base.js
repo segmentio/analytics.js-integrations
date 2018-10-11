@@ -15,7 +15,7 @@ module.exports = {
   concurrency: 1,
   singleRun: true,
   client: {
-    captureConsole: false,
+    captureConsole: true,
     mocha: {
       reporter: 'html',
       timeout: 10000
