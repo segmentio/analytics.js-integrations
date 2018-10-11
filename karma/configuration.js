@@ -2,6 +2,7 @@
 const baseConfig = require('./base')
 const files = require('./files')
 const setBrowser = require('./browsers')
+const coverage = require('./coverage')
 
 /**
  * Retrieves the configuration for karma. This can be used for `karma start ...`.
@@ -24,7 +25,10 @@ function getConfiguration (arg) {
   }
 
   const sourceFiles = files(arg.integrations)
+
   const configuration = baseConfig
+
+  configuration.coverageReporter = coverage()
   configuration.files = Object.keys(sourceFiles)
   configuration.preprocessors = sourceFiles
 
