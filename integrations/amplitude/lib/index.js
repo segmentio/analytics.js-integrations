@@ -161,20 +161,19 @@ Amplitude.prototype.identify = function(identify) {
   var id = identify.userId();
   var traits = identify.traits();
   if (id) window.amplitude.getInstance().setUserId(id);
-  if (traits) {
-    // map query params from context url if opted in
-    var mapQueryParams = this.options.mapQueryParams;
-    var query = identify.proxy('context.page.search');
-    if (!is.empty(mapQueryParams)) {
-      // since we accept any arbitrary property name and we dont have conditional UI components
-      // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
-      each(function(value, key) {
-        traits[key] = query;
-      }, mapQueryParams);
-    }
 
-    this.setTraits(traits);
+  // map query params from context url if opted in
+  var mapQueryParams = this.options.mapQueryParams;
+  var query = identify.proxy('context.page.search');
+  if (!is.empty(mapQueryParams)) {
+    // since we accept any arbitrary property name and we dont have conditional UI components
+    // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
+    each(function(value, key) {
+      traits[key] = query;
+    }, mapQueryParams);
   }
+
+  this.setTraits(traits);
 
   // Set user groups: https://amplitude.zendesk.com/hc/en-us/articles/115001361248#setting-user-groups
   var groups = identify.options(this.name).groups;
@@ -267,8 +266,6 @@ Amplitude.prototype.orderCompleted = function(track) {
   var products = track.products();
   var clonedTrack = track.json();
   var trackRevenuePerProduct = this.options.trackRevenuePerProduct;
-  // If there is no products Array, we can just treat this like we always have.
-  if (!products || !Array.isArray(products)) return logEvent.call(this, track);
 
   // Amplitude does not allow arrays of objects to as properties of events.
   // Our Order Completed event however uses a products array for product level tracking.
