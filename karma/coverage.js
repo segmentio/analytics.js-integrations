@@ -6,9 +6,9 @@ module.exports = () => {
   const coverageReporter = {
     check: {
       global: {
-        statements: 50,
-        branches: 50,
-        functions: 50,
+        statements: 95,
+        branches: 95,
+        functions: 95,
         lines: 100
       }
     },
