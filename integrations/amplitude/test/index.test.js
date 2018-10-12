@@ -146,6 +146,12 @@ describe('Amplitude', function() {
           'deviceId'
         );
       });
+
+      it('should not call amplitude.setDeviceId if deviceId is falsey', function() {
+        analytics.spy(window.amplitude.getInstance(), 'setDeviceId');
+        amplitude.setDeviceId('');
+        analytics.didNotCall(window.amplitude.getInstance().setDeviceId);
+      });
     });
 
     describe('#_initUtmData', function() {
@@ -660,8 +666,6 @@ describe('Amplitude', function() {
         analytics.assert(spy.calledTwice);
       });
 
-      it('should treat events without a products property as a basic track event', function() {});
-
       it('should only send a single logRevenueV2 event with the total revenue of all products if trackRevenuePerProduct is false ', function() {
         var spy = sinon.spy(window.amplitude.getInstance(), 'logEvent');
         amplitude.options.trackRevenuePerProduct = false;
@@ -696,6 +700,11 @@ describe('Amplitude', function() {
           '[Segment] Group',
           'testGroupId'
         );
+      });
+
+      it('should not call setGroup if groupId is falsey', function() {
+        analytics.group('');
+        analytics.didNotCall(window.amplitude.getInstance().setGroup);
       });
 
       it('should use `groupTypeTrait` and `groupValueTrait` when both are present', function() {
@@ -751,6 +760,20 @@ describe('Amplitude', function() {
         amplitude.sendReferrer();
         assert(setOnceSpy.notCalled);
         assert(setSpy.notCalled);
+      });
+
+      it('should not set an initial referrer domain if it can not find a top level domain', function() {
+        amplitude.getReferrer = function() {
+          return 'https:/';
+        };
+        var setOnceSpy = sinon.spy(
+          window.amplitude.Identify.prototype,
+          'setOnce'
+        );
+        var setSpy = sinon.spy(window.amplitude.Identify.prototype, 'set');
+        amplitude.sendReferrer();
+        assert(!setOnceSpy.calledWith('initial_referring_domain'));
+        assert(!setSpy.calledWith('referring_domain'));
       });
     });
 
