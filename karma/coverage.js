@@ -9,12 +9,13 @@ module.exports = () => {
         statements: 95,
         branches: 95,
         functions: 95,
-        lines: 100,
+        lines: 100
       }
     },
     reporters: [
       { type: 'text' },
       { type: 'html' },
+      { type: 'lcovonly' },
       { type: 'json' }
     ]
   }

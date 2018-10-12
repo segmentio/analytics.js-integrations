@@ -6,6 +6,7 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var Amplitude = require('../lib/');
 var sinon = require('sinon');
+var assert = require('assert');
 
 describe('Amplitude', function() {
   var amplitude;
@@ -659,6 +660,8 @@ describe('Amplitude', function() {
         analytics.assert(spy.calledTwice);
       });
 
+      it('should treat events without a products property as a basic track event', function() {});
+
       it('should only send a single logRevenueV2 event with the total revenue of all products if trackRevenuePerProduct is false ', function() {
         var spy = sinon.spy(window.amplitude.getInstance(), 'logEvent');
         amplitude.options.trackRevenuePerProduct = false;
@@ -732,6 +735,41 @@ describe('Amplitude', function() {
     describe('getReferrer', function() {
       it('should return the value of document.referrer', function() {
         analytics.assert(document.referrer === amplitude.getReferrer());
+      });
+    });
+
+    describe('sendReferrer', function() {
+      it('should not set any referrer props if referrer is falsey', function() {
+        amplitude.getReferrer = function() {
+          return '';
+        };
+        var setOnceSpy = sinon.spy(
+          window.amplitude.Identify.prototype,
+          'setOnce'
+        );
+        var setSpy = sinon.spy(window.amplitude.Identify.prototype, 'set');
+        amplitude.sendReferrer();
+        assert(setOnceSpy.notCalled);
+        assert(setSpy.notCalled);
+      });
+    });
+
+    describe('setTraits', function() {
+      it('should default traitsToIncrement and traitsToSetOnce to empty arrays if they are undefined', function() {
+        delete amplitude.options.traitsToIncrement;
+        delete amplitude.options.traitsToSetOnce;
+        assert.doesNotThrow(function() {
+          return amplitude.setTraits({ email: 'test@test.com' });
+        });
+      });
+    });
+
+    describe('setRevenue', function() {
+      it('should default revenue to price * quantity if revenue is undefined and logRevenueV2 is not being used', function() {
+        var spy = sinon.spy(window.amplitude.getInstance(), 'logRevenue');
+        amplitude.options.useLogRevenueV2 = false;
+        amplitude.setRevenue({ price: 3, quantity: 3, productId: 'foo' });
+        assert(spy.calledWith(9, 3, 'foo'));
       });
     });
   });

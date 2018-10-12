@@ -28,7 +28,9 @@ function getConfiguration (arg) {
 
   const configuration = baseConfig
 
-  configuration.coverageReporter = coverage()
+  if (arg.browser === 'phantomjs') {
+    configuration.coverageReporter = coverage()
+  }
   configuration.files = Object.keys(sourceFiles)
   configuration.preprocessors = sourceFiles
 
