@@ -32,7 +32,7 @@ jobs:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
           name: Test updated integrations in PhantomJS
-          command: yarn test-updated-integrations PhantomJS
+          command: yarn test-updated-integrations phantomjs
       - run:
           name: codecov
           command: yarn coverage
