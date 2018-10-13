@@ -37,6 +37,9 @@ Do not hardcode secrets, account ids or other credentials in the
 code. If a credential gets commited and upload, it has to be immediately
 removed and revoked.
 
+### Code Coverage
+Code coverage reports can be found after test runs in `coverage/report`. To quickly open detailed reports in your browser run `yarn coverage-report`. The project uses [Istanbul](https://istanbul.js.org/) for coverage reporting. If you're unfamiliar with Istanbul or code coverage in general you can find an excellent summary on reading reports [here](https://stackoverflow.com/a/36697606).
+
 ## Pull Requests and releases
 
 Make sure your PR includes the new version in `package.json`. When the PR gets

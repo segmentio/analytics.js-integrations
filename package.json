@@ -43,7 +43,8 @@
     "test-all-integrations": "karma start karma.conf.js all",
     "test-integration": "karma start karma.conf.js",
     "test-updated-integrations": "scripts/test-integrations",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "coverage-report": "open coverage/report/index.html"
   },
   "lint-staged": {
     "linters": {

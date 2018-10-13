@@ -12,6 +12,7 @@ module.exports = () => {
         lines: 100
       }
     },
+    subdir: 'report',
     reporters: [
       { type: 'text' },
       { type: 'html' },
