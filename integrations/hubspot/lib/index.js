@@ -52,6 +52,8 @@ HubSpot.prototype.initialize = function() {
 
 HubSpot.prototype.loaded = function() {
   var libLoaded = !!(window._hsq && window._hsq.push !== Array.prototype.push)
+  /* istanbul ignore if */
+  // See tests #loading tests for info on why this is being skipped.
   if (!this.options.loadFormsSdk) {
     return libLoaded
   } else {
