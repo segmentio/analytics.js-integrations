@@ -6,6 +6,7 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var Amplitude = require('../lib/');
 var sinon = require('sinon');
+var assert = require('assert');
 
 describe('Amplitude', function() {
   var amplitude;
@@ -144,6 +145,12 @@ describe('Amplitude', function() {
           window.amplitude.getInstance().setDeviceId,
           'deviceId'
         );
+      });
+
+      it('should not call amplitude.setDeviceId if deviceId is falsey', function() {
+        analytics.spy(window.amplitude.getInstance(), 'setDeviceId');
+        amplitude.setDeviceId('');
+        analytics.didNotCall(window.amplitude.getInstance().setDeviceId);
       });
     });
 
@@ -695,6 +702,11 @@ describe('Amplitude', function() {
         );
       });
 
+      it('should not call setGroup if groupId is falsey', function() {
+        analytics.group('');
+        analytics.didNotCall(window.amplitude.getInstance().setGroup);
+      });
+
       it('should use `groupTypeTrait` and `groupValueTrait` when both are present', function() {
         amplitude.options.groupTypeTrait = 'foo';
         amplitude.options.groupValueTrait = 'bar';
@@ -726,6 +738,61 @@ describe('Amplitude', function() {
         amplitude.options.preferAnonymousIdForDeviceId = true;
         analytics.group('group');
         analytics.called(window.amplitude.getInstance().setDeviceId, 'example');
+      });
+    });
+
+    describe('getReferrer', function() {
+      it('should return the value of document.referrer', function() {
+        analytics.assert(document.referrer === amplitude.getReferrer());
+      });
+    });
+
+    describe('sendReferrer', function() {
+      it('should not set any referrer props if referrer is falsey', function() {
+        amplitude.getReferrer = function() {
+          return '';
+        };
+        var setOnceSpy = sinon.spy(
+          window.amplitude.Identify.prototype,
+          'setOnce'
+        );
+        var setSpy = sinon.spy(window.amplitude.Identify.prototype, 'set');
+        amplitude.sendReferrer();
+        assert(setOnceSpy.notCalled);
+        assert(setSpy.notCalled);
+      });
+
+      it('should not set an initial referrer domain if it can not find a top level domain', function() {
+        amplitude.getReferrer = function() {
+          return 'https:/';
+        };
+        var setOnceSpy = sinon.spy(
+          window.amplitude.Identify.prototype,
+          'setOnce'
+        );
+        var setSpy = sinon.spy(window.amplitude.Identify.prototype, 'set');
+        amplitude.sendReferrer();
+        assert(!setOnceSpy.calledWith('initial_referring_domain'));
+        assert(!setSpy.calledWith('referring_domain'));
+      });
+    });
+
+    describe('setTraits', function() {
+      it('should default traitsToIncrement and traitsToSetOnce to empty arrays if they are undefined', function() {
+        delete amplitude.options.traitsToIncrement;
+        delete amplitude.options.traitsToSetOnce;
+        assert.doesNotThrow(function() {
+          return amplitude.setTraits({ email: 'test@test.com' });
+        });
+      });
+    });
+
+    describe('setRevenue', function() {
+      it('should default revenue to price * quantity if revenue is undefined and logRevenueV2 is not being used', function() {
+        var spy = sinon.spy(window.amplitude.getInstance(), 'logRevenue');
+        amplitude.options.useLogRevenueV2 = false;
+        amplitude.setRevenue({ price: 3, quantity: 3, productId: 'foo' });
+        assert(spy.calledWith(9, 3, 'foo'));
       });
     });
   });

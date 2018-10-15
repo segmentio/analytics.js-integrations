@@ -32,12 +32,14 @@ jobs:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
           name: Test updated integrations in PhantomJS
-          command: yarn test-updated-integrations PhantomJS
-
+          command: yarn test-updated-integrations phantomjs
+      - run:
+          name: codecov
+          command: yarn coverage
   test_saucelabs:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        environment:
+        ? environment
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -77,7 +79,7 @@ jobs:
   test_snyk:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        environment:
+        ? environment
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -99,7 +101,7 @@ jobs:
       - run:
           name: Publish updated packages
           command: yarn publish-integrations
-      
+
 workflows:
   version: 2
   test_and_publish:

@@ -63,6 +63,7 @@ Amplitude.prototype.initialize = function() {
   /* prettier-ignore */
   // amplitude snippet (lines loading amplitude cdn-served script are removed as that is already achieved via Segment tag and load methods)
   /* eslint-disable */
+  /* istanbul ignore next */
   (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};;function s(e,t){e.prototype[t]=function(){this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));return this}}var o=function(){this._q=[];return this};var a=["add","append","clearAll","prepend","set","setOnce","unset"];for(var u=0;u<a.length;u++){s(o,a[u])}n.Identify=o;var c=function(){this._q=[];return this};var l=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"];for(var p=0;p<l.length;p++){s(c,l[p])}n.Revenue=c;var d=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId","logEventWithTimestamp","logEventWithGroups","setSessionId","resetSessionId"];function v(e){function t(t){e[t]=function(){e._q.push([t].concat(Array.prototype.slice.call(arguments,0)))}}for(var n=0;n<d.length;n++){t(d[n])}}v(n);n.getInstance=function(e){e=(!e||e.length===0?"$default_instance":e).toLowerCase();if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};v(n._iq[e])}return n._iq[e]};e.amplitude=n})(window,document);
   /* eslint-enable */
   this.setDomain(window.location.href);
@@ -83,6 +84,8 @@ Amplitude.prototype.initialize = function() {
   var ready = this.ready;
   // FIXME (wcjohnson11): Refactor the load method to include this logic
   // to better support if UMD present
+
+  /* istanbul ignore if  */
   if (umd) {
     window.require([src], function(amplitude) {
       window.amplitude = amplitude;
@@ -98,8 +101,6 @@ Amplitude.prototype.initialize = function() {
     if (window.amplitude.runQueuedFunctions) {
       window.amplitude.runQueuedFunctions();
       ready();
-    } else {
-      console.log('[Amplitude] Error: could not load SDK');
     }
   });
 };
@@ -160,20 +161,19 @@ Amplitude.prototype.identify = function(identify) {
   var id = identify.userId();
   var traits = identify.traits();
   if (id) window.amplitude.getInstance().setUserId(id);
-  if (traits) {
-    // map query params from context url if opted in
-    var mapQueryParams = this.options.mapQueryParams;
-    var query = identify.proxy('context.page.search');
-    if (!is.empty(mapQueryParams)) {
-      // since we accept any arbitrary property name and we dont have conditional UI components
-      // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
-      each(function(value, key) {
-        traits[key] = query;
-      }, mapQueryParams);
-    }
 
-    this.setTraits(traits);
+  // map query params from context url if opted in
+  var mapQueryParams = this.options.mapQueryParams;
+  var query = identify.proxy('context.page.search');
+  if (!is.empty(mapQueryParams)) {
+    // since we accept any arbitrary property name and we dont have conditional UI components
+    // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
+    each(function(value, key) {
+      traits[key] = query;
+    }, mapQueryParams);
   }
+
+  this.setTraits(traits);
 
   // Set user groups: https://amplitude.zendesk.com/hc/en-us/articles/115001361248#setting-user-groups
   var groups = identify.options(this.name).groups;
@@ -266,8 +266,6 @@ Amplitude.prototype.orderCompleted = function(track) {
   var products = track.products();
   var clonedTrack = track.json();
   var trackRevenuePerProduct = this.options.trackRevenuePerProduct;
-  // If there is no products Array, we can just treat this like we always have.
-  if (!products || !Array.isArray(products)) return logEvent.call(this, track);
 
   // Amplitude does not allow arrays of objects to as properties of events.
   // Our Order Completed event however uses a products array for product level tracking.
