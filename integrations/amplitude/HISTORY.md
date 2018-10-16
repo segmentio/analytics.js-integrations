@@ -1,3 +1,7 @@
+# 2.93.2 / 2018-10-16
+
+- Minor (idempotent) changes to some branching logic for cleaner tests
+
 # 2.9.0 / 2018-09-18
 
 - Add support for traitsToIncrement and traitsToSetOnce settings
