@@ -59,7 +59,7 @@ FacebookPixel.prototype.initialize = function() {
     window.fbq('set', 'autoConfig', false, this.options.pixelId);
   }
   if (this.options.initWithExistingTraits) {
-    var traits = formatTraits(this.analytics);
+    var traits = this.formatTraits(this.analytics);
     window.fbq('init', this.options.pixelId, traits);
   } else {
     window.fbq('init', this.options.pixelId);
@@ -248,6 +248,8 @@ FacebookPixel.prototype.productListViewed = function(track) {
  */
 
 FacebookPixel.prototype.productViewed = function(track) {
+  var useValue = this.options.valueIdentifier === 'value';
+
   window.fbq('track', 'ViewContent', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
     content_type: this.mappedContentTypesOrDefault(track.category(), [
@@ -256,17 +258,18 @@ FacebookPixel.prototype.productViewed = function(track) {
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
-    value:
-      this.options.valueIdentifier === 'value'
-        ? formatRevenue(track.value())
-        : formatRevenue(track.price())
+    value: useValue
+      ? formatRevenue(track.value())
+      : formatRevenue(track.price())
   });
 
   // fall through for mapped legacy conversions
   each(function(event) {
     window.fbq('track', event, {
       currency: track.currency(),
-      value: formatRevenue(track.revenue())
+      value: useValue
+        ? formatRevenue(track.value())
+        : formatRevenue(track.price())
     });
   }, this.legacyEvents(track.event()));
 };
@@ -279,6 +282,8 @@ FacebookPixel.prototype.productViewed = function(track) {
  */
 
 FacebookPixel.prototype.productAdded = function(track) {
+  var useValue = this.options.valueIdentifier === 'value';
+
   window.fbq('track', 'AddToCart', {
     content_ids: [track.productId() || track.id() || track.sku() || ''],
     content_type: this.mappedContentTypesOrDefault(track.category(), [
@@ -287,17 +292,18 @@ FacebookPixel.prototype.productAdded = function(track) {
     content_name: track.name() || '',
     content_category: track.category() || '',
     currency: track.currency(),
-    value:
-      this.options.valueIdentifier === 'value'
-        ? formatRevenue(track.value())
-        : formatRevenue(track.price())
+    value: useValue
+      ? formatRevenue(track.value())
+      : formatRevenue(track.price())
   });
 
   // fall through for mapped legacy conversions
   each(function(event) {
     window.fbq('track', event, {
       currency: track.currency(),
-      value: formatRevenue(track.revenue())
+      value: useValue
+        ? formatRevenue(track.value())
+        : formatRevenue(track.price())
     });
   }, this.legacyEvents(track.event()));
 };
@@ -310,7 +316,7 @@ FacebookPixel.prototype.productAdded = function(track) {
  */
 
 FacebookPixel.prototype.orderCompleted = function(track) {
-  var products = track.products() || [];
+  var products = track.products();
 
   var content_ids = foldl(
     function(acc, product) {
@@ -356,6 +362,44 @@ FacebookPixel.prototype.productsSearched = function(track) {
     search_string: track.proxy('properties.query')
   });
 
+  // fall through for mapped legacy conversions
+  each(function(event) {
+    window.fbq('track', event, {
+      currency: track.currency(),
+      value: formatRevenue(track.revenue())
+    });
+  }, this.legacyEvents(track.event()));
+};
+
+FacebookPixel.prototype.checkoutStarted = function(track) {
+  var products = track.products();
+  var contentIds = [];
+  var contents = [];
+  var contentCategory = track.category();
+
+  each(function(product) {
+    var track = new Track({ properties: product });
+    contentIds.push(track.productId() || track.id() || track.sku());
+    contents.push({
+      id: track.productId() || track.id() || track.sku(),
+      quantity: track.quantity(),
+      item_price: track.price()
+    });
+  }, products);
+
+  // If no top-level category was defined use that of the first product. @gabriel
+  if (!contentCategory && products[0] && products[0].category) {
+    contentCategory = products[0].category;
+  }
+
+  window.fbq('track', 'InitiateCheckout', {
+    content_category: contentCategory,
+    content_ids: contentIds,
+    contents: contents,
+    currency: track.currency(),
+    num_items: contentIds.length,
+    value: formatRevenue(track.revenue())
+  });
 
   // fall through for mapped legacy conversions
   each(function(event) {
@@ -364,46 +408,7 @@ FacebookPixel.prototype.productsSearched = function(track) {
       value: formatRevenue(track.revenue())
     });
   }, this.legacyEvents(track.event()));
-}
-
-FacebookPixel.prototype.checkoutStarted = function(track) {
-  var products = track.products() || [];
-  var contentIds = [];
-  var contents = [];
-  var contentCategory = track.category();
-
-  each(function(product) {
-    var track = new Track({ properties: product });
-    contentIds.push(track.productId() || track.id() || track.sku())
-    contents.push({
-      id: track.productId() || track.id() || track.sku(),
-      quantity: track.quantity(),
-      item_price: track.price(),
-    })
-  }, products);
-
-  // If no top-level category was defined use that of the first product. @gabriel
-  if (!contentCategory && products[0] && products[0].category) {
-    contentCategory = products[0].category
-  }
-
-  window.fbq('track', 'InitiateCheckout', {
-    content_category: contentCategory,
-    content_ids: contentIds, 
-    contents: contents,
-    currency: track.currency(),
-    num_items: contentIds.length,
-    value: formatRevenue(track.revenue())
-  });
-
-    // fall through for mapped legacy conversions
-    each(function(event) {
-      window.fbq('track', event, {
-        currency: track.currency(),
-        value: formatRevenue(track.revenue())
-      });
-    }, this.legacyEvents(track.event()));
-}
+};
 
 /**
  * mappedContentTypesOrDefault returns an array of mapped content types for
@@ -440,8 +445,7 @@ function formatRevenue(revenue) {
  *
  * @api private
  */
-
-function formatTraits(analytics) {
+FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
   var traits = analytics && analytics.user().traits();
   if (!traits) return {};
   var firstName;
@@ -481,4 +485,4 @@ function formatTraits(analytics) {
     st: state,
     zp: postalCode
   });
-}
+};
