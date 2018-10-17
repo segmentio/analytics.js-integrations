@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-facebook-pixel",
   "description": "The Facebook Pixel analytics.js integration.",
-  "version": "2.5.4",
+  "version": "2.5.5",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -12,7 +12,7 @@
   "scripts": {
     "test": "make test"
   },
-  "author": "Segment \u003cfriends@segment.com\u003e",
+  "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/facebook-pixel#readme",
   "bugs": {

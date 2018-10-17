@@ -7680,7 +7680,7 @@ script-onload@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/script-onload/-/script-onload-1.0.2.tgz#6bdca122875487192ccaf4e6884fcfdd0c7fde32"
 
-segmentio-facade@^3.0.2, segmentio-facade@^3.0.3, segmentio-facade@^3.1.0, segmentio-facade@^3.2.0, segmentio-facade@^3.2.1, segmentio-facade@^3.2.2:
+segmentio-facade@^3.0.2, segmentio-facade@^3.0.3, segmentio-facade@^3.1.0, segmentio-facade@^3.2.0, segmentio-facade@^3.2.1, segmentio-facade@^3.2.2, segmentio-facade@^3.2.3:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/segmentio-facade/-/segmentio-facade-3.2.3.tgz#7ddc6971801a482475b6a768184696a847e9197d"
   dependencies:
