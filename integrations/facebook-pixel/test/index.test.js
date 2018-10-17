@@ -372,935 +372,928 @@ describe('Facebook Pixel', function() {
           });
         });
       });
+    });
 
-      describe('segment ecommerce => FB product audiences', function() {
-        describe('Product List Viewed', function() {
-          it('Should map content_ids parameter to product_ids and content_type to "product" if possible', function() {
-            analytics.track('Product List Viewed', {
+    describe('#productListViewed', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
+      });
+      it('Should map content_ids parameter to product_ids and content_type to "product" if possible', function() {
+        analytics.track('Product List Viewed', {
+          category: 'Games',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              position: 1,
+              category: 'Cars',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              position: 2,
+              category: 'Cars'
+            }
+          ]
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          content_type: ['product']
+        });
+      });
+
+      it('Should fallback on mapping content_ids to the product category and content_type to "product_group"', function() {
+        analytics.track('Product List Viewed', { category: 'Games' });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['Games'],
+          content_type: ['product_group']
+        });
+      });
+
+      it('should send the custom content type if mapped', function() {
+        analytics.track('Product List Viewed', {
+          category: 'Cars',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              position: 1,
               category: 'Games',
-              products: [
-                {
-                  product_id: '507f1f77bcf86cd799439011',
-                  sku: '45790-32',
-                  name: 'Monopoly: 3rd Edition',
-                  price: 19,
-                  position: 1,
-                  category: 'Cars',
-                  url: 'https://www.example.com/product/path',
-                  image_url: 'https://www.example.com/product/path.jpg'
-                },
-                {
-                  product_id: '505bd76785ebb509fc183733',
-                  sku: '46493-32',
-                  name: 'Uno Card Game',
-                  price: 3,
-                  position: 2,
-                  category: 'Cars'
-                }
-              ]
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: [
-                '507f1f77bcf86cd799439011',
-                '505bd76785ebb509fc183733'
-              ],
-              content_type: ['product']
-            });
-          });
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              position: 2,
+              category: 'Games'
+            }
+          ]
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          content_type: ['vehicle']
+        });
+      });
 
-          it('Should fallback on mapping content_ids to the product category and content_type to "product_group"', function() {
-            analytics.track('Product List Viewed', { category: 'Games' });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['Games'],
-              content_type: ['product_group']
-            });
-          });
+      it('should send a legacy event', function() {
+        facebookPixel.options.legacyEvents = {
+          'Product List Viewed': '123456'
+        };
+        analytics.track('Product List Viewed', { category: 'Games' });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['Games'],
+          content_type: ['product_group']
+        });
+        analytics.called(window.fbq, 'track', '123456', {
+          currency: 'USD',
+          value: '0.00'
+        });
+      });
 
-          it('should send the custom content type if mapped', function() {
-            analytics.track('Product List Viewed', {
-              category: 'Cars',
-              products: [
-                {
-                  product_id: '507f1f77bcf86cd799439011',
-                  sku: '45790-32',
-                  name: 'Monopoly: 3rd Edition',
-                  price: 19,
-                  position: 1,
-                  category: 'Games',
-                  url: 'https://www.example.com/product/path',
-                  image_url: 'https://www.example.com/product/path.jpg'
-                },
-                {
-                  product_id: '505bd76785ebb509fc183733',
-                  sku: '46493-32',
-                  name: 'Uno Card Game',
-                  price: 3,
-                  position: 2,
-                  category: 'Games'
-                }
-              ]
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: [
-                '507f1f77bcf86cd799439011',
-                '505bd76785ebb509fc183733'
-              ],
-              content_type: ['vehicle']
-            });
-          });
+      it('should default to an empty string for category', function() {
+        analytics.track('Product List Viewed', { category: null });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: [''],
+          content_type: ['product_group']
+        });
+      });
+    });
 
-          it('should send a legacy event', function() {
-            facebookPixel.options.legacyEvents = {
-              'Product List Viewed': '123456'
-            };
-            analytics.track('Product List Viewed', { category: 'Games' });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['Games'],
-              content_type: ['product_group']
-            });
-            analytics.called(window.fbq, 'track', '123456', {
-              currency: 'USD',
-              value: '0.00'
-            });
-          });
+    describe('#productViewed', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
+      });
+      it('should send a ViewContent event', function() {
+        analytics.track('Product Viewed', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
 
-          it('should default to an empty string for category', function() {
-            analytics.track('Product List Viewed', { category: null });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: [''],
-              content_type: ['product_group']
-            });
-          });
+      it('should send a legacy event', function() {
+        facebookPixel.options.legacyEvents = { 'Product Viewed': '123456' };
 
-          it('Product Viewed', function() {
-            analytics.track('Product Viewed', {
+        analytics.track('Product Viewed', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+        analytics.called(window.fbq, 'track', '123456', {
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('Should map properties.price to facebooks value if price is selected', function() {
+        facebookPixel.options.valueIdentifier = 'price';
+        analytics.track('Product Viewed', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '44.33'
+        });
+      });
+
+      it('should send the custom content type if mapped', function() {
+        analytics.track('Product Viewed', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'Cars',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['vehicle'],
+          content_name: 'my product',
+          content_category: 'Cars',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to id for content_id', function() {
+        analytics.track('Product Viewed', {
+          id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'Cars',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['vehicle'],
+          content_name: 'my product',
+          content_category: 'Cars',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to sku for content_id', function() {
+        analytics.track('Product Viewed', {
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'Cars',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['p-298'],
+          content_type: ['vehicle'],
+          content_name: 'my product',
+          content_category: 'Cars',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to an empty string for content_id', function() {
+        analytics.track('Product Viewed', {
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'Cars',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: [''],
+          content_type: ['vehicle'],
+          content_name: 'my product',
+          content_category: 'Cars',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to an empty string for content_name', function() {
+        analytics.track('Product Viewed', {
+          id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          category: 'Cars',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['vehicle'],
+          content_name: '',
+          content_category: 'Cars',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to an empty string for content_category', function() {
+        analytics.track('Product Viewed', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: '',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should use price in the legacy event', function() {
+        facebookPixel.options.valueIdentifier = 'price';
+        facebookPixel.options.legacyEvents = { 'Product Viewed': '123456' };
+
+        analytics.track('Product Viewed', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '44.33'
+        });
+        analytics.called(window.fbq, 'track', '123456', {
+          currency: 'USD',
+          value: '44.33'
+        });
+      });
+
+      it('should not map products if its falsy', function() {
+        analytics.track('Product List Viewed', {
+          category: 'Games',
+          products: null
+        });
+        analytics.called(window.fbq, 'track', 'ViewContent', {
+          content_ids: ['Games'],
+          content_type: ['product_group']
+        });
+      });
+    });
+
+    describe('#productAdded', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
+      });
+
+      it('Adding to Cart', function() {
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should send a legacy event for product added', function() {
+        facebookPixel.options.legacyEvents = { 'Product Added': '123456' };
+
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+
+        analytics.called(window.fbq, 'track', '123456', {
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('Should map properties.price to facebooks value if price is selected', function() {
+        facebookPixel.options.valueIdentifier = 'price';
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '44.33'
+        });
+      });
+
+      it('should send the custom content type if mapped', function() {
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'Cars',
+          sku: 'p-298',
+          value: 24.75,
+          content_type: 'stuff'
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['vehicle'],
+          content_name: 'my product',
+          content_category: 'Cars',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to id for content_id', function() {
+        analytics.track('Product Added', {
+          id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to sku for content_id', function() {
+        analytics.track('Product Added', {
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['p-298'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to an empty string for content_id', function() {
+        analytics.track('Product Added', {
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: [''],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to an empty string for content_name', function() {
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: '',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should fallback to an empty string for content_category', function() {
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: '',
+          currency: 'USD',
+          value: '24.75'
+        });
+      });
+
+      it('should use price in the legacy event', function() {
+        facebookPixel.options.valueIdentifier = 'price';
+        facebookPixel.options.legacyEvents = { 'Product Added': '123456' };
+
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75
+        });
+        analytics.called(window.fbq, 'track', 'AddToCart', {
+          content_ids: ['507f1f77bcf86cd799439011'],
+          content_type: ['product'],
+          content_name: 'my product',
+          content_category: 'cat 1',
+          currency: 'USD',
+          value: '44.33'
+        });
+        analytics.called(window.fbq, 'track', '123456', {
+          currency: 'USD',
+          value: '44.33'
+        });
+      });
+    });
+
+    describe('#orderCompleted', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
+      });
+
+      it('should send a Purchase event', function() {
+        analytics.track('Order Completed', {
+          products: [
+            { product_id: '507f1f77bcf86cd799439011' },
+            { product_id: '505bd76785ebb509fc183733' }
+          ],
+          currency: 'USD',
+          total: 0.5
+        });
+        analytics.called(window.fbq, 'track', 'Purchase', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          content_type: ['product'],
+          currency: 'USD',
+          value: '0.50'
+        });
+      });
+
+      it('Should send both pixel and standard event if mapped', function() {
+        facebookPixel.options.legacyEvents = { 'Completed Order': '123456' };
+        analytics.track('Completed Order', {
+          products: [
+            { product_id: '507f1f77bcf86cd799439011' },
+            { product_id: '505bd76785ebb509fc183733' }
+          ],
+          currency: 'USD',
+          total: 0.5
+        });
+        analytics.called(window.fbq, 'track', 'Purchase', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          content_type: ['product'],
+          currency: 'USD',
+          value: '0.50'
+        });
+        analytics.called(window.fbq, 'track', '123456', {
+          currency: 'USD',
+          value: '0.50'
+        });
+      });
+
+      it('should default to id for content_id', function() {
+        analytics.track('Order Completed', {
+          products: [
+            { product_id: '507f1f77bcf86cd799439011' },
+            { id: '505bd76785ebb509fc183733' }
+          ],
+          currency: 'USD',
+          total: 0.5
+        });
+        analytics.called(window.fbq, 'track', 'Purchase', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          content_type: ['product'],
+          currency: 'USD',
+          value: '0.50'
+        });
+      });
+
+      it('should default to sku for content_id', function() {
+        analytics.track('Order Completed', {
+          products: [
+            { product_id: '507f1f77bcf86cd799439011' },
+            { sku: '505bd76785ebb509fc183733' }
+          ],
+          currency: 'USD',
+          total: 0.5
+        });
+        analytics.called(window.fbq, 'track', 'Purchase', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          content_type: ['product'],
+          currency: 'USD',
+          value: '0.50'
+        });
+      });
+
+      it('should send the custom content type if mapped', function() {
+        analytics.track('Order Completed', {
+          products: [
+            { product_id: '507f1f77bcf86cd799439011', category: 'Cars' },
+            { product_id: '505bd76785ebb509fc183733', category: 'Cars' }
+          ],
+          currency: 'USD',
+          total: 0.5
+        });
+        analytics.called(window.fbq, 'track', 'Purchase', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          content_type: ['vehicle'],
+          currency: 'USD',
+          value: '0.50'
+        });
+      });
+    });
+
+    describe('#productsSearched', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
+      });
+
+      it('should send pixel the search string', function() {
+        analytics.track('Products Searched', { query: 'yo' });
+        analytics.called(window.fbq, 'track', 'Search', {
+          search_string: 'yo'
+        });
+      });
+
+      it('should send standard and legacy events', function() {
+        facebookPixel.options.legacyEvents = {
+          'Products Searched': '123456'
+        };
+
+        analytics.track('Products Searched', { query: 'yo' });
+        analytics.called(window.fbq, 'track', 'Search', {
+          search_string: 'yo'
+        });
+        analytics.called(window.fbq, 'track', '123456');
+      });
+    });
+
+    describe('#checkoutStarted', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'fbq');
+      });
+
+      it('should call InitiateCheckout with the top-level category', function() {
+        analytics.track('Checkout Started', {
+          category: 'NotGames',
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          value: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
               product_id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
               quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'cat 1',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['product'],
-              content_name: 'my product',
-              content_category: 'cat 1',
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('should send a legacy event for Product Viewed', function() {
-            facebookPixel.options.legacyEvents = { 'Product Viewed': '123456' };
-
-            analytics.track('Product Viewed', {
-              product_id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'cat 1',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['product'],
-              content_name: 'my product',
-              content_category: 'cat 1',
-              currency: 'USD',
-              value: '24.75'
-            });
-            analytics.called(window.fbq, 'track', '123456', {
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('Should map properties.price to facebooks value if price is selected', function() {
-            facebookPixel.options.valueIdentifier = 'price';
-            analytics.track('Product Viewed', {
-              product_id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'cat 1',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['product'],
-              content_name: 'my product',
-              content_category: 'cat 1',
-              currency: 'USD',
-              value: '44.33'
-            });
-          });
-
-          it('should send the custom content type if mapped', function() {
-            analytics.track('Product Viewed', {
-              product_id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'Cars',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['vehicle'],
-              content_name: 'my product',
-              content_category: 'Cars',
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('should fallback to id for content_id', function() {
-            analytics.track('Product Viewed', {
-              id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'Cars',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['vehicle'],
-              content_name: 'my product',
-              content_category: 'Cars',
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('should fallback to sku for content_id', function() {
-            analytics.track('Product Viewed', {
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'Cars',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['p-298'],
-              content_type: ['vehicle'],
-              content_name: 'my product',
-              content_category: 'Cars',
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('should fallback to an empty string for content_id', function() {
-            analytics.track('Product Viewed', {
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'Cars',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: [''],
-              content_type: ['vehicle'],
-              content_name: 'my product',
-              content_category: 'Cars',
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('should fallback to an empty string for content_name', function() {
-            analytics.track('Product Viewed', {
-              id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              category: 'Cars',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['vehicle'],
-              content_name: '',
-              content_category: 'Cars',
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('should fallback to an empty string for content_category', function() {
-            analytics.track('Product Viewed', {
-              product_id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['product'],
-              content_name: 'my product',
-              content_category: '',
-              currency: 'USD',
-              value: '24.75'
-            });
-          });
-
-          it('should use price in the legacy event', function() {
-            facebookPixel.options.valueIdentifier = 'price';
-            facebookPixel.options.legacyEvents = { 'Product Viewed': '123456' };
-
-            analytics.track('Product Viewed', {
-              product_id: '507f1f77bcf86cd799439011',
-              currency: 'USD',
-              quantity: 1,
-              price: 44.33,
-              name: 'my product',
-              category: 'cat 1',
-              sku: 'p-298',
-              value: 24.75
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['507f1f77bcf86cd799439011'],
-              content_type: ['product'],
-              content_name: 'my product',
-              content_category: 'cat 1',
-              currency: 'USD',
-              value: '44.33'
-            });
-            analytics.called(window.fbq, 'track', '123456', {
-              currency: 'USD',
-              value: '44.33'
-            });
-          });
-
-          it('should not map products if its falsy', function() {
-            analytics.track('Product List Viewed', {
               category: 'Games',
-              products: null
-            });
-            analytics.called(window.fbq, 'track', 'ViewContent', {
-              content_ids: ['Games'],
-              content_type: ['product_group']
-            });
-          });
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
         });
-
-        it('Adding to Cart', function() {
-          analytics.track('Product Added', {
-            product_id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'cat 1',
-            sku: 'p-298',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '24.75'
-          });
+        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          value: '25.00',
+          contents: [
+            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+          ],
+          num_items: 2,
+          currency: 'USD',
+          content_category: 'NotGames'
         });
+      });
 
-        it('should send a legacy event for product added', function() {
-          facebookPixel.options.legacyEvents = { 'Product Added': '123456' };
-
-          analytics.track('Product Added', {
-            product_id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'cat 1',
-            sku: 'p-298',
-            value: 24.75
-          });
-
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '24.75'
-          });
-
-          analytics.called(window.fbq, 'track', '123456', {
-            currency: 'USD',
-            value: '24.75'
-          });
+      it('should call InitiateCheckout with the first product category', function() {
+        analytics.track('Checkout Started', {
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          value: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
         });
-
-        it('Should map properties.price to facebooks value if price is selected', function() {
-          facebookPixel.options.valueIdentifier = 'price';
-          analytics.track('Product Added', {
-            product_id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'cat 1',
-            sku: 'p-298',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '44.33'
-          });
+        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          value: '25.00',
+          contents: [
+            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+          ],
+          num_items: 2,
+          currency: 'USD',
+          content_category: 'Games'
         });
+      });
 
-        it('should send the custom content type if mapped', function() {
-          analytics.track('Product Added', {
-            product_id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'Cars',
-            sku: 'p-298',
-            value: 24.75,
-            content_type: 'stuff'
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['vehicle'],
-            content_name: 'my product',
-            content_category: 'Cars',
-            currency: 'USD',
-            value: '24.75'
-          });
+      it('should send a standard and legacy events', function() {
+        facebookPixel.options.legacyEvents = {
+          'Checkout Started': '123456'
+        };
+        analytics.track('Checkout Started', {
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          value: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
         });
-
-        it('should fallback to id for content_id', function() {
-          analytics.track('Product Added', {
-            id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'cat 1',
-            sku: 'p-298',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '24.75'
-          });
+        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          value: '25.00',
+          contents: [
+            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+          ],
+          num_items: 2,
+          currency: 'USD',
+          content_category: 'Games'
         });
-
-        it('should fallback to sku for content_id', function() {
-          analytics.track('Product Added', {
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'cat 1',
-            sku: 'p-298',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['p-298'],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '24.75'
-          });
+        analytics.called(window.fbq, 'track', '123456', {
+          currency: 'USD',
+          value: '25.00'
         });
+      });
 
-        it('should fallback to an empty string for content_id', function() {
-          analytics.track('Product Added', {
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'cat 1',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: [''],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '24.75'
-          });
+      it('should default to id for content_ids', function() {
+        analytics.track('Checkout Started', {
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          value: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
         });
-
-        it('should fallback to an empty string for content_name', function() {
-          analytics.track('Product Added', {
-            product_id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            category: 'cat 1',
-            sku: 'p-298',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['product'],
-            content_name: '',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '24.75'
-          });
+        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
+          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
+          value: '25.00',
+          contents: [
+            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+          ],
+          num_items: 2,
+          currency: 'USD',
+          content_category: 'Games'
         });
+      });
 
-        it('should fallback to an empty string for content_category', function() {
-          analytics.track('Product Added', {
-            product_id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            sku: 'p-298',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: '',
-            currency: 'USD',
-            value: '24.75'
-          });
+      it('should default to sku for content_ids', function() {
+        analytics.track('Checkout Started', {
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          value: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
         });
-
-        it('should use price in the legacy event', function() {
-          facebookPixel.options.valueIdentifier = 'price';
-          facebookPixel.options.legacyEvents = { 'Product Added': '123456' };
-
-          analytics.track('Product Added', {
-            product_id: '507f1f77bcf86cd799439011',
-            currency: 'USD',
-            quantity: 1,
-            price: 44.33,
-            name: 'my product',
-            category: 'cat 1',
-            sku: 'p-298',
-            value: 24.75
-          });
-          analytics.called(window.fbq, 'track', 'AddToCart', {
-            content_ids: ['507f1f77bcf86cd799439011'],
-            content_type: ['product'],
-            content_name: 'my product',
-            content_category: 'cat 1',
-            currency: 'USD',
-            value: '44.33'
-          });
-          analytics.called(window.fbq, 'track', '123456', {
-            currency: 'USD',
-            value: '44.33'
-          });
-        });
-
-        it('Completing an Order', function() {
-          analytics.track('Order Completed', {
-            products: [
-              { product_id: '507f1f77bcf86cd799439011' },
-              { product_id: '505bd76785ebb509fc183733' }
-            ],
-            currency: 'USD',
-            total: 0.5
-          });
-          analytics.called(window.fbq, 'track', 'Purchase', {
-            content_ids: [
-              '507f1f77bcf86cd799439011',
-              '505bd76785ebb509fc183733'
-            ],
-            content_type: ['product'],
-            currency: 'USD',
-            value: '0.50'
-          });
-        });
-
-        it('Should send both pixel and standard event if mapped', function() {
-          facebookPixel.options.legacyEvents = { 'Completed Order': '123456' };
-          analytics.track('Completed Order', {
-            products: [
-              { product_id: '507f1f77bcf86cd799439011' },
-              { product_id: '505bd76785ebb509fc183733' }
-            ],
-            currency: 'USD',
-            total: 0.5
-          });
-          analytics.called(window.fbq, 'track', 'Purchase', {
-            content_ids: [
-              '507f1f77bcf86cd799439011',
-              '505bd76785ebb509fc183733'
-            ],
-            content_type: ['product'],
-            currency: 'USD',
-            value: '0.50'
-          });
-          analytics.called(window.fbq, 'track', '123456', {
-            currency: 'USD',
-            value: '0.50'
-          });
-        });
-
-        it('should default to id for content_id', function() {
-          analytics.track('Order Completed', {
-            products: [
-              { product_id: '507f1f77bcf86cd799439011' },
-              { id: '505bd76785ebb509fc183733' }
-            ],
-            currency: 'USD',
-            total: 0.5
-          });
-          analytics.called(window.fbq, 'track', 'Purchase', {
-            content_ids: [
-              '507f1f77bcf86cd799439011',
-              '505bd76785ebb509fc183733'
-            ],
-            content_type: ['product'],
-            currency: 'USD',
-            value: '0.50'
-          });
-        });
-
-        it('should default to sku for content_id', function() {
-          analytics.track('Order Completed', {
-            products: [
-              { product_id: '507f1f77bcf86cd799439011' },
-              { sku: '505bd76785ebb509fc183733' }
-            ],
-            currency: 'USD',
-            total: 0.5
-          });
-          analytics.called(window.fbq, 'track', 'Purchase', {
-            content_ids: [
-              '507f1f77bcf86cd799439011',
-              '505bd76785ebb509fc183733'
-            ],
-            content_type: ['product'],
-            currency: 'USD',
-            value: '0.50'
-          });
-        });
-
-        it('should send the custom content type if mapped', function() {
-          analytics.track('Order Completed', {
-            products: [
-              { product_id: '507f1f77bcf86cd799439011', category: 'Cars' },
-              { product_id: '505bd76785ebb509fc183733', category: 'Cars' }
-            ],
-            currency: 'USD',
-            total: 0.5
-          });
-          analytics.called(window.fbq, 'track', 'Purchase', {
-            content_ids: [
-              '507f1f77bcf86cd799439011',
-              '505bd76785ebb509fc183733'
-            ],
-            content_type: ['vehicle'],
-            currency: 'USD',
-            value: '0.50'
-          });
-        });
-
-        describe('.productsSearched()', function() {
-          it('should send pixel the search string', function() {
-            analytics.track('Products Searched', { query: 'yo' });
-            analytics.called(window.fbq, 'track', 'Search', {
-              search_string: 'yo'
-            });
-          });
-
-          it('should send standard and legacy events', function() {
-            facebookPixel.options.legacyEvents = {
-              'Products Searched': '123456'
-            };
-
-            analytics.track('Products Searched', { query: 'yo' });
-            analytics.called(window.fbq, 'track', 'Search', {
-              search_string: 'yo'
-            });
-            analytics.called(window.fbq, 'track', '123456');
-          });
-        });
-
-        describe('.checkoutStarted()', function() {
-          it('should call InitiateCheckout with the top-level category', function() {
-            analytics.track('Checkout Started', {
-              category: 'NotGames',
-              order_id: '50314b8e9bcf000000000000',
-              affiliation: 'Google Store',
-              value: 30,
-              revenue: 25,
-              shipping: 3,
-              tax: 2,
-              discount: 2.5,
-              coupon: 'hasbros',
-              currency: 'USD',
-              products: [
-                {
-                  product_id: '507f1f77bcf86cd799439011',
-                  sku: '45790-32',
-                  name: 'Monopoly: 3rd Edition',
-                  price: 19,
-                  quantity: 1,
-                  category: 'Games',
-                  url: 'https://www.example.com/product/path',
-                  image_url: 'https://www.example.com/product/path.jpg'
-                },
-                {
-                  product_id: '505bd76785ebb509fc183733',
-                  sku: '46493-32',
-                  name: 'Uno Card Game',
-                  price: 3,
-                  quantity: 2,
-                  category: 'Games'
-                }
-              ]
-            });
-            analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-              content_ids: [
-                '507f1f77bcf86cd799439011',
-                '505bd76785ebb509fc183733'
-              ],
-              value: '25.00',
-              contents: [
-                { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-                { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-              ],
-              num_items: 2,
-              currency: 'USD',
-              content_category: 'NotGames'
-            });
-          });
-
-          it('should call InitiateCheckout with the first product category', function() {
-            analytics.track('Checkout Started', {
-              order_id: '50314b8e9bcf000000000000',
-              affiliation: 'Google Store',
-              value: 30,
-              revenue: 25,
-              shipping: 3,
-              tax: 2,
-              discount: 2.5,
-              coupon: 'hasbros',
-              currency: 'USD',
-              products: [
-                {
-                  product_id: '507f1f77bcf86cd799439011',
-                  sku: '45790-32',
-                  name: 'Monopoly: 3rd Edition',
-                  price: 19,
-                  quantity: 1,
-                  category: 'Games',
-                  url: 'https://www.example.com/product/path',
-                  image_url: 'https://www.example.com/product/path.jpg'
-                },
-                {
-                  product_id: '505bd76785ebb509fc183733',
-                  sku: '46493-32',
-                  name: 'Uno Card Game',
-                  price: 3,
-                  quantity: 2,
-                  category: 'Games'
-                }
-              ]
-            });
-            analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-              content_ids: [
-                '507f1f77bcf86cd799439011',
-                '505bd76785ebb509fc183733'
-              ],
-              value: '25.00',
-              contents: [
-                { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-                { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-              ],
-              num_items: 2,
-              currency: 'USD',
-              content_category: 'Games'
-            });
-          });
-
-          it('should send a standard and legacy events', function() {
-            facebookPixel.options.legacyEvents = {
-              'Checkout Started': '123456'
-            };
-            analytics.track('Checkout Started', {
-              order_id: '50314b8e9bcf000000000000',
-              affiliation: 'Google Store',
-              value: 30,
-              revenue: 25,
-              shipping: 3,
-              tax: 2,
-              discount: 2.5,
-              coupon: 'hasbros',
-              currency: 'USD',
-              products: [
-                {
-                  product_id: '507f1f77bcf86cd799439011',
-                  sku: '45790-32',
-                  name: 'Monopoly: 3rd Edition',
-                  price: 19,
-                  quantity: 1,
-                  category: 'Games',
-                  url: 'https://www.example.com/product/path',
-                  image_url: 'https://www.example.com/product/path.jpg'
-                },
-                {
-                  product_id: '505bd76785ebb509fc183733',
-                  sku: '46493-32',
-                  name: 'Uno Card Game',
-                  price: 3,
-                  quantity: 2,
-                  category: 'Games'
-                }
-              ]
-            });
-            analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-              content_ids: [
-                '507f1f77bcf86cd799439011',
-                '505bd76785ebb509fc183733'
-              ],
-              value: '25.00',
-              contents: [
-                { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-                { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-              ],
-              num_items: 2,
-              currency: 'USD',
-              content_category: 'Games'
-            });
-            analytics.called(window.fbq, 'track', '123456', {
-              currency: 'USD',
-              value: '25.00'
-            });
-          });
-
-          it('should default to id for content_ids', function() {
-            analytics.track('Checkout Started', {
-              order_id: '50314b8e9bcf000000000000',
-              affiliation: 'Google Store',
-              value: 30,
-              revenue: 25,
-              shipping: 3,
-              tax: 2,
-              discount: 2.5,
-              coupon: 'hasbros',
-              currency: 'USD',
-              products: [
-                {
-                  id: '507f1f77bcf86cd799439011',
-                  sku: '45790-32',
-                  name: 'Monopoly: 3rd Edition',
-                  price: 19,
-                  quantity: 1,
-                  category: 'Games',
-                  url: 'https://www.example.com/product/path',
-                  image_url: 'https://www.example.com/product/path.jpg'
-                },
-                {
-                  product_id: '505bd76785ebb509fc183733',
-                  sku: '46493-32',
-                  name: 'Uno Card Game',
-                  price: 3,
-                  quantity: 2,
-                  category: 'Games'
-                }
-              ]
-            });
-            analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-              content_ids: [
-                '507f1f77bcf86cd799439011',
-                '505bd76785ebb509fc183733'
-              ],
-              value: '25.00',
-              contents: [
-                { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-                { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-              ],
-              num_items: 2,
-              currency: 'USD',
-              content_category: 'Games'
-            });
-          });
-
-          it('should default to sku for content_ids', function() {
-            analytics.track('Checkout Started', {
-              order_id: '50314b8e9bcf000000000000',
-              affiliation: 'Google Store',
-              value: 30,
-              revenue: 25,
-              shipping: 3,
-              tax: 2,
-              discount: 2.5,
-              coupon: 'hasbros',
-              currency: 'USD',
-              products: [
-                {
-                  sku: '45790-32',
-                  name: 'Monopoly: 3rd Edition',
-                  price: 19,
-                  quantity: 1,
-                  category: 'Games',
-                  url: 'https://www.example.com/product/path',
-                  image_url: 'https://www.example.com/product/path.jpg'
-                },
-                {
-                  product_id: '505bd76785ebb509fc183733',
-                  sku: '46493-32',
-                  name: 'Uno Card Game',
-                  price: 3,
-                  quantity: 2,
-                  category: 'Games'
-                }
-              ]
-            });
-            analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-              content_ids: ['45790-32', '505bd76785ebb509fc183733'],
-              value: '25.00',
-              contents: [
-                { id: '45790-32', quantity: 1, item_price: 19 },
-                { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-              ],
-              num_items: 2,
-              currency: 'USD',
-              content_category: 'Games'
-            });
-          });
+        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
+          content_ids: ['45790-32', '505bd76785ebb509fc183733'],
+          value: '25.00',
+          contents: [
+            { id: '45790-32', quantity: 1, item_price: 19 },
+            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+          ],
+          num_items: 2,
+          currency: 'USD',
+          content_category: 'Games'
         });
       });
     });
   });
 
-  describe('.formatTraits()', function() {
+  describe('#formatTraits', function() {
     it('should return an empty object if traits is falsy', function() {
       var expected = {};
 
