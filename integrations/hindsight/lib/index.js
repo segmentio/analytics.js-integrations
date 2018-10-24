@@ -64,7 +64,10 @@ Hindsight.prototype.track = function(track) {
  */
 
 Hindsight.prototype.identify = function(identify) {
-  window.RB.track('identify', identify.traits());
+  var traits = identify.traits();
+  if (identify['userId']) traits['customer_id'] = identify['userId'];
+  
+  window.RB.track('identify', format(traits) );
 };
 
 /**
