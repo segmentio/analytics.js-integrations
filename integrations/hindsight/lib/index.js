@@ -65,7 +65,8 @@ Hindsight.prototype.track = function(track) {
 
 Hindsight.prototype.identify = function(identify) {
   var traits = identify.traits();
-  if (identify['userId']) traits['customer_id'] = identify['userId'];
+  if (identify['userId']) traits['segmentUserId'] = identify['userId'];
+  if (identify['anonymousId']) traits['segmentAnonymousId'] = identify['anonymousId'];
   
   window.RB.track('identify', format(traits) );
 };
