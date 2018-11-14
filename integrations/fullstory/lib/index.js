@@ -14,10 +14,10 @@ var integration = require('@segment/analytics.js-integration');
  * https://www.fullstory.com/docs/developer
  */
 
-var FullStory = module.exports = integration('FullStory')
+var FullStory = (module.exports = integration('FullStory')
   .option('org', '')
   .option('debug', false)
-  .tag('<script src="https://www.fullstory.com/s/fs.js"></script>');
+  .tag('<script src="https://www.fullstory.com/s/fs.js"></script>'));
 
 /**
  * The ApiSource string.
@@ -70,12 +70,18 @@ FullStory.prototype.loaded = function() {
 FullStory.prototype.identify = function(identify) {
   var traits = identify.traits({ name: 'displayName' });
 
-  var newTraits = foldl(function(results, value, key) {
-    if (key !== 'id') {
-      results[key === 'displayName' || key === 'email' ? key : camelCaseField(key)] = value;
-    }
-    return results;
-  }, {}, traits);
+  var newTraits = foldl(
+    function(results, value, key) {
+      if (key !== 'id') {
+        results[
+          key === 'displayName' || key === 'email' ? key : camelCaseField(key)
+        ] = value;
+      }
+      return results;
+    },
+    {},
+    traits
+  );
   if (identify.userId()) {
     window.FS.identify(String(identify.userId()), newTraits, apiSource);
   } else {
@@ -107,18 +113,18 @@ function camelCaseField(fieldName) {
   if (parts.length > 1) {
     var typeSuffix = parts.pop();
     switch (typeSuffix) {
-    case 'str':
-    case 'int':
-    case 'date':
-    case 'real':
-    case 'bool':
-    case 'strs':
-    case 'ints':
-    case 'dates':
-    case 'reals':
-    case 'bools':
-      return camel(parts.join('_')) + '_' + typeSuffix;
-    default: // passthrough
+      case 'str':
+      case 'int':
+      case 'date':
+      case 'real':
+      case 'bool':
+      case 'strs':
+      case 'ints':
+      case 'dates':
+      case 'reals':
+      case 'bools':
+        return camel(parts.join('_')) + '_' + typeSuffix;
+      default: // passthrough
     }
   }
 
