@@ -1,3 +1,7 @@
+2.2.1 / 2018-11-14
+==================
+  * Fix script loading behavior to resolve issue with the Forms SDK and ad blockers.
+
 2.1.3 / 2018-07-06
 ==================
   * Add support for tabs, carriage returns, new lines, vertical tabs, form feeds
