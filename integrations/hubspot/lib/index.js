@@ -39,7 +39,7 @@ HubSpot.prototype.initialize = function() {
   var self = this;
   if (shouldLoadLeadForms) {
     this.load('forms', function() {
-      self.load('lib', self.ready);
+      self.load('lib', { cacheBuster: cacheBuster }, self.ready);
     });
   } else {
     this.load('lib', { cacheBuster: cacheBuster }, this.ready);
@@ -55,6 +55,9 @@ HubSpot.prototype.initialize = function() {
 
 HubSpot.prototype.loaded = function() {
   var libLoaded = !!(window._hsq && window._hsq.push !== Array.prototype.push);
+  // Due to limitations with our testing framework, we cannot test more than a single script loading configuration.
+  // Therefore, we are ignoring this conditional in code coverage.
+  /* istanbul ignore if */
   if (!this.options.loadFormsSdk) {
     return libLoaded;
   }
