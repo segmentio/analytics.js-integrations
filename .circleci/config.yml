@@ -39,7 +39,6 @@ jobs:
   test_saucelabs:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        ? environment
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -79,7 +78,6 @@ jobs:
   test_snyk:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        ? environment
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -106,7 +104,8 @@ workflows:
   version: 2
   test_and_publish:
     jobs:
-      - setup
+      - setup:
+          context: segmentio-org-global
       - test_phantomjs:
           requires:
             - setup
@@ -118,6 +117,7 @@ workflows:
           requires:
             - setup
       - publish:
+          context: segmentio-org-global
           requires:
             - test_phantomjs
             - test_saucelabs
