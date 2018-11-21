@@ -32,6 +32,7 @@ Wootric.prototype.initialize = function() {
   // We use this to keep track of the last page that Wootric has tracked to
   // ensure we don't accidentally send a duplicate page call
   this.lastPageTracked = null;
+  window.wootric_segment_integration = true;
   window.wootricSettings = window.wootricSettings || {};
   window.wootricSettings.account_token = this.options.accountToken;
 
