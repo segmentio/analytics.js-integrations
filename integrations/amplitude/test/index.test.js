@@ -25,7 +25,8 @@ describe('Amplitude', function() {
     trackRevenuePerProduct: false,
     mapQueryParams: {},
     traitsToIncrement: [],
-    traitsToSetOnce: []
+    traitsToSetOnce: [],
+    preferAnonymousIdForDeviceId: true
   };
 
   beforeEach(function() {
@@ -129,12 +130,28 @@ describe('Amplitude', function() {
       analytics.assert(
         config.deviceIdFromUrlParam === options.deviceIdFromUrlParam
       );
+      analytics.assert(config.deviceId === analytics.user().anonymousId());
     });
 
     it('should set api key', function() {
       analytics.assert(
         window.amplitude.getInstance().options.apiKey === options.apiKey
       );
+    });
+
+    describe('preferAnonymousIdForDeviceId disabled', function() {
+      before(function() {
+        options.preferAnonymousIdForDeviceId = false;
+      });
+
+      it('should init without anonymousId as the deviceId', function() {
+        var config = window.amplitude.getInstance().options;
+        analytics.assert(config.deviceId !== analytics.user().anonymousId());
+      });
+
+      after(function() {
+        options.preferAnonymousIdForDeviceId = true;
+      });
     });
 
     describe('#setDeviceId', function() {
