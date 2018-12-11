@@ -139,6 +139,21 @@ describe('Amplitude', function() {
       );
     });
 
+    describe('preferAnonymousIdForDeviceId disabled', function() {
+      before(function() {
+        options.preferAnonymousIdForDeviceId = false;
+      });
+
+      it('should init without anonymousId as the deviceId', function() {
+        var config = window.amplitude.getInstance().options;
+        analytics.assert(config.deviceId !== analytics.user().anonymousId());
+      });
+
+      after(function() {
+        options.preferAnonymousIdForDeviceId = true;
+      });
+    });
+
     describe('#setDeviceId', function() {
       it('should call window.amplitude.setDeviceId', function() {
         analytics.spy(window.amplitude.getInstance(), 'setDeviceId');
