@@ -25,7 +25,8 @@ describe('Amplitude', function() {
     trackRevenuePerProduct: false,
     mapQueryParams: {},
     traitsToIncrement: [],
-    traitsToSetOnce: []
+    traitsToSetOnce: [],
+    preferAnonymousIdForDeviceId: true
   };
 
   beforeEach(function() {
@@ -129,6 +130,7 @@ describe('Amplitude', function() {
       analytics.assert(
         config.deviceIdFromUrlParam === options.deviceIdFromUrlParam
       );
+      analytics.assert(config.deviceId === analytics.user().anonymousId());
     });
 
     it('should set api key', function() {

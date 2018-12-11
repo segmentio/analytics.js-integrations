@@ -77,7 +77,12 @@ Amplitude.prototype.initialize = function() {
     includeGclid: this.options.trackGclid,
     saveParamsReferrerOncePerSession: this.options
       .saveParamsReferrerOncePerSession,
-    deviceIdFromUrlParam: this.options.deviceIdFromUrlParam
+    deviceIdFromUrlParam: this.options.deviceIdFromUrlParam,
+    deviceId:
+      this.options.preferAnonymousIdForDeviceId &&
+      this.analytics &&
+      this.analytics.user() &&
+      this.analytics.user().anonymousId()
   });
 
   var loaded = bind(this, this.loaded);
