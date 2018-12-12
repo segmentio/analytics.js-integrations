@@ -70,6 +70,10 @@ describe('Wootric', function() {
       it('should call #load', function() {
         analytics.called(wootric.load);
       });
+
+      it("should set wootric_segment_integration to true", function() {
+        analytics.assert(window.wootric_segment_integration === true);
+      });
     });
   });
 
