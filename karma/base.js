@@ -9,13 +9,13 @@ module.exports = {
     'integrations/**/node_modules/**'
   ],
   frameworks: ['browserify', 'mocha'],
-  reporters: ['spec'],
+  reporters: ['spec', 'coverage'],
   browserDisconnectTimeout: 60000,
   browserNoActivityTimeout: 60000,
   concurrency: 1,
   singleRun: true,
   client: {
-    captureConsole: false,
+    captureConsole: true,
     mocha: {
       reporter: 'html',
       timeout: 10000

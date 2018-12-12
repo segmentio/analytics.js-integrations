@@ -1,3 +1,20 @@
+2.5.4/ 2018-09-13
+==================
+
+  * Adds Search and InitiateCheckout event support
+
+2.5.2/ 2018-09-13
+==================
+
+  * Fixes the wrong content type for Order Completed
+
+2.5.1 / 2018-09-10
+==================
+
+  * Makes content type customizable for Product List Viewed, Product Viewed, Product Added, and
+  Order Completed events.
+  * Adds a setting to disable Automatic Configuration.
+
 2.5.0 / 2018-06-22
 ==================
 

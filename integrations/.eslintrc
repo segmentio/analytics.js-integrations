@@ -1,3 +1,7 @@
 {
-  "extends": ["@segment/eslint-config/browser/legacy", "prettier"]
+  "extends": ["@segment/eslint-config/browser/legacy", "@segment/eslint-config/mocha", "prettier"],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error"
+  }
 }

@@ -1,5 +1,5 @@
 
-const reporters = ['progress', 'junit']
+const reporters = ['progress', 'junit', 'coverage']
 
 /**
  * Sets the reporters for the tests.
