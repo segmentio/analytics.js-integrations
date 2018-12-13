@@ -21,7 +21,8 @@ describe('Adobe Analytics', function() {
     events: [
       { segmentEvent: 'Played a Song', adobeEvents: ['event1'] },
       { segmentEvent: 'Drank Some Milk', adobeEvents: ['event6'] },
-      { segmentEvent: 'Overlord exploded', adobeEvents: ['event7'] }
+      { segmentEvent: 'Overlord exploded', adobeEvents: ['event7'] },
+      { segmentEvent: 'Played a Game', adobeEvents: ['event1'] },
     ],
     eVars: {
       Car: 'eVar1',
@@ -50,7 +51,8 @@ describe('Adobe Analytics', function() {
     enableTrackPageName: true,
     disableVisitorId: false,
     preferVisitorId: false,
-    enableHeartbeat: true
+    enableHeartbeat: true,
+    exitLinkEvents: ['Played a Game']
   };
 
   beforeEach(function() {
@@ -748,8 +750,8 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
        it('should track event as exit link', function () {
-        analytics.track('Played a Song');
-        analytics.called(window.s.tl, true, 'e', 'Played a Song');
+         analytics.called(window.s.tl, true, 'e', 'Played a Game');
+        analytics.track('Played a Game');
       });
     });
 
