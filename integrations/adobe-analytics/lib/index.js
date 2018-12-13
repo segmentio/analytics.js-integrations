@@ -83,6 +83,7 @@ AdobeAnalytics
   .option('preferVisitorId', false)
   .option('heartbeatTrackingServerUrl', '')
   .option('ssl', false)
+  .option('exitLinkEvents', [])
 
   .sOption('visitorID')
   .sOption('channel')
@@ -420,11 +421,16 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
 
   window.s.linkTrackVars = dynamicKeys.join(',');
 
+  var linkType = 'o';
+  if (this.options.exitLinkEvents.indexOf(msg.event()) !== -1) {
+    linkType = 'e';
+  }
+
   // Send request off to Adobe Analytics
   // 1st param: sets 500ms delay to give browser time, also means you are tracking something other than a href link
   // 2nd param: 'o' means 'Other' as opposed to 'd' for 'Downloads' and 'e' for Exit links
   // 3rd param: link name you will see in reports
-  window.s.tl(true, 'o', msg.event());
+  window.s.tl(true, linkType, msg.event());
 };
 
 /**

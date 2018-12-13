@@ -742,6 +742,15 @@ describe('Adobe Analytics', function() {
           analytics.equal(window.s.events, 'prodView,event1,event38');
         });
       });
+
+      it('should track event as custom link', function () {
+        analytics.track('Drank Some Milk');
+        analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
+      });
+       it('should track event as exit link', function () {
+        analytics.track('Played a Song');
+        analytics.called(window.s.tl, true, 'e', 'Played a Song');
+      });
     });
 
     describe('#page', function() {
