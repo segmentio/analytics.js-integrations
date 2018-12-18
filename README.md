@@ -1,4 +1,5 @@
-# analytics.js-integration-adobe-analytics [![Build Status][ci-badge]][ci-link]
+[![CircleCI](https://ci.segment.com/gh/segment-integrations/analytics.js-integration-adobe-analytics.svg?style=svg&circle-token=1ded97a0cb02c779e6db1632eaec18b9e4db68a2)](https://ci.segment.com/gh/segment-integrations/analytics.js-integration-adobe-analytics)
+# analytics.js-integration-adobe-analytics
 
 Adobe Analytics integration for [Analytics.js][].
 
@@ -8,5 +9,4 @@ Released under the [MIT license](LICENSE).
 
 
 [Analytics.js]: https://segment.com/docs/libraries/analytics.js/
-[ci-link]: https://circleci.com/gh/segment-integrations/analytics.js-integration-google-analytics
-[ci-badge]: https://circleci.com/gh/segment-integrations/analytics.js-integration-google-analytics.svg?style=svg
+
