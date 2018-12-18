@@ -1,5 +1,5 @@
 {
-  "name": "@segment/analytics.js-integration-adobe-analytics",
+  "name": "@astronomerio/analytics.js-integration-adobe-analytics",
   "description": "The Adobe Analytics analytics.js integration.",
   "version": "1.14.3",
   "keywords": [
@@ -14,15 +14,15 @@
   "scripts": {
     "test": "make test"
   },
-  "author": "Segment \u003cfriends@segment.com\u003e",
+  "author": "Astronomer <info@astronomer.io>",
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/adobe-analytics#readme",
+  "homepage": "https://github.com/astronomer-integrations/analytics.js-integration-adobe-analytics#readme",
   "bugs": {
-    "url": "https://github.com/segmentio/analytics.js-integrations/issues"
+    "url": "https://github.com/astronomer-integrations/analytics.js-integrations/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
+    "url": "git+https://github.com/astronomer-integrations/analytics.js-integrations.git"
   },
   "dependencies": {
     "@ndhoule/each": "^2.0.1",
