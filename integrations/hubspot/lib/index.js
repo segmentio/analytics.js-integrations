@@ -20,6 +20,7 @@ var HubSpot = (module.exports = integration('HubSpot')
   .global('hbspt')
   .option('portalId', null)
   .option('loadFormsSdk', false)
+  .option('setPagePath', false)
   .tag(
     'lib',
     '<script id="hs-analytics" src="https://js.hs-analytics.net/analytics/{{ cacheBuster }}/{{ portalId }}.js">'
@@ -71,7 +72,11 @@ HubSpot.prototype.loaded = function() {
  * @param {Page} page
  */
 
-HubSpot.prototype.page = function() {
+HubSpot.prototype.page = function(page) {
+  if (this.options.setPagePath) {
+    push('setPath', page.path());
+  }
+
   push('trackPageView');
 };
 

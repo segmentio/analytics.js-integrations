@@ -38,6 +38,7 @@ describe('HubSpot', function() {
         .global('hbspt')
         .option('loadFormsSdk', false)
         .option('portalId', null)
+        .option('setPagePath', false)
     );
   });
 
@@ -275,6 +276,19 @@ describe('HubSpot', function() {
 
       it('should send a page view', function() {
         analytics.page();
+        analytics.called(window._hsq.push, ['trackPageView']);
+      });
+
+      it('should set the page path', function() {
+        hubspot.options.setPagePath = true;
+        analytics.page({ path: '/my-path' });
+        analytics.called(window._hsq.push, ['setPath', '/my-path']);
+        analytics.called(window._hsq.push, ['trackPageView']);
+      });
+
+      it('should not set the page path', function() {
+        analytics.page({ path: '/my-path' });
+        analytics.didNotCall(window._hsq.push, ['setPath', '/my-path']);
         analytics.called(window._hsq.push, ['trackPageView']);
       });
     });
