@@ -388,14 +388,12 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 
 /**
  * Update window variables and then fire Adobe track call
- * 
- * @param {*} msg 
- * @param {*} adobeEvent 
+ *
+ * @param {*} msg
+ * @param {*} adobeEvent
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
-  var props = msg.properties();
-  
   var products = msg.products();
   if (Array.isArray(products) && !window.s.products) {  // check window because products key could already have been filled upstream
     var productVariables = formatProducts(products, this.options.productIdentifier);
@@ -404,7 +402,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   updateContextData(msg, this.options);
 
   var eVarEvent = dot(this.options.eVars, msg.event());
-  update(msg.event(), eVarEvent);  
+  update(msg.event(), eVarEvent);
 
   if (productVariables) update(productVariables, 'products');
 
@@ -412,8 +410,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   updateCommonVariables(msg, this.options);
 
   calculateTimestamp(msg, this.options);
-
-  var mappedProps = extractProperties(props, this.options);
+  var mappedProps = extractProperties(msg, msg.properties(), this.options);
   each(update, mappedProps);
 
   if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
@@ -520,7 +517,6 @@ function updateEvents(event, mapping, base) {
 
 function updateContextData(facade, options) {
   window.s.contextData = {};
-
   // All properties, prefixed with `options.customDataPrefix`.
   var properties = trample(facade.properties());
   var propertyPrefix = options.customDataPrefix ? options.customDataPrefix + '.' : '';
@@ -533,7 +529,7 @@ function updateContextData(facade, options) {
   // There is a bug here, but it must be maintained. `extractProperties` will
   // look at *all* our mappings, but only the `contextValues` mapping should be
   // used here.
-  var contextProperties = extractProperties(trample(facade.context()), options);
+  var contextProperties = extractProperties(facade, trample(facade.context()), options);
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
@@ -632,7 +628,7 @@ function clearKeys(keys) {
  * @param {Object} options
  */
 
-function extractProperties(props, options) {
+function extractProperties(facade, props, options) {
   var result = {};
   var mappings = [options.eVars, options.props, options.hVars, options.lVars, options.contextValues];
 
@@ -642,7 +638,15 @@ function extractProperties(props, options) {
   }
 
   function match(mappedValue, mappedKey) {
-    var value = dot(props, mappedKey);
+    var value
+
+    if (mappedKey[0] === '.') {
+      var path = mappedKey.substring(1, mappedKey.length)
+      value = facade.proxy(path)
+    } else {
+      value = dot(props, mappedKey);
+    }
+
     var isarr = Array.isArray(value);
     // make sure it's an acceptable data type
     if (value !== null && !isFunction(value) && (typeof value !== 'object' || isarr)) {
@@ -657,7 +661,7 @@ function extractProperties(props, options) {
 }
 
 function formatProducts(products, identifier) {
-  var productVariables = '';    
+  var productVariables = '';
   var productDescription;
 
   // Adobe Analytics wants product description in semi-colon delimited string separated by commas

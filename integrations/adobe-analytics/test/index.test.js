@@ -259,6 +259,22 @@ describe('Adobe Analytics', function() {
         analytics.equal(window.s.eVar1, 'Two Chainz');
       });
 
+      it('maps eVars through entire payload if mapping is prefixed with a dot', function() {
+        adobeAnalytics.options.eVars['.event'] = 'eVar10'
+        adobeAnalytics.options.eVars['.properties.foo'] = 'eVar11'
+        adobeAnalytics.options.eVars['.context.campaign.name'] = 'eVar12'
+        analytics.track('Played a Song', {
+          foo: 'bar'
+        }, {
+          campaign: {
+            name: 'My Campaign'
+          }
+        });
+        analytics.equal(window.s.eVar10, 'Played a Song');
+        analytics.equal(window.s.eVar11, 'bar');
+        analytics.equal(window.s.eVar12, 'My Campaign');
+      })
+
       it('tracks hVar mapping without case sensitivity', function() {
         analytics.track('Played a Song', {
           hier_group1: 'Two Chainz'
@@ -277,6 +293,22 @@ describe('Adobe Analytics', function() {
         });
         analytics.equal(window.s.hier1, 'Two Chainz');
       });
+
+      it('maps hVars through entire payload if mapping is prefixed with a dot', function () {
+        adobeAnalytics.options.hVars['.event'] = 'hier1'
+        adobeAnalytics.options.hVars['.properties.foo'] = 'hier2'
+        adobeAnalytics.options.hVars['.context.campaign.name'] = 'hier3'
+        analytics.track('Played a Song', {
+          foo: 'bar'
+        }, {
+          campaign: {
+            name: 'My Campaign'
+          }
+        });
+        analytics.equal(window.s.hier1, 'Played a Song');
+        analytics.equal(window.s.hier2, 'bar');
+        analytics.equal(window.s.hier3, 'My Campaign');
+      })
 
       it('tracks prop mapping without case sensitivity', function() {
         analytics.track('Played a Song', {
@@ -297,6 +329,22 @@ describe('Adobe Analytics', function() {
         analytics.equal(window.s.prop23, 'Lucerne');
       });
 
+      it('maps props through entire payload if mapping is prefixed with a dot', function () {
+        adobeAnalytics.options.props['.event'] = 'prop1'
+        adobeAnalytics.options.props['.properties.foo'] = 'prop2'
+        adobeAnalytics.options.props['.context.campaign.name'] = 'prop3'
+        analytics.track('Played a Song', {
+          foo: 'bar'
+        }, {
+          campaign: {
+            name: 'My Campaign'
+          }
+        });
+        analytics.equal(window.s.prop1, 'Played a Song');
+        analytics.equal(window.s.prop2, 'bar');
+        analytics.equal(window.s.prop3, 'My Campaign');
+      })
+
       it('tracks lVar mapping without case sensitivity', function() {
         analytics.track('Played a Song', {
           names: 'brady,edelman,blount'
@@ -315,6 +363,22 @@ describe('Adobe Analytics', function() {
         });
         analytics.equal(window.s.list1, 'brady,edelman,blount');
       });
+
+      it('maps lVars through entire payload if mapping is prefixed with a dot', function () {
+        adobeAnalytics.options.lVars['.event'] = 'list2'
+        adobeAnalytics.options.lVars['.properties.foo'] = 'list3'
+        adobeAnalytics.options.lVars['.context.campaign.name'] = 'list4'
+        analytics.track('Played a Song', {
+          foo: 'bar'
+        }, {
+          campaign: {
+            name: 'My Campaign'
+          }
+        });
+        analytics.equal(window.s.list2, 'Played a Song');
+        analytics.equal(window.s.list3, 'bar');
+        analytics.equal(window.s.list4, 'My Campaign');
+      })
 
       it('should join arrays for list variables', function() {
         analytics.track('Played a Song', {
