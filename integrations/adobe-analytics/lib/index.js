@@ -268,7 +268,7 @@ AdobeAnalytics.prototype.page = function(page) {
 
   // Check if any properties match mapped eVar, prop, or hVar in options
   var properties = page.properties();
-  var props = extractProperties(properties, this.options);
+  var props = extractProperties(page, properties, this.options);
   // Attach them to window.s and push to dynamicKeys
   each(update, props);
 
