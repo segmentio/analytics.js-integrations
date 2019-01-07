@@ -52,10 +52,19 @@ function getIntegration (name) {
 }
 
 function createIntegration (name, folderPath) {
+  const ignoreBrowsers = []
+  try {
+    const content = fs.readFileSync(path.join(folderPath, '.browserignore'), {encoding: 'utf-8'})
+    content.split(/\r?\n/).forEach(line => ignoreBrowsers.push(line.trim()))
+  } catch (err) {
+    // ignore
+  }
+
   return {
     name: name,
     path: folderPath,
-    testsPath: path.join(folderPath, 'test')
+    testsPath: path.join(folderPath, 'test'),
+    ignoreBrowsers: ignoreBrowsers
   }
 }
 

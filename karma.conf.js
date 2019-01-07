@@ -47,7 +47,7 @@ function parseArguments () {
 }
 
 module.exports = function (config) {
-  let arg = parseArguments()
+  const arg = parseArguments()
 
   if (arg.integrations.length > 0) {
     console.log('Integrations to test: %s in %s', arg.integrations, arg.browser)
@@ -55,5 +55,11 @@ module.exports = function (config) {
     console.log('Testing all integrations in %s', arg.browser)
   }
 
-  config.set(getConfiguration(arg))
+  const configuration = getConfiguration(arg)
+  if (!configuration) {
+    console.log('Nothing to test for the provided configuration')
+    process.exit(0)
+  }
+
+  config.set(configuration)
 }

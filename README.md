@@ -31,6 +31,9 @@ Karma + Mocha. Supported browsers:
 * Test updated integrations (require Golang): `$ yarn test-updated-integrations <browser-type>`
 * Test all integrarions: `$ yarn test-all-integrations <browser-type>`
 
+You can ignore specific browsers from an integration tests adding the file `.browserignore` to
+the integration folder with one browser name per line.
+
 ### Credentials
 (Work in progress)
 Do not hardcode secrets, account ids or other credentials in the
