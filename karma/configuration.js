@@ -28,7 +28,7 @@ function getConfiguration (arg) {
 
   const configuration = baseConfig
 
-  if (arg.browser === 'phantomjs') {
+  if (arg.browser && arg.browser.toLowerCase() === 'chromeHeadless') {
     configuration.coverageReporter = coverage()
   }
   configuration.files = Object.keys(sourceFiles)

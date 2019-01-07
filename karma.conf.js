@@ -25,7 +25,7 @@ function parseArguments () {
     // Last argument is the browser
     let browser = process.argv[process.argv.length - 1]
     if (!browser || browser.includes('karma') || browser === 'start') {
-      browser = 'phantomjs'
+      browser = 'chromeHeadless'
     }
     arg.browser = browser
 

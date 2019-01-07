@@ -18,7 +18,7 @@ Use always `yarn`, not `npm` to install your packges.
 
 ### Tests
 Karma + Mocha. Supported browsers:
-- PhantomJS (local and CircleCI)
+- Chrome headless (local and CircleCI)
 - Chrome latest (CircleCI only)
 - Firefox latest (CircleCI only)
 - Safari 9 (CircleCI only)
