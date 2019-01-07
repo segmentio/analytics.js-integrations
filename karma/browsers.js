@@ -1,10 +1,10 @@
 
 const chrome = require('./chrome')
+const chromeHeadless = require('./chromeHeadless')
 const edge = require('./edge')
 const firefox = require('./firefox')
 const ie = require('./ie')
 const safari = require('./safari')
-const phantomJS = require('./phantom')
 const setReporters = require('./reporters')
 const configureSauceLabs = require('./sauceLabs')
 
@@ -16,8 +16,8 @@ const configureSauceLabs = require('./sauceLabs')
  * @param {Karma.Configuration} config Karma configuration to update.
  */
 function setBrowser (name, arg, config) {
-  if (!name || name.toLowerCase() === 'phantomjs') {
-    return phantomJS(config)
+  if (!name || name.toLowerCase() === 'chromeheadless') {
+    return chromeHeadless(config)
   }
 
   // SauceLabs browsers
