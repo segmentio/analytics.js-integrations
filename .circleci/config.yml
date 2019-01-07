@@ -105,7 +105,7 @@ workflows:
   test_and_publish:
     jobs:
       - setup:
-          context: segmentio-org-global
+          context: npm
       - test_headless:
           requires:
             - setup
@@ -117,7 +117,7 @@ workflows:
           requires:
             - setup
       - publish:
-          context: segmentio-org-global
+          context: npm
           requires:
             - test_headless
             - test_saucelabs
