@@ -29,9 +29,12 @@ describe('MoEngage', function() {
   });
 
   it('should have the correct options', function() {
-    analytics.compare(MoEngage, integration('MoEngage')
-    .option('apiKey', '')
-    .option('debugMode', false));
+    analytics.compare(
+      MoEngage,
+      integration('MoEngage')
+        .option('apiKey', '')
+        .option('debugMode', false)
+    );
   });
 
   describe('before loading', function() {
@@ -93,7 +96,11 @@ describe('MoEngage', function() {
         analytics.called(moengage._client.add_user_name, traits.name);
         analytics.called(moengage._client.add_gender, traits.gender);
         analytics.called(moengage._client.add_birthday, traits.birthday);
-        analytics.called(moengage._client.add_user_attribute, 'customTrait', traits.customTrait);
+        analytics.called(
+          moengage._client.add_user_attribute,
+          'customTrait',
+          traits.customTrait
+        );
       });
 
       it('should fall back to traits.username', function() {
@@ -103,10 +110,18 @@ describe('MoEngage', function() {
       });
 
       it('it should handle traits.username', function() {
-        var traits = { name: 'Daenerys Stormborn of the House Targaryen, First of Her Name, the Unburnt, Queen of the Andals and the First Men, Khaleesi of the Great Grass Sea, Breaker of Chains, and Mother of Dragons', username: 'khaleesi' };
+        var traits = {
+          name:
+            'Daenerys Stormborn of the House Targaryen, First of Her Name, the Unburnt, Queen of the Andals and the First Men, Khaleesi of the Great Grass Sea, Breaker of Chains, and Mother of Dragons',
+          username: 'khaleesi'
+        };
         analytics.identify('targaryen2', traits);
         analytics.called(moengage._client.add_user_name, traits.name);
-        analytics.called(moengage._client.add_user_attribute, 'username', traits.username);
+        analytics.called(
+          moengage._client.add_user_attribute,
+          'username',
+          traits.username
+        );
       });
 
       it('should reject undefined values before calling partner methods', function() {
@@ -116,22 +131,31 @@ describe('MoEngage', function() {
       });
 
       it('should destroy session if identify is called for a new user', function() {
-        var anonId = analytics.user().anonymousId();
         analytics.identify('drogon');
         var drogonAnonId = analytics.user().anonymousId();
         if (moengage.initializedAnonymousId !== drogonAnonId) {
-          throw new Error('MoEngange anonymous ID should be equal after an identify call ' + moengage.initializedAnonymousId + ' vs ' + drogonAnonId + '');
+          throw new Error(
+            'MoEngange anonymous ID should be equal after an identify call ' +
+              moengage.initializedAnonymousId +
+              ' vs ' +
+              drogonAnonId +
+              ''
+          );
         }
         analytics.called(moengage._client.add_unique_user_id, 'drogon');
         analytics.identify('night king');
         var nightKingAnonId = analytics.user().anonymousId();
         if (nightKingAnonId === drogonAnonId) {
-          throw new Error('The anonymous ID should be different after an identify call');
+          throw new Error(
+            'The anonymous ID should be different after an identify call'
+          );
         }
         analytics.called(moengage._client.destroy_session);
         analytics.called(moengage._client.add_unique_user_id, 'night king');
         if (moengage.initializedAnonymousId !== nightKingAnonId) {
-          throw new Error('MoEngange anonymous ID should be equal after an identify call');
+          throw new Error(
+            'MoEngange anonymous ID should be equal after an identify call'
+          );
         }
       });
 
@@ -171,11 +195,16 @@ describe('MoEngage', function() {
         analytics.track('The Song', properties);
         analytics.didNotCall(moengage._client.destroy_session);
         // Logout
-        analytics.reset()
+        analytics.reset();
         analytics.track('The Song', properties);
-        if (moengage.initializedAnonymousId !== analytics.user().anonymousId()) {
-          throw new Error('MoEngange anonymous ID should be equal after an identify call');
-        }1
+        if (
+          moengage.initializedAnonymousId !== analytics.user().anonymousId()
+        ) {
+          throw new Error(
+            'MoEngange anonymous ID should be equal after an identify call'
+          );
+        }
+        1;
         analytics.called(moengage._client.destroy_session);
       });
 

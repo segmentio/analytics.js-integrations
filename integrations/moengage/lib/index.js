@@ -15,10 +15,12 @@ var find = require('obj-case').find;
  * Expose `MoEngage` integration.
  */
 
-var MoEngage = module.exports = integration('MoEngage')
+var MoEngage = (module.exports = integration('MoEngage')
   .option('apiKey', '')
   .option('debugMode', false)
-  .tag('<script src="https://cdn.moengage.com/webpush/moe_webSdk.min.latest.js">');
+  .tag(
+    '<script src="https://cdn.moengage.com/webpush/moe_webSdk.min.latest.js">'
+  ));
 
 /**
  * Initialize.
@@ -42,16 +44,31 @@ MoEngage.prototype.initialize = function() {
         });
       };
     };
-    var f = ['track_event', 'add_user_attribute', 'add_first_name', 'add_last_name', 'add_email', 'add_mobile',
-    'add_user_name', 'add_gender', 'add_birthday', 'destroy_session', 'add_unique_user_id', 'moe_events', 'call_web_push', 'track'
+    var f = [
+      'track_event',
+      'add_user_attribute',
+      'add_first_name',
+      'add_last_name',
+      'add_email',
+      'add_mobile',
+      'add_user_name',
+      'add_gender',
+      'add_birthday',
+      'destroy_session',
+      'add_unique_user_id',
+      'moe_events',
+      'call_web_push',
+      'track'
     ];
     for (var k in f) {
       t[f[k]] = q(f[k]);
     }
-    i['moe'] = i['moe'] || function() {
-      n = arguments[0];
-      return t;
-    };
+    i['moe'] =
+      i['moe'] ||
+      function() {
+        n = arguments[0];
+        return t;
+      };
   })(window, document, 'script', null, 'Moengage');
   /* eslint-enable */
 
@@ -115,7 +132,8 @@ MoEngage.prototype.identify = function(identify) {
     if (key === 'name') {
       // MoEngage asked to map `name` to `add_user_name` for their existing user base
       if (identify.name()) self._client.add_user_name(identify.name());
-      if (identify.name() && identify.username()) return self._client.add_user_attribute('username', identify.username()); // if they are sending `traits.name` as a semantic trait, there's no other way to get username other than as a custom user attribute
+      if (identify.name() && identify.username())
+        return self._client.add_user_attribute('username', identify.username()); // if they are sending `traits.name` as a semantic trait, there's no other way to get username other than as a custom user attribute
     }
     // check if there are sendable semantic traits
     if (find(traitsMethodMap, key)) {
