@@ -11,7 +11,7 @@ describe('MoEngage', function() {
   var moengage;
   var options = {
     apiKey: 'AJ1WTFKFAMAG8045ZXSQ9GMK',
-    debugMode: true // default is false in mongo but for testing purposes this is fine
+    debugMode: false
   };
 
   beforeEach(function() {
@@ -116,11 +116,23 @@ describe('MoEngage', function() {
       });
 
       it('should destroy session if identify is called for a new user', function() {
+        var anonId = analytics.user().anonymousId();
         analytics.identify('drogon');
+        var drogonAnonId = analytics.user().anonymousId();
+        if (moengage.initializedAnonymousId !== drogonAnonId) {
+          throw new Error('MoEngange anonymous ID should be equal after an identify call ' + moengage.initializedAnonymousId + ' vs ' + drogonAnonId + '');
+        }
         analytics.called(moengage._client.add_unique_user_id, 'drogon');
         analytics.identify('night king');
+        var nightKingAnonId = analytics.user().anonymousId();
+        if (nightKingAnonId === drogonAnonId) {
+          throw new Error('The anonymous ID should be different after an identify call');
+        }
         analytics.called(moengage._client.destroy_session);
         analytics.called(moengage._client.add_unique_user_id, 'night king');
+        if (moengage.initializedAnonymousId !== nightKingAnonId) {
+          throw new Error('MoEngange anonymous ID should be equal after an identify call');
+        }
       });
 
       it('should not call destroy session if identify is called for a existing user', function() {
@@ -135,6 +147,7 @@ describe('MoEngage', function() {
     describe('#track', function() {
       beforeEach(function() {
         analytics.stub(moengage._client, 'track_event');
+        analytics.stub(moengage._client, 'destroy_session');
       });
 
       it('should send track', function() {
@@ -144,6 +157,39 @@ describe('MoEngage', function() {
           andThis: { gucci: [], mane: true }
         };
         analytics.track('The Song', properties);
+        analytics.called(moengage._client.track_event, 'The Song', properties);
+      });
+
+      it('should destroy session if track is called after a logout', function() {
+        var properties = {
+          ice: 'fire',
+          nested: ['ha', 'haha', { hahaha: 'hahahahaha' }],
+          andThis: { gucci: [], mane: true }
+        };
+
+        analytics.identify('drogon');
+        analytics.track('The Song', properties);
+        analytics.didNotCall(moengage._client.destroy_session);
+        // Logout
+        analytics.reset()
+        analytics.track('The Song', properties);
+        if (moengage.initializedAnonymousId !== analytics.user().anonymousId()) {
+          throw new Error('MoEngange anonymous ID should be equal after an identify call');
+        }1
+        analytics.called(moengage._client.destroy_session);
+      });
+
+      it('should not call destroy session if track is called for a existing user', function() {
+        var properties = {
+          ice: 'fire',
+          nested: ['ha', 'haha', { hahaha: 'hahahahaha' }],
+          andThis: { gucci: [], mane: true }
+        };
+        analytics.track('The Song', properties);
+        analytics.didNotCall(moengage._client.destroy_session);
+        analytics.called(moengage._client.track_event, 'The Song', properties);
+        analytics.track('The Song', properties);
+        analytics.didNotCall(moengage._client.destroy_session);
         analytics.called(moengage._client.track_event, 'The Song', properties);
       });
     });
