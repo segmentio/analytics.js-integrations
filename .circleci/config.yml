@@ -98,7 +98,7 @@ jobs:
           command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
       - run:
           name: Publish updated packages
-          command: yarn publish-integrations
+          command: scripts/publish-integrations
 
 workflows:
   version: 2
