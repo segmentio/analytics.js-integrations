@@ -34,6 +34,9 @@ Karma + Mocha. Supported browsers:
 You can ignore specific browsers from an integration tests adding the file `.browserignore` to
 the integration folder with one browser name per line.
 
+### Releasing Changes
+Follow [this guide](https://paper.dropbox.com/doc/Releasing-Analytics-js--AXcYIamYALEcsJsQsI~3~M1eAg-QYiKKIDvhsZk2c0bOTEhp) to deploy your changes.
+
 ### Credentials
 (Work in progress)
 Do not hardcode secrets, account ids or other credentials in the
