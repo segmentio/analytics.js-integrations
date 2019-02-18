@@ -34,7 +34,7 @@ var dynamicKeys = [];
  * Expose `Adobe Analytics`.
  */
 
-var AdobeAnalytics = module.exports = integration('Adobe Analytics');
+var AdobeAnalytics = (module.exports = integration('Adobe Analytics'));
 
 /**
  * Uses the default `field` from the `window.s` object if it exists,
@@ -64,8 +64,7 @@ AdobeAnalytics.sOption = function(field, value) {
  * Add our Adobe Analytics instance
  */
 
-AdobeAnalytics
-  .global('s')
+AdobeAnalytics.global('s')
   .global('s_gi')
   .option('events', {})
   .option('eVars', {})
@@ -101,14 +100,23 @@ AdobeAnalytics
   .sOption('trackDownloadLinks', true)
   .sOption('trackExternalLinks', true)
   .sOption('trackInlineStats', true)
-  .sOption('linkDownloadFileTypes', 'exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx')
+  .sOption(
+    'linkDownloadFileTypes',
+    'exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx'
+  )
   .sOption('linkInternalFilters')
   .sOption('linkLeaveQueryString', false)
   .sOption('linkTrackVars', 'None')
   .sOption('linkTrackEvents', 'None')
   .sOption('usePlugins', true)
-  .tag('default', '<script src="//cdn.segment.com/integrations/omniture/AppMeasurement-2.5.0/appmeasurement.js">')
-  .tag('heartbeat', '<script src="//cdn.segment.com/integrations/omniture/AppMeasurement-2.5.0/appmeasurement-heartbeat.js">');
+  .tag(
+    'default',
+    '<script src="//cdn.segment.com/integrations/omniture/AppMeasurement-2.5.0/appmeasurement.js">'
+  )
+  .tag(
+    'heartbeat',
+    '<script src="//cdn.segment.com/integrations/omniture/AppMeasurement-2.5.0/appmeasurement-heartbeat.js">'
+  );
 
 /**
  * Initialize.
@@ -132,15 +140,21 @@ AdobeAnalytics.prototype.initialize = function() {
     this.load('heartbeat', function() {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
-      s.trackingServerSecure = s.trackingServerSecure || options.trackingServerSecureUrl;
+      s.trackingServerSecure =
+        s.trackingServerSecure || options.trackingServerSecureUrl;
 
       // visitorAPI.js is included in our rendering of appmeasurement.js to prevent race conditions
       // current .load() function does not guarantee synchronous loading which AA requires
       // visitorAPI is loaded before appmeasurement.js and initialized after both scripts were loaded synchronously
-      if (options.marketingCloudOrgId && window.Visitor && typeof window.Visitor.getInstance === 'function') {
+      if (
+        options.marketingCloudOrgId &&
+        window.Visitor &&
+        typeof window.Visitor.getInstance === 'function'
+      ) {
         s.visitor = window.Visitor.getInstance(options.marketingCloudOrgId, {
           trackingServer: window.s.trackingServer || options.trackingServerUrl,
-          trackingServerSecure: window.s.trackingServerSecure || options.trackingServerSecureUrl
+          trackingServerSecure:
+            window.s.trackingServerSecure || options.trackingServerSecureUrl
         });
 
         // Set up for Heartbeat
@@ -175,15 +189,21 @@ AdobeAnalytics.prototype.initialize = function() {
     this.load('default', function() {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
-      s.trackingServerSecure = s.trackingServerSecure || options.trackingServerSecureUrl;
+      s.trackingServerSecure =
+        s.trackingServerSecure || options.trackingServerSecureUrl;
 
       // visitorAPI.js is included in our rendering of appmeasurement.js to prevent race conditions
       // current .load() function does not guarantee synchronous loading which AA requires
       // visitorAPI is loaded before appmeasurement.js and initialized after both scripts were loaded synchronously
-      if (options.marketingCloudOrgId && window.Visitor && typeof window.Visitor.getInstance === 'function') {
+      if (
+        options.marketingCloudOrgId &&
+        window.Visitor &&
+        typeof window.Visitor.getInstance === 'function'
+      ) {
         s.visitor = window.Visitor.getInstance(options.marketingCloudOrgId, {
           trackingServer: window.s.trackingServer || options.trackingServerUrl,
-          trackingServerSecure: window.s.trackingServerSecure || options.trackingServerSecureUrl
+          trackingServerSecure:
+            window.s.trackingServerSecure || options.trackingServerSecureUrl
         });
       }
       self.ready();
@@ -230,8 +250,13 @@ AdobeAnalytics.prototype.page = function(page) {
   if (!this.options.disableVisitorId) {
     var userId = this.analytics.user().id();
     if (userId) {
-      if (this.options.timestampOption === 'disabled') window.s.visitorID = userId;
-      if (this.options.timestampOption === 'hybrid' && this.options.preferVisitorId) window.s.visitorID = userId;
+      if (this.options.timestampOption === 'disabled')
+        window.s.visitorID = userId;
+      if (
+        this.options.timestampOption === 'hybrid' &&
+        this.options.preferVisitorId
+      )
+        window.s.visitorID = userId;
     }
   }
 
@@ -243,7 +268,7 @@ AdobeAnalytics.prototype.page = function(page) {
 
   // Check if any properties match mapped eVar, prop, or hVar in options
   var properties = page.properties();
-  var props = extractProperties(properties, this.options);
+  var props = extractProperties(page, properties, this.options);
   // Attach them to window.s and push to dynamicKeys
   each(update, props);
 
@@ -292,7 +317,7 @@ AdobeAnalytics.prototype.track = function(track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.productViewed =  function(track) {
+AdobeAnalytics.prototype.productViewed = function(track) {
   clearKeys(dynamicKeys);
 
   var productVariables = formatProduct(track, this.options.productIdentifier);
@@ -388,23 +413,25 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 
 /**
  * Update window variables and then fire Adobe track call
- * 
- * @param {*} msg 
- * @param {*} adobeEvent 
+ *
+ * @param {*} msg
+ * @param {*} adobeEvent
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
-  var props = msg.properties();
-  
   var products = msg.products();
-  if (Array.isArray(products) && !window.s.products) {  // check window because products key could already have been filled upstream
-    var productVariables = formatProducts(products, this.options.productIdentifier);
+  if (Array.isArray(products) && !window.s.products) {
+    // check window because products key could already have been filled upstream
+    var productVariables = formatProducts(
+      products,
+      this.options.productIdentifier
+    );
   }
 
   updateContextData(msg, this.options);
 
   var eVarEvent = dot(this.options.eVars, msg.event());
-  update(msg.event(), eVarEvent);  
+  update(msg.event(), eVarEvent);
 
   if (productVariables) update(productVariables, 'products');
 
@@ -412,8 +439,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   updateCommonVariables(msg, this.options);
 
   calculateTimestamp(msg, this.options);
-
-  var mappedProps = extractProperties(props, this.options);
+  var mappedProps = extractProperties(msg, msg.properties(), this.options);
   each(update, mappedProps);
 
   if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
@@ -446,7 +472,13 @@ function updateCommonVariables(facade, options) {
 
   // Some customers have said that adding pageName to s.tl() calls are having adverse effects on their pageview reporting
   // But since it is not reported by all users, we will make this an option.
-  if (options.enableTrackPageName && facade.type() === 'track') update(properties.pageName || options.pageName || facade.proxy('context.page.title'), 'pageName');
+  if (options.enableTrackPageName && facade.type() === 'track')
+    update(
+      properties.pageName ||
+        options.pageName ||
+        facade.proxy('context.page.title'),
+      'pageName'
+    );
 }
 
 /**
@@ -485,7 +517,8 @@ function calculateTimestamp(msg, options) {
   if (typeof timestamp !== 'string') timestamp = iso(timestamp);
   if (setting === 'disabled') return;
   if (setting === 'enabled') update(timestamp, 'timestamp');
-  if (setting === 'hybrid' && !options.preferVisitorId) update(timestamp, 'timestamp');
+  if (setting === 'hybrid' && !options.preferVisitorId)
+    update(timestamp, 'timestamp');
 }
 
 /**
@@ -502,7 +535,7 @@ function calculateTimestamp(msg, options) {
  */
 
 function updateEvents(event, mapping, base) {
-  var value = [ base, aliasEvent(event, mapping) ].filter(Boolean).join(',');
+  var value = [base, aliasEvent(event, mapping)].filter(Boolean).join(',');
   update(value, 'events');
   window.s.linkTrackEvents = value;
 }
@@ -520,10 +553,11 @@ function updateEvents(event, mapping, base) {
 
 function updateContextData(facade, options) {
   window.s.contextData = {};
-
   // All properties, prefixed with `options.customDataPrefix`.
   var properties = trample(facade.properties());
-  var propertyPrefix = options.customDataPrefix ? options.customDataPrefix + '.' : '';
+  var propertyPrefix = options.customDataPrefix
+    ? options.customDataPrefix + '.'
+    : '';
   each(function(value, key) {
     addContextDatum(propertyPrefix + key, value);
   }, properties);
@@ -533,7 +567,11 @@ function updateContextData(facade, options) {
   // There is a bug here, but it must be maintained. `extractProperties` will
   // look at *all* our mappings, but only the `contextValues` mapping should be
   // used here.
-  var contextProperties = extractProperties(trample(facade.context()), options);
+  var contextProperties = extractProperties(
+    facade,
+    trample(facade.context()),
+    options
+  );
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
@@ -601,12 +639,7 @@ function formatProduct(props, identifier) {
     productIdentifier = props.productId() || props.id();
   }
 
-  return [
-    props.category(),
-    productIdentifier,
-    quantity,
-    total
-  ].join(';');
+  return [props.category(), productIdentifier, quantity, total].join(';');
 }
 
 /**
@@ -632,9 +665,15 @@ function clearKeys(keys) {
  * @param {Object} options
  */
 
-function extractProperties(props, options) {
+function extractProperties(facade, props, options) {
   var result = {};
-  var mappings = [options.eVars, options.props, options.hVars, options.lVars, options.contextValues];
+  var mappings = [
+    options.eVars,
+    options.props,
+    options.hVars,
+    options.lVars,
+    options.contextValues
+  ];
 
   // Iterate through each variable mappings to find matching props
   for (var x = 0; x < mappings.length; x++) {
@@ -642,10 +681,22 @@ function extractProperties(props, options) {
   }
 
   function match(mappedValue, mappedKey) {
-    var value = dot(props, mappedKey);
+    var value;
+
+    if (mappedKey[0] === '.') {
+      var path = mappedKey.substring(1, mappedKey.length);
+      value = facade.proxy(path);
+    } else {
+      value = dot(props, mappedKey);
+    }
+
     var isarr = Array.isArray(value);
     // make sure it's an acceptable data type
-    if (value !== null && !isFunction(value) && (typeof value !== 'object' || isarr)) {
+    if (
+      value !== null &&
+      !isFunction(value) &&
+      (typeof value !== 'object' || isarr)
+    ) {
       // list variables should be joined by commas if sent as arrays
       if (/^list\d+$/.test(mappedValue) && isarr) value = value.join();
 
@@ -657,7 +708,7 @@ function extractProperties(props, options) {
 }
 
 function formatProducts(products, identifier) {
-  var productVariables = '';    
+  var productVariables = '';
   var productDescription;
 
   // Adobe Analytics wants product description in semi-colon delimited string separated by commas
@@ -714,7 +765,6 @@ function isEmptyString(str) {
   return typeof str === 'string' && str.length === 0;
 }
 
-
 /**
  * Begin Heartbeat Implementation
  *
@@ -736,10 +786,13 @@ function populateHeartbeat(track) {
     initHeartbeat.call(this, track);
   } else {
     var mediaHeartbeatConfig = mediaHeartbeat.config;
-    mediaHeartbeatConfig.channel = props.channel || mediaHeartbeatConfig.channel;
-    mediaHeartbeatConfig.appVersion = track.proxy('context.app.version') || mediaHeartbeatConfig.appVersion;
+    mediaHeartbeatConfig.channel =
+      props.channel || mediaHeartbeatConfig.channel;
+    mediaHeartbeatConfig.appVersion =
+      track.proxy('context.app.version') || mediaHeartbeatConfig.appVersion;
     // Default to the latest given value if it exists, else the old value if it exists.
-    mediaHeartbeatConfig.playerName = props.video_player || mediaHeartbeatConfig.playerName;
+    mediaHeartbeatConfig.playerName =
+      props.video_player || mediaHeartbeatConfig.playerName;
   }
 }
 
@@ -755,7 +808,8 @@ function initHeartbeat(track) {
   mediaHeartbeatConfig.trackingServer = this.options.heartbeatTrackingServerUrl;
   mediaHeartbeatConfig.channel = props.channel || '';
   mediaHeartbeatConfig.ovp = 'unknown'; // TODO: Awaiting spec confirmation.
-  mediaHeartbeatConfig.appVersion = track.proxy('context.app.version') || 'unknown';
+  mediaHeartbeatConfig.appVersion =
+    track.proxy('context.app.version') || 'unknown';
   mediaHeartbeatConfig.playerName = props.video_player || 'unknown';
   mediaHeartbeatConfig.ssl = this.options.ssl;
   mediaHeartbeatConfig.debugLogging = !!window._enableHeartbeatDebugLogging; // Optional beta flag for seeing debug output.
@@ -770,7 +824,11 @@ function initHeartbeat(track) {
 
   // Instantiate the real Heartbeat instance.
   this.mediaHeartbeats[props.session_id || 'default'] = {
-    heartbeat: new videoAnalytics.MediaHeartbeat(mediaHeartbeatDelegate, mediaHeartbeatConfig, window.s), // window.s is our AppMeasurement instance.
+    heartbeat: new videoAnalytics.MediaHeartbeat(
+      mediaHeartbeatDelegate,
+      mediaHeartbeatConfig,
+      window.s
+    ), // window.s is our AppMeasurement instance.
     delegate: mediaHeartbeatDelegate,
     config: mediaHeartbeatConfig
   };
@@ -784,13 +842,22 @@ function initHeartbeat(track) {
 function heartbeatSessionStart(track) {
   var videoAnalytics = window.ADB.va;
   var props = track.properties();
-  var streamType = props.livestream ? videoAnalytics.MediaHeartbeat.StreamType.LIVE : videoAnalytics.MediaHeartbeat.StreamType.VOD; // There's also LINEAR, unsure how to differentiate in our spec.
-  var mediaObj = videoAnalytics.MediaHeartbeat.createMediaObject(props.title || '', props.asset_id || 'unknown video id', props.total_length || 0, streamType);
+  var streamType = props.livestream
+    ? videoAnalytics.MediaHeartbeat.StreamType.LIVE
+    : videoAnalytics.MediaHeartbeat.StreamType.VOD; // There's also LINEAR, unsure how to differentiate in our spec.
+  var mediaObj = videoAnalytics.MediaHeartbeat.createMediaObject(
+    props.title || '',
+    props.asset_id || 'unknown video id',
+    props.total_length || 0,
+    streamType
+  );
   var contextData = {}; // This might be a custom object for the user.
 
   createStandardVideoMetadata(track, mediaObj);
 
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackSessionStart(mediaObj, contextData);
+  this.mediaHeartbeats[
+    props.session_id || 'default'
+  ].heartbeat.trackSessionStart(mediaObj, contextData);
 }
 
 // This is called when the video actually starts to playback.
@@ -818,8 +885,14 @@ function heartbeatVideoStart(track) {
     };
     */
 
-    this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.ChapterStart, chapterObj, {});
-    this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = true;
+    this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+      videoAnalytics.MediaHeartbeat.Event.ChapterStart,
+      chapterObj,
+      {}
+    );
+    this.mediaHeartbeats[
+      props.session_id || 'default'
+    ].chapterInProgress = true;
   }
 }
 
@@ -828,7 +901,9 @@ function heartbeatVideoComplete(track) {
 
   var videoAnalytics = window.ADB.va;
   var props = track.properties();
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.ChapterComplete);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.ChapterComplete
+  );
   this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = false;
 
   this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackComplete();
@@ -845,7 +920,9 @@ function heartbeatSessionEnd(track) {
   populateHeartbeat.call(this, track);
 
   var props = track.properties();
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackSessionEnd();
+  this.mediaHeartbeats[
+    props.session_id || 'default'
+  ].heartbeat.trackSessionEnd();
 
   // Remove the session from memory when it's all over.
   delete this.mediaHeartbeats[props.session_id || 'default'];
@@ -858,19 +935,37 @@ function heartbeatAdStarted(track) {
   var props = track.properties();
   var adSessionCount = this.adBreakCounts[props.session_id || 'default'];
 
-  adSessionCount ? adSessionCount = ++this.adBreakCounts[props.session_id || 'default'] : adSessionCount = this.adBreakCounts[props.session_id || 'default'] = 1;
+  adSessionCount
+    ? (adSessionCount = ++this.adBreakCounts[props.session_id || 'default'])
+    : (adSessionCount = this.adBreakCounts[props.session_id || 'default'] = 1);
 
-  var adBreakObj = videoAnalytics.MediaHeartbeat.createAdBreakObject(props.type || 'unknown', adSessionCount, props.position || 1);
+  var adBreakObj = videoAnalytics.MediaHeartbeat.createAdBreakObject(
+    props.type || 'unknown',
+    adSessionCount,
+    props.position || 1
+  );
 
   // Yes, this completely changes from the explicitly-named functions.
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.AdBreakStart, adBreakObj);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.AdBreakStart,
+    adBreakObj
+  );
   this.adBreakInProgress = true;
 
   // Now explicitly start the ad. Optional metadata object can be passed in.
-  var adObj = videoAnalytics.MediaHeartbeat.createAdObject(props.title || 'no title', props.asset_id.toString() || 'default ad', props.position || 1, props.total_length || 0);
+  var adObj = videoAnalytics.MediaHeartbeat.createAdObject(
+    props.title || 'no title',
+    props.asset_id.toString() || 'default ad',
+    props.position || 1,
+    props.total_length || 0
+  );
   createStandardAdMetadata(track, adObj);
 
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.AdStart, adObj, props.content || {});
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.AdStart,
+    adObj,
+    props.content || {}
+  );
 }
 
 function heartbeatAdCompleted(track) {
@@ -881,8 +976,12 @@ function heartbeatAdCompleted(track) {
     heartbeatAdStarted.call(this, track);
   }
 
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.AdComplete);
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.AdBreakComplete);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.AdComplete
+  );
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.AdBreakComplete
+  );
   this.adBreakInProgress = false;
 }
 
@@ -894,8 +993,12 @@ function heartbeatAdSkipped(track) {
     heartbeatAdStarted.call(this, track);
   }
 
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.AdSkip);
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.AdBreakComplete);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.AdSkip
+  );
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.AdBreakComplete
+  );
   this.adBreakInProgress = false;
 }
 
@@ -904,7 +1007,9 @@ function heartbeatBufferStarted(track) {
 
   var videoAnalytics = window.ADB.va;
   var props = track.properties();
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.BufferStart);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.BufferStart
+  );
 }
 
 function heartbeatBufferCompleted(track) {
@@ -912,7 +1017,9 @@ function heartbeatBufferCompleted(track) {
 
   var videoAnalytics = window.ADB.va;
   var props = track.properties();
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.BufferComplete);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.BufferComplete
+  );
 }
 
 function heartbeatSeekStarted(track) {
@@ -920,7 +1027,9 @@ function heartbeatSeekStarted(track) {
 
   var videoAnalytics = window.ADB.va;
   var props = track.properties();
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.SeekStart);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.SeekStart
+  );
 }
 
 function heartbeatSeekCompleted(track) {
@@ -928,7 +1037,9 @@ function heartbeatSeekCompleted(track) {
 
   var videoAnalytics = window.ADB.va;
   var props = track.properties();
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(videoAnalytics.MediaHeartbeat.Event.SeekComplete);
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
+    videoAnalytics.MediaHeartbeat.Event.SeekComplete
+  );
 }
 
 function heartbeatQualityUpdated(track) {
@@ -953,12 +1064,16 @@ function createStandardVideoMetadata(track, mediaObj) {
     rating: metaKeys.RATING
   };
 
-  for (var prop in segAdbMap) { // eslint-disable-line
+  for (var prop in segAdbMap) {
+    if (!segAdbMap.hasOwnProperty(prop)) continue;
     // If the property exists on the Segment object, set the Adobe metadata key to that value.
     stdVidMeta[segAdbMap[prop]] = props[prop] || 'no ' + segAdbMap[prop];
   }
 
-  mediaObj.setValue(videoAnalytics.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata, stdVidMeta);
+  mediaObj.setValue(
+    videoAnalytics.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata,
+    stdVidMeta
+  );
 }
 
 function createStandardAdMetadata(track, adObj) {
@@ -970,12 +1085,17 @@ function createStandardAdMetadata(track, adObj) {
     publisher: metaKeys.ADVERTISER
   };
 
-  for (var prop in segAdbMap) { // eslint-disable-line
+  for (var prop in segAdbMap) {
+    if (!segAdbMap.hasOwnProperty(prop)) continue;
+    // eslint-disable-line
     // If the property exists on the Segment object, set the Adobe metadata key to that value.
     stdAdMeta[segAdbMap[prop]] = props[prop] || 'no ' + segAdbMap[prop];
   }
 
-  adObj.setValue(videoAnalytics.MediaHeartbeat.MediaObjectKey.StandardAdMetadata, stdAdMeta);
+  adObj.setValue(
+    videoAnalytics.MediaHeartbeat.MediaObjectKey.StandardAdMetadata,
+    stdAdMeta
+  );
 }
 
 function heartbeatUpdatePlayhead(track) {
