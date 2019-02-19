@@ -36,6 +36,16 @@ Pinterest.prototype.loaded = function () {
   return !!(window.pintrk && window.pintrk.queue && window.pintrk.queue.push !== Array.prototype.push)
 }
 
+Pinterest.prototype.identify = function (identify) {
+  // If we have an email then enable Enhanced Match feature by reloading the Pinterest library. 
+  // TODO: We may want to add a toggle in the Pinterest integration UI as a configuration to enable enhanced match
+  if (identify.email()) {
+    pintrk('load', this.options.tid, {
+      em: identify.email(),
+    })
+  }
+}
+
 Pinterest.prototype.page = function (page) {
   // If we have a category, the use ViewCategory. Otherwise, use a normal PageVisit.
   if (page.category()) {
