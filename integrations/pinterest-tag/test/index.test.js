@@ -78,12 +78,11 @@ describe('Pinterest', function () {
 
       it('should not fire the Pinterest pixel tag', function () {
         analytics.identify()
-
+	analytics.didNotCall(pinterest.load)
       })
-
       it('should push Segment email to Pinterest Enhanced Match', function () {
         analytics.identify('123', { email: 'prakash@segment.com'})
-        analytics.called(window.Pinterest)
+        analytics.called(pinterest.load)
       })
     })
   })
