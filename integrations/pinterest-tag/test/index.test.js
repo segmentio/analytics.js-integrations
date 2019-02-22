@@ -63,4 +63,28 @@ describe('Pinterest', function () {
       analytics.load(pinterest, done)
     })
   })
+
+  describe('after loading', function () {
+    beforeEach(function (done) {
+      analytics.once('ready', done)
+      analytics.initialize()
+      analytics.stub(pinterest, 'load')
+    })
+
+    describe('#identify', function () {
+      beforeEach(function () {
+        analytics.stub(window, 'Pinterest')
+      })
+
+      it('should not fire the Pinterest pixel tag', function () {
+        analytics.identify()
+
+      })
+
+      it('should push Segment email to Pinterest Enhanced Match', function () {
+        analytics.identify('123', { email: 'prakash@segment.com'})
+        analytics.called(window.Pinterest)
+      })
+    })
+  })
 })
