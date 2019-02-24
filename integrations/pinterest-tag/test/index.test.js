@@ -53,7 +53,7 @@ describe('Pinterest', function () {
       it('should call #load', function () {
         analytics.initialize()
         analytics.page()
-        analytics.called(pinterest.load)
+        analytics.called(pinterest.load, 2620795819800)
       })
     })
   })
@@ -82,7 +82,7 @@ describe('Pinterest', function () {
       })
       it('should push Segment email to Pinterest Enhanced Match', function () {
         analytics.identify('123', { email: 'prakash@segment.com'})
-        analytics.called(pinterest.load)
+        analytics.called(pinterest.load, 2620795819800, {em: "prakash@segment.com"})
       })
     })
   })
