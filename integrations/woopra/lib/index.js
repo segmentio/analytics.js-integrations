@@ -17,7 +17,7 @@ var time = require('unix-time');
  * Expose `Woopra` integration.
  */
 
-var Woopra = module.exports = integration('Woopra')
+var Woopra = (module.exports = integration('Woopra')
   .global('woopra')
   .option('domain', '')
   .option('cookieName', 'wooTracker')
@@ -33,7 +33,7 @@ var Woopra = module.exports = integration('Woopra')
   .option('outgoingPause', 400)
   .option('ignoreQueryUrl', true)
   .option('hideCampaign', false)
-  .tag('<script src="//static.woopra.com/js/w.js">');
+  .tag('<script src="//static.woopra.com/js/w.js">'));
 
 /**
  * Initialize.
@@ -122,12 +122,16 @@ Woopra.prototype.track = function(track) {
  */
 
 function stringifyNested(obj) {
-  return foldl(function(results, value, key) {
-    if (is.array(obj[key])) {
-      results[key] = json.stringify(obj[key]);
-    } else {
-      results[key] = obj[key];
-    }
-    return results;
-  }, {}, obj);
+  return foldl(
+    function(results, value, key) {
+      if (is.array(obj[key])) {
+        results[key] = json.stringify(obj[key]);
+      } else {
+        results[key] = obj[key];
+      }
+      return results;
+    },
+    {},
+    obj
+  );
 }
