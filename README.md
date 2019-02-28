@@ -34,6 +34,9 @@ Karma + Mocha. Supported browsers:
 You can ignore specific browsers from an integration tests adding the file `.browserignore` to
 the integration folder with one browser name per line.
 
+Some integrations require `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables to be set.
+This can be bypassed by using `chromeHeadless` as `<browser-type>`.
+
 ### Releasing Changes
 Follow [this guide](https://paper.dropbox.com/doc/Releasing-Analytics-js--AXcYIamYALEcsJsQsI~3~M1eAg-QYiKKIDvhsZk2c0bOTEhp) to deploy your changes.
 
