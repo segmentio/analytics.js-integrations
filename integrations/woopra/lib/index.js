@@ -107,7 +107,12 @@ Woopra.prototype.identify = function(identify) {
  */
 
 Woopra.prototype.track = function(track) {
-  window.woopra.track(track.event(), stringifyNested(track.properties()));
+  var properties = track.properties();
+  if (!properties.context) {
+    properties.context = track.options();
+  }
+
+  window.woopra.track(track.event(), stringifyNested(properties));
 };
 
 /**
