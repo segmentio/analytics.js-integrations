@@ -30,22 +30,25 @@ describe('Woopra', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Woopra, integration('Woopra')
-      .global('woopra')
-      .option('domain', '')
-      .option('cookieName', 'wooTracker')
-      .option('cookieDomain', null)
-      .option('cookiePath', '/')
-      .option('ping', true)
-      .option('pingInterval', 12000)
-      .option('idleTimeout', 300000)
-      .option('downloadTracking', true)
-      .option('outgoingTracking', true)
-      .option('outgoingIgnoreSubdomain', true)
-      .option('downloadPause', 200)
-      .option('outgoingPause', 400)
-      .option('ignoreQueryUrl', true)
-      .option('hideCampaign', false));
+    analytics.compare(
+      Woopra,
+      integration('Woopra')
+        .global('woopra')
+        .option('domain', '')
+        .option('cookieName', 'wooTracker')
+        .option('cookieDomain', null)
+        .option('cookiePath', '/')
+        .option('ping', true)
+        .option('pingInterval', 12000)
+        .option('idleTimeout', 300000)
+        .option('downloadTracking', true)
+        .option('outgoingTracking', true)
+        .option('outgoingIgnoreSubdomain', true)
+        .option('downloadPause', 200)
+        .option('outgoingPause', 400)
+        .option('ignoreQueryUrl', true)
+        .option('hideCampaign', false)
+    );
   });
 
   describe('before loading', function() {
@@ -133,7 +136,12 @@ describe('Woopra', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
 
@@ -144,7 +152,12 @@ describe('Woopra', function() {
           path: window.location.pathname,
           referrer: document.referrer,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
 
@@ -156,7 +169,12 @@ describe('Woopra', function() {
           path: window.location.pathname,
           referrer: document.referrer,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
 
@@ -169,7 +187,12 @@ describe('Woopra', function() {
           path: window.location.pathname,
           referrer: document.referrer,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
     });
@@ -209,7 +232,10 @@ describe('Woopra', function() {
 
       it('should should convert trait dates to unix timestamp in milliseconds', function() {
         analytics.identify('id', { testdate: '2015-11-04T09:20:22Z' });
-        analytics.called(window.woopra.identify, { id: 'id', testdate: 1446628822000 });
+        analytics.called(window.woopra.identify, {
+          id: 'id',
+          testdate: 1446628822000
+        });
       });
     });
 
@@ -225,7 +251,26 @@ describe('Woopra', function() {
 
       it('should send properties', function() {
         analytics.track('event', { property: 'Property' });
-        analytics.called(window.woopra.track, 'event', { property: 'Property' });
+        analytics.called(window.woopra.track, 'event', {
+          property: 'Property',
+          context: {
+            page: {
+              path: window.location.pathname,
+              referrer: document.referrer,
+              search: window.location.search,
+              title: document.title,
+              url: windowURL()
+            }
+          }
+        });
+      });
+
+      it('should not override context', function() {
+        analytics.track('event', { property: 'Property', context: {} });
+        analytics.called(window.woopra.track, 'event', {
+          property: 'Property',
+          context: {}
+        });
       });
 
       it('should stringify nested objects', function() {
@@ -242,8 +287,31 @@ describe('Woopra', function() {
           ],
           orderId: 1
         });
-        analytics.called(window.woopra.track, 'event', { products: '[{"sku":"45790-32","name":"Monopoly: 3rd Edition"},{"sku":"46493-32","name":"Uno Card Game"}]', orderId: 1 });
+        analytics.called(window.woopra.track, 'event', {
+          products:
+            '[{"sku":"45790-32","name":"Monopoly: 3rd Edition"},{"sku":"46493-32","name":"Uno Card Game"}]',
+          orderId: 1,
+          context: {
+            page: {
+              path: window.location.pathname,
+              referrer: document.referrer,
+              search: window.location.search,
+              title: document.title,
+              url: windowURL()
+            }
+          }
+        });
       });
     });
   });
 });
+
+function windowURL() {
+  return (
+    window.location.protocol +
+    '//' +
+    window.location.hostname +
+    (window.location.port ? ':' + window.location.port : '') +
+    window.location.pathname
+  );
+}

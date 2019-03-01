@@ -17,7 +17,7 @@ var time = require('unix-time');
  * Expose `Woopra` integration.
  */
 
-var Woopra = module.exports = integration('Woopra')
+var Woopra = (module.exports = integration('Woopra')
   .global('woopra')
   .option('domain', '')
   .option('cookieName', 'wooTracker')
@@ -33,7 +33,7 @@ var Woopra = module.exports = integration('Woopra')
   .option('outgoingPause', 400)
   .option('ignoreQueryUrl', true)
   .option('hideCampaign', false)
-  .tag('<script src="//static.woopra.com/js/w.js">');
+  .tag('<script src="//static.woopra.com/js/w.js">'));
 
 /**
  * Initialize.
@@ -107,7 +107,12 @@ Woopra.prototype.identify = function(identify) {
  */
 
 Woopra.prototype.track = function(track) {
-  window.woopra.track(track.event(), stringifyNested(track.properties()));
+  var properties = track.properties();
+  if (!properties.context) {
+    properties.context = track.options();
+  }
+
+  window.woopra.track(track.event(), stringifyNested(properties));
 };
 
 /**
@@ -122,12 +127,16 @@ Woopra.prototype.track = function(track) {
  */
 
 function stringifyNested(obj) {
-  return foldl(function(results, value, key) {
-    if (is.array(obj[key])) {
-      results[key] = json.stringify(obj[key]);
-    } else {
-      results[key] = obj[key];
-    }
-    return results;
-  }, {}, obj);
+  return foldl(
+    function(results, value, key) {
+      if (is.array(obj[key])) {
+        results[key] = json.stringify(obj[key]);
+      } else {
+        results[key] = obj[key];
+      }
+      return results;
+    },
+    {},
+    obj
+  );
 }
