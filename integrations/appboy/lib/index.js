@@ -14,7 +14,7 @@ var clone = require('@ndhoule/clone');
  * Expose `Appboy` integration.
  */
 
-var Appboy = module.exports = integration('Appboy')
+var Appboy = (module.exports = integration('Appboy')
   .global('appboy')
   .option('apiKey', '')
   .option('safariWebsitePushId', '')
@@ -33,9 +33,14 @@ var Appboy = module.exports = integration('Appboy')
   .option('trackNamedPages', false)
   .option('customEndpoint', '')
   .option('version', 1)
-  .tag('v1', '<script src="https://js.appboycdn.com/web-sdk/1.6/appboy.min.js">')
-  .tag('v2', '<script src="https://js.appboycdn.com/web-sdk/2.1/appboy.min.js">');
-
+  .tag(
+    'v1',
+    '<script src="https://js.appboycdn.com/web-sdk/1.6/appboy.min.js">'
+  )
+  .tag(
+    'v2',
+    '<script src="https://js.appboycdn.com/web-sdk/2.2/appboy.min.js">'
+  ));
 
 Appboy.prototype.initialize = function() {
   var options = this.options;
@@ -44,11 +49,12 @@ Appboy.prototype.initialize = function() {
   if (options.customEndpoint) {
     var endpoint = options.customEndpoint;
     var regex = new RegExp('^(http|https)://', 'i');
-    customEndpoint = (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
+    customEndpoint =
+      (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
   } else if (options.datacenter === 'eu') {
     customEndpoint = 'https://sdk.fra-01.braze.eu/api/v3';
   }
-  
+
   if (Number(options.version) === 2) {
     this.initializeV2(customEndpoint);
   } else {
@@ -72,28 +78,32 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
     window.appboy={};for(var s="destroy toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib".split(" "),i=0;i<s.length;i++){for(var k=appboy,l=s[i].split("."),j=0;j<l.length-1;j++)k=k[l[j]];k[l[j]]=function(){console&&console.error("The Appboy SDK has not yet been loaded.")}}appboy.initialize=function(){console&&console.error("Appboy cannot be loaded - this is usually due to strict corporate firewalls or ad blockers.")};appboy.getUser=function(){return new appboy.ab.User};appboy.getCachedFeed=function(){return new appboy.ab.Feed};
   }(document, 'script', 'link');
   /* eslint-enable */
-  
+
   // this is used to test this.loaded
   this._shim = window.appboy.initialize;
 
   this.load('v1', function() {
     var config = {};
     var datacenterMappings = {
-      us:   'https://sdk.iad-01.braze.com',
+      us: 'https://sdk.iad-01.braze.com',
       us02: 'https://sdk.iad-02.braze.com',
       us03: 'https://sdk.iad-03.braze.com',
-      eu:   'https://sdk.fra-01.braze.eu'
+      eu: 'https://sdk.fra-01.braze.eu'
     };
-    if (options.safariWebsitePushId) config.safariWebsitePushId = options.safariWebsitePushId;
+    if (options.safariWebsitePushId)
+      config.safariWebsitePushId = options.safariWebsitePushId;
     if (options.enableHtmlInAppMessages) config.enableHtmlInAppMessages = true;
 
     // Setup custom endpoints
     if (options.customEndpoint) {
       var endpoint = options.customEndpoint;
       var regex = new RegExp('^(http|https)://', 'i');
-      config.baseUrl = (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
+      config.baseUrl =
+        (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
     } else {
-      config.baseUrl = (datacenterMappings[options.datacenter] || 'https://sdk.iad-01.braze.com') + '/api/v3';
+      config.baseUrl =
+        (datacenterMappings[options.datacenter] ||
+          'https://sdk.iad-01.braze.com') + '/api/v3';
     }
 
     if (customEndpoint) config.baseUrl = customEndpoint;
@@ -101,14 +111,15 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
     self.initializeTester(options.apiKey, config);
     window.appboy.initialize(options.apiKey, config);
 
-    if (options.automaticallyDisplayMessages) window.appboy.display.automaticallyShowNewInAppMessages();
+    if (options.automaticallyDisplayMessages)
+      window.appboy.display.automaticallyShowNewInAppMessages();
     if (userId) window.appboy.changeUser(userId);
 
     window.appboy.openSession();
     self.ready();
   });
 };
-  
+
 /**
  * Initialize v2.
  *
@@ -118,7 +129,7 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
 Appboy.prototype.initializeV2 = function(customEndpoint) {
   var options = this.options;
   var userId = this.analytics.user().id();
-  
+
   /* eslint-disable */
   +function (a, p, P, b, y) {
     window.appboy = {}; window.appboyQueue = [];
@@ -138,21 +149,24 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
     doNotLoadFontAwesome: options.doNotLoadFontAwesome,
     enableLogging: options.enableLogging,
     localization: options.localization,
-    minimumIntervalBetweenTriggerActionsInSeconds: Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
+    minimumIntervalBetweenTriggerActionsInSeconds:
+      Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
     openInAppMessagesInNewTab: options.openInAppMessagesInNewTab,
     openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
-    requireExplicitInAppMessageDismissal: options.requireExplicitInAppMessageDismissal,
+    requireExplicitInAppMessageDismissal:
+      options.requireExplicitInAppMessageDismissal,
     sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
   };
 
   if (customEndpoint) config.baseUrl = customEndpoint;
-  
+
   this.initializeTester(options.apiKey, config);
   window.appboy.initialize(options.apiKey, config);
-  
-  if (options.automaticallyDisplayMessages) window.appboy.display.automaticallyShowNewInAppMessages();
+
+  if (options.automaticallyDisplayMessages)
+    window.appboy.display.automaticallyShowNewInAppMessages();
   if (userId) window.appboy.changeUser(userId);
-  
+
   window.appboy.openSession();
 
   this.load('v2', this.ready);
@@ -205,13 +219,42 @@ Appboy.prototype.identify = function(identify) {
     window.appboy.getUser().setHomeCity(address.city);
   }
   if (birthday) {
-    window.appboy.getUser().setDateOfBirth(birthday.getUTCFullYear(), birthday.getUTCMonth() + 1, birthday.getUTCDate());
+    window.appboy
+      .getUser()
+      .setDateOfBirth(
+        birthday.getUTCFullYear(),
+        birthday.getUTCMonth() + 1,
+        birthday.getUTCDate()
+      );
   }
 
   // delete all the standard traits from traits clone so that we can use appboy's setCustomAttribute on non-standard traits
   // also remove all reserved keys so we dont set them as custom attributes, otherwise Appboy rejects the entire event
   // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-  var reserved = ['avatar', 'address', 'birthday', 'email', 'id', 'firstName', 'gender', 'lastName', 'phone', 'facebook', 'twitter', 'first_name', 'last_name', 'dob', 'external_id', 'country', 'home_city', 'bio', 'gender', 'phone', 'email_subscribe', 'push_subscribe'];
+  var reserved = [
+    'avatar',
+    'address',
+    'birthday',
+    'email',
+    'id',
+    'firstName',
+    'gender',
+    'lastName',
+    'phone',
+    'facebook',
+    'twitter',
+    'first_name',
+    'last_name',
+    'dob',
+    'external_id',
+    'country',
+    'home_city',
+    'bio',
+    'gender',
+    'phone',
+    'email_subscribe',
+    'push_subscribe'
+  ];
   each(function(key) {
     delete traits[key];
   }, reserved);
@@ -253,7 +296,14 @@ Appboy.prototype.track = function(track) {
   var properties = track.properties();
   // remove reserved keys from custom event properties
   // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-  var reserved = ['time', 'product_id', 'quantity', 'event_name', 'price', 'currency'];
+  var reserved = [
+    'time',
+    'product_id',
+    'quantity',
+    'event_name',
+    'price',
+    'currency'
+  ];
   each(function(key) {
     delete properties[key];
   }, reserved);
@@ -296,7 +346,6 @@ Appboy.prototype.page = function(page) {
  * @param {Track} track
  */
 
-
 Appboy.prototype.orderCompleted = function(track) {
   var userId = track.userId();
   var products = track.products();
@@ -315,7 +364,13 @@ Appboy.prototype.orderCompleted = function(track) {
     var productId = track.productId();
     var price = track.price();
     var quantity = track.quantity();
-    window.appboy.logPurchase(productId, price, currencyCode, quantity, purchaseProperties);
+    window.appboy.logPurchase(
+      productId,
+      price,
+      currencyCode,
+      quantity,
+      purchaseProperties
+    );
   }, products);
 };
 
@@ -339,7 +394,10 @@ function getGender(gender) {
   var maleGenders = ['man', 'male', 'm'];
   var otherGenders = ['other', 'o'];
 
-  if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.FEMALE;
-  if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.MALE;
-  if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.OTHER;
+  if (femaleGenders.indexOf(gender.toLowerCase()) > -1)
+    return window.appboy.ab.User.Genders.FEMALE;
+  if (maleGenders.indexOf(gender.toLowerCase()) > -1)
+    return window.appboy.ab.User.Genders.MALE;
+  if (otherGenders.indexOf(gender.toLowerCase()) > -1)
+    return window.appboy.ab.User.Genders.OTHER;
 }
