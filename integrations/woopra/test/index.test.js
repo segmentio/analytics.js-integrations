@@ -136,12 +136,7 @@ describe('Woopra', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url:
-            window.location.protocol +
-            '//' +
-            window.location.hostname +
-            (window.location.port ? ':' + window.location.port : '') +
-            window.location.pathname
+          url: windowURL()
         });
       });
 
@@ -152,12 +147,7 @@ describe('Woopra', function() {
           path: window.location.pathname,
           referrer: document.referrer,
           search: window.location.search,
-          url:
-            window.location.protocol +
-            '//' +
-            window.location.hostname +
-            (window.location.port ? ':' + window.location.port : '') +
-            window.location.pathname
+          url: windowURL()
         });
       });
 
@@ -169,12 +159,7 @@ describe('Woopra', function() {
           path: window.location.pathname,
           referrer: document.referrer,
           search: window.location.search,
-          url:
-            window.location.protocol +
-            '//' +
-            window.location.hostname +
-            (window.location.port ? ':' + window.location.port : '') +
-            window.location.pathname
+          url: windowURL()
         });
       });
 
@@ -187,13 +172,13 @@ describe('Woopra', function() {
           path: window.location.pathname,
           referrer: document.referrer,
           search: window.location.search,
-          url:
-            window.location.protocol +
-            '//' +
-            window.location.hostname +
-            (window.location.port ? ':' + window.location.port : '') +
-            window.location.pathname
+          url: windowURL()
         });
+      });
+
+      it('context is set', function() {
+        analytics.page('name', { title: 'hello' });
+        assertContext(analytics, 'hello');
       });
     });
 
@@ -237,6 +222,10 @@ describe('Woopra', function() {
           testdate: 1446628822000
         });
       });
+
+      it('context is set', function() {
+        assertContext(analytics, '');
+      });
     });
 
     describe('#track', function() {
@@ -252,24 +241,7 @@ describe('Woopra', function() {
       it('should send properties', function() {
         analytics.track('event', { property: 'Property' });
         analytics.called(window.woopra.track, 'event', {
-          property: 'Property',
-          context: {
-            page: {
-              path: window.location.pathname,
-              referrer: document.referrer,
-              search: window.location.search,
-              title: document.title,
-              url: windowURL()
-            }
-          }
-        });
-      });
-
-      it('should not override context', function() {
-        analytics.track('event', { property: 'Property', context: {} });
-        analytics.called(window.woopra.track, 'event', {
-          property: 'Property',
-          context: {}
+          property: 'Property'
         });
       });
 
@@ -290,17 +262,12 @@ describe('Woopra', function() {
         analytics.called(window.woopra.track, 'event', {
           products:
             '[{"sku":"45790-32","name":"Monopoly: 3rd Edition"},{"sku":"46493-32","name":"Uno Card Game"}]',
-          orderId: 1,
-          context: {
-            page: {
-              path: window.location.pathname,
-              referrer: document.referrer,
-              search: window.location.search,
-              title: document.title,
-              url: windowURL()
-            }
-          }
+          orderId: 1
         });
+      });
+
+      it('context is set', function() {
+        assertContext(analytics, '');
       });
     });
   });
@@ -314,4 +281,18 @@ function windowURL() {
     (window.location.port ? ':' + window.location.port : '') +
     window.location.pathname
   );
+}
+
+function assertContext(analytics, pageTitle) {
+  var ctx = window.woopra.config().context;
+
+  analytics.deepEqual(ctx, {
+    page: {
+      path: '/context.html',
+      referrer: document.referrer,
+      search: '',
+      title: pageTitle,
+      url: windowURL()
+    }
+  });
 }
