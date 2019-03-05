@@ -143,8 +143,7 @@ function stringifyNested(obj) {
 
 function setContext(event) {
   var options = event.options();
-  if (!options) {
-    return;
+  if (options) {
+    window.woopra.config({ context: options });
   }
-  window.woopra.config({ context: options });
 }
