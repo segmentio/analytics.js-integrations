@@ -43,7 +43,7 @@ var Woopra = (module.exports = integration('Woopra')
 
 Woopra.prototype.initialize = function() {
   /* eslint-disable */
-  (function(){var i, s, z, w = window, d = document, a = arguments, q = 'script', f = ['config', 'track', 'identify', 'visit', 'push', 'call'], c = function(){var i, self = this; self._e = []; for (i = 0; i < f.length; i++){(function(f){self[f] = function(){self._e.push([f].concat(Array.prototype.slice.call(arguments, 0))); return self; }; })(f[i]); } }; w._w = w._w || {}; for (i = 0; i < a.length; i++){ w._w[a[i]] = w[a[i]] = w[a[i]] || new c(); } })('woopra');
+  (function () { var i, s, z, w = window, d = document, a = arguments, q = 'script', f = ['config', 'track', 'identify', 'visit', 'push', 'call'], c = function () { var i, self = this; self._e = []; for (i = 0; i < f.length; i++) { (function (f) { self[f] = function () { self._e.push([f].concat(Array.prototype.slice.call(arguments, 0))); return self; }; })(f[i]); } }; w._w = w._w || {}; for (i = 0; i < a.length; i++) { w._w[a[i]] = w[a[i]] = w[a[i]] || new c(); } })('woopra');
   /* eslint-enable */
 
   this.load(this.ready);
@@ -72,6 +72,8 @@ Woopra.prototype.loaded = function() {
  */
 
 Woopra.prototype.page = function(page) {
+  setContext(page);
+
   var props = page.properties();
   var name = page.fullName();
   if (name) props.title = name;
@@ -85,6 +87,8 @@ Woopra.prototype.page = function(page) {
  */
 
 Woopra.prototype.identify = function(identify) {
+  setContext(identify);
+
   var traits = identify.traits();
 
   // Woopra likes timestamps in milliseconds
@@ -107,12 +111,8 @@ Woopra.prototype.identify = function(identify) {
  */
 
 Woopra.prototype.track = function(track) {
-  var properties = track.properties();
-  if (!properties.context) {
-    properties.context = track.options();
-  }
-
-  window.woopra.track(track.event(), stringifyNested(properties));
+  setContext(track);
+  window.woopra.track(track.event(), stringifyNested(track.properties()));
 };
 
 /**
@@ -139,4 +139,11 @@ function stringifyNested(obj) {
     {},
     obj
   );
+}
+
+function setContext(event) {
+  var options = event.options();
+  if (options) {
+    window.woopra.config({ context: options });
+  }
 }
