@@ -53,7 +53,7 @@ describe('Pinterest', function () {
       it('should call #load', function () {
         analytics.initialize()
         analytics.page()
-        analytics.called(pinterest.load)
+        analytics.called(pinterest.load, 2620795819800)
       })
     })
   })
@@ -61,6 +61,29 @@ describe('Pinterest', function () {
   describe('loading', function () {
     it('should load', function (done) {
       analytics.load(pinterest, done)
+    })
+  })
+
+  describe('after loading', function () {
+    beforeEach(function (done) {
+      analytics.once('ready', done)
+      analytics.initialize()
+      analytics.stub(pinterest, 'load')
+    })
+
+    describe('#identify', function () {
+      beforeEach(function () {
+        analytics.stub(window, 'Pinterest')
+      })
+
+      it('should not fire the Pinterest pixel tag', function () {
+        analytics.identify()
+	analytics.didNotCall(pinterest.load)
+      })
+      it('should push Segment email to Pinterest Enhanced Match', function () {
+        analytics.identify('123', { email: 'prakash@segment.com'})
+        analytics.called(pinterest.load, 2620795819800, {em: "prakash@segment.com"})
+      })
     })
   })
 })
