@@ -93,6 +93,7 @@ FacebookPixel.prototype.page = function() {
  */
 
 FacebookPixel.prototype.track = function(track) {
+  var self = this;
   var event = track.event();
   var revenue = formatRevenue(track.revenue());
   var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
@@ -170,7 +171,9 @@ FacebookPixel.prototype.track = function(track) {
   // non-mapped events get sent as "custom events" with full
   // tranformed payload
   if (![].concat(standard, legacy).length) {
-    window.fbq('trackCustom', event, payload);
+    window.fbq('trackSingleCustom', this.options.pixelId, event, payload, {
+      eventID: track.proxy('messageId')
+    });
     return;
   }
 
@@ -179,16 +182,24 @@ FacebookPixel.prototype.track = function(track) {
   // send full transformed payload
   each(function(event) {
     if (event === 'Purchase') payload.currency = track.currency(); // defaults to 'USD'
-    window.fbq('track', event, payload);
+    window.fbq('trackSingle', self.options.pixelId, event, payload, {
+      eventID: track.proxy('messageId')
+    });
   }, standard);
 
   // legacy conversion events — mapped to specific "pixelId"s
   // send only currency and value
   each(function(event) {
-    window.fbq('track', event, {
-      currency: track.currency(),
-      value: revenue
-    });
+    window.fbq(
+      'trackSingle',
+      self.options.pixelId,
+      event,
+      {
+        currency: track.currency(),
+        value: revenue
+      },
+      { eventID: track.proxy('messageId') }
+    );
   }, legacy);
 };
 
@@ -200,6 +211,7 @@ FacebookPixel.prototype.track = function(track) {
  */
 
 FacebookPixel.prototype.productListViewed = function(track) {
+  var self = this;
   var contentType;
   var contentIds = [];
   var products = track.products();
@@ -223,20 +235,32 @@ FacebookPixel.prototype.productListViewed = function(track) {
     contentType = ['product_group'];
   }
 
-  window.fbq('track', 'ViewContent', {
-    content_ids: contentIds,
-    content_type: this.mappedContentTypesOrDefault(
-      track.category(),
-      contentType
-    )
-  });
+  window.fbq(
+    'trackSingle',
+    this.options.pixelId,
+    'ViewContent',
+    {
+      content_ids: contentIds,
+      content_type: this.mappedContentTypesOrDefault(
+        track.category(),
+        contentType
+      )
+    },
+    { eventID: track.proxy('messageId') }
+  );
 
   // fall through for mapped legacy conversions
   each(function(event) {
-    window.fbq('track', event, {
-      currency: track.currency(),
-      value: formatRevenue(track.revenue())
-    });
+    window.fbq(
+      'trackSingle',
+      self.options.pixelId,
+      event,
+      {
+        currency: track.currency(),
+        value: formatRevenue(track.revenue())
+      },
+      { eventID: track.proxy('messageId') }
+    );
   }, this.legacyEvents(track.event()));
 };
 
@@ -248,29 +272,42 @@ FacebookPixel.prototype.productListViewed = function(track) {
  */
 
 FacebookPixel.prototype.productViewed = function(track) {
+  var self = this;
   var useValue = this.options.valueIdentifier === 'value';
 
-  window.fbq('track', 'ViewContent', {
-    content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: this.mappedContentTypesOrDefault(track.category(), [
-      'product'
-    ]),
-    content_name: track.name() || '',
-    content_category: track.category() || '',
-    currency: track.currency(),
-    value: useValue
-      ? formatRevenue(track.value())
-      : formatRevenue(track.price())
-  });
-
-  // fall through for mapped legacy conversions
-  each(function(event) {
-    window.fbq('track', event, {
+  window.fbq(
+    'trackSingle',
+    this.options.pixelId,
+    'ViewContent',
+    {
+      content_ids: [track.productId() || track.id() || track.sku() || ''],
+      content_type: this.mappedContentTypesOrDefault(track.category(), [
+        'product'
+      ]),
+      content_name: track.name() || '',
+      content_category: track.category() || '',
       currency: track.currency(),
       value: useValue
         ? formatRevenue(track.value())
         : formatRevenue(track.price())
-    });
+    },
+    { eventID: track.proxy('messageId') }
+  );
+
+  // fall through for mapped legacy conversions
+  each(function(event) {
+    window.fbq(
+      'trackSingle',
+      self.options.pixelId,
+      event,
+      {
+        currency: track.currency(),
+        value: useValue
+          ? formatRevenue(track.value())
+          : formatRevenue(track.price())
+      },
+      { eventID: track.proxy('messageId') }
+    );
   }, this.legacyEvents(track.event()));
 };
 
@@ -282,29 +319,42 @@ FacebookPixel.prototype.productViewed = function(track) {
  */
 
 FacebookPixel.prototype.productAdded = function(track) {
+  var self = this;
   var useValue = this.options.valueIdentifier === 'value';
 
-  window.fbq('track', 'AddToCart', {
-    content_ids: [track.productId() || track.id() || track.sku() || ''],
-    content_type: this.mappedContentTypesOrDefault(track.category(), [
-      'product'
-    ]),
-    content_name: track.name() || '',
-    content_category: track.category() || '',
-    currency: track.currency(),
-    value: useValue
-      ? formatRevenue(track.value())
-      : formatRevenue(track.price())
-  });
-
-  // fall through for mapped legacy conversions
-  each(function(event) {
-    window.fbq('track', event, {
+  window.fbq(
+    'trackSingle',
+    this.options.pixelId,
+    'AddToCart',
+    {
+      content_ids: [track.productId() || track.id() || track.sku() || ''],
+      content_type: this.mappedContentTypesOrDefault(track.category(), [
+        'product'
+      ]),
+      content_name: track.name() || '',
+      content_category: track.category() || '',
       currency: track.currency(),
       value: useValue
         ? formatRevenue(track.value())
         : formatRevenue(track.price())
-    });
+    },
+    { eventID: track.proxy('messageId') }
+  );
+
+  // fall through for mapped legacy conversions
+  each(function(event) {
+    window.fbq(
+      'trackSingle',
+      self.options.pixelId,
+      event,
+      {
+        currency: track.currency(),
+        value: useValue
+          ? formatRevenue(track.value())
+          : formatRevenue(track.price())
+      },
+      { eventID: track.proxy('messageId') }
+    );
   }, this.legacyEvents(track.event()));
 };
 
@@ -316,6 +366,7 @@ FacebookPixel.prototype.productAdded = function(track) {
  */
 
 FacebookPixel.prototype.orderCompleted = function(track) {
+  var self = this;
   var products = track.products();
 
   var content_ids = foldl(
@@ -341,37 +392,63 @@ FacebookPixel.prototype.orderCompleted = function(track) {
     );
   }
 
-  window.fbq('track', 'Purchase', {
-    content_ids: content_ids,
-    content_type: contentType,
-    currency: track.currency(),
-    value: revenue
-  });
+  window.fbq(
+    'trackSingle',
+    this.options.pixelId,
+    'Purchase',
+    {
+      content_ids: content_ids,
+      content_type: contentType,
+      currency: track.currency(),
+      value: revenue
+    },
+    { eventID: track.proxy('messageId') }
+  );
 
   // fall through for mapped legacy conversions
   each(function(event) {
-    window.fbq('track', event, {
-      currency: track.currency(),
-      value: formatRevenue(track.revenue())
-    });
+    window.fbq(
+      'trackSingle',
+      self.options.pixelId,
+      event,
+      {
+        currency: track.currency(),
+        value: formatRevenue(track.revenue())
+      },
+      { eventID: track.proxy('messageId') }
+    );
   }, this.legacyEvents(track.event()));
 };
 
 FacebookPixel.prototype.productsSearched = function(track) {
-  window.fbq('track', 'Search', {
-    search_string: track.proxy('properties.query')
-  });
+  var self = this;
+  window.fbq(
+    'trackSingle',
+    this.options.pixelId,
+    'Search',
+    {
+      search_string: track.proxy('properties.query')
+    },
+    { eventID: track.proxy('messageId') }
+  );
 
   // fall through for mapped legacy conversions
   each(function(event) {
-    window.fbq('track', event, {
-      currency: track.currency(),
-      value: formatRevenue(track.revenue())
-    });
+    window.fbq(
+      'trackSingle',
+      self.options.pixelId,
+      event,
+      {
+        currency: track.currency(),
+        value: formatRevenue(track.revenue())
+      },
+      { eventID: track.proxy('messageId') }
+    );
   }, this.legacyEvents(track.event()));
 };
 
 FacebookPixel.prototype.checkoutStarted = function(track) {
+  var self = this;
   var products = track.products();
   var contentIds = [];
   var contents = [];
@@ -392,21 +469,33 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
     contentCategory = products[0].category;
   }
 
-  window.fbq('track', 'InitiateCheckout', {
-    content_category: contentCategory,
-    content_ids: contentIds,
-    contents: contents,
-    currency: track.currency(),
-    num_items: contentIds.length,
-    value: formatRevenue(track.revenue())
-  });
+  window.fbq(
+    'trackSingle',
+    this.options.pixelId,
+    'InitiateCheckout',
+    {
+      content_category: contentCategory,
+      content_ids: contentIds,
+      contents: contents,
+      currency: track.currency(),
+      num_items: contentIds.length,
+      value: formatRevenue(track.revenue())
+    },
+    { eventID: track.proxy('messageId') }
+  );
 
   // fall through for mapped legacy conversions
   each(function(event) {
-    window.fbq('track', event, {
-      currency: track.currency(),
-      value: formatRevenue(track.revenue())
-    });
+    window.fbq(
+      'trackSingle',
+      self.options.pixelId,
+      event,
+      {
+        currency: track.currency(),
+        value: formatRevenue(track.revenue())
+      },
+      { eventID: track.proxy('messageId') }
+    );
   }, this.legacyEvents(track.event()));
 };
 

@@ -1,3 +1,8 @@
+2.6.0/ 2019-03-08
+==================
+
+  * Adds message deduping for use with server-side component
+
 2.5.4/ 2018-09-13
 ==================
 

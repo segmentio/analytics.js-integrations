@@ -211,9 +211,16 @@ describe('Facebook Pixel', function() {
             team: 'Warriors'
           });
 
-          analytics.called(window.fbq, 'trackCustom', 'event', {
-            team: 'Warriors'
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              team: 'Warriors'
+            },
+            { eventID: undefined }
+          );
         });
 
         it('should send whitelisted PII properties', function() {
@@ -235,10 +242,17 @@ describe('Facebook Pixel', function() {
             team: 'Warriors'
           });
 
-          analytics.called(window.fbq, 'trackCustom', 'event', {
-            team: 'Warriors',
-            country: 'USA'
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              team: 'Warriors',
+              country: 'USA'
+            },
+            { eventID: undefined }
+          );
         });
 
         it('should fallback to an empty array when whitelistPiiProperties is falsy', function() {
@@ -261,23 +275,44 @@ describe('Facebook Pixel', function() {
             team: 'Warriors'
           });
 
-          analytics.called(window.fbq, 'trackCustom', 'event', {
-            team: 'Warriors'
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              team: 'Warriors'
+            },
+            { eventID: undefined }
+          );
         });
       });
 
       describe('event not mapped to legacy or standard', function() {
         it('should send a "custom" event', function() {
           analytics.track('event');
-          analytics.called(window.fbq, 'trackCustom', 'event');
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {},
+            { eventID: undefined }
+          );
         });
 
         it('should send a "custom" event and properties', function() {
           analytics.track('event', { property: true });
-          analytics.called(window.fbq, 'trackCustom', 'event', {
-            property: true
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              property: true
+            },
+            { eventID: undefined }
+          );
         });
 
         it('should send properties correctly', function() {
@@ -286,45 +321,83 @@ describe('Facebook Pixel', function() {
             revenue: 13,
             property: true
           });
-          analytics.called(window.fbq, 'trackCustom', 'event', {
-            currency: 'XXX',
-            value: '13.00',
-            property: true
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              currency: 'XXX',
+              value: '13.00',
+              property: true
+            },
+            { eventID: undefined }
+          );
         });
       });
 
       describe('event mapped to legacy', function() {
         it('should send a correctly mapped event', function() {
           analytics.track('legacyEvent');
-          analytics.called(window.fbq, 'track', 'asdFrkj', {
-            currency: 'USD',
-            value: '0.00'
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingle',
+            options.pixelId,
+            'asdFrkj',
+            {
+              currency: 'USD',
+              value: '0.00'
+            },
+            { eventID: undefined }
+          );
         });
 
         it('should send an event and properties', function() {
           analytics.track('legacyEvent', { revenue: 10 });
-          analytics.called(window.fbq, 'track', 'asdFrkj', {
-            currency: 'USD',
-            value: '10.00'
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingle',
+            options.pixelId,
+            'asdFrkj',
+            {
+              currency: 'USD',
+              value: '10.00'
+            },
+            { eventID: undefined }
+          );
         });
 
         it('should send only currency and revenue', function() {
           analytics.track('legacyEvent', { revenue: 13, property: true });
-          analytics.called(window.fbq, 'track', 'asdFrkj', {
-            currency: 'USD',
-            value: '13.00'
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingle',
+            options.pixelId,
+            'asdFrkj',
+            {
+              currency: 'USD',
+              value: '13.00'
+            },
+            { eventID: undefined }
+          );
         });
       });
 
       describe('event mapped to standard', function() {
-        it('should send a correctly mapped event — no required properties', function() {
-          analytics.track('standardEvent');
-          analytics.called(window.fbq, 'track', 'standard', {});
-        });
+        it(
+          'should send a correctly mapped event — no required properties',
+          function() {
+            analytics.track('standardEvent');
+            analytics.called(
+              window.fbq,
+              'trackSingle',
+              options.pixelId,
+              'standard',
+              {}
+            );
+          },
+          { eventID: undefined }
+        );
 
         it('should send properties correctly', function() {
           analytics.track('standardEvent', {
@@ -332,11 +405,18 @@ describe('Facebook Pixel', function() {
             revenue: 13,
             property: true
           });
-          analytics.called(window.fbq, 'track', 'standard', {
-            currency: 'XXX',
-            value: '13.00',
-            property: true
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingle',
+            options.pixelId,
+            'standard',
+            {
+              currency: 'XXX',
+              value: '13.00',
+              property: true
+            },
+            { eventID: undefined }
+          );
         });
 
         it('should default currency to USD if mapped to "Purchase"', function() {
@@ -344,11 +424,18 @@ describe('Facebook Pixel', function() {
             revenue: 13,
             property: true
           });
-          analytics.called(window.fbq, 'track', 'Purchase', {
-            currency: 'USD',
-            value: '13.00',
-            property: true
-          });
+          analytics.called(
+            window.fbq,
+            'trackSingle',
+            options.pixelId,
+            'Purchase',
+            {
+              currency: 'USD',
+              value: '13.00',
+              property: true
+            },
+            { eventID: undefined }
+          );
         });
         describe('Dyanmic Ads for Travel date parsing', function() {
           it('should correctly pass in iso8601 formatted date objects', function() {
@@ -356,9 +443,16 @@ describe('Facebook Pixel', function() {
               checkin_date: '2017-07-01T20:03:46Z'
             });
 
-            analytics.called(window.fbq, 'track', 'Search', {
-              checkin_date: '2017-07-01'
-            });
+            analytics.called(
+              window.fbq,
+              'trackSingle',
+              options.pixelId,
+              'Search',
+              {
+                checkin_date: '2017-07-01'
+              },
+              { eventID: undefined }
+            );
           });
 
           it('should pass through strings that we did not recognize as dates as-is', function() {
@@ -366,9 +460,16 @@ describe('Facebook Pixel', function() {
               checkin_date: '2017-06-23T15:30:00GMT'
             });
 
-            analytics.called(window.fbq, 'track', 'Search', {
-              checkin_date: '2017-06-23T15:30:00GMT'
-            });
+            analytics.called(
+              window.fbq,
+              'trackSingle',
+              options.pixelId,
+              'Search',
+              {
+                checkin_date: '2017-06-23T15:30:00GMT'
+              },
+              { eventID: undefined }
+            );
           });
         });
       });
@@ -402,18 +503,35 @@ describe('Facebook Pixel', function() {
             }
           ]
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: ['product']
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['product']
+          },
+          { eventID: undefined }
+        );
       });
 
       it('Should fallback on mapping content_ids to the product category and content_type to "product_group"', function() {
         analytics.track('Product List Viewed', { category: 'Games' });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['Games'],
-          content_type: ['product_group']
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['Games'],
+            content_type: ['product_group']
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send the custom content type if mapped', function() {
@@ -440,10 +558,20 @@ describe('Facebook Pixel', function() {
             }
           ]
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: ['vehicle']
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['vehicle']
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send a legacy event', function() {
@@ -451,22 +579,43 @@ describe('Facebook Pixel', function() {
           'Product List Viewed': '123456'
         };
         analytics.track('Product List Viewed', { category: 'Games' });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['Games'],
-          content_type: ['product_group']
-        });
-        analytics.called(window.fbq, 'track', '123456', {
-          currency: 'USD',
-          value: '0.00'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['Games'],
+            content_type: ['product_group']
+          },
+          { eventID: undefined }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          '123456',
+          {
+            currency: 'USD',
+            value: '0.00'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should default to an empty string for category', function() {
         analytics.track('Product List Viewed', { category: null });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: [''],
-          content_type: ['product_group']
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [''],
+            content_type: ['product_group']
+          },
+          { eventID: undefined }
+        );
       });
     });
 
@@ -485,14 +634,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send a legacy event', function() {
@@ -508,18 +664,32 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
-        analytics.called(window.fbq, 'track', '123456', {
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          '123456',
+          {
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('Should map properties.price to facebooks value if price is selected', function() {
@@ -534,14 +704,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '44.33'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '44.33'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send the custom content type if mapped', function() {
@@ -555,14 +732,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['vehicle'],
-          content_name: 'my product',
-          content_category: 'Cars',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['vehicle'],
+            content_name: 'my product',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to id for content_id', function() {
@@ -576,14 +760,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['vehicle'],
-          content_name: 'my product',
-          content_category: 'Cars',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['vehicle'],
+            content_name: 'my product',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to sku for content_id', function() {
@@ -596,14 +787,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['p-298'],
-          content_type: ['vehicle'],
-          content_name: 'my product',
-          content_category: 'Cars',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['p-298'],
+            content_type: ['vehicle'],
+            content_name: 'my product',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to an empty string for content_id', function() {
@@ -615,14 +813,21 @@ describe('Facebook Pixel', function() {
           category: 'Cars',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: [''],
-          content_type: ['vehicle'],
-          content_name: 'my product',
-          content_category: 'Cars',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [''],
+            content_type: ['vehicle'],
+            content_name: 'my product',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to an empty string for content_name', function() {
@@ -635,14 +840,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['vehicle'],
-          content_name: '',
-          content_category: 'Cars',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['vehicle'],
+            content_name: '',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to an empty string for content_category', function() {
@@ -655,14 +867,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: '',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: '',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should use price in the legacy event', function() {
@@ -679,18 +898,32 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '44.33'
-        });
-        analytics.called(window.fbq, 'track', '123456', {
-          currency: 'USD',
-          value: '44.33'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '44.33'
+          },
+          { eventID: undefined }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          '123456',
+          {
+            currency: 'USD',
+            value: '44.33'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should not map products if its falsy', function() {
@@ -698,10 +931,17 @@ describe('Facebook Pixel', function() {
           category: 'Games',
           products: null
         });
-        analytics.called(window.fbq, 'track', 'ViewContent', {
-          content_ids: ['Games'],
-          content_type: ['product_group']
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['Games'],
+            content_type: ['product_group']
+          },
+          { eventID: undefined }
+        );
       });
     });
 
@@ -721,14 +961,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send a legacy event for product added', function() {
@@ -745,19 +992,33 @@ describe('Facebook Pixel', function() {
           value: 24.75
         });
 
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
 
-        analytics.called(window.fbq, 'track', '123456', {
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          '123456',
+          {
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('Should map properties.price to facebooks value if price is selected', function() {
@@ -772,14 +1033,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '44.33'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '44.33'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send the custom content type if mapped', function() {
@@ -794,14 +1062,21 @@ describe('Facebook Pixel', function() {
           value: 24.75,
           content_type: 'stuff'
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['vehicle'],
-          content_name: 'my product',
-          content_category: 'Cars',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['vehicle'],
+            content_name: 'my product',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to id for content_id', function() {
@@ -815,14 +1090,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to sku for content_id', function() {
@@ -835,14 +1117,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['p-298'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['p-298'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to an empty string for content_id', function() {
@@ -854,14 +1143,21 @@ describe('Facebook Pixel', function() {
           category: 'cat 1',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: [''],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: [''],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to an empty string for content_name', function() {
@@ -874,14 +1170,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: '',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: '',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should fallback to an empty string for content_category', function() {
@@ -894,14 +1197,21 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: '',
-          currency: 'USD',
-          value: '24.75'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: '',
+            currency: 'USD',
+            value: '24.75'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should use price in the legacy event', function() {
@@ -918,18 +1228,32 @@ describe('Facebook Pixel', function() {
           sku: 'p-298',
           value: 24.75
         });
-        analytics.called(window.fbq, 'track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: ['product'],
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: '44.33'
-        });
-        analytics.called(window.fbq, 'track', '123456', {
-          currency: 'USD',
-          value: '44.33'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '44.33'
+          },
+          { eventID: undefined }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          '123456',
+          {
+            currency: 'USD',
+            value: '44.33'
+          },
+          { eventID: undefined }
+        );
       });
     });
 
@@ -947,12 +1271,22 @@ describe('Facebook Pixel', function() {
           currency: 'USD',
           total: 0.5
         });
-        analytics.called(window.fbq, 'track', 'Purchase', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: ['product'],
-          currency: 'USD',
-          value: '0.50'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['product'],
+            currency: 'USD',
+            value: '0.50'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('Should send both pixel and standard event if mapped', function() {
@@ -965,16 +1299,33 @@ describe('Facebook Pixel', function() {
           currency: 'USD',
           total: 0.5
         });
-        analytics.called(window.fbq, 'track', 'Purchase', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: ['product'],
-          currency: 'USD',
-          value: '0.50'
-        });
-        analytics.called(window.fbq, 'track', '123456', {
-          currency: 'USD',
-          value: '0.50'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['product'],
+            currency: 'USD',
+            value: '0.50'
+          },
+          { eventID: undefined }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          '123456',
+          {
+            currency: 'USD',
+            value: '0.50'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should default to id for content_id', function() {
@@ -986,12 +1337,22 @@ describe('Facebook Pixel', function() {
           currency: 'USD',
           total: 0.5
         });
-        analytics.called(window.fbq, 'track', 'Purchase', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: ['product'],
-          currency: 'USD',
-          value: '0.50'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['product'],
+            currency: 'USD',
+            value: '0.50'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should default to sku for content_id', function() {
@@ -1003,12 +1364,22 @@ describe('Facebook Pixel', function() {
           currency: 'USD',
           total: 0.5
         });
-        analytics.called(window.fbq, 'track', 'Purchase', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: ['product'],
-          currency: 'USD',
-          value: '0.50'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['product'],
+            currency: 'USD',
+            value: '0.50'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send the custom content type if mapped', function() {
@@ -1020,12 +1391,22 @@ describe('Facebook Pixel', function() {
           currency: 'USD',
           total: 0.5
         });
-        analytics.called(window.fbq, 'track', 'Purchase', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: ['vehicle'],
-          currency: 'USD',
-          value: '0.50'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['vehicle'],
+            currency: 'USD',
+            value: '0.50'
+          },
+          { eventID: undefined }
+        );
       });
     });
 
@@ -1036,9 +1417,16 @@ describe('Facebook Pixel', function() {
 
       it('should send pixel the search string', function() {
         analytics.track('Products Searched', { query: 'yo' });
-        analytics.called(window.fbq, 'track', 'Search', {
-          search_string: 'yo'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Search',
+          {
+            search_string: 'yo'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send standard and legacy events', function() {
@@ -1047,10 +1435,17 @@ describe('Facebook Pixel', function() {
         };
 
         analytics.track('Products Searched', { query: 'yo' });
-        analytics.called(window.fbq, 'track', 'Search', {
-          search_string: 'yo'
-        });
-        analytics.called(window.fbq, 'track', '123456');
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Search',
+          {
+            search_string: 'yo'
+          },
+          { eventID: undefined }
+        );
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456');
       });
     });
 
@@ -1092,17 +1487,27 @@ describe('Facebook Pixel', function() {
             }
           ]
         });
-        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          value: '25.00',
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-          ],
-          num_items: 2,
-          currency: 'USD',
-          content_category: 'NotGames'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            value: '25.00',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'NotGames'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should call InitiateCheckout with the first product category', function() {
@@ -1137,17 +1542,27 @@ describe('Facebook Pixel', function() {
             }
           ]
         });
-        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          value: '25.00',
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-          ],
-          num_items: 2,
-          currency: 'USD',
-          content_category: 'Games'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            value: '25.00',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'Games'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should send a standard and legacy events', function() {
@@ -1185,21 +1600,38 @@ describe('Facebook Pixel', function() {
             }
           ]
         });
-        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          value: '25.00',
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-          ],
-          num_items: 2,
-          currency: 'USD',
-          content_category: 'Games'
-        });
-        analytics.called(window.fbq, 'track', '123456', {
-          currency: 'USD',
-          value: '25.00'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            value: '25.00',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'Games'
+          },
+          { eventID: undefined }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          '123456',
+          {
+            currency: 'USD',
+            value: '25.00'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should default to id for content_ids', function() {
@@ -1234,17 +1666,27 @@ describe('Facebook Pixel', function() {
             }
           ]
         });
-        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          value: '25.00',
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
-            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-          ],
-          num_items: 2,
-          currency: 'USD',
-          content_category: 'Games'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            value: '25.00',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'Games'
+          },
+          { eventID: undefined }
+        );
       });
 
       it('should default to sku for content_ids', function() {
@@ -1278,17 +1720,24 @@ describe('Facebook Pixel', function() {
             }
           ]
         });
-        analytics.called(window.fbq, 'track', 'InitiateCheckout', {
-          content_ids: ['45790-32', '505bd76785ebb509fc183733'],
-          value: '25.00',
-          contents: [
-            { id: '45790-32', quantity: 1, item_price: 19 },
-            { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
-          ],
-          num_items: 2,
-          currency: 'USD',
-          content_category: 'Games'
-        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: ['45790-32', '505bd76785ebb509fc183733'],
+            value: '25.00',
+            contents: [
+              { id: '45790-32', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'Games'
+          },
+          { eventID: undefined }
+        );
       });
     });
   });
