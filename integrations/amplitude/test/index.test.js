@@ -7,6 +7,7 @@ var tester = require('@segment/analytics.js-integration-tester');
 var Amplitude = require('../lib/');
 var sinon = require('sinon');
 var assert = require('assert');
+var stringify = require('json-stable-stringify');
 
 describe('Amplitude', function() {
   var amplitude;
@@ -755,6 +756,46 @@ describe('Amplitude', function() {
         amplitude.options.preferAnonymousIdForDeviceId = true;
         analytics.group('group');
         analytics.called(window.amplitude.getInstance().setDeviceId, 'example');
+      });
+    });
+
+    describe('#alias', function() {
+      beforeEach(function() {
+        amplitude.options.sendAlias = true;
+      });
+
+      it('should format data correctly to send to Amplitude', function() {
+        analytics.alias('global_id', 'user_id');
+        assert(Object.keys(amplitude.aliasData.length === 2));
+        assert(amplitude.aliasData.user_id === 'user_id');
+        assert(amplitude.aliasData.global_user_id === 'global_id');
+        assert(
+          amplitude.aliasFormData ===
+           'api_key=' +
+           amplitude.options.apiKey +
+           '&mapping=[' +
+           stringify(amplitude.aliasData) +
+           ']');
+      });
+
+      it('should unmap user_id from global_id', function() {
+        analytics.alias('global_id', 'user_id', {
+          integrations: {
+            Amplitude: {
+              unmap: 'user_id'
+            }
+          }
+        });
+        assert(Object.keys(amplitude.aliasData.length === 3));
+        assert(amplitude.aliasData.user_id === 'user_id');
+        assert(amplitude.aliasData.unmap === true);
+        assert(
+          amplitude.aliasFormData ===
+           'api_key=' +
+           amplitude.options.apiKey +
+           '&mapping=[' +
+           stringify(amplitude.aliasData) +
+           ']');
       });
     });
 
