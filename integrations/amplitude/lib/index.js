@@ -11,6 +11,8 @@ var when = require('do-when');
 var is = require('is');
 var each = require('@ndhoule/each');
 var Track = require('segmentio-facade').Track;
+var https = require('https');
+var stringify = require('json-stable-stringify');
 
 /**
  * UMD?
@@ -49,6 +51,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('preferAnonymousIdForDeviceId', false)
   .option('traitsToSetOnce', [])
   .option('traitsToIncrement', [])
+  .option('sendAlias', false)
   .tag('<script src="' + src + '">'));
 
 /**
@@ -441,3 +444,57 @@ function mapRevenueAttributes(track) {
     revenue: track.revenue()
   };
 }
+
+/**
+ * Alias.
+ *
+ * @api public
+ * @param {Alias} alias
+ * https://amplitude.zendesk.com/hc/en-us/articles/360002750712#user-mapping-aliasing
+ */
+
+Amplitude.prototype.alias = function(alias) {
+  if (!this.options.sendAlias) return;
+
+  var request = {
+    hostname: 'api.amplitude.com',
+    port: 443,
+    path: '/usermap',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  };
+
+  var req = https.request(request);
+
+  req.on('error', function(e) {
+    console.error(e);
+  });
+
+  // Amplitude returns a 400 if either `user_id` or `global_user_id` is null
+  // or undefined. We won't bail if either is undefined or null, since
+  // the error should be surfaced to the customer for visbility.
+
+  // Attaching values to `Amplitude` instance so data is accessible for testing
+  this.aliasData = {};
+  this.aliasOptions = alias.options(this.name);
+
+  if (this.aliasOptions && this.aliasOptions.unmap) {
+    this.aliasData.unmap = true;
+    this.aliasData.user_id = this.aliasOptions.unmap;
+  } else {
+    this.aliasData.user_id = this.analytics.user().id() || alias.previousId();
+    this.aliasData.global_user_id = alias.userId();
+  }
+
+  this.aliasFormData =
+    'api_key=' +
+    this.options.apiKey +
+    '&mapping=[' +
+    stringify(this.aliasData) +
+    ']';
+
+  req.write(this.aliasFormData);
+  req.end();
+};
