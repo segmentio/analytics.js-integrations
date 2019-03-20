@@ -65,6 +65,7 @@ describe('Amplitude', function() {
         .option('traitsToSetOnce', [])
         .option('traitsToIncrement', [])
         .option('deviceIdFromUrlParam', false)
+        .option('sendAlias', false)
     );
   });
 
@@ -766,16 +767,18 @@ describe('Amplitude', function() {
 
       it('should format data correctly to send to Amplitude', function() {
         analytics.alias('global_id', 'user_id');
-        assert(Object.keys(amplitude.aliasData.length === 2));
+        assert(Object.keys(amplitude.aliasData).length === 2);
         assert(amplitude.aliasData.user_id === 'user_id');
         assert(amplitude.aliasData.global_user_id === 'global_id');
+        /* prettier-ignore */
         assert(
           amplitude.aliasFormData ===
            'api_key=' +
            amplitude.options.apiKey +
            '&mapping=[' +
            stringify(amplitude.aliasData) +
-           ']');
+           ']'
+          );
       });
 
       it('should unmap user_id from global_id', function() {
@@ -786,16 +789,18 @@ describe('Amplitude', function() {
             }
           }
         });
-        assert(Object.keys(amplitude.aliasData.length === 3));
+        assert(Object.keys(amplitude.aliasData).length === 2);
         assert(amplitude.aliasData.user_id === 'user_id');
         assert(amplitude.aliasData.unmap === true);
+        /* prettier-ignore */
         assert(
           amplitude.aliasFormData ===
            'api_key=' +
            amplitude.options.apiKey +
            '&mapping=[' +
            stringify(amplitude.aliasData) +
-           ']');
+           ']'
+          );
       });
     });
 

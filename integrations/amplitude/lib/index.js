@@ -469,6 +469,7 @@ Amplitude.prototype.alias = function(alias) {
   var req = https.request(request);
 
   req.on('error', function(e) {
+    /* istanbul ignore next */
     console.error(e);
   });
 
