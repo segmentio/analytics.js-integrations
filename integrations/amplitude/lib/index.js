@@ -11,8 +11,8 @@ var when = require('do-when');
 var is = require('is');
 var each = require('@ndhoule/each');
 var Track = require('segmentio-facade').Track;
-var https = require('https');
 var JSON = require('json3');
+var request = require('request');
 
 /**
  * UMD?
@@ -455,24 +455,6 @@ function mapRevenueAttributes(track) {
 
 Amplitude.prototype.alias = function(alias) {
   if (!this.options.sendAlias) return;
-
-  var request = {
-    hostname: 'api.amplitude.com',
-    port: 443,
-    path: '/usermap',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  };
-
-  var req = https.request(request);
-
-  req.on('error', function(e) {
-    /* istanbul ignore next */
-    console.error(e);
-  });
-
   // Amplitude returns a 400 if either `user_id` or `global_user_id` is null
   // or undefined. We won't bail if either is undefined or null, since
   // the error should be surfaced to the customer for visbility.
@@ -496,6 +478,16 @@ Amplitude.prototype.alias = function(alias) {
     JSON.stringify(this.aliasData) +
     ']';
 
-  req.write(this.aliasFormData);
-  req.end();
+  var options = {
+    url: 'https://api.amplitude.com/usermap',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: this.aliasFormData
+  };
+
+  request.post(options, function(e) {
+    /* istanbul ignore next */
+    if (e) console.error(e);
+  });
 };
