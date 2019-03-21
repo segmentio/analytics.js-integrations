@@ -7,7 +7,7 @@ var tester = require('@segment/analytics.js-integration-tester');
 var Amplitude = require('../lib/');
 var sinon = require('sinon');
 var assert = require('assert');
-var stringify = require('json-stable-stringify');
+var JSON = require('json3');
 
 describe('Amplitude', function() {
   var amplitude;
@@ -776,7 +776,7 @@ describe('Amplitude', function() {
            'api_key=' +
            amplitude.options.apiKey +
            '&mapping=[' +
-           stringify(amplitude.aliasData) +
+           JSON.stringify(amplitude.aliasData) +
            ']'
           );
       });
@@ -798,7 +798,7 @@ describe('Amplitude', function() {
            'api_key=' +
            amplitude.options.apiKey +
            '&mapping=[' +
-           stringify(amplitude.aliasData) +
+           JSON.stringify(amplitude.aliasData) +
            ']'
           );
       });

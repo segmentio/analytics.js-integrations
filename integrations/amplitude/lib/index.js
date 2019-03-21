@@ -12,7 +12,7 @@ var is = require('is');
 var each = require('@ndhoule/each');
 var Track = require('segmentio-facade').Track;
 var https = require('https');
-var stringify = require('json-stable-stringify');
+var JSON = require('json3');
 
 /**
  * UMD?
@@ -493,7 +493,7 @@ Amplitude.prototype.alias = function(alias) {
     'api_key=' +
     this.options.apiKey +
     '&mapping=[' +
-    stringify(this.aliasData) +
+    JSON.stringify(this.aliasData) +
     ']';
 
   req.write(this.aliasFormData);
