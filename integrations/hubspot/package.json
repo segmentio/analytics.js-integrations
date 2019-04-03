@@ -28,11 +28,5 @@
     "@segment/convert-dates": "^1.0.0",
     "global-queue": "^1.0.1",
     "segmentio-facade": "^3.2.2"
-  },
-  "devDependencies": {
-    "@segment/analytics.js-core": "^3.7.2",
-    "@segment/analytics.js-integration-tester": "^3.1.0",
-    "@segment/clear-env": "^2.1.0",
-    "mocha": "^5.2.0"
   }
 }
