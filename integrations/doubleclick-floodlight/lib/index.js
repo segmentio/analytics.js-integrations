@@ -10,6 +10,7 @@ var foldl = require('@ndhoule/foldl');
 var qs = require('component-querystring');
 var find = require('obj-case').find;
 var toNoCase = require('to-no-case');
+var cookie = require('component-cookie');
 
 /**
  * Expose `DoubleClick Floodlight` integration.
@@ -17,8 +18,12 @@ var toNoCase = require('to-no-case');
 
 var Floodlight = module.exports = integration('DoubleClick Floodlight')
   .option('source', '')
+  .option('getDoubleClickId', false)
+  .option('googleNetworkId', '')
+  .option('segmentWriteKey', '')
   .tag('counter', '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">')
-  .tag('sales', '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};qty={{ qty }};cost={{ cost }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">');
+  .tag('sales', '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};qty={{ qty }};cost={{ cost }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">')
+  .tag('doubleclick id', '<img src="//cm.g.doubleclick.net/pixel?google_cm&google_nid={{ googleNetworkId }}&segment_write_key={{ segmentWriteKey }}&user_id={{ userId }}&anonymous_id={{ anonymousId }}"/>');
 
 /**
  * Initialize.
@@ -27,7 +32,30 @@ var Floodlight = module.exports = integration('DoubleClick Floodlight')
  * @api public
  */
 
+
 Floodlight.prototype.initialize = function() {
+  var cookieOptions = {
+    // 2 weeks.
+    maxage: 1209600,
+    secure: false,
+    path: '/'
+  };
+  // In the initialize method:
+  // Check if we should load the DoubleClick ID pixel (and only proceed if we haven't already done so).
+  if (this.options.getDoubleClickId && this.options.googleNetworkId) {
+    if (!cookie('doubleclick_id_ts')) {
+      // Load the doubleclick pixel.
+      this.load('doubleclick id', {
+        googleNetworkId: this.options.googleNetworkId,
+        segmentWriteKey: this.options.segmentWriteKey,
+        // TODO: handle userId being nulls/undefined.
+        userId: this.analytics.user().id(),
+        anonymousId: this.analytics.user().anonymousId()
+      });
+      // Set a cookie so we only need to load the pixel periodically.
+      cookie('doubleclick_id_ts', (new Date()).getTime(), cookieOptions);
+    }
+  }
   this.ready();
 };
 

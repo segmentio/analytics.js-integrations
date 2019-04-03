@@ -28,6 +28,7 @@
     "@ndhoule/each": "^2.0.1",
     "@ndhoule/foldl": "^2.0.1",
     "@segment/analytics.js-integration": "^3.2.0",
+    "component-cookie": "^1.1.4",
     "component-querystring": "^2.0.0",
     "obj-case": "^0.2.0",
     "to-no-case": "^0.1.3"

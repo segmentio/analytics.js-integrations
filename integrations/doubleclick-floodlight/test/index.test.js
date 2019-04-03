@@ -5,6 +5,8 @@ var integration = require('@segment/analytics.js-integration');
 var tester = require('@segment/analytics.js-integration-tester');
 var Floodlight = require('../lib');
 var sinon = require('sinon');
+var cookie = require('component-cookie');
+var assert = require('assert');
 
 describe('DoubleClick Floodlight', function() {
   var floodlight;
@@ -13,6 +15,9 @@ describe('DoubleClick Floodlight', function() {
     source: '654757884637545',
     activityTag: 'sourceLevelTagCat',
     groupTag: 'sourceLevelTagType',
+    getDoubleClickId: false,
+    googleNetworkId: '',
+    segmentWriteKey: '',
     events: [
       {
         key: 'Watched Westworld',
@@ -115,6 +120,50 @@ describe('DoubleClick Floodlight', function() {
   it('should have the correct settings', function() {
     analytics.compare(Floodlight, integration('DoubleClick Floodlight')
       .option('source', ''));
+  });
+
+  describe('before loading', function() {
+    beforeEach(function() {
+      analytics.spy(floodlight, 'load');
+    });
+
+    describe('initialize', function() {
+      it('should not load the doubleclick id if getDoubleClickId is disabled', function() {
+        analytics.initialize();
+        analytics.didNotCall(floodlight.load);
+      });
+
+      it('should not load the doubleclick id if the doubleclick_id_ts cookie is found', function() {
+        cookie('doubleclick_id_ts', 'foobar');
+        floodlight.options.getDoubleClickId = true;
+        floodlight.options.googleNetworkId = 'foo';
+        floodlight.options.segmentWriteKey = '1234';
+        analytics.initialize();
+        analytics.didNotCall(floodlight.load);
+      });
+
+      it('should load the doubleclick id if the doubleclick_id_ts cookie is not found', function() {
+        document.cookie = 'doubleclick_id_ts=; Max-Age=0';
+        floodlight.options.getDoubleClickId = true;
+        floodlight.options.googleNetworkId = 'foo';
+        floodlight.options.segmentWriteKey = '1234';
+        analytics.initialize();
+        analytics.called(floodlight.load, 'doubleclick id', {
+          googleNetworkId: 'foo',
+          segmentWriteKey: '1234',
+          userId: null,
+          anonymousId: analytics.user().anonymousId()
+        });
+      });
+
+      it('should set a cookie after loading the pixel', function() {
+        floodlight.options.getDoubleClickId = true;
+        floodlight.options.googleNetworkId = 'foo';
+        floodlight.options.segmentWriteKey = '1234';
+        analytics.initialize();
+        assert(cookie('doubleclick_id_ts'));
+      });
+    });
   });
 
   describe('after loading', function() {
