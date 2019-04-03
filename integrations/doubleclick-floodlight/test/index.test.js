@@ -53,7 +53,7 @@ describe('DoubleClick Floodlight', function() {
       {
         key: 'Viewed Confirmation Page',
         value: {
-          event:'Viewed Confirmation Page',
+          event: 'Viewed Confirmation Page',
           cat: 'activityTag',
           type: 'groupTag',
           customVariable: [],
@@ -64,7 +64,7 @@ describe('DoubleClick Floodlight', function() {
       {
         key: 'Order Completed',
         value: {
-          event:'Order Completed',
+          event: 'Order Completed',
           cat: 'activityTag',
           type: 'groupTag',
           customVariable: [],
@@ -75,7 +75,7 @@ describe('DoubleClick Floodlight', function() {
       {
         key: 'Property Lookup',
         value: {
-          event:'Property Lookup',
+          event: 'Property Lookup',
           cat: 'activityTag',
           type: 'groupTag',
           customVariable: [
@@ -91,7 +91,7 @@ describe('DoubleClick Floodlight', function() {
       {
         key: 'Top Level Tag Settings',
         value: {
-          event:'Top Level Tag Settings',
+          event: 'Top Level Tag Settings',
           cat: '',
           type: '',
           customVariable: [],
@@ -101,7 +101,6 @@ describe('DoubleClick Floodlight', function() {
       }
     ]
   };
-
 
   beforeEach(function() {
     analytics = new Analytics();
@@ -118,8 +117,10 @@ describe('DoubleClick Floodlight', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Floodlight, integration('DoubleClick Floodlight')
-      .option('source', ''));
+    analytics.compare(
+      Floodlight,
+      integration('DoubleClick Floodlight').option('source', '')
+    );
   });
 
   describe('before loading', function() {
@@ -190,12 +191,18 @@ describe('DoubleClick Floodlight', function() {
       });
 
       it('should fire a basic floodlight counter tag properly', function() {
-        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
-          + ';src=' + options.source
-          + ';type=' + options.events[1].value.type
-          + ';cat=' + options.events[1].value.cat
-          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
-          + ';ord=2700503028455676400?">';
+        var iframe =
+          '<iframe src="https://' +
+          options.source +
+          '.fls.doubleclick.net/activityi' +
+          ';src=' +
+          options.source +
+          ';type=' +
+          options.events[1].value.type +
+          ';cat=' +
+          options.events[1].value.cat +
+          ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+          ';ord=2700503028455676400?">';
 
         analytics.track('Goodbye Pablo');
         analytics.called(floodlight.load);
@@ -203,14 +210,20 @@ describe('DoubleClick Floodlight', function() {
       });
 
       it('should fire a floodlight counter tag with custom variables properly', function() {
-        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
-          + ';src=' + options.source
-          + ';type=' + options.events[0].value.type
-          + ';cat=' + options.events[0].value.cat
-          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
-          + ';ord=2700503028455676400'
-          + ';u1=Maeve'
-          + ';u2=4?">';
+        var iframe =
+          '<iframe src="https://' +
+          options.source +
+          '.fls.doubleclick.net/activityi' +
+          ';src=' +
+          options.source +
+          ';type=' +
+          options.events[0].value.type +
+          ';cat=' +
+          options.events[0].value.cat +
+          ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+          ';ord=2700503028455676400' +
+          ';u1=Maeve' +
+          ';u2=4?">';
 
         analytics.track('Watched Westworld', {
           favoriteCharacter: 'Maeve',
@@ -251,14 +264,22 @@ describe('DoubleClick Floodlight', function() {
             }
           ]
         };
-        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
-          + ';src=' + options.source
-          + ';type=' + options.events[1].value.type
-          + ';cat=' + options.events[1].value.cat
-          + ';qty=' + 3
-          + ';cost=' + properties.revenue
-          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
-          + ';ord=50314b8e9bcf000000000000?">';
+        var iframe =
+          '<iframe src="https://' +
+          options.source +
+          '.fls.doubleclick.net/activityi' +
+          ';src=' +
+          options.source +
+          ';type=' +
+          options.events[1].value.type +
+          ';cat=' +
+          options.events[1].value.cat +
+          ';qty=' +
+          3 +
+          ';cost=' +
+          properties.revenue +
+          ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+          ';ord=50314b8e9bcf000000000000?">';
 
         analytics.track('Order Completed', properties);
         analytics.called(floodlight.load);
@@ -268,13 +289,21 @@ describe('DoubleClick Floodlight', function() {
       it('should handle property lookups as custom variable keys', function() {
         var event = options.events[4];
         var context = { campaign: { name: 'campaignName' } };
-        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
-          + ';src=' + options.source
-          + ';type=' + event.value.type
-          + ';cat=' + event.value.cat
-          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
-          + ';ord=2700503028455676400'
-          + ';u1=' + context.campaign.name + '?">';
+        var iframe =
+          '<iframe src="https://' +
+          options.source +
+          '.fls.doubleclick.net/activityi' +
+          ';src=' +
+          options.source +
+          ';type=' +
+          event.value.type +
+          ';cat=' +
+          event.value.cat +
+          ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+          ';ord=2700503028455676400' +
+          ';u1=' +
+          context.campaign.name +
+          '?">';
 
         analytics.track('Property Lookup', {}, context);
         analytics.called(floodlight.load);
@@ -282,12 +311,18 @@ describe('DoubleClick Floodlight', function() {
       });
 
       it('should fallback on top level tag settings', function() {
-        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
-          + ';src=' + options.source
-          + ';type=' + options.groupTag
-          + ';cat=' + options.activityTag
-          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
-          + ';ord=2700503028455676400?">';
+        var iframe =
+          '<iframe src="https://' +
+          options.source +
+          '.fls.doubleclick.net/activityi' +
+          ';src=' +
+          options.source +
+          ';type=' +
+          options.groupTag +
+          ';cat=' +
+          options.activityTag +
+          ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+          ';ord=2700503028455676400?">';
 
         analytics.track('Top Level Tag Settings', {});
         analytics.called(floodlight.load);
@@ -308,14 +343,22 @@ describe('DoubleClick Floodlight', function() {
           currency: 'USD',
           quantity: 3
         };
-        var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
-          + ';src=' + options.source
-          + ';type=' + options.events[1].value.type
-          + ';cat=' + options.events[1].value.cat
-          + ';qty=' + 3
-          + ';cost=' + properties.revenue
-          + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
-          + ';ord=50314b8e9bcf000000000000?">';
+        var iframe =
+          '<iframe src="https://' +
+          options.source +
+          '.fls.doubleclick.net/activityi' +
+          ';src=' +
+          options.source +
+          ';type=' +
+          options.events[1].value.type +
+          ';cat=' +
+          options.events[1].value.cat +
+          ';qty=' +
+          3 +
+          ';cost=' +
+          properties.revenue +
+          ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+          ';ord=50314b8e9bcf000000000000?">';
 
         analytics.track('Order Completed', properties);
         analytics.called(floodlight.load);
@@ -338,12 +381,18 @@ describe('DoubleClick Floodlight', function() {
         });
 
         it('should fire a floodlight tag for named pages mapped as events', function() {
-          var iframe = '<iframe src="https://' + options.source + '.fls.doubleclick.net/activityi'
-            + ';src=' + options.source
-            + ';type=' + options.events[1].value.type
-            + ';cat=' + options.events[1].value.cat
-            + ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment='
-            + ';ord=2700503028455676400?">';
+          var iframe =
+            '<iframe src="https://' +
+            options.source +
+            '.fls.doubleclick.net/activityi' +
+            ';src=' +
+            options.source +
+            ';type=' +
+            options.events[1].value.type +
+            ';cat=' +
+            options.events[1].value.cat +
+            ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+            ';ord=2700503028455676400?">';
 
           analytics.page('Confirmation');
           analytics.called(floodlight.load);
@@ -351,10 +400,11 @@ describe('DoubleClick Floodlight', function() {
         });
       });
 
-
       describe('noops', function() {
         it('should noop if no mapped tags are found for an event', function() {
-          analytics.track('They should announce a sequel to Groundhog Day and then just rerelease the original');
+          analytics.track(
+            'They should announce a sequel to Groundhog Day and then just rerelease the original'
+          );
           analytics.didNotCall(floodlight.load);
         });
 
