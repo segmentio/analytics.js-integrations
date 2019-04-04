@@ -52,7 +52,6 @@ Floodlight.prototype.initialize = function() {
   // Check if we should load the DoubleClick ID pixel (and only proceed if we haven't already done so).
   if (this.options.getDoubleClickId && this.options.googleNetworkId) {
     if (!cookie('doubleclick_id_ts')) {
-      console.log('Cookie monster!')
       // Load the doubleclick pixel.
       this.load('doubleclick id', {
         googleNetworkId: this.options.googleNetworkId,
