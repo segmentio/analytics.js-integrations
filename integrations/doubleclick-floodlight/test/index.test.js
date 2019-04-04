@@ -143,18 +143,23 @@ describe('DoubleClick Floodlight', function() {
         analytics.didNotCall(floodlight.load);
       });
 
-      it('should load the doubleclick id if the doubleclick_id_ts cookie is not found', function() {
-        document.cookie = 'doubleclick_id_ts=; Max-Age=0';
-        floodlight.options.getDoubleClickId = true;
-        floodlight.options.googleNetworkId = 'foo';
-        floodlight.options.segmentWriteKey = '1234';
-        analytics.initialize();
-        analytics.called(floodlight.load, 'doubleclick id', {
-          googleNetworkId: 'foo',
-          segmentWriteKey: '1234',
-          userId: null,
-          anonymousId: analytics.user().anonymousId()
-        });
+      it.only('should load the doubleclick id if the doubleclick_id_ts cookie is not found', function() {
+        try {
+          cookie('doubleclick_id_ts', 'foobar', { maxage: -1 });
+          floodlight.options.getDoubleClickId = true;
+          floodlight.options.googleNetworkId = 'foo';
+          floodlight.options.segmentWriteKey = '1234';
+          analytics.initialize();
+          console.log(floodlight.load)
+          analytics.called(floodlight.load, 'doubleclick id', {
+            googleNetworkId: 'foo',
+            segmentWriteKey: '1234',
+            userId: null,
+            anonymousId: analytics.user().anonymousId()
+          });
+        } catch (e) {
+          console.log(e)
+        }
       });
 
       it('should set a cookie after loading the pixel', function() {
