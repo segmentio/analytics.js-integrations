@@ -44,6 +44,7 @@ describe('Adobe Analytics', function() {
     lVars: {
       names: 'list1'
     },
+    merchEvents: [],
     contextValues: {},
     customDataPrefix: '',
     timestampOption: 'enabled',
@@ -190,6 +191,99 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
+      describe('merch events', function() {
+        // What happens if the event is only mapped as a product scoped event (ie. not a standard event)?
+        describe('event scoped currency events', function() {
+          it('adds the event to s.events if the valueScope is `event` and maps segmentProp as the increment value', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'My Merch Event',
+                adobeEvent: [
+                  {
+                    valueScope: 'event',
+                    segmentProp: 'foo',
+                    adobeEvent: 'event8'
+                  }
+                ],
+                productEVars: []
+              }
+            ];
+            analytics.track('My Merch Event', { foo: 10 });
+            analytics.equal(window.s.events, 'event8=10');
+          });
+
+          it('handles multiple event scoped currency events', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'My Merch Event',
+                adobeEvent: [
+                  {
+                    valueScope: 'event',
+                    segmentProp: 'foo',
+                    adobeEvent: 'event8'
+                  },
+                  {
+                    valueScope: 'event',
+                    segmentProp: 'bar',
+                    adobeEvent: 'event9'
+                  }
+                ],
+                productEVars: []
+              }
+            ];
+            analytics.track('My Merch Event', { foo: 10, bar: 11 });
+            analytics.equal(window.s.events, 'event8=10,event9=11');
+          });
+
+          it('handles both currency and standard event mapping options', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'event',
+                    segmentProp: 'foo',
+                    adobeEvent: 'event8'
+                  }
+                ],
+                productEVars: []
+              }
+            ];
+            adobeAnalytics.options.events = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvents: ['event6', 'event7']
+              }
+            ];
+            analytics.track('Drank Some Milk', { foo: 10 });
+            analytics.equal(window.s.events, 'event6,event7,event8=10');
+          });
+
+          it('overrides standard event mappings with merch event mappings when there is a conflict', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'event',
+                    segmentProp: 'foo',
+                    adobeEvent: 'event8'
+                  }
+                ],
+                productEVars: []
+              }
+            ];
+            adobeAnalytics.options.events = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvents: ['event6', 'event8']
+              }
+            ];
+            analytics.track('Drank Some Milk', { foo: 10 });
+            analytics.equal(window.s.events, 'event6,event8=10');
+          });
+        });
+      });
       it('tracks new mapped events (with multiple declarations)', function() {
         adobeAnalytics.options.events = [
           { segmentEvent: 'Drank Some Milk', adobeEvents: ['event1'] },

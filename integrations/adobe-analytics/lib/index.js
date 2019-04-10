@@ -10,6 +10,7 @@ var each = require('@ndhoule/each');
 var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
+var utils = require('./utils');
 
 /**
  * hasOwnProperty reference.
@@ -303,7 +304,7 @@ AdobeAnalytics.prototype.track = function(track) {
 
   // Find AA event name from setting's event map
   // otherwise abort
-  var adobeEvent = aliasEvent(track.event(), this.options.events);
+  var adobeEvent = aliasEvent(track, this.options);
   if (!adobeEvent) return;
 
   this.processEvent(track);
@@ -414,20 +415,18 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 /**
  * Update window variables and then fire Adobe track call
  *
- * @param {*} msg
- * @param {*} adobeEvent
+ * @param {object} msg
+ * @param {string} adobeEvent
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var props = msg.properties();
 
   var products = msg.products();
+  var productVariables;
   if (Array.isArray(products) && !window.s.products) {
     // check window because products key could already have been filled upstream
-    var productVariables = formatProducts(
-      products,
-      this.options.productIdentifier
-    );
+    productVariables = formatProducts(products, this.options.productIdentifier);
   }
 
   updateContextData(msg, this.options);
@@ -437,7 +436,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
 
   if (productVariables) update(productVariables, 'products');
 
-  updateEvents(msg.event(), this.options.events, adobeEvent);
+  updateEvents(msg, this.options, adobeEvent);
   updateCommonVariables(msg, this.options);
 
   calculateTimestamp(msg, this.options);
@@ -537,8 +536,8 @@ function calculateTimestamp(msg, options) {
  * @param  {String} base          An Adobe-specific event
  */
 
-function updateEvents(event, mapping, base) {
-  var value = [base, aliasEvent(event, mapping)].filter(Boolean).join(',');
+function updateEvents(facade, options, base) {
+  var value = [base, aliasEvent(facade, options)].filter(Boolean).join(',');
   update(value, 'events');
   window.s.linkTrackEvents = value;
 }
@@ -600,23 +599,63 @@ function addContextDatum(key, value) {
 
 /**
  * Alias a regular event `name` to an AA event, using a dictionary of
- * `events`.
+ * `events` and `merchEvents` from options.
  *
  * @api private
- * @param {string} name
+ * @param {object} facade
  * @param {Object} options
- * @return {string|null}
+ * @param {{segmentEvent: string, adobeEvents: string[]}[]} options.events
+ * @param {MerchEventSetting[]} options.merchEvents
+ * @return {string}
  */
 
-function aliasEvent(name, mapping) {
-  var events = [];
-  var key = name.toLowerCase();
+function aliasEvent(facade, options) {
+  var standardEvents = options.events || [];
+  var merchEvent = utils.getMerchEventMapping(facade, options);
+  var properties = facade.properties();
+  var eventMappings = {};
+  var key = facade.event().toLowerCase();
 
-  if (mapping) {
-    each(function(m) {
-      if (m.segmentEvent.toLowerCase() !== key) return;
-      events.push.apply(events, m.adobeEvents);
-    }, mapping);
+  /**
+   * eventMappings are stored from options as:
+   * { adobeEventName: eventValue || '' }
+   * Standard events are just mapped as empty strings.
+   * Merch events are mapped as either empty strings or
+   * the value of the segmentProp mapping in the event properties.
+   */
+  var eventMappings = {};
+
+  standardEvents.forEach(function(mapping) {
+    var segmentEvent = mapping.segmentEvent.toLowerCase();
+    if (segmentEvent === key) {
+      // TODO: is this an issue if the user wants empty strings as values?
+      mapping.adobeEvents.forEach(function(event) {
+        eventMappings[event] = '';
+      });
+    }
+  });
+
+  if (merchEvent) {
+    merchEvent.adobeEvent.forEach(function(mapping) {
+      var segmentEvent = merchEvent.segmentEvent.toLowerCase();
+      if (segmentEvent === key) {
+        eventMappings[mapping.adobeEvent] = utils.getEventValue(
+          mapping,
+          properties
+        );
+      }
+    });
+  }
+
+  var events = [];
+  for (var event in eventMappings) {
+    if (!Object.prototype.hasOwnProperty.call(eventMappings, event)) return;
+    var value = eventMappings[event];
+    if (value !== '') {
+      events.push(event + '=' + value);
+    } else {
+      events.push(event);
+    }
   }
 
   return events.join(',');
