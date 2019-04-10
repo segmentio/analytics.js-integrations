@@ -8,6 +8,12 @@
  */
 
 /**
+ * @typedef {Object} ProductEvarMapping
+ * @property {string} key
+ * @property {string} value
+ */
+
+/**
  * Merch Event Setting structure.
  * @typedef {Object} MerchEventSetting
  * @property {string} segmentEvent
@@ -102,7 +108,25 @@ function buildEventAndEvarString(facade, options, product) {
       }, [])
       .join('|');
 
-    // TODO: add evar mappings...
+    // Build eVars string
+    var evars = merchEventMapping.productEVars
+      .reduce(function(accumulator, evarMapping) {
+        var str = createProductStringMember(
+          evarMapping.value,
+          evarMapping.key,
+          properties,
+          product
+        );
+        if (str) {
+          accumulator.push(str);
+        }
+        return accumulator;
+      }, [])
+      .join('|');
+
+    if (evars.length) {
+      return events.concat(';', evars);
+    }
 
     return events;
   }

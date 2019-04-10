@@ -441,6 +441,189 @@ describe('Adobe Analytics', function() {
             );
           });
         });
+
+        describe('product scoped evars', function() {
+          it('adds product evars', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'products.$.quantity',
+                    adobeEvent: 'event8'
+                  },
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'products.price',
+                    adobeEvent: 'event9'
+                  }
+                ],
+                productEVars: [
+                  {
+                    key: 'foo',
+                    value: 'eVar1'
+                  }
+                ]
+              }
+            ];
+            adobeAnalytics.options.events = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvents: ['event6']
+              }
+            ];
+            analytics.track('Drank Some Milk', {
+              products: [
+                {
+                  product_id: '507f1f77bcf86cd799439011',
+                  sku: '45790-32',
+                  name: 'Monopoly: 3rd Edition',
+                  price: 19,
+                  quantity: 1,
+                  category: 'Games'
+                },
+                {
+                  product_id: '505bd76785ebb509fc183733',
+                  sku: '46493-32',
+                  name: 'Uno Card Game',
+                  price: 3,
+                  quantity: 2,
+                  category: 'Games'
+                }
+              ],
+              foo: 10,
+              bar: 11
+            });
+            analytics.equal(window.s.events, 'event6,event8,event9');
+            analytics.equal(
+              window.s.products,
+              'Games;Monopoly: 3rd Edition;1;19.00;event8=1|event9=19;eVar1=10,Games;Uno Card Game;2;6.00;event8=2|event9=3;eVar1=10'
+            );
+          });
+
+          it('maps the incrementer to product specific values if the segmentProp starts with `products.`', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'products.$.quantity',
+                    adobeEvent: 'event8'
+                  },
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'products.price',
+                    adobeEvent: 'event9'
+                  }
+                ],
+                productEVars: [
+                  {
+                    key: 'products.quantity',
+                    value: 'eVar1'
+                  }
+                ]
+              }
+            ];
+            adobeAnalytics.options.events = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvents: ['event6']
+              }
+            ];
+            analytics.track('Drank Some Milk', {
+              products: [
+                {
+                  product_id: '507f1f77bcf86cd799439011',
+                  sku: '45790-32',
+                  name: 'Monopoly: 3rd Edition',
+                  price: 19,
+                  quantity: 1,
+                  category: 'Games'
+                },
+                {
+                  product_id: '505bd76785ebb509fc183733',
+                  sku: '46493-32',
+                  name: 'Uno Card Game',
+                  price: 3,
+                  quantity: 2,
+                  category: 'Games'
+                }
+              ],
+              foo: 10,
+              bar: 11
+            });
+            analytics.equal(window.s.events, 'event6,event8,event9');
+            analytics.equal(
+              window.s.products,
+              'Games;Monopoly: 3rd Edition;1;19.00;event8=1|event9=19;eVar1=1,Games;Uno Card Game;2;6.00;event8=2|event9=3;eVar1=2'
+            );
+          });
+
+          it('handles multiple eVar mappings', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'products.$.quantity',
+                    adobeEvent: 'event8'
+                  },
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'products.price',
+                    adobeEvent: 'event9'
+                  }
+                ],
+                productEVars: [
+                  {
+                    key: 'products.quantity',
+                    value: 'eVar1'
+                  },
+                  {
+                    key: 'bar',
+                    value: 'eVar2'
+                  }
+                ]
+              }
+            ];
+            adobeAnalytics.options.events = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvents: ['event6']
+              }
+            ];
+            analytics.track('Drank Some Milk', {
+              products: [
+                {
+                  product_id: '507f1f77bcf86cd799439011',
+                  sku: '45790-32',
+                  name: 'Monopoly: 3rd Edition',
+                  price: 19,
+                  quantity: 1,
+                  category: 'Games'
+                },
+                {
+                  product_id: '505bd76785ebb509fc183733',
+                  sku: '46493-32',
+                  name: 'Uno Card Game',
+                  price: 3,
+                  quantity: 2,
+                  category: 'Games'
+                }
+              ],
+              foo: 10,
+              bar: 11
+            });
+            analytics.equal(window.s.events, 'event6,event8,event9');
+            analytics.equal(
+              window.s.products,
+              'Games;Monopoly: 3rd Edition;1;19.00;event8=1|event9=19;eVar1=1|eVar2=11,Games;Uno Card Game;2;6.00;event8=2|event9=3;eVar1=2|eVar2=11'
+            );
+          });
+        });
       });
 
       it('tracks new mapped events (with multiple declarations)', function() {
