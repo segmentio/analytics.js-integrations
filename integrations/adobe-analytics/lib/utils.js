@@ -1,11 +1,18 @@
 'use strict';
 
 /**
+ * @typedef {Object} AdobeEventMapping
+ * @property {string} valueScope
+ * @property {string} segmentProp
+ * @property {string} adobeEvent
+ */
+
+/**
  * Merch Event Setting structure.
  * @typedef {Object} MerchEventSetting
  * @property {string} segmentEvent
- * @property {{valueScope: string, segmentProp: string, adobeEvent: string}[]} adobeEvent
- * @property {{key: string, value: string}[]} productEVars
+ * @property {AdobeEventMapping[]} adobeEvent
+ * @property {ProductEvarMapping[]} productEVars
  */
 
 /**
@@ -52,7 +59,7 @@ function getEventName(facade) {
 }
 
 /**
- *
+ * Get the value to use as the incrementer for a product level event.
  * @param {MerchEventSetting['adobeEvent']} mapping
  * @param {Object} properties
  * @returns {*}
@@ -66,7 +73,65 @@ function getEventValue(mapping, properties) {
   return properties[mapping.segmentProp];
 }
 
+/**
+ * Create the event and/or evar section of the s.products string.
+ * Structure should be: event_incrementer;eVarN=merch_category|eVarM=merch_category2
+ * @param {Object} facade
+ * @param {Object} options
+ * @param {Object} product
+ * @returns {string | undefined}
+ */
+function buildEventAndEvarString(facade, options, product) {
+  var properties = facade.properties();
+  var merchEventMapping = getMerchEventMapping(facade, options);
+
+  if (merchEventMapping) {
+    // Build events string
+    var events = merchEventMapping.adobeEvent
+      .reduce(function(accumulator, adobeEvent) {
+        var str = createProductStringMember(
+          adobeEvent.adobeEvent,
+          adobeEvent.segmentProp,
+          properties,
+          product
+        );
+        if (str) {
+          accumulator.push(str);
+        }
+        return accumulator;
+      }, [])
+      .join('|');
+
+    // TODO: add evar mappings...
+
+    return events;
+  }
+}
+
+/**
+ * Get the incrementer for a given evar mapping or event mapping.
+ * @param {string} prefix
+ * @param {string} segmentProp
+ * @param {object} properties
+ * @param {object} product
+ * @returns {string | undefined}
+ */
+function createProductStringMember(prefix, segmentProp, properties, product) {
+  var incrementValue;
+  if (segmentProp.indexOf('products.') === 0) {
+    var key = segmentProp.split('.').pop();
+    incrementValue = product[key];
+  } else {
+    incrementValue = properties[segmentProp];
+  }
+
+  if (incrementValue !== undefined) {
+    return prefix.concat('=', incrementValue);
+  }
+}
+
 module.exports = {
   getMerchEventMapping: getMerchEventMapping,
-  getEventValue: getEventValue
+  getEventValue: getEventValue,
+  buildEventAndEvarString: buildEventAndEvarString
 };

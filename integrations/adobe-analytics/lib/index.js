@@ -426,7 +426,12 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var productVariables;
   if (Array.isArray(products) && !window.s.products) {
     // check window because products key could already have been filled upstream
-    productVariables = formatProducts(products, this.options.productIdentifier);
+    productVariables = formatProducts(
+      msg,
+      this.options,
+      products,
+      this.options.productIdentifier
+    );
   }
 
   updateContextData(msg, this.options);
@@ -434,6 +439,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var eVarEvent = dot(this.options.eVars, msg.event());
   update(msg.event(), eVarEvent);
 
+  // s.products="category;product;quantity;price;event_incrementer;eVarN=merch_category|eVarM=merch_category2"
   if (productVariables) update(productVariables, 'products');
 
   updateEvents(msg, this.options, adobeEvent);
@@ -613,7 +619,6 @@ function aliasEvent(facade, options) {
   var standardEvents = options.events || [];
   var merchEvent = utils.getMerchEventMapping(facade, options);
   var properties = facade.properties();
-  var eventMappings = {};
   var key = facade.event().toLowerCase();
 
   /**
@@ -738,20 +743,25 @@ function extractProperties(props, options) {
   return result;
 }
 
-function formatProducts(products, identifier) {
-  var productVariables = '';
-  var productDescription;
+function formatProducts(facade, options, products) {
+  var productStringBuilder = [];
 
   // Adobe Analytics wants product description in semi-colon delimited string separated by commas
   for (var x = 0; x < products.length; x++) {
     var product = new Track({ properties: products[x] }); // convert product obj to Facade so formatProduct can query props using Facade methods
-    productDescription = formatProduct(product, identifier);
-    productVariables += productDescription;
-    // if there are more products, delimit using comma
-    if (products[x + 1]) productVariables += ',';
+    var productString = formatProduct(product, options.productIdentifier);
+    var eventsAndEvars = utils.buildEventAndEvarString(
+      facade,
+      options,
+      product.properties()
+    );
+    if (eventsAndEvars) {
+      productString = productString.concat(';', eventsAndEvars);
+    }
+    productStringBuilder.push(productString);
   }
 
-  return productVariables;
+  return productStringBuilder.join(',');
 }
 
 /**
