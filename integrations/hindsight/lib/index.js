@@ -80,7 +80,7 @@ Hindsight.prototype.identify = function(identify) {
 function format(props) {
   var ret = {"implementation":"segment"};
   each(function(value, key) {
-    return ret[key] = is.object(value) || is.array(value) ? window.JSON.stringify(value) : value; 
+    ret[key] = is.object(value) || is.array(value) ? window.JSON.stringify(value) : value; 
   }, props);
 
   return ret;
