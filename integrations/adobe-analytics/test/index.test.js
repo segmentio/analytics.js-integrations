@@ -300,6 +300,26 @@ describe('Adobe Analytics', function() {
             analytics.track('Drank Some Milk', { foo: 10 });
             analytics.equal(window.s.events, 'event8=10');
           });
+
+          it('strips the trackLinkName parameter of any equals signs and increment values', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'event',
+                    segmentProp: 'foo',
+                    adobeEvent: 'event8'
+                  }
+                ],
+                productEVars: []
+              }
+            ];
+            adobeAnalytics.options.events = [];
+            analytics.track('Drank Some Milk', { foo: 10 });
+            analytics.equal(window.s.events, 'event8=10');
+            analytics.equal(window.s.linkTrackEvents, 'event8');
+          });
         });
 
         describe('product scoped currency events', function() {

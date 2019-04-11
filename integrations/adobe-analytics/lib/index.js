@@ -566,7 +566,10 @@ function calculateTimestamp(msg, options) {
 function updateEvents(facade, options, base) {
   var value = [base, aliasEvent(facade, options)].filter(Boolean).join(',');
   update(value, 'events');
-  window.s.linkTrackEvents = value;
+  // The s.linkTrackEvents paramter can only contain event names.
+  // If it contains numeric events with the counter, the s.events paramter fails to get sent :()
+  // Here we strip out any equals signs as well as any proceeding digits.
+  window.s.linkTrackEvents = value.replace(/(=\d*)?/gm, '');
 }
 
 /**
