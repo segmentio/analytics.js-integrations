@@ -95,14 +95,16 @@ function buildEventAndEvarString(facade, options, product) {
     // Build events string
     var events = merchEventMapping.adobeEvent
       .reduce(function(accumulator, adobeEvent) {
-        var str = createProductStringMember(
-          adobeEvent.adobeEvent,
-          adobeEvent.segmentProp,
-          properties,
-          product
-        );
-        if (str) {
-          accumulator.push(str);
+        if (adobeEvent.valueScope === 'product') {
+          var str = createProductStringMember(
+            adobeEvent.adobeEvent,
+            adobeEvent.segmentProp,
+            properties,
+            product
+          );
+          if (str) {
+            accumulator.push(str);
+          }
         }
         return accumulator;
       }, [])

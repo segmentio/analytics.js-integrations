@@ -346,6 +346,49 @@ describe('Adobe Analytics', function() {
             );
           });
 
+          it('only adds product scoped events to the products string', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'event',
+                    segmentProp: 'foo',
+                    adobeEvent: 'event8'
+                  }
+                ],
+                productEVars: []
+              }
+            ];
+            adobeAnalytics.options.events = [];
+            analytics.track('Drank Some Milk', {
+              products: [
+                {
+                  product_id: '507f1f77bcf86cd799439011',
+                  sku: '45790-32',
+                  name: 'Monopoly: 3rd Edition',
+                  price: 19,
+                  quantity: 1,
+                  category: 'Games'
+                },
+                {
+                  product_id: '505bd76785ebb509fc183733',
+                  sku: '46493-32',
+                  name: 'Uno Card Game',
+                  price: 3,
+                  quantity: 2,
+                  category: 'Games'
+                }
+              ],
+              foo: 10
+            });
+            analytics.equal(window.s.events, 'event8=10');
+            analytics.equal(
+              window.s.products,
+              'Games;Monopoly: 3rd Edition;1;19.00,Games;Uno Card Game;2;6.00'
+            );
+          });
+
           it('should map the incrementer from the properties object if properties.products is not defined', function() {
             adobeAnalytics.options.merchEvents = [
               {
