@@ -1789,6 +1789,144 @@ describe('Adobe Analytics', function() {
         analytics.assert(!window.s.prop20);
         analytics.equal(window.s.prop10, 'heyo');
       });
+
+      it('should append any events in the integration specific option `events` if they are defined', function() {
+        analytics.page(
+          'warriors',
+          {},
+          {
+            integrations: {
+              'Adobe Analytics': { events: ['event1', 'event2'] }
+            }
+          }
+        );
+        analytics.equal(window.s.events, 'warriors,event1,event2');
+      });
+
+      it('maps merch events if properties.eventName is defined and it is mapped to a merch event setting', function() {
+        adobeAnalytics.options.merchEvents = [
+          {
+            segmentEvent: 'My Merch Event',
+            adobeEvent: [
+              {
+                valueScope: 'event',
+                segmentProp: 'foo',
+                adobeEvent: 'event8'
+              },
+              {
+                valueScope: 'product',
+                segmentProp: 'products.price',
+                adobeEvent: 'event9'
+              }
+            ],
+            productEVars: [
+              {
+                key: 'products.quantity',
+                value: 'eVar1'
+              },
+              {
+                key: 'foo',
+                value: 'eVar2'
+              }
+            ]
+          }
+        ];
+        analytics.page('Products Page', {
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ],
+          eventName: 'My Merch Event',
+          foo: 10
+        });
+        analytics.equal(window.s.events, 'Products Page,event8=10,event9');
+        analytics.equal(
+          window.s.products,
+          'Games;Monopoly: 3rd Edition;1;19.00;event9=19;eVar1=1|eVar2=10,Games;Uno Card Game;2;6.00;event9=3;eVar1=2|eVar2=10'
+        );
+      });
+
+      it('does not map merch events if eventName is not defined or if it does not map to a merchEvent setting', function() {
+        adobeAnalytics.options.merchEvents = [
+          {
+            segmentEvent: 'My Merch Event',
+            adobeEvent: [
+              {
+                valueScope: 'event',
+                segmentProp: 'foo',
+                adobeEvent: 'event8'
+              },
+              {
+                valueScope: 'product',
+                segmentProp: 'products.price',
+                adobeEvent: 'event9'
+              }
+            ],
+            productEVars: []
+          }
+        ];
+        analytics.page('Products Page', {
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ],
+          foo: 10
+        });
+        analytics.equal(window.s.events, 'Products Page');
+        analytics.equal(window.s.products, undefined);
+        analytics.page('Products Page', {
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ],
+          segmentEvent: 'some-random-string',
+          foo: 10
+        });
+        analytics.equal(window.s.events, 'Products Page');
+        analytics.equal(window.s.products, undefined);
+      });
     });
 
     describe('Heartbeat Video', function() {

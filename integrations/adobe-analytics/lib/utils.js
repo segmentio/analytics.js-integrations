@@ -159,5 +159,6 @@ function createProductStringMember(prefix, segmentProp, properties, product) {
 module.exports = {
   getMerchEventMapping: getMerchEventMapping,
   getEventValue: getEventValue,
-  buildEventAndEvarString: buildEventAndEvarString
+  buildEventAndEvarString: buildEventAndEvarString,
+  getEventName: getEventName
 };

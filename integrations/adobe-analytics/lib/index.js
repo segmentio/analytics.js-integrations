@@ -11,6 +11,7 @@ var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
 var utils = require('./utils');
+var extend = require('@ndhoule/extend');
 
 /**
  * hasOwnProperty reference.
@@ -262,7 +263,14 @@ AdobeAnalytics.prototype.page = function(page) {
   }
 
   // Attach some variables on the `window.s` to be sent with the call
-  update(pageName, 'events');
+  updateEvents(page, this.options, pageName);
+
+  // Only map products if the user has defined a merch event mapping.
+  // This is to ensure backwards compatibility.
+  if (utils.getMerchEventMapping(page, this.options)) {
+    updateProducts(page, this.options);
+  }
+
   updateCommonVariables(page, this.options);
 
   calculateTimestamp(page, this.options);
@@ -422,25 +430,12 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var props = msg.properties();
 
-  var products = getProducts(msg, this.options);
-  var productVariables;
-  if (products && !window.s.products) {
-    // check window because products key could already have been filled upstream
-    productVariables = formatProducts(
-      msg,
-      this.options,
-      products,
-      this.options.productIdentifier
-    );
-  }
+  updateProducts(msg, this.options);
 
   updateContextData(msg, this.options);
 
   var eVarEvent = dot(this.options.eVars, msg.event());
   update(msg.event(), eVarEvent);
-
-  // s.products="category;product;quantity;price;event_incrementer;eVarN=merch_category|eVarM=merch_category2"
-  if (productVariables) update(productVariables, 'products');
 
   updateEvents(msg, this.options, adobeEvent);
   updateCommonVariables(msg, this.options);
@@ -566,10 +561,12 @@ function calculateTimestamp(msg, options) {
 function updateEvents(facade, options, base) {
   var value = [base, aliasEvent(facade, options)].filter(Boolean).join(',');
   update(value, 'events');
-  // The s.linkTrackEvents paramter can only contain event names.
-  // If it contains numeric events with the counter, the s.events paramter fails to get sent :()
-  // Here we strip out any equals signs as well as any proceeding digits.
-  window.s.linkTrackEvents = value.replace(/(=\d*)?/gm, '');
+  if (facade.type() === 'track') {
+    // The s.linkTrackEvents paramter can only contain event names.
+    // If it contains numeric events with the counter, the s.events paramter fails to get sent :()
+    // Here we strip out any equals signs as well as any proceeding digits.
+    window.s.linkTrackEvents = value.replace(/(=\d*)?/gm, '');
+  }
 }
 
 /**
@@ -640,54 +637,22 @@ function addContextDatum(key, value) {
  */
 
 function aliasEvent(facade, options) {
-  var standardEvents = options.events || [];
-  var merchEvent = utils.getMerchEventMapping(facade, options);
-  var properties = facade.properties();
-  var key = facade.event().toLowerCase();
-
-  /**
-   * eventMappings are stored from options as:
-   * { adobeEventName: eventValue || '' }
-   * Standard events are just mapped as empty strings.
-   * Merch events are mapped as either empty strings or
-   * the value of the segmentProp mapping in the event properties.
-   */
-  var eventMappings = {};
-
-  standardEvents.forEach(function(mapping) {
-    var segmentEvent = mapping.segmentEvent.toLowerCase();
-    if (segmentEvent === key) {
-      // TODO: is this an issue if the user wants empty strings as values?
-      mapping.adobeEvents.forEach(function(event) {
-        eventMappings[event] = '';
-      });
-    }
-  });
-
-  if (merchEvent) {
-    merchEvent.adobeEvent.forEach(function(mapping) {
-      var segmentEvent = merchEvent.segmentEvent.toLowerCase();
-      if (segmentEvent === key) {
-        eventMappings[mapping.adobeEvent] = utils.getEventValue(
-          mapping,
-          properties
-        );
-      }
-    });
-  }
-
-  var events = [];
-  for (var event in eventMappings) {
-    if (!Object.prototype.hasOwnProperty.call(eventMappings, event)) return;
-    var value = eventMappings[event];
+  var events = extend(
+    getCounterEventsMap(facade, options),
+    getMerchEventsMap(facade, options)
+  );
+  var eventStringBuilder = [];
+  for (var event in events) {
+    if (!Object.prototype.hasOwnProperty.call(events, event)) return;
+    var value = events[event];
     if (value !== '') {
-      events.push(event + '=' + value);
+      eventStringBuilder.push(event + '=' + value);
     } else {
-      events.push(event);
+      eventStringBuilder.push(event);
     }
   }
 
-  return events.join(',');
+  return eventStringBuilder.join(',');
 }
 
 /**
@@ -1188,4 +1153,86 @@ function createQosObject(track) {
     props.fps || 0,
     props.droppedFrames || 0
   );
+}
+
+/**
+ * Merch event mappings are stored in options.merchEvents.
+ * Merch events are assoicated with some kind of numeric value.
+ * That value is pulled using the getEventValue function.
+ * @param {Object} facade
+ * @param {Object} options
+ * @returns {Object}
+ */
+function getMerchEventsMap(facade, options) {
+  var eventMap = {};
+  var properties = facade.properties();
+  var merchEvent = utils.getMerchEventMapping(facade, options);
+  if (merchEvent) {
+    var key = utils.getEventName(facade);
+    merchEvent.adobeEvent.forEach(function(mapping) {
+      var segmentEvent = merchEvent.segmentEvent.toLowerCase();
+      if (segmentEvent === key) {
+        eventMap[mapping.adobeEvent] = utils.getEventValue(mapping, properties);
+      }
+    });
+  }
+  return eventMap;
+}
+
+/**
+ * Counter events are just the standard event mappings defined in options.events.
+ * Counter events do not support any sort of increment value so the map returns each value as an empty string.
+ * @param {Object} facade
+ * @param {Object} options
+ * @returns {Object}
+ */
+function getCounterEventsMap(facade, options) {
+  // Get event names passed as integration specific options.
+  var eventMap = {};
+  if (facade.type() === 'page') {
+    var pageEventNames = facade.options('Adobe Analytics').events || [];
+    if (Array.isArray(pageEventNames)) {
+      pageEventNames.forEach(function(event) {
+        eventMap[event] = '';
+      });
+    }
+  }
+
+  if (facade.type() === 'track') {
+    var key = facade.event().toLowerCase();
+    var standardEvents = options.events || [];
+    standardEvents.forEach(function(mapping) {
+      var segmentEvent = mapping.segmentEvent.toLowerCase();
+      if (segmentEvent === key) {
+        mapping.adobeEvents.forEach(function(event) {
+          eventMap[event] = '';
+        });
+      }
+    });
+  }
+  return eventMap;
+}
+
+/**
+ * Create a string to be used as the value of Adobe's s.products parameter.
+ * @param {Object} facade
+ * @param {Object} options
+ * @return {string | undefined}
+ */
+function updateProducts(facade, options) {
+  var products = getProducts(facade, options);
+  // check window because products key could already have been filled upstream
+  if (products && !window.s.products) {
+    // s.products="category;product;quantity;price;event_incrementer;eVarN=merch_category|eVarM=merch_category2"
+    var productString = formatProducts(
+      facade,
+      options,
+      products,
+      options.productIdentifier
+    );
+
+    if (productString) {
+      update(productString, 'products');
+    }
+  }
 }
