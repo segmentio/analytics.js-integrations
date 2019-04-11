@@ -321,7 +321,7 @@ AdobeAnalytics.prototype.track = function(track) {
 AdobeAnalytics.prototype.productViewed = function(track) {
   clearKeys(dynamicKeys);
 
-  var productVariables = formatProduct(track, this.options.productIdentifier);
+  var productVariables = formatProduct(track, this.options);
   update(productVariables, 'products');
 
   this.processEvent(track, 'prodView');
@@ -343,7 +343,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
 AdobeAnalytics.prototype.productAdded = function(track) {
   clearKeys(dynamicKeys);
 
-  var productVariables = formatProduct(track, this.options.productIdentifier);
+  var productVariables = formatProduct(track, this.options);
   update(productVariables, 'products');
 
   this.processEvent(track, 'scAdd');
@@ -360,7 +360,7 @@ AdobeAnalytics.prototype.productAdded = function(track) {
 AdobeAnalytics.prototype.productRemoved = function(track) {
   clearKeys(dynamicKeys);
 
-  var productVariables = formatProduct(track, this.options.productIdentifier);
+  var productVariables = formatProduct(track, this.options);
   update(productVariables, 'products');
 
   this.processEvent(track, 'scRemove');
@@ -422,9 +422,9 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var props = msg.properties();
 
-  var products = msg.products();
+  var products = getProducts(msg, this.options);
   var productVariables;
-  if (Array.isArray(products) && !window.s.products) {
+  if (products && !window.s.products) {
     // check window because products key could already have been filled upstream
     productVariables = formatProducts(
       msg,
@@ -460,6 +460,27 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   // 3rd param: link name you will see in reports
   window.s.tl(true, 'o', msg.event());
 };
+
+/**
+ * Get the products properties for a given event.
+ * This function allows support for single product events.
+ * To determine if the top level event properties should be treated as the product properties
+ * it checks if the event is mapped as a merch event. If so, this is a single product event and
+ * properties are returned as an array to be used in formatProducts.
+ * @param {object} facade
+ * @param {object} options
+ * @returns {Object[] | undefined}
+ */
+function getProducts(facade, options) {
+  var properties = facade.properties();
+  if (Array.isArray(properties.products)) {
+    return properties.products;
+  }
+  var merchEvent = utils.getMerchEventMapping(facade, options);
+  if (merchEvent) {
+    return [properties];
+  }
+}
 
 /**
  * Update a number of Adobe Analytics common variables on window.s to be
@@ -670,20 +691,36 @@ function aliasEvent(facade, options) {
  * Format semantic ecommerce product properties to Adobe Analytics variable strings.
  *
  * @api private
- * @param {Object} props
+ * @param {Object} facade
+ * @param {Object} options
+ * @param {Object} [product] - optional product object that has been converted into a facade. If excluded, the top level facade will be used to access properties.
  * @return {string}
  */
 
-function formatProduct(props, identifier) {
-  var quantity = props.quantity() || 1;
-  var total = ((props.price() || 0) * quantity).toFixed(2);
-  var productIdentifier = props[identifier]();
+function formatProduct(facade, options, product) {
+  if (!product) product = facade;
+  var identifier = options.productIdentifier;
+  var quantity = product.quantity() || 1;
+  var total = ((product.price() || 0) * quantity).toFixed(2);
+  var productIdentifier = product[identifier]();
   // add ecom spec v2 support if identifier is `id`, which only supports ecom spec v1
   if (identifier === 'id') {
-    productIdentifier = props.productId() || props.id();
+    productIdentifier = product.productId() || product.id();
   }
 
-  return [props.category(), productIdentifier, quantity, total].join(';');
+  var productData = [product.category(), productIdentifier, quantity, total];
+
+  var eventsAndEvars = utils.buildEventAndEvarString(
+    facade,
+    options,
+    product.properties()
+  );
+
+  if (eventsAndEvars) {
+    productData.push(eventsAndEvars);
+  }
+
+  return productData.join(';');
 }
 
 /**
@@ -744,24 +781,17 @@ function extractProperties(props, options) {
 }
 
 function formatProducts(facade, options, products) {
-  var productStringBuilder = [];
+  var productString = [];
 
   // Adobe Analytics wants product description in semi-colon delimited string separated by commas
   for (var x = 0; x < products.length; x++) {
     var product = new Track({ properties: products[x] }); // convert product obj to Facade so formatProduct can query props using Facade methods
-    var productString = formatProduct(product, options.productIdentifier);
-    var eventsAndEvars = utils.buildEventAndEvarString(
-      facade,
-      options,
-      product.properties()
+    productString.push(
+      formatProduct(facade, options, product, options.productIdentifier)
     );
-    if (eventsAndEvars) {
-      productString = productString.concat(';', eventsAndEvars);
-    }
-    productStringBuilder.push(productString);
   }
 
-  return productStringBuilder.join(',');
+  return productString.join(',');
 }
 
 /**

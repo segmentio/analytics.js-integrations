@@ -346,6 +346,37 @@ describe('Adobe Analytics', function() {
             );
           });
 
+          it('should map the incrementer from the properties object if properties.products is not defined', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'quantity',
+                    adobeEvent: 'event8'
+                  }
+                ],
+                productEVars: []
+              }
+            ];
+            adobeAnalytics.options.events = [];
+            analytics.track('Drank Some Milk', {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              foo: 10
+            });
+            analytics.equal(window.s.events, 'event8');
+            analytics.equal(
+              window.s.products,
+              'Games;Monopoly: 3rd Edition;1;19.00;event8=1'
+            );
+          });
+
           it('adds the event mapping to s.products when the valueScope is `product`', function() {
             adobeAnalytics.options.merchEvents = [
               {
@@ -616,7 +647,7 @@ describe('Adobe Analytics', function() {
             );
           });
 
-          it('maps the incrementer to product specific values if the segmentProp starts with `products.`', function() {
+          it('succesfully maps the evar value if the segmentProp starts with `products.`', function() {
             adobeAnalytics.options.merchEvents = [
               {
                 segmentEvent: 'Drank Some Milk',
@@ -787,6 +818,42 @@ describe('Adobe Analytics', function() {
             analytics.equal(
               window.s.products,
               'Games;Monopoly: 3rd Edition;1;19.00;event8=1,Games;Uno Card Game;2;6.00;event8=2'
+            );
+          });
+
+          it('should map evars from the properties object if properties.products is not defined', function() {
+            adobeAnalytics.options.merchEvents = [
+              {
+                segmentEvent: 'Drank Some Milk',
+                adobeEvent: [
+                  {
+                    valueScope: 'product',
+                    segmentProp: 'quantity',
+                    adobeEvent: 'event8'
+                  }
+                ],
+                productEVars: [
+                  {
+                    key: 'foo',
+                    value: 'eVar1'
+                  }
+                ]
+              }
+            ];
+            adobeAnalytics.options.events = [];
+            analytics.track('Drank Some Milk', {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              foo: 10
+            });
+            analytics.equal(window.s.events, 'event8');
+            analytics.equal(
+              window.s.products,
+              'Games;Monopoly: 3rd Edition;1;19.00;event8=1;eVar1=10'
             );
           });
         });
