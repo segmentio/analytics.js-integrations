@@ -92,9 +92,11 @@ function buildEventAndEvarString(facade, options, product) {
   var merchEventMapping = getMerchEventMapping(facade, options);
 
   if (merchEventMapping) {
-    // Build events string
+    // First, we build the numeric/currency events string
     var events = merchEventMapping.adobeEvent
       .reduce(function(accumulator, adobeEvent) {
+        // Only events scoped to `product` should be added to the products string.
+        // If the event is scoped to `event`, it will have been added to the events string in aliasEvent.
         if (adobeEvent.valueScope === 'product') {
           var str = createProductStringMember(
             adobeEvent.adobeEvent,
