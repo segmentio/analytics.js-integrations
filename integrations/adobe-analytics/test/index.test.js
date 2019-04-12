@@ -70,21 +70,23 @@ describe('Adobe Analytics', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(AdobeAnalytics, integration('Adobe Analytics')
-      .global('s')
-      .global('s_gi')
-      .option('events', {})
-      .option('eVars', {})
-      .option('props', {})
-      .option('hVars', {})
-      .option('lVars', {})
-      .option('contextValues', {})
-      .option('timestampOption', 'enabled')
-      .option('disableVisitorId', false)
-      .option('productIdentifier', 'name')
-      .option('marketingCloudOrgId', null)
-      .option('heartbeatTrackingServerUrl', '')
-      .option('ssl', false)
+    analytics.compare(
+      AdobeAnalytics,
+      integration('Adobe Analytics')
+        .global('s')
+        .global('s_gi')
+        .option('events', {})
+        .option('eVars', {})
+        .option('props', {})
+        .option('hVars', {})
+        .option('lVars', {})
+        .option('contextValues', {})
+        .option('timestampOption', 'enabled')
+        .option('disableVisitorId', false)
+        .option('productIdentifier', 'name')
+        .option('marketingCloudOrgId', null)
+        .option('heartbeatTrackingServerUrl', '')
+        .option('ssl', false)
     );
   });
 
@@ -112,7 +114,10 @@ describe('Adobe Analytics', function() {
         analytics.equal(adobeAnalytics.options.trackDownloadLinks, true);
         analytics.equal(adobeAnalytics.options.trackExternalLinks, true);
         analytics.equal(adobeAnalytics.options.trackInlineStats, true);
-        analytics.equal(adobeAnalytics.options.linkDownloadFileTypes, 'exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx');
+        analytics.equal(
+          adobeAnalytics.options.linkDownloadFileTypes,
+          'exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx'
+        );
         analytics.equal(adobeAnalytics.options.linkLeaveQueryString, false);
         analytics.equal(adobeAnalytics.options.linkTrackVars, 'None');
         analytics.equal(adobeAnalytics.options.linkTrackEvents, 'None');
@@ -139,13 +144,19 @@ describe('Adobe Analytics', function() {
       });
 
       it('should set window.s.trackingServerSecure', function() {
-        analytics.equal(window.s.trackingServerSecure, options.trackingServerSecureUrl);
+        analytics.equal(
+          window.s.trackingServerSecure,
+          options.trackingServerSecureUrl
+        );
       });
 
       it('should set s.visitor if marketingCloudOrgId is provided', function() {
         // window.Visitor.getInstance() returns an object that has bunch of properties on it
         // not sure how robust this test is but should suffice for now
-        analytics.equal(window.s.visitor.marketingCloudOrgID, options.marketingCloudOrgId);
+        analytics.equal(
+          window.s.visitor.marketingCloudOrgID,
+          options.marketingCloudOrgId
+        );
       });
     });
 
@@ -158,33 +169,39 @@ describe('Adobe Analytics', function() {
         analytics.track('Drank Some Milk');
         analytics.equal(window.s.events, 'event6');
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'timestamp'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'timestamp')
+        );
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
       it('tracks new mapped events', function() {
         adobeAnalytics.options.events = [
-          { segmentEvent: 'Drank Some Milk', adobeEvents: [ 'event6' ] },
-          { segmentEvent: 'Played a Song', adobeEvents: [ 'event1' ] }
+          { segmentEvent: 'Drank Some Milk', adobeEvents: ['event6'] },
+          { segmentEvent: 'Played a Song', adobeEvents: ['event1'] }
         ];
 
         analytics.track('Drank Some Milk');
         analytics.equal(window.s.events, 'event6');
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'timestamp'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'timestamp')
+        );
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
       it('tracks new mapped events (with multiple declarations)', function() {
         adobeAnalytics.options.events = [
-          { segmentEvent: 'Drank Some Milk', adobeEvents: [ 'event1' ] },
-          { segmentEvent: 'Drank some milk', adobeEvents: [ 'event2' ] }
+          { segmentEvent: 'Drank Some Milk', adobeEvents: ['event1'] },
+          { segmentEvent: 'Drank some milk', adobeEvents: ['event2'] }
         ];
 
         analytics.track('Drank Some Milk');
         analytics.equal(window.s.events, 'event1,event2');
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'timestamp'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'timestamp')
+        );
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
@@ -199,7 +216,9 @@ describe('Adobe Analytics', function() {
         analytics.equal(window.s.events, 'event7');
         analytics.equal(window.s.eVar65, 'Overlord exploded');
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'timestamp', 'eVar65'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'timestamp', 'eVar65')
+        );
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
       });
 
@@ -212,13 +231,19 @@ describe('Adobe Analytics', function() {
         analytics.equal(window.s.prop13, '2%');
         analytics.equal(window.s.prop23, 'Lucerne');
         analytics.equal(window.s.prop10, 'true');
-        analytics.assert(contains(
-          window.s.linkTrackVars,
-          'contextData.type',
-          'contextData.brand',
-          'contextData.good',
-          'events', 'prop13', 'prop23', 'prop10', 'timestamp'
-        ));
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'contextData.type',
+            'contextData.brand',
+            'contextData.good',
+            'events',
+            'prop13',
+            'prop23',
+            'prop10',
+            'timestamp'
+          )
+        );
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
@@ -228,8 +253,14 @@ describe('Adobe Analytics', function() {
           'page.url': 'page.title'
         };
         analytics.track('Drank Some Milk', { foo: 'bar' });
-        analytics.equal(window.s.contextData['page.referrer'], window.document.referrer);
-        analytics.equal(window.s.contextData['page.title'], window.location.href);
+        analytics.equal(
+          window.s.contextData['page.referrer'],
+          window.document.referrer
+        );
+        analytics.equal(
+          window.s.contextData['page.title'],
+          window.location.href
+        );
         analytics.equal(window.s.contextData.foo, 'bar');
         analytics.called(window.s.tl);
       });
@@ -237,7 +268,12 @@ describe('Adobe Analytics', function() {
       it('should format namespaced contextData', function() {
         adobeAnalytics.options.customDataPrefix = 'sg';
         analytics.track('Drank Some Milk', { foo: 'bar' });
-        analytics.equal(window.s.contextData[adobeAnalytics.options.customDataPrefix + '.foo'], 'bar');
+        analytics.equal(
+          window.s.contextData[
+            adobeAnalytics.options.customDataPrefix + '.foo'
+          ],
+          'bar'
+        );
       });
 
       it('tracks eVar mapping without case sensitivity', function() {
@@ -329,12 +365,24 @@ describe('Adobe Analytics', function() {
           'my.dog': 'Dog',
           good: false
         });
-        analytics.equal(window.s.eVar101, '2003 Accord (only one previous owner)');
+        analytics.equal(
+          window.s.eVar101,
+          '2003 Accord (only one previous owner)'
+        );
         analytics.equal(window.s.eVar401, 'Dog');
-        analytics.assert(contains(
-          window.s.linkTrackVars,
-          'contextData.car.info', 'contextData.my.dog', 'contextData.good', 'events', 'eVar101', 'eVar401', 'prop10', 'timestamp'
-        ));
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'contextData.car.info',
+            'contextData.my.dog',
+            'contextData.good',
+            'events',
+            'eVar101',
+            'eVar401',
+            'prop10',
+            'timestamp'
+          )
+        );
       });
 
       it('should send timestamp by default', function() {
@@ -379,23 +427,34 @@ describe('Adobe Analytics', function() {
         });
         analytics.equal(window.s.events, 'event6');
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(
-          window.s.linkTrackVars,
-          'contextData.channel',
-          'contextData.campaign',
-          'contextData.state',
-          'contextData.zip',
-          'events', 'timestamp', 'channel', 'campaign', 'state', 'zip'
-        ));
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'contextData.channel',
+            'contextData.campaign',
+            'contextData.state',
+            'contextData.zip',
+            'events',
+            'timestamp',
+            'channel',
+            'campaign',
+            'state',
+            'zip'
+          )
+        );
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
       it('should respect context.campaign.name over properties.campaign', function() {
-        analytics.track('Drank Some Milk', {}, {
-          campaign: {
-            name: 'TPS Innovation Newsletter'
+        analytics.track(
+          'Drank Some Milk',
+          {},
+          {
+            campaign: {
+              name: 'TPS Innovation Newsletter'
+            }
           }
-        });
+        );
         analytics.equal(window.s.campaign, 'TPS Innovation Newsletter');
       });
 
@@ -404,11 +463,15 @@ describe('Adobe Analytics', function() {
           pageName: 'yolo moves made'
         });
         analytics.equal(window.s.pageName, 'yolo moves made');
-        analytics.track('Drank Some Milk', {}, {
-          context: {
-            page: { title: 'yolo moves most definitely made' }
+        analytics.track(
+          'Drank Some Milk',
+          {},
+          {
+            context: {
+              page: { title: 'yolo moves most definitely made' }
+            }
           }
-        });
+        );
         analytics.equal(window.s.pageName, 'yolo moves most definitely made');
       });
 
@@ -437,18 +500,25 @@ describe('Adobe Analytics', function() {
             price: 18.99,
             category: 'Games'
           });
-          analytics.equal(window.s.products, 'Games;Monopoly: 3rd Edition;1;18.99');
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;18.99'
+          );
           analytics.assert(window.s.events === 'prodView');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-          analytics.assert(contains(
-            window.s.linkTrackVars,
-            'contextData.id',
-            'contextData.sku',
-            'contextData.name',
-            'contextData.price',
-            'contextData.category',
-            'events', 'products', 'timestamp'
-          ));
+          analytics.assert(
+            contains(
+              window.s.linkTrackVars,
+              'contextData.id',
+              'contextData.sku',
+              'contextData.name',
+              'contextData.price',
+              'contextData.category',
+              'events',
+              'products',
+              'timestamp'
+            )
+          );
           analytics.called(window.s.tl, true, 'o', 'Product Viewed');
         });
 
@@ -473,7 +543,11 @@ describe('Adobe Analytics', function() {
               }
             ]
           });
-          analytics.equal(window.s.products, 'Games;Monopoly: 3rd Edition;1;19.00,' + 'Games;Uno Card Game;2;6.00');
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00,' +
+              'Games;Uno Card Game;2;6.00'
+          );
           analytics.assert(window.s.events === 'prodView');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
           analytics.called(window.s.tl, true, 'o', 'Product List Viewed');
@@ -491,15 +565,19 @@ describe('Adobe Analytics', function() {
           analytics.equal(window.s.products, 'Games;G-32;1;18.99');
           analytics.assert(window.s.events === 'prodView');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-          analytics.assert(contains(
-            window.s.linkTrackVars,
-            'contextData.product_id',
-            'contextData.sku',
-            'contextData.name',
-            'contextData.price',
-            'contextData.category',
-            'events', 'products', 'timestamp'
-          ));
+          analytics.assert(
+            contains(
+              window.s.linkTrackVars,
+              'contextData.product_id',
+              'contextData.sku',
+              'contextData.name',
+              'contextData.price',
+              'contextData.category',
+              'events',
+              'products',
+              'timestamp'
+            )
+          );
           analytics.called(window.s.tl, true, 'o', 'Product Viewed');
         });
 
@@ -512,18 +590,25 @@ describe('Adobe Analytics', function() {
             price: 18.99,
             category: 'Games'
           });
-          analytics.equal(window.s.products, 'Games;507f1f77bcf86cd799439011;1;18.99');
+          analytics.equal(
+            window.s.products,
+            'Games;507f1f77bcf86cd799439011;1;18.99'
+          );
           analytics.assert(window.s.events === 'prodView');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-          analytics.assert(contains(
-            window.s.linkTrackVars,
-            'contextData.product_id',
-            'contextData.sku',
-            'contextData.name',
-            'contextData.price',
-            'contextData.category',
-            'events', 'products', 'timestamp'
-          ));
+          analytics.assert(
+            contains(
+              window.s.linkTrackVars,
+              'contextData.product_id',
+              'contextData.sku',
+              'contextData.name',
+              'contextData.price',
+              'contextData.category',
+              'events',
+              'products',
+              'timestamp'
+            )
+          );
           analytics.called(window.s.tl, true, 'o', 'Product Viewed');
         });
 
@@ -536,19 +621,26 @@ describe('Adobe Analytics', function() {
             quantity: 2,
             category: 'Games'
           });
-          analytics.equal(window.s.products, 'Games;Monopoly: 3rd Edition;2;37.98');
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;2;37.98'
+          );
           analytics.assert(window.s.events === 'scAdd');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-          analytics.assert(contains(
-            window.s.linkTrackVars,
-            'contextData.product_id',
-            'contextData.sku',
-            'contextData.name',
-            'contextData.price',
-            'contextData.quantity',
-            'contextData.category',
-            'events', 'products', 'timestamp'
-          ));
+          analytics.assert(
+            contains(
+              window.s.linkTrackVars,
+              'contextData.product_id',
+              'contextData.sku',
+              'contextData.name',
+              'contextData.price',
+              'contextData.quantity',
+              'contextData.category',
+              'events',
+              'products',
+              'timestamp'
+            )
+          );
           analytics.called(window.s.tl, true, 'o', 'Product Added');
         });
 
@@ -561,19 +653,26 @@ describe('Adobe Analytics', function() {
             quantity: 2,
             category: 'Games'
           });
-          analytics.equal(window.s.products, 'Games;Monopoly: 3rd Edition;2;37.98');
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;2;37.98'
+          );
           analytics.assert(window.s.events === 'scRemove');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-          analytics.assert(contains(
-            window.s.linkTrackVars,
-            'contextData.product_id',
-            'contextData.sku',
-            'contextData.name',
-            'contextData.price',
-            'contextData.quantity',
-            'contextData.category',
-            'events', 'products', 'timestamp'
-          ));
+          analytics.assert(
+            contains(
+              window.s.linkTrackVars,
+              'contextData.product_id',
+              'contextData.sku',
+              'contextData.name',
+              'contextData.price',
+              'contextData.quantity',
+              'contextData.category',
+              'events',
+              'products',
+              'timestamp'
+            )
+          );
           analytics.called(window.s.tl, true, 'o', 'Product Removed');
         });
 
@@ -606,15 +705,29 @@ describe('Adobe Analytics', function() {
               }
             ]
           });
-          analytics.equal(window.s.products, 'Games;Monopoly: 3rd Edition;1;19.00,' + 'Games;Uno Card Game;2;6.00');
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00,' +
+              'Games;Uno Card Game;2;6.00'
+          );
           analytics.assert(window.s.events === 'purchase');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
           analytics.called(window.s.tl, true, 'o', 'Order Completed');
 
           // There are too many contextData properties here to do the ordinary test.
-          var expectedLinkTrackVars = ['events', 'products', 'purchaseID', 'transactionID', 'timestamp'];
+          var expectedLinkTrackVars = [
+            'events',
+            'products',
+            'purchaseID',
+            'transactionID',
+            'timestamp'
+          ];
           for (var index = 0; index < expectedLinkTrackVars.length; index++) {
-            analytics.assert(window.s.linkTrackVars.split(',').indexOf(expectedLinkTrackVars[index]) >= 0);
+            analytics.assert(
+              window.s.linkTrackVars
+                .split(',')
+                .indexOf(expectedLinkTrackVars[index]) >= 0
+            );
           }
         });
 
@@ -640,7 +753,11 @@ describe('Adobe Analytics', function() {
               }
             ]
           });
-          analytics.equal(window.s.products, 'Games;Monopoly: 3rd Edition;1;19.00,' + 'Games;Uno Card Game;2;6.00');
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00,' +
+              'Games;Uno Card Game;2;6.00'
+          );
           analytics.assert(window.s.events === 'scView');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
           analytics.called(window.s.tl, true, 'o', 'Cart Viewed');
@@ -648,7 +765,11 @@ describe('Adobe Analytics', function() {
           // There are too many contextData properties here to do the ordinary test.
           var expectedLinkTrackVars = ['events', 'products', 'timestamp'];
           for (var index = 0; index < expectedLinkTrackVars.length; index++) {
-            analytics.assert(window.s.linkTrackVars.split(',').indexOf(expectedLinkTrackVars[index]) >= 0);
+            analytics.assert(
+              window.s.linkTrackVars
+                .split(',')
+                .indexOf(expectedLinkTrackVars[index]) >= 0
+            );
           }
         });
 
@@ -683,14 +804,28 @@ describe('Adobe Analytics', function() {
             ]
           });
           analytics.assert(window.s.events === 'scCheckout');
-          analytics.equal(window.s.products, 'Games;Monopoly: 3rd Edition;1;19.00,' + 'Games;Uno Card Game;2;6.00');
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00,' +
+              'Games;Uno Card Game;2;6.00'
+          );
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
           analytics.called(window.s.tl, true, 'o', 'Checkout Started');
 
           // There are too many contextData properties here to do the ordinary test.
-          var expectedLinkTrackVars = ['events', 'products', 'purchaseID', 'transactionID', 'timestamp'];
+          var expectedLinkTrackVars = [
+            'events',
+            'products',
+            'purchaseID',
+            'transactionID',
+            'timestamp'
+          ];
           for (var index = 0; index < expectedLinkTrackVars.length; index++) {
-            analytics.assert(window.s.linkTrackVars.split(',').indexOf(expectedLinkTrackVars[index]) >= 0);
+            analytics.assert(
+              window.s.linkTrackVars
+                .split(',')
+                .indexOf(expectedLinkTrackVars[index]) >= 0
+            );
           }
         });
 
@@ -700,7 +835,10 @@ describe('Adobe Analytics', function() {
         });
 
         it('includes mapped events', function() {
-          adobeAnalytics.options.events.push({ segmentEvent: 'product viewed', adobeEvents: ['event1', 'event38'] });
+          adobeAnalytics.options.events.push({
+            segmentEvent: 'product viewed',
+            adobeEvents: ['event1', 'event38']
+          });
           analytics.track('Product Viewed', {
             id: '507f1f77bcf86cd799439011',
             sku: 'G-32',
@@ -713,7 +851,10 @@ describe('Adobe Analytics', function() {
 
         it('includes new mapped events', function() {
           adobeAnalytics.options.events = [
-            { segmentEvent: 'product viewed', adobeEvents: [ 'event1', 'event38' ] }
+            {
+              segmentEvent: 'product viewed',
+              adobeEvents: ['event1', 'event38']
+            }
           ];
 
           analytics.track('Product Viewed', {
@@ -728,8 +869,8 @@ describe('Adobe Analytics', function() {
 
         it('includes new mapped events (with multiple declarations)', function() {
           adobeAnalytics.options.events = [
-            { segmentEvent: 'product viewed', adobeEvents: [ 'event1' ] },
-            { segmentEvent: 'product viewed', adobeEvents: [ 'event38' ] }
+            { segmentEvent: 'product viewed', adobeEvents: ['event1'] },
+            { segmentEvent: 'product viewed', adobeEvents: ['event38'] }
           ];
 
           analytics.track('Product Viewed', {
@@ -783,9 +924,18 @@ describe('Adobe Analytics', function() {
           'page.url': 'page.title'
         };
         analytics.page('Page1', {});
-        analytics.equal(window.s.contextData['page.referrer'], window.document.referrer);
-        analytics.equal(window.s.contextData['page.title'], window.location.href);
-        analytics.equal(window.s.contextData.referrer, window.document.referrer);
+        analytics.equal(
+          window.s.contextData['page.referrer'],
+          window.document.referrer
+        );
+        analytics.equal(
+          window.s.contextData['page.title'],
+          window.location.href
+        );
+        analytics.equal(
+          window.s.contextData.referrer,
+          window.document.referrer
+        );
         analytics.equal(window.s.contextData.url, window.location.href);
         analytics.called(window.s.t);
       });
@@ -793,8 +943,18 @@ describe('Adobe Analytics', function() {
       it('should format namespaced contextData', function() {
         adobeAnalytics.options.customDataPrefix = 'sg';
         analytics.page('Page1', {});
-        analytics.equal(window.s.contextData[adobeAnalytics.options.customDataPrefix + '.referrer'], window.document.referrer);
-        analytics.equal(window.s.contextData[adobeAnalytics.options.customDataPrefix + '.url'], window.location.href);
+        analytics.equal(
+          window.s.contextData[
+            adobeAnalytics.options.customDataPrefix + '.referrer'
+          ],
+          window.document.referrer
+        );
+        analytics.equal(
+          window.s.contextData[
+            adobeAnalytics.options.customDataPrefix + '.url'
+          ],
+          window.location.href
+        );
       });
 
       it('should send user.id as visitorID if timestamps are disabled and userId exists', function() {
@@ -834,7 +994,6 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.t);
       });
 
-
       it('should not send empty user.id as visitorID', function() {
         analytics.page('name');
         analytics.equal(window.s.pageName, 'name');
@@ -857,7 +1016,10 @@ describe('Adobe Analytics', function() {
           good: false
         });
         analytics.equal(window.s.pageName, 'Drank Some Milk');
-        analytics.equal(window.s.eVar101, '2003 Accord (only one previous owner)');
+        analytics.equal(
+          window.s.eVar101,
+          '2003 Accord (only one previous owner)'
+        );
         analytics.equal(window.s.eVar401, 'Dog');
         analytics.called(window.s.t);
       });
@@ -971,8 +1133,14 @@ describe('Adobe Analytics', function() {
         });
 
         // Ensure that both exist, and are not references to the same object.
-        analytics.assert(adobeAnalytics.mediaHeartbeats[sessionId] && adobeAnalytics.mediaHeartbeats[newSessionId]);
-        analytics.assert(adobeAnalytics.mediaHeartbeats[sessionId] !== adobeAnalytics.mediaHeartbeats[newSessionId]);
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId] &&
+            adobeAnalytics.mediaHeartbeats[newSessionId]
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId] !==
+            adobeAnalytics.mediaHeartbeats[newSessionId]
+        );
       });
 
       it('should call trackPlay when a video starts', function() {
@@ -987,7 +1155,10 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.stub(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat, 'trackPlay');
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackPlay'
+        );
 
         analytics.track('Video Content Started', {
           session_id: sessionId,
@@ -1000,7 +1171,9 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackPlay);
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackPlay
+        );
       });
 
       it('should call trackPlay when a video resumes', function() {
@@ -1015,7 +1188,10 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.stub(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat, 'trackPlay');
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackPlay'
+        );
 
         analytics.track('Video Playback Resumed', {
           session_id: sessionId,
@@ -1028,7 +1204,9 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackPlay);
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackPlay
+        );
       });
 
       it('should call trackComplete when a video completes', function() {
@@ -1043,7 +1221,10 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.stub(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat, 'trackComplete');
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackComplete'
+        );
 
         analytics.track('Video Content Completed', {
           session_id: sessionId,
@@ -1056,7 +1237,9 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackComplete);
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackComplete
+        );
       });
 
       it('should call trackPause when a video is paused', function() {
@@ -1071,7 +1254,10 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.stub(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat, 'trackPause');
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackPause'
+        );
 
         analytics.track('Video Playback Paused', {
           session_id: sessionId,
@@ -1084,7 +1270,9 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackPause);
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackPause
+        );
       });
 
       it('should delete the instance when the session is over', function() {
@@ -1132,7 +1320,10 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.stub(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat, 'trackEvent');
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackEvent'
+        );
 
         analytics.track('Video Ad Started', {
           session_id: sessionId,
@@ -1143,8 +1334,14 @@ describe('Adobe Analytics', function() {
           total_length: 31
         });
 
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdBreakStart);
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdStart);
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdBreakStart
+        );
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdStart
+        );
       });
 
       it('should end Ad Tracking and the Ad Break when an ad completes', function() {
@@ -1168,7 +1365,10 @@ describe('Adobe Analytics', function() {
           total_length: 31
         });
 
-        analytics.stub(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat, 'trackEvent');
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackEvent'
+        );
 
         analytics.track('Video Ad Completed', {
           session_id: sessionId,
@@ -1179,8 +1379,14 @@ describe('Adobe Analytics', function() {
           total_length: 31
         });
 
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdComplete);
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdBreakComplete);
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdComplete
+        );
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdBreakComplete
+        );
       });
 
       it('should track an entire ad, even if the ad init is not called', function() {
@@ -1195,7 +1401,10 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.stub(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat, 'trackEvent');
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackEvent'
+        );
 
         analytics.track('Video Ad Completed', {
           session_id: sessionId,
@@ -1206,10 +1415,22 @@ describe('Adobe Analytics', function() {
           total_length: 31
         });
 
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdBreakStart);
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdStart);
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdComplete);
-        analytics.called(adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent, window.ADB.va.MediaHeartbeat.Event.AdBreakComplete);
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdBreakStart
+        );
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdStart
+        );
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdComplete
+        );
+        analytics.called(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.AdBreakComplete
+        );
       });
     });
   });
