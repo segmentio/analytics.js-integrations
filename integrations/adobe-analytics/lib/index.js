@@ -1215,7 +1215,17 @@ function getCounterEventsMap(facade, options) {
     var pageEventNames = facade.options('Adobe Analytics').events || [];
     if (Array.isArray(pageEventNames)) {
       pageEventNames.forEach(function(event) {
-        eventMap[event] = '';
+        // Ensure event is a string.
+        if (typeof event === 'string') {
+          // Check to see if the user has hard-coded a numeric/currency event.
+          // If so, split the event string on the equals sign and set the proper event/value mapping.
+          if (event.indexOf('=') >= 0) {
+            event = event.split('=');
+            eventMap[event[0]] = event.pop();
+          } else {
+            eventMap[event] = '';
+          }
+        }
       });
     }
   }

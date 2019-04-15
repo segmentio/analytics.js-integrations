@@ -1803,6 +1803,19 @@ describe('Adobe Analytics', function() {
         analytics.equal(window.s.events, 'warriors,event1,event2');
       });
 
+      it('should support harcoding events as numeric/currency events', function() {
+        analytics.page(
+          'warriors',
+          {},
+          {
+            integrations: {
+              'Adobe Analytics': { events: ['event1=9.10', 'event2'] }
+            }
+          }
+        );
+        analytics.equal(window.s.events, 'warriors,event1=9.10,event2');
+      });
+
       it('maps merch events if properties.eventName is defined and it is mapped to a merch event setting', function() {
         adobeAnalytics.options.merchEvents = [
           {
