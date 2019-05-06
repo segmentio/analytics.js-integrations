@@ -10,7 +10,6 @@ var foldl = require('@ndhoule/foldl');
 var qs = require('component-querystring');
 var find = require('obj-case').find;
 var toNoCase = require('to-no-case');
-var cookie = require('component-cookie');
 
 /**
  * Expose `DoubleClick Floodlight` integration.
@@ -42,27 +41,17 @@ var Floodlight = (module.exports = integration('DoubleClick Floodlight')
  */
 
 Floodlight.prototype.initialize = function() {
-  var cookieOptions = {
-    // 2 weeks.
-    maxage: 1209600,
-    secure: false,
-    path: '/'
-  };
   // In the initialize method:
   // Check if we should load the DoubleClick ID pixel (and only proceed if we haven't already done so).
   if (this.options.getDoubleClickId && this.options.googleNetworkId) {
-    if (!cookie('doubleclick_id_ts')) {
-      // Load the doubleclick pixel.
-      this.load('doubleclick id', {
-        googleNetworkId: this.options.googleNetworkId,
-        segmentWriteKey: this.options.segmentWriteKey,
-        // TODO: handle userId being nulls/undefined.
-        userId: this.analytics.user().id(),
-        anonymousId: this.analytics.user().anonymousId()
-      });
-      // Set a cookie so we only need to load the pixel periodically.
-      cookie('doubleclick_id_ts', new Date().getTime(), cookieOptions);
-    }
+    // Load the doubleclick pixel.
+    this.load('doubleclick id', {
+      googleNetworkId: this.options.googleNetworkId,
+      segmentWriteKey: this.options.segmentWriteKey,
+      // TODO: handle userId being nulls/undefined.
+      userId: this.analytics.user().id(),
+      anonymousId: this.analytics.user().anonymousId()
+    });
   }
   this.ready();
 };
