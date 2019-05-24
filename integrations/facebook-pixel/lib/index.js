@@ -469,11 +469,22 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
     contentCategory = products[0].category;
   }
 
+  // Checkout Started doesn't have a top-level category spec'd.
+  // Let's default to the category of the first product. - @gabriel
+  var contentType = ['product'];
+  if (products.length) {
+    contentType = this.mappedContentTypesOrDefault(
+      products[0].category,
+      contentType
+    );
+  }
+
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'InitiateCheckout',
     {
+      content_type: contentType,
       content_category: contentCategory,
       content_ids: contentIds,
       contents: contents,
