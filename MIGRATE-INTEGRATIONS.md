@@ -22,4 +22,4 @@ the repository:
     - `$ bin/boneyard-integration-repository --integration <integration name>`
 
 NOTE: For big migrations, it's ok to skip SauceLabs tests, but make sure
-local tests work (PhantomJS).
+local tests work (Chrome headless).

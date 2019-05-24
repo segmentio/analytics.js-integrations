@@ -18,7 +18,7 @@ Use always `yarn`, not `npm` to install your packges.
 
 ### Tests
 Karma + Mocha. Supported browsers:
-- PhantomJS (local and CircleCI)
+- Chrome headless (local and CircleCI)
 - Chrome latest (CircleCI only)
 - Firefox latest (CircleCI only)
 - Safari 9 (CircleCI only)
@@ -30,6 +30,15 @@ Karma + Mocha. Supported browsers:
 * Test one integration: `$ yarn test-integration <integration-name> <browser-type>`
 * Test updated integrations (require Golang): `$ yarn test-updated-integrations <browser-type>`
 * Test all integrarions: `$ yarn test-all-integrations <browser-type>`
+
+You can ignore specific browsers from an integration tests adding the file `.browserignore` to
+the integration folder with one browser name per line.
+
+Some integrations require `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables to be set.
+This can be bypassed by using `chromeHeadless` as `<browser-type>`.
+
+### Releasing Changes
+Follow [this guide](https://paper.dropbox.com/doc/Releasing-Analytics-js--AXcYIamYALEcsJsQsI~3~M1eAg-QYiKKIDvhsZk2c0bOTEhp) to deploy your changes.
 
 ### Credentials
 (Work in progress)

@@ -9,7 +9,7 @@ This folder contains useful scripts and commands to update integrations in bulk.
 
 To use `SegmentDestinationsBot`, get the credentials from:
 ```bash
-$ aws-okta exec prod-privileged -- chamber read -q destinations github_bot_(token|user|email)
+$ aws-okta exec production-write -- chamber read -q destinations github_bot_(token|user|email)
 ```
 
 ## list-repositories

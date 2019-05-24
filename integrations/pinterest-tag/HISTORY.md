@@ -1,3 +1,8 @@
+1.1.0 / 2019-03-20
+==================
+
+  * Enables Pinterest Enhanced Match feature by sending an email address to the pinterest load function
+
 1.0.2 / 2017-12-04
 ==================
 

@@ -23,7 +23,7 @@ jobs:
           root: .
           paths: [.]
 
-  test_phantomjs:
+  test_headless:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
     steps:
@@ -31,8 +31,8 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Test updated integrations in PhantomJS
-          command: yarn test-updated-integrations phantomjs
+          name: Test updated integrations in Chrome Headless
+          command: yarn test-updated-integrations chromeHeadless
       - run:
           name: codecov
           command: yarn coverage
@@ -98,15 +98,15 @@ jobs:
           command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
       - run:
           name: Publish updated packages
-          command: yarn publish-integrations
+          command: scripts/publish-integrations
 
 workflows:
   version: 2
   test_and_publish:
     jobs:
       - setup:
-          context: segmentio-org-global
-      - test_phantomjs:
+          context: npm
+      - test_headless:
           requires:
             - setup
       - test_saucelabs:
@@ -117,9 +117,9 @@ workflows:
           requires:
             - setup
       - publish:
-          context: segmentio-org-global
+          context: npm
           requires:
-            - test_phantomjs
+            - test_headless
             - test_saucelabs
           filters:
             branches:

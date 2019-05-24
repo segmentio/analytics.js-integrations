@@ -1,25 +1,17 @@
 
-const integrations = require('./integrations')
 const path = require('path')
 const preprocessor = 'browserify'
 
 /**
  * Returns the source files and preprocessors for the listed integrations
  *
- * @param {[String]} integrationNames Integration names. If it is empty or undefined, it will return all.
+ * @param {Object} integrations Map containing integrations by name.
  */
-function getSourceFiles (integrationNames) {
-  let ints = {}
-  if (integrationNames.length > 0) {
-    ints = integrations.getIntegrations(integrationNames)
-  } else {
-    ints = integrations.getAllIntegrations()
-  }
-
+function getSourceFiles (integrations) {
   const files = {}
 
-  Object.keys(ints).forEach(name => {
-    const src = path.join(ints[name].testsPath, '**', '*.test.js')
+  Object.keys(integrations).forEach(name => {
+    const src = path.join(integrations[name].testsPath, '**', '*.test.js')
     files[src] = preprocessor
   })
 
