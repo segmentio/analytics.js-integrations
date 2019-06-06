@@ -366,6 +366,7 @@ FacebookPixel.prototype.productAdded = function(track) {
  */
 
 FacebookPixel.prototype.orderCompleted = function(track) {
+  console.log('test');
   var self = this;
   var products = track.products();
 
