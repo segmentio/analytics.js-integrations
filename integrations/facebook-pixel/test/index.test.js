@@ -1445,8 +1445,8 @@ describe('Facebook Pixel', function() {
       });
 
       it('Should send both pixel and standard event if mapped', function() {
-        facebookPixel.options.legacyEvents = { 'Completed Order': '123456' };
-        analytics.track('Completed Order', {
+        facebookPixel.options.legacyEvents = { 'Order Completed': '123456' };
+        analytics.track('Order Completed', {
           products: [
             { product_id: '507f1f77bcf86cd799439011' },
             { product_id: '505bd76785ebb509fc183733' }
