@@ -189,6 +189,10 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
   })(window, document, 'script');
   /* eslint-enable */
 
+  if (options.dontTrackAnonymousUsers && !userId) {
+    this.stopWebTracking();
+  }
+
   // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
   var config = {
     safariWebsitePushId: options.safariWebsitePushId,
@@ -211,9 +215,13 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
   this.initializeTester(options.apiKey, config);
   window.appboy.initialize(options.apiKey, config);
 
-  if (options.automaticallyDisplayMessages)
+  if (options.automaticallyDisplayMessages) {
     window.appboy.display.automaticallyShowNewInAppMessages();
-  if (userId) window.appboy.changeUser(userId);
+  }
+
+  if (userId) {
+    window.appboy.changeUser(userId);
+  }
 
   window.appboy.openSession();
 
@@ -244,6 +252,10 @@ Appboy.prototype.loaded = function() {
  */
 
 Appboy.prototype.identify = function(identify) {
+  if (window.appboy.resumeWebTracking) {
+    this.resumeWebTracking();
+  }
+
   var userId = identify.userId();
   var address = identify.address();
   var avatar = identify.avatar();
@@ -420,6 +432,14 @@ Appboy.prototype.orderCompleted = function(track) {
       purchaseProperties
     );
   }, products);
+};
+
+Appboy.prototype.stopWebTracking = function() {
+  window.appboy.stopWebTracking();
+};
+
+Appboy.prototype.resumeWebTracking = function() {
+  window.appboy.resumeWebTracking();
 };
 
 /**

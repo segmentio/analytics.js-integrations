@@ -204,16 +204,43 @@ describe('Appboy', function() {
     });
 
     describe('initializeV2', function() {
+      it('should call stopWebTracking if the user is anonymous and options.dontTrackAnonymousUsers is true', function() {
+        appboy.options.version = 2;
+        appboy.options.dontTrackAnonymousUsers = true;
+        var spy = sinon.spy(appboy, 'stopWebTracking');
+        analytics.initialize();
+        assert(spy.called);
+      });
+
+      it('should NOT call stopWebTracking if the user is identified', function() {
+        appboy.options.version = 2;
+        appboy.options.dontTrackAnonymousUsers = true;
+        analytics.user().id('user-id');
+        var spy = sinon.spy(appboy, 'stopWebTracking');
+        analytics.initialize();
+        assert(spy.notCalled);
+      });
+
+      it('should NOT call stopWebTracking if options.dontTrackAnonymousUsers is falsey', function() {
+        appboy.options.version = 2;
+        analytics.user().id('user-id');
+        var spy = sinon.spy(appboy, 'stopWebTracking');
+        analytics.initialize();
+        assert(spy.notCalled);
+      });
+
       it('should call changeUser if userID is present', function(done) {
         appboy.options.version = 2;
         analytics.user().id('user-id');
-        analytics.once('ready', function() {
-          window.appboy.getUser().getUserId(function(userId) {
+        analytics.initialize();
+        window.appboy.getUser().getUserId(function(userId) {
+          try {
             assert.equal(userId, 'user-id');
             done();
-          });
+          } catch (e) {
+            done(e);
+          }
         });
-        analytics.initialize();
       });
 
       it('should initialize the appboy sdk with default options if none are provided', function(done) {
