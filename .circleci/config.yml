@@ -10,9 +10,6 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Install CircleCI CLI
-          command: curl -fLSs https://circle.ci/cli | bash
-      - run:
           name: Authenticate npm
           command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
       - run:
