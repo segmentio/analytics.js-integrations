@@ -19,6 +19,11 @@ module.exports = function(config) {
 
   if (process.env.CI) {
     config.set({
+      reporters: ['dots', 'saucelabs'],
+      sauceLabs: {
+        tunnelIdentifier: process.env.CIRCLE_SHA1 || '',
+        testName: 'Web App Unit Tests'
+      },
       customLaunchers: {
         'SL_Chrome': {
           base: 'SauceLabs',
@@ -92,5 +97,6 @@ module.exports = function(config) {
         }
       }
     })
+    console.log(config)
   }
 };
