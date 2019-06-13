@@ -40,7 +40,8 @@ Monetate.prototype.initialize = function() {
   if (this.options.retail) {
     this.options.events = {
       orderCompleted: 'addPurchaseRows',
-      productViewed: 'addProducts',
+      productViewed: 'addProductDetails',
+      productListViewed: 'addProducts',
       productAdded: 'addCartRows'
     };
   }
@@ -69,6 +70,25 @@ Monetate.prototype.loaded = function() {
 
 Monetate.prototype.page = function(page) {
   push('setPageType', page.category() || page.name() || 'unknown');
+};
+
+/**
+ * Product list viewed.
+ *
+ * @param {Track} track
+ */
+
+Monetate.prototype.productListViewed = function(track) {
+  var products = track.products();
+  var items = [];
+
+  each(products, function(product) {
+    var track = new Track({ properties: product });
+    product = toProducts(track);
+    items.push(product);
+  });
+
+  push(this.options.events.productListViewed, items);
 };
 
 /**
@@ -112,6 +132,21 @@ Monetate.prototype.orderCompleted = function(track) {
 
   push(this.options.events.orderCompleted, items);
 };
+
+/**
+ * Reformat a product list view into a Monetate-compatible format.
+ *
+ * @api private
+ * @param {Track} track
+ * @return {Object}
+ */
+
+function toProducts(track) {
+  return {
+    itemId: track.productId() || track.id(),
+    sku: track.sku()
+  };
+}
 
 /**
  * Reformat a product into to a Monetate-compatible format.
