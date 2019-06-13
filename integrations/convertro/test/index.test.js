@@ -64,13 +64,13 @@ describe('Convertro', function() {
     });
   });
 
-  describe('loading', function() {
+  describe.skip('loading', function() {
     it('should load', function(done) {
       analytics.load(convertro, done);
     });
   });
 
-  describe('after loading', function() {
+  describe.skip('after loading', function() {
     beforeEach(function(done) {
       analytics.once('ready', done);
       analytics.initialize();

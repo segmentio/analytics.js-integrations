@@ -19,7 +19,8 @@
     "test-integration": "karma start karma.conf.js",
     "test-updated-integrations": "scripts/test-integrations",
     "precommit": "lint-staged",
-    "coverage-report": "open coverage/report/index.html"
+    "coverage-report": "open coverage/report/index.html",
+    "test": "lerna exec --concurrency 1 -- yarn test --single-run"
   },
   "lint-staged": {
     "linters": {
