@@ -12,6 +12,7 @@ var camel = require('to-camel-case');
 var is = require('is');
 var dateformat = require('dateformat');
 var Track = require('segmentio-facade').Track;
+var sha256 = require('js-sha256');
 
 /**
  * Expose `Facebook Pixel`.
@@ -26,6 +27,7 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('traverse', false)
   .option('automaticConfiguration', true)
   .option('whitelistPiiProperties', [])
+  .option('blacklistPiiProperties', [])
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -97,6 +99,7 @@ FacebookPixel.prototype.track = function(track) {
   var event = track.event();
   var revenue = formatRevenue(track.revenue());
   var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
+  var customPiiProperties = this.options.blacklistPiiProperties || [];
   var payload = foldl(
     function(acc, val, key) {
       if (key === 'revenue') {
@@ -140,7 +143,7 @@ FacebookPixel.prototype.track = function(track) {
       // We need to check each property key to see if it matches what FB considers to be a PII property and strip it from the payload.
       // User's can override this by manually whitelisting keys they are ok with sending through in their integration settings.
 
-      var pii = [
+      var defaultPiiProperties = [
         'email',
         'firstName',
         'lastName',
@@ -154,17 +157,28 @@ FacebookPixel.prototype.track = function(track) {
       ];
 
       var propertyWhitelisted = whitelistPiiProperties.indexOf(key) >= 0;
-      if (pii.indexOf(key) >= 0 && !propertyWhitelisted) {
-        return acc;
+      if (defaultPiiProperties.indexOf(key) >= 0) {
+        if (propertyWhitelisted) {
+          acc[key] = val;
+        }
+      } else {
+        acc[key] = val;
       }
 
-      acc[key] = val;
+      customPiiProperties.forEach(function(config) {
+        if (config.propertyName === key) {
+          if (config.hashProperty && typeof val === 'string') {
+            acc[key] = sha256(val);
+          } else {
+            delete acc[key];
+          }
+        }
+      });
       return acc;
     },
     {},
     track.properties()
   );
-
   var standard = this.standardEvents(event);
   var legacy = this.legacyEvents(event);
 

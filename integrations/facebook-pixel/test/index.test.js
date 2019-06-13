@@ -24,7 +24,8 @@ describe('Facebook Pixel', function() {
     pixelId: '123123123',
     agent: 'test',
     initWithExistingTraits: false,
-    whitelistPiiProperties: []
+    whitelistPiiProperties: [],
+    blacklistPiiProperties: []
   };
 
   beforeEach(function() {
@@ -250,6 +251,160 @@ describe('Facebook Pixel', function() {
             {
               team: 'Warriors',
               country: 'USA'
+            },
+            { eventID: undefined }
+          );
+        });
+
+        it('should blacklist properties defined in the blacklistPiiProperties setting', function() {
+          facebookPixel.options.blacklistPiiProperties = [
+            { propertyName: 'team', hashPropery: false }
+          ];
+          analytics.track('event', {
+            // PII
+            email: 'steph@warriors.com',
+            firstName: 'Steph',
+            lastName: 'Curry',
+            gender: 'male',
+            city: 'Oakland',
+            country: 'USA',
+            phone: '12345534534',
+            state: 'CA',
+            zip: '12345',
+            birthday: 'i dunno?',
+
+            // Non PII
+            position: 'point guard',
+
+            // Not default PII but included in blacklist setting
+            team: 'Warriors'
+          });
+
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              position: 'point guard'
+            },
+            { eventID: undefined }
+          );
+        });
+
+        it('should hash and send blacklisted properties if the hashProperty flag is true', function() {
+          facebookPixel.options.blacklistPiiProperties = [
+            {
+              propertyName: 'email',
+              hashProperty: true
+            },
+            {
+              propertyName: 'team',
+              hashProperty: true
+            }
+          ];
+          analytics.track('event', {
+            // PII
+            email: 'steph@warriors.com',
+            firstName: 'Steph',
+            lastName: 'Curry',
+            gender: 'male',
+            city: 'Oakland',
+            country: 'USA',
+            phone: '12345534534',
+            state: 'CA',
+            zip: '12345',
+            birthday: 'i dunno?',
+
+            // Non PII
+            position: 'point guard',
+
+            // Not default PII but included in blacklist setting
+            team: 'Warriors'
+          });
+
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              team:
+                '3fae3f8daeddc90e04e7502be791c0d149cbc8f0886d68037ad81b8bd61d029d',
+              email:
+                '6dd27a21704a843224245b20369e216eecd3a599b78c4489e5f6cabb5aeca24a',
+              position: 'point guard'
+            },
+            { eventID: undefined }
+          );
+        });
+
+        it('should only attempt to hash string values', function() {
+          facebookPixel.options.blacklistPiiProperties = [
+            {
+              propertyName: 'email',
+              hashProperty: true
+            },
+            {
+              propertyName: 'number',
+              hashProperty: true
+            }
+          ];
+          analytics.track('event', {
+            // PII
+            email: 'steph@warriors.com',
+            firstName: 'Steph',
+            lastName: 'Curry',
+            gender: 'male',
+            city: 'Oakland',
+            country: 'USA',
+            phone: '12345534534',
+            state: 'CA',
+            zip: '12345',
+            birthday: 'i dunno?',
+            number: 30
+          });
+
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              email:
+                '6dd27a21704a843224245b20369e216eecd3a599b78c4489e5f6cabb5aeca24a'
+            },
+            { eventID: undefined }
+          );
+        });
+
+        it('should fallback to an empty array when blacklistPiiProperties is falsy', function() {
+          facebookPixel.options.blacklistPiiProperties = null;
+
+          analytics.track('event', {
+            // PII
+            email: 'steph@warriors.com',
+            firstName: 'Steph',
+            lastName: 'Curry',
+            gender: 'male',
+            city: 'Oakland',
+            country: 'USA',
+            phone: '12345534534',
+            state: 'CA',
+            zip: '12345',
+            birthday: 'i dunno?',
+
+            // Non PII
+            team: 'Warriors'
+          });
+
+          analytics.called(
+            window.fbq,
+            'trackSingleCustom',
+            options.pixelId,
+            'event',
+            {
+              team: 'Warriors'
             },
             { eventID: undefined }
           );
@@ -1290,8 +1445,8 @@ describe('Facebook Pixel', function() {
       });
 
       it('Should send both pixel and standard event if mapped', function() {
-        facebookPixel.options.legacyEvents = { 'Completed Order': '123456' };
-        analytics.track('Completed Order', {
+        facebookPixel.options.legacyEvents = { 'Order Completed': '123456' };
+        analytics.track('Order Completed', {
           products: [
             { product_id: '507f1f77bcf86cd799439011' },
             { product_id: '505bd76785ebb509fc183733' }
