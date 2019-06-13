@@ -10,6 +10,9 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Install CircleCI CLI
+          command: curl -fLSs https://circle.ci/cli | bash
+      - run:
           name: Authenticate npm
           command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
       - run:
@@ -23,19 +26,6 @@ jobs:
           root: .
           paths: [.]
 
-  test_headless:
-    docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-    steps:
-      - attach_workspace: { at: . }
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Test updated integrations in Chrome Headless
-          command: yarn test-updated-integrations chromeHeadless
-      - run:
-          name: codecov
-          command: yarn coverage
   test_saucelabs:
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
@@ -44,36 +34,21 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Tagging tunnel
-          command: |
-            SC_TUNNEL_ID="ajs-integrations-${CIRCLE_BUILD_NUM}"
-            echo "export SC_TUNNEL_ID=${SC_TUNNEL_ID}" >> ${BASH_ENV}
-            source ${BASH_ENV}
-      - run:
-          name: Start SauceConnect
-          command: sc -k $SAUCE_ACCESS_KEY -u $SAUCE_USERNAME -f ready.sc -d sc.pid -i ${SC_TUNNEL_ID}
+          name: Install Sauce Labs and Set Up Tunnel
           background: true
+          command: |
+            curl https://saucelabs.com/downloads/sc-4.4.12-linux.tar.gz -o saucelabs.tar.gz
+            tar -xzf saucelabs.tar.gz
+            cd sc-*
+            bin/sc -u ${SAUCE_USERNAME} -k ${SAUCE_ACCESSKEY}
+            wget --retry-connrefused --no-check-certificate -T 60 localhost:4445  # wait for app to be ready
       - run:
-          name: Wait until it is ready
-          command: inotifywait --timeout 300 --exclude sc.pid --event create .
+          name: Run Tests
+          command: yarn test:ci
       - run:
-          name: Test updated integrations in Chrome
-          command: yarn test-updated-integrations chrome
-      - run:
-          name: Test updated integrations in Firefox
-          command: yarn test-updated-integrations firefox
-      - run:
-          name: Test updated integrations in IE
-          command: yarn test-updated-integrations ie
-      - run:
-          name: Test updated integrations in Egde
-          command: yarn test-updated-integrations edge
-      - run:
-          name: Test updated integrations in Safari
-          command: yarn test-updated-integrations safari
-      - run:
-          name: Killing tunnel
-          command: kill $(cat sc.pid)
+          name: Shut Down Sauce Connect Tunnel
+          command: |
+            kill -9 `cat /tmp/sc_client.pid`
 
   test_snyk:
     docker:
