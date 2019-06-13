@@ -1019,6 +1019,7 @@
     "@segment/analytics.js-integration" "^3.1.0"
     dateformat "^1.0.12"
     is "^3.2.1"
+    js-sha256 "^0.9.0"
     reject "0.0.1"
     segmentio-facade "^3.1.0"
     to-camel-case "^1.0.0"
@@ -4575,6 +4576,7 @@ from2@^2.1.0:
 fs-access@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/fs-access/-/fs-access-1.0.1.tgz#d6a87f262271cefebec30c553407fb995da8777a"
+  integrity sha1-1qh/JiJxzv6+wwxVNAf7mV2od3o=
   dependencies:
     null-check "^1.0.0"
 
@@ -5819,6 +5821,7 @@ isbinaryfile@^3.0.0:
 isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
+  integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
 
 isobject@^2.0.0:
   version "2.1.0"
@@ -5930,6 +5933,11 @@ jest-validate@^23.5.0:
 jkroso-type@1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/jkroso-type/-/jkroso-type-1.1.0.tgz#d2f5600a6d9c82595edd862c3e9f9f7c1529bddb"
+
+js-sha256@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/js-sha256/-/js-sha256-0.9.0.tgz#0b89ac166583e91ef9123644bd3c5334ce9d0966"
+  integrity sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==
 
 js-string-escape@^1.0.0:
   version "1.0.1"
@@ -6061,10 +6069,10 @@ karma-browserify@^5.0.4:
     minimatch "^3.0.0"
     os-shim "^0.1.3"
 
-karma-chrome-launcher@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/karma-chrome-launcher/-/karma-chrome-launcher-1.0.1.tgz#be5ae7c4264f9a0a2e22e3d984beb325ad92c8cb"
-  integrity sha1-vlrnxCZPmgouIuPZhL6zJa2SyMs=
+karma-chrome-launcher@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/karma-chrome-launcher/-/karma-chrome-launcher-2.2.0.tgz#cf1b9d07136cc18fe239327d24654c3dbc368acf"
+  integrity sha512-uf/ZVpAabDBPvdPdveyk1EPgbnloPvFFGgmRhYLTDH7gEB4nZdSBk8yTU47w1g/drLSx5uMOkjKk7IWKfWg/+w==
   dependencies:
     fs-access "^1.0.0"
     which "^1.2.1"
@@ -7309,6 +7317,7 @@ npm-which@^3.0.1:
 null-check@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/null-check/-/null-check-1.0.0.tgz#977dffd7176012b9ec30d2a39db5cf72a0439edd"
+  integrity sha1-l33/1xdgErnsMNKjnbXPcqBDnt0=
 
 number-is-nan@^1.0.0:
   version "1.0.1"
