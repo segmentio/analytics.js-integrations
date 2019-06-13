@@ -21,7 +21,7 @@
     "precommit": "lint-staged",
     "coverage-report": "open coverage/report/index.html",
     "test": "lerna exec --concurrency 1 -- yarn test --single-run",
-    "test:ci": "lerna exec --concurrency 1 -- yarn test:ci --single-run"
+    "test:ci": "lerna run --concurrency 1 --stream test:ci --single-run"
   },
   "lint-staged": {
     "linters": {
