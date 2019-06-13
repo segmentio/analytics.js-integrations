@@ -36,6 +36,9 @@
     ]
   },
   "devDependencies": {
+    "karma-browserstack-launcher": "^1.5.1",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-summary-reporter": "^1.6.0",
     "lerna": "^3.15.0"
   }
 }

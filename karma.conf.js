@@ -2,18 +2,23 @@
 module.exports = function(config) {
   config.set({
     frameworks: ['browserify', 'mocha'],
+
     preprocessors: {
       '**/*.js': 'browserify'
     },
+
     browserify: {
       debug: true
     },
+
     files: [
       'src/*.js',
       'test/*.test.js',
       'test/*.js'
     ],
-    reporters: ['mocha'],
+
+    reporters: ['spec'],
+
     browsers: ["ChromeHeadless"]
   });
 
@@ -49,24 +54,6 @@ module.exports = function(config) {
         browserName: 'safari',
         version: 'latest'
       },
-      'SL_IE_9': {
-        base: 'SauceLabs',
-        browserName: 'internet explorer',
-        platform: 'Windows 2008',
-        version: '9'
-      },
-      'SL_IE_10': {
-        base: 'SauceLabs',
-        browserName: 'internet explorer',
-        platform: 'Windows 2012',
-        version: '10'
-      },
-      'SL_IE_11': {
-        base: 'SauceLabs',
-        browserName: 'internet explorer',
-        platform: 'Windows 8.1',
-        version: '11'
-      },
       'SL_EDGE': {
         base: 'SauceLabs',
         browserName: 'microsoftedge',
@@ -78,27 +65,31 @@ module.exports = function(config) {
         browserName: 'microsoftedge',
         platform: 'Windows 10',
         version: 'latest-1'
-      },
-      'SL_iOS': {
-        base: 'SauceLabs',
-        browserName: 'iphone',
-        version: 'latest'
-      },
-      'SL_iOS-1': {
-        base: 'SauceLabs',
-        browserName: 'iphone',
-        version: 'latest-1'
       }
     }
 
     config.set({
-      reporters: ['dots', 'saucelabs'],
-      browsers: Object.keys(customLaunchers),
+      browserDisconnectTolerance: 1,
+
+      browserDisconnectTimeout: 60000,
+
+      browserNoActivityTimeout: 60000,
+
+      singleRun: true,
+
+      concurrency: 8,
+
+      retryLimit: 5,
+
+      reporters: ['spec', 'summary'],
+
+      browsers: ['ChromeHeadless'].concat(Object.keys(customLaunchers)),
+
+      customLaunchers: customLaunchers,
+
       sauceLabs: {
-        tunnelIdentifier: process.env.CIRCLE_SHA1,
-        testName: 'Web App Unit Tests'
-      },
-      customLaunchers: customLaunchers
+        testName: require('./package.json').name
+      }
     })
   }
 };
