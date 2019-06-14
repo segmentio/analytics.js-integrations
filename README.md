@@ -1,6 +1,6 @@
 # Analytics.js Integrations
 
-[![CircleCI](https://ci.segment.com/gh/segmentio/analytics.js-integrations.svg?style=svg)](https://ci.segment.com/gh/segmentio/analytics.js-integrations)
+[![CircleCI](https://ci.segment.com/gh/segmentio/analytics.js-integrations.svg?style=svg&circle-token=3902c34188b9a248fb3cf745442f626e8bbc89a5)](https://ci.segment.com/gh/segmentio/analytics.js-integrations)
 
 ## Introduction
 This repo stores the majority of the `analytics.js` integrations that Segment currently supports. It is organized as a monorepo with each individual integration packaged and deployed as their own npm modules.
