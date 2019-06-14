@@ -113,8 +113,27 @@ describe('Monetate', function() {
           price: 299,
           quantity: 8
         });
-        analytics.called(window.monetateQ.push, ['addProducts', ['bb161be4']]);
+        analytics.called(window.monetateQ.push, ['addProductDetails', ['bb161be4']]);
       });
+
+     it('should track product list viewed', function() {
+      analytics.track('product list viewed', {
+        products: [
+          { 
+            product_id: 'bb161be4',
+            sku: 'fc0b3bb',
+            name: 'sony pulse',
+            price: 299
+          },
+          {
+            product_id: 'bb161be5',
+            sku: 'gg0b3bb',
+            name: 'sony minidisc',
+            price: 100
+          }]
+        });
+      analytics.called(window.monetateQ.push, ['addProducts', ['bb161be4', 'bb161be5']]); 
+     }); 
 
       it('should track product added', function() {
         analytics.track('product added', {
