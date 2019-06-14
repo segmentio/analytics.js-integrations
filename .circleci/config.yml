@@ -24,6 +24,7 @@ jobs:
           paths: [.]
 
   test_saucelabs:
+    resource_class: xlarge
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
     steps:
