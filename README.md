@@ -13,7 +13,7 @@ To start contributing, please ensure you have the following installed on your lo
 
 Once these pre-requisites are met, feel free to clone the repo locally and install the required dependencies:
 
-```
+```bash
 git clone https://github.com/segmentio/analytics.js-integrations && cd analytics.js-integrations
 yarn
 ```
@@ -21,7 +21,7 @@ yarn
 ## Contributing
 All indiviudal integrations are stored in the `integrations/` directory. We recommend navigating into the individual integration you are contributing to in your terminal rather than working from the root directory:
 
-```
+```bash
 cd integrations/<INTEGRATION_NAME>
 ```
 
