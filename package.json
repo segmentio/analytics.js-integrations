@@ -14,14 +14,10 @@
     "coverage": "codecov",
     "fmt": "standard --fix",
     "lint": "eslint integrations/**/lib/ integrations/**/test/",
-    "publish-integrations": "scripts/publish-integrations",
-    "test-all-integrations": "karma start karma.conf.js all",
-    "test-integration": "karma start karma.conf.js",
-    "test-updated-integrations": "scripts/test-integrations",
     "precommit": "lint-staged",
     "coverage-report": "open coverage/report/index.html",
-    "test": "lerna run --concurrency 1 --stream test -- --single-run",
-    "test:ci": "lerna run --concurrency 1 --stream test:ci"
+    "test": "lerna run --concurrency 1 --since master test --stream -- --single-run --reporters summary --log-level error",
+    "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error"
   },
   "lint-staged": {
     "linters": {
