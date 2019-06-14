@@ -32,7 +32,7 @@ Please note, there is currently no way for user's of these integrations to choos
 If you need to add an external dependency to an integration, **please ensure you add it within the integration directory, not the root directory**. That being said, please keep in mind that these integrations are run client side. Please only add external dependencies if it is critical to your code changes.
 
 ### Running Tests
-Each integration directory has an npm script called `test` that you can use to easily run the unit tests via `yarn test`.
+Each integration directory has an npm script called `test` that you can use to easily run the unit tests with via `yarn test`.
 
 ### Code Formatting
 This project uses eslint to ensure uniform code formatting standards are maintained. You can see the specific eslint config in the root `.eslintrc` file. A pre-commit hook is used to help automate this process for you.
