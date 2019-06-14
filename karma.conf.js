@@ -11,14 +11,10 @@ module.exports = function(config) {
       debug: true
     },
 
-    files: [
-      'lib/*.js',
-      'test/*.test.js',
-      'test/*.js'
-    ],
+    files: ['lib/*.js', 'test/*.test.js', 'test/*.js'],
 
     reporters: ['spec'],
 
-    browsers: ["ChromeHeadless"]
+    browsers: ['ChromeHeadless']
   });
 };
