@@ -1,9 +1,9 @@
-const base = require('./karma.conf')
+var base = require('./karma.conf');
+var testName = require('./package.json').name;
 
 module.exports = function(config) {
-  base(config)
-  const customLaunchers = {
-    'Chrome': {
+  var customLaunchers = {
+    Chrome: {
       base: 'SauceLabs',
       browserName: 'chrome',
       version: 'latest'
@@ -13,7 +13,7 @@ module.exports = function(config) {
       browserName: 'chrome',
       version: 'latest-1'
     },
-    'Firefox': {
+    Firefox: {
       base: 'SauceLabs',
       browserName: 'firefox',
       version: 'latest'
@@ -28,12 +28,12 @@ module.exports = function(config) {
       browserName: 'safari',
       version: '11'
     },
-    'Safari': {
+    Safari: {
       base: 'SauceLabs',
       browserName: 'safari',
       version: 'latest'
     },
-    'EDGE': {
+    EDGE: {
       base: 'SauceLabs',
       browserName: 'microsoftedge',
       platform: 'Windows 10',
@@ -45,7 +45,8 @@ module.exports = function(config) {
       platform: 'Windows 10',
       version: 'latest-1'
     }
-  }
+  };
+  base(config);
 
   config.set({
     captureTimeout: 180000,
@@ -53,7 +54,7 @@ module.exports = function(config) {
     browserDisconnectTolerance: 3,
     browserNoActivityTimeout: 300000,
     singleRun: true,
-    reporters: ['dots', 'summary'],
+    reporters: ['summary'],
     browsers: Object.keys(customLaunchers),
     customLaunchers: customLaunchers,
     browserstack: {
@@ -63,15 +64,15 @@ module.exports = function(config) {
       connectOptions: {
         noSslBumpDomains: 'all'
       },
-      testName: require('./package.json').name,
+      testName: testName,
       retryLimit: 3,
       recordVideo: false,
       recordScreenshots: false,
       idleTimeout: 600,
       commandTimeout: 600,
-      maxDuration: 5400,
+      maxDuration: 5400
     },
     transports: ['websocket', 'polling'],
-    port: 9876,
-  })
-}
+    port: 9876
+  });
+};
