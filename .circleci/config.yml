@@ -23,8 +23,18 @@ jobs:
           root: .
           paths: [.]
 
+  test:
+    docker:
+        - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run Tests
+          command: yarn test
+
   test_saucelabs:
-    resource_class: xlarge
     docker:
       - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
     steps:
@@ -46,41 +56,20 @@ jobs:
           name: Snyk Setup
           command: curl -sL https://raw.githubusercontent.com/segmentio/snyk_helpers/master/initialization/snyk.sh | sh
 
-  publish:
-    docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-    steps:
-      - attach_workspace: { at: . }
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Authenticate npm
-          command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
-      - run:
-          name: Publish updated packages
-          command: scripts/publish-integrations
-
 workflows:
   version: 2
-  test_and_publish:
+  test:
     jobs:
       - setup:
           context: npm
-      - test_headless:
+      - test:
           requires:
             - setup
       - test_saucelabs:
           requires:
+            - test
             - setup
       - test_snyk:
           context: snyk
           requires:
             - setup
-      - publish:
-          context: npm
-          requires:
-            - test_headless
-            - test_saucelabs
-          filters:
-            branches:
-              only: master
