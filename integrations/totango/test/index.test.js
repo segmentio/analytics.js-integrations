@@ -32,12 +32,15 @@ describe('Totango', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Totango, integration('Totango')
-      .assumesPageview()
-      .global('totango')
-      .global('totango_options')
-      .option('serviceId', null)
-      .option('disableHeartbeat', false));
+    analytics.compare(
+      Totango,
+      integration('Totango')
+        .assumesPageview()
+        .global('totango')
+        .global('totango_options')
+        .option('serviceId', null)
+        .option('disableHeartbeat', false)
+    );
   });
 
   describe('before loading', function() {
@@ -262,7 +265,11 @@ describe('Totango', function() {
       });
 
       it('should add parent properties to the totango account options', function() {
-        analytics.group('id', { property: true }, { Totango: { parent: { id: 'XYZ-85b' } } });
+        analytics.group(
+          'id',
+          { property: true },
+          { Totango: { parent: { id: 'XYZ-85b' } } }
+        );
         analytics.called(window.totango.go, {
           service_id: options.serviceId,
           disable_heartbeat: options.disableHeartbeat,
@@ -278,7 +285,11 @@ describe('Totango', function() {
       });
 
       it('should add enableHierarchy flag to the totango options', function() {
-        analytics.group('id', { property: true }, { Totango: { enableHierarchy: false } });
+        analytics.group(
+          'id',
+          { property: true },
+          { Totango: { enableHierarchy: false } }
+        );
         analytics.called(window.totango.go, {
           service_id: options.serviceId,
           disable_heartbeat: options.disableHeartbeat,
@@ -293,7 +304,11 @@ describe('Totango', function() {
 
       describe('with product account', function() {
         it('should add product properties', function() {
-          analytics.group('id', { property: true }, { Totango: { product: { id: 'productA' } } });
+          analytics.group(
+            'id',
+            { property: true },
+            { Totango: { product: { id: 'productA' } } }
+          );
           analytics.called(window.totango.go, {
             service_id: options.serviceId,
             disable_heartbeat: options.disableHeartbeat,
@@ -310,7 +325,11 @@ describe('Totango', function() {
 
         it('should convert product dates to isostrings', function() {
           var date = new Date();
-          analytics.group('id', { property: true }, { Totango: { product: { date: date } } });
+          analytics.group(
+            'id',
+            { property: true },
+            { Totango: { product: { date: date } } }
+          );
           analytics.called(window.totango.go, {
             service_id: options.serviceId,
             disable_heartbeat: options.disableHeartbeat,

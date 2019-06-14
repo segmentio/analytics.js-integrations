@@ -12,7 +12,7 @@ var defaults = require('@ndhoule/defaults');
  * Expose `TrackJS`.
  */
 
-var TrackJS = module.exports = integration('Track JS')
+var TrackJS = (module.exports = integration('Track JS')
   .global('track')
   .global('trackJs')
   .global('_trackJs')
@@ -28,7 +28,9 @@ var TrackJS = module.exports = integration('Track JS')
   .option('networkError', true)
   .option('visitorEnabled', true)
   .option('windowEnabled', true)
-  .tag('<script src="//d2zah9y47r7bi2.cloudfront.net/releases/current/tracker.js">');
+  .tag(
+    '<script src="//d2zah9y47r7bi2.cloudfront.net/releases/current/tracker.js">'
+  ));
 
 /**
  * Initialize.

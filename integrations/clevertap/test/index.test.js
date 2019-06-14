@@ -31,10 +31,13 @@ describe('<CleverTap>', function() {
   });
 
   it('should have the correct options', function() {
-    analytics.compare(CleverTap, integration('CleverTap')
-      .global('clevertap')
-      .option('clevertap_account_id', '')
-      .option('region', ''));
+    analytics.compare(
+      CleverTap,
+      integration('CleverTap')
+        .global('clevertap')
+        .option('clevertap_account_id', '')
+        .option('region', '')
+    );
   });
 
   describe('before loading', function() {
@@ -83,7 +86,9 @@ describe('<CleverTap>', function() {
     });
 
     it('should set account id', function() {
-      analytics.assert(window.clevertap.account[0].id === options.clevertap_account_id);
+      analytics.assert(
+        window.clevertap.account[0].id === options.clevertap_account_id
+      );
     });
 
     describe('#identify', function() {
@@ -93,22 +98,34 @@ describe('<CleverTap>', function() {
 
       it('should send an id', function() {
         analytics.identify('id');
-        analytics.called(window.clevertap.profile.push, { Site: { Identity:'id' } });
+        analytics.called(window.clevertap.profile.push, {
+          Site: { Identity: 'id' }
+        });
       });
 
       it('should send traits', function() {
         analytics.identify({ trait: true });
-        analytics.called(window.clevertap.profile.push, { Site: { trait:true } });
+        analytics.called(window.clevertap.profile.push, {
+          Site: { trait: true }
+        });
       });
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.called(window.clevertap.profile.push, { Site: { Identity:'id', trait:true } });
+        analytics.called(window.clevertap.profile.push, {
+          Site: { Identity: 'id', trait: true }
+        });
       });
 
       it('should drop objects traits', function() {
-        analytics.identify('id', { trait1: true, testObj: { k:'v' }, testArray: ['k', 'v']  });
-        analytics.called(window.clevertap.profile.push, { Site: { Identity:'id', trait1: true, testArray: ['k', 'v'] } });
+        analytics.identify('id', {
+          trait1: true,
+          testObj: { k: 'v' },
+          testArray: ['k', 'v']
+        });
+        analytics.called(window.clevertap.profile.push, {
+          Site: { Identity: 'id', trait1: true, testArray: ['k', 'v'] }
+        });
       });
     });
 
@@ -123,13 +140,19 @@ describe('<CleverTap>', function() {
       });
 
       it('should send an event and properties', function() {
-        analytics.track('event', { property:true });
-        analytics.called(window.clevertap.event.push, 'event', { property:true });
+        analytics.track('event', { property: true });
+        analytics.called(window.clevertap.event.push, 'event', {
+          property: true
+        });
       });
 
       it('should drop nested object/array event properties', function() {
-        analytics.track('event', { prop:true, testObj:{ k:'v' }, testArray: ['k', 'v']  });
-        analytics.called(window.clevertap.event.push, 'event', { prop:true });
+        analytics.track('event', {
+          prop: true,
+          testObj: { k: 'v' },
+          testArray: ['k', 'v']
+        });
+        analytics.called(window.clevertap.event.push, 'event', { prop: true });
       });
     });
 
@@ -140,7 +163,9 @@ describe('<CleverTap>', function() {
 
       it('should send an id', function() {
         analytics.alias('aliasId');
-        analytics.called(window.clevertap.profile.push, { Site: { Identity:'aliasId' } });
+        analytics.called(window.clevertap.profile.push, {
+          Site: { Identity: 'aliasId' }
+        });
       });
     });
 
@@ -178,7 +203,7 @@ describe('<CleverTap>', function() {
           total: 30,
           revenue: 25,
           currency: 'USD',
-          'Charged ID':'50314b8e9bcf000000000002',
+          'Charged ID': '50314b8e9bcf000000000002',
           Items: [
             {
               product_id: '507f1f77bcf86cd799439011',
@@ -196,7 +221,7 @@ describe('<CleverTap>', function() {
               category: 'Games'
             }
           ],
-          Amount:30
+          Amount: 30
         });
       });
     });

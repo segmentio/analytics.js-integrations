@@ -34,10 +34,13 @@ describe('Kenshoo Infinity', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(KenshooInfinity, integration('Kenshoo Infinity')
-      .option('subdomain', '')
-      .option('cid', '')
-      .mapping('events'));
+    analytics.compare(
+      KenshooInfinity,
+      integration('Kenshoo Infinity')
+        .option('subdomain', '')
+        .option('cid', '')
+        .mapping('events')
+    );
   });
 
   describe('loading', function() {
@@ -73,29 +76,43 @@ describe('Kenshoo Infinity', function() {
           currency: 'KOR',
           orderId: 'yolo'
         });
-        analytics.called(window.kenshoo.trackConversion, options.subdomain, options.cid, {
-          revenue: '17.38',
-          currency: 'KOR',
-          conversionType: 'stargirl',
-          orderId: 'yolo'
-        });
+        analytics.called(
+          window.kenshoo.trackConversion,
+          options.subdomain,
+          options.cid,
+          {
+            revenue: '17.38',
+            currency: 'KOR',
+            conversionType: 'stargirl',
+            orderId: 'yolo'
+          }
+        );
       });
 
       it('should lookup promoCode in integration options', function() {
-        analytics.track('starboy', {
-          revenue: 17.38,
-          currency: 'KOR',
-          orderId: 'yolo'
-        }, {
-          'Kenshoo Infinity': { promoCode: 'attention' }
-        });
-        analytics.called(window.kenshoo.trackConversion, options.subdomain, options.cid, {
-          revenue: '17.38',
-          currency: 'KOR',
-          conversionType: 'stargirl',
-          orderId: 'yolo',
-          promoCode: 'attention'
-        });
+        analytics.track(
+          'starboy',
+          {
+            revenue: 17.38,
+            currency: 'KOR',
+            orderId: 'yolo'
+          },
+          {
+            'Kenshoo Infinity': { promoCode: 'attention' }
+          }
+        );
+        analytics.called(
+          window.kenshoo.trackConversion,
+          options.subdomain,
+          options.cid,
+          {
+            revenue: '17.38',
+            currency: 'KOR',
+            conversionType: 'stargirl',
+            orderId: 'yolo',
+            promoCode: 'attention'
+          }
+        );
       });
 
       it('should let you map custom properties', function() {
@@ -103,13 +120,18 @@ describe('Kenshoo Infinity', function() {
           customProp1: 'hahahaha',
           custom_prop2: 'hehehehe'
         });
-        analytics.called(window.kenshoo.trackConversion, options.subdomain, options.cid, {
-          revenue: '0',
-          currency: 'USD',
-          conversionType: 'stargirl',
-          customProp1: 'hahahaha',
-          custom_prop2: 'hehehehe'
-        });
+        analytics.called(
+          window.kenshoo.trackConversion,
+          options.subdomain,
+          options.cid,
+          {
+            revenue: '0',
+            currency: 'USD',
+            conversionType: 'stargirl',
+            customProp1: 'hahahaha',
+            custom_prop2: 'hehehehe'
+          }
+        );
       });
 
       it('should format custom properties properly', function() {
@@ -134,55 +156,70 @@ describe('Kenshoo Infinity', function() {
           filler10: 'foo',
           'z-remove-dis': 'bye'
         });
-        analytics.called(window.kenshoo.trackConversion, options.subdomain, options.cid, {
-          revenue: '0',
-          currency: 'USD',
-          conversionType: 'stargirl',
-          convert_spaces: 'hi',
-          to_underscores: 'hey',
-          camelCaseisFine: 'yo',
-          starboy: 'suh%20dude',
-          dont_remove_underscores: 'dude',
-          filler1: 'foo',
-          filler2: 'foo',
-          filler3: 'foo',
-          filler4: 'foo',
-          filler5: 'foo',
-          filler6: 'foo',
-          filler7: 'foo',
-          filler8: 'foo',
-          filler9: 'foo',
-          filler10: 'foo'
-        });
+        analytics.called(
+          window.kenshoo.trackConversion,
+          options.subdomain,
+          options.cid,
+          {
+            revenue: '0',
+            currency: 'USD',
+            conversionType: 'stargirl',
+            convert_spaces: 'hi',
+            to_underscores: 'hey',
+            camelCaseisFine: 'yo',
+            starboy: 'suh%20dude',
+            dont_remove_underscores: 'dude',
+            filler1: 'foo',
+            filler2: 'foo',
+            filler3: 'foo',
+            filler4: 'foo',
+            filler5: 'foo',
+            filler6: 'foo',
+            filler7: 'foo',
+            filler8: 'foo',
+            filler9: 'foo',
+            filler10: 'foo'
+          }
+        );
       });
 
       it('should flatten all nested arrays or objects for custom properties', function() {
         analytics.track('starboy', {
           i: { am: 'stargirl' },
-          alarm: [1,2,3],
+          alarm: [1, 2, 3],
           whoa: ['dude', { stop: 'this' }]
         });
-        analytics.called(window.kenshoo.trackConversion, options.subdomain, options.cid, {
-          revenue: '0',
-          currency: 'USD',
-          conversionType: 'stargirl',
-          i_am: 'stargirl',
-          alarm: '1%2C2%2C3',
-          whoa_0: 'dude',
-          whoa_1_stop: 'this'
-        });
+        analytics.called(
+          window.kenshoo.trackConversion,
+          options.subdomain,
+          options.cid,
+          {
+            revenue: '0',
+            currency: 'USD',
+            conversionType: 'stargirl',
+            i_am: 'stargirl',
+            alarm: '1%2C2%2C3',
+            whoa_0: 'dude',
+            whoa_1_stop: 'this'
+          }
+        );
       });
 
       it('should encode all string values', function() {
         analytics.track('starboy', {
           encodeDis: 'all your base belongs to us'
         });
-        analytics.called(window.kenshoo.trackConversion, options.subdomain, options.cid, {
-          revenue: '0',
-          currency: 'USD',
-          conversionType: 'stargirl',
-          encodeDis: 'all%20your%20base%20belongs%20to%20us'
-        });
+        analytics.called(
+          window.kenshoo.trackConversion,
+          options.subdomain,
+          options.cid,
+          {
+            revenue: '0',
+            currency: 'USD',
+            conversionType: 'stargirl',
+            encodeDis: 'all%20your%20base%20belongs%20to%20us'
+          }
+        );
       });
 
       describe('character limitations', function() {
@@ -191,23 +228,30 @@ describe('Kenshoo Infinity', function() {
           var str = Array(102).join('x');
           kenshooInfinity.options.events.tooLong = str;
           analytics.track('tooLong');
-          var expectedLength = window.kenshoo.trackConversion.args[0][2].conversionType.length;
+          var expectedLength =
+            window.kenshoo.trackConversion.args[0][2].conversionType.length;
           analytics.equal(expectedLength, 100);
         });
 
         it('orderId must not be over 64', function() {
           var str = Array(66).join('x');
           analytics.track('starboy', { orderId: str });
-          var expectedLength = window.kenshoo.trackConversion.args[0][2].orderId.length;
+          var expectedLength =
+            window.kenshoo.trackConversion.args[0][2].orderId.length;
           analytics.equal(expectedLength, 64);
         });
 
         it('promoCode must not be over 1024', function() {
           var str = Array(1026).join('x');
-          analytics.track('starboy', {}, {
-            'Kenshoo Infinity': { promoCode: str }
-          });
-          var expectedlength = window.kenshoo.trackConversion.args[0][2].promoCode.length;
+          analytics.track(
+            'starboy',
+            {},
+            {
+              'Kenshoo Infinity': { promoCode: str }
+            }
+          );
+          var expectedlength =
+            window.kenshoo.trackConversion.args[0][2].promoCode.length;
           analytics.equal(expectedlength, 1024);
         });
 
@@ -225,7 +269,8 @@ describe('Kenshoo Infinity', function() {
         it('custom property values should not be longer than 1024', function() {
           var str = Array(1026).join('x');
           analytics.track('starboy', { custom: str });
-          var expectedLength = window.kenshoo.trackConversion.args[0][2].custom.length;
+          var expectedLength =
+            window.kenshoo.trackConversion.args[0][2].custom.length;
           analytics.equal(expectedLength, 1024);
         });
       });

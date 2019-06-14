@@ -61,11 +61,13 @@ describe('Omniture', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Omniture, integration('Omniture')
-      .option('events', {})
-      .option('eVars', {})
-      .option('props', {})
-      .option('hVars', {})
+    analytics.compare(
+      Omniture,
+      integration('Omniture')
+        .option('events', {})
+        .option('eVars', {})
+        .option('props', {})
+        .option('hVars', {})
     );
   });
 
@@ -120,7 +122,10 @@ describe('Omniture', function() {
 
       it('should set window.s.trackingServerSecure', function() {
         analytics.initialize();
-        analytics.equal(window.s.trackingServerSecure, options.trackingServerSecureUrl);
+        analytics.equal(
+          window.s.trackingServerSecure,
+          options.trackingServerSecureUrl
+        );
       });
     });
 
@@ -160,9 +165,14 @@ describe('Omniture', function() {
           category: 'Dental Aids',
           price: 17.76
         });
-        analytics.equal(window.s.products, 'Dental Aids; Wooden Teeth; 2; 35.52');
+        analytics.equal(
+          window.s.products,
+          'Dental Aids; Wooden Teeth; 2; 35.52'
+        );
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'products'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'products')
+        );
       });
 
       it('tracks product information and uses sku if no product property is present', function() {
@@ -174,27 +184,37 @@ describe('Omniture', function() {
         });
         analytics.equal(window.s.products, 'Dental Aids; 789; 32; 568.32');
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'products'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'products')
+        );
       });
 
       it('tracks multiple product information', function() {
         analytics.track('Viewed Cart', {
-          products: [{
-            product: 'Wooden Teeth',
-            quantity: 2,
-            category: 'Dental Aids',
-            price: 17.76
-          }, {
-            product: 'Mole People',
-            quantity: 3,
-            category: 'Subterranean',
-            price: 32.32
-          }]
+          products: [
+            {
+              product: 'Wooden Teeth',
+              quantity: 2,
+              category: 'Dental Aids',
+              price: 17.76
+            },
+            {
+              product: 'Mole People',
+              quantity: 3,
+              category: 'Subterranean',
+              price: 32.32
+            }
+          ]
         });
-        analytics.equal(window.s.products, 'Dental Aids; Wooden Teeth; 2; 35.52, '
-          + 'Subterranean; Mole People; 3; 96.96');
+        analytics.equal(
+          window.s.products,
+          'Dental Aids; Wooden Teeth; 2; 35.52, ' +
+            'Subterranean; Mole People; 3; 96.96'
+        );
         analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'products'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'products')
+        );
       });
 
       it('tracks aliased properties', function() {
@@ -206,8 +226,15 @@ describe('Omniture', function() {
         analytics.equal(window.s.prop13, '2%');
         analytics.equal(window.s.prop23, 'Lucerne');
         analytics.equal(window.s.prop10, 'true');
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'prop13', 'prop23',
-          'prop10'));
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'prop13',
+            'prop23',
+            'prop10'
+          )
+        );
       });
 
       it('tracks basic properties', function() {
@@ -219,8 +246,15 @@ describe('Omniture', function() {
         analytics.equal(window.s.prop73, 'true');
         analytics.equal(window.s.prop1, '20');
         analytics.equal(window.s.prop50, 'good');
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'prop1', 'prop50',
-          'prop73'));
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'prop1',
+            'prop50',
+            'prop73'
+          )
+        );
       });
 
       it('tracks basic properties of all cases', function() {
@@ -248,10 +282,20 @@ describe('Omniture', function() {
           'my.dog': 'Dog',
           good: false
         });
-        analytics.equal(window.s.eVar101, '2003 Accord (only one previous owner)');
+        analytics.equal(
+          window.s.eVar101,
+          '2003 Accord (only one previous owner)'
+        );
         analytics.equal(window.s.eVar401, 'Dog');
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'eVar101',
-          'eVar401', 'prop10'));
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'eVar101',
+            'eVar401',
+            'prop10'
+          )
+        );
       });
 
       it('tracks basic eVars', function() {
@@ -263,7 +307,9 @@ describe('Omniture', function() {
         analytics.equal(window.s.eVar, undefined);
         analytics.equal(window.s.eVar20, '123');
         analytics.equal(window.s.eVar54, 'false');
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'eVar20', 'eVar54'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'eVar20', 'eVar54')
+        );
       });
 
       it('tracks event eVars', function() {
@@ -283,8 +329,17 @@ describe('Omniture', function() {
         analytics.equal(window.s.eVar63, 'abc');
         analytics.equal(window.s.eVar47, 'malamute');
         analytics.equal(window.s.prop40, 'malamute');
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'prop20', 'eVar63',
-          'prop40', 'eVar47', 'eVar49'));
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'prop20',
+            'eVar63',
+            'prop40',
+            'eVar47',
+            'eVar49'
+          )
+        );
       });
 
       it('mirrors eVars which are not aliased', function() {
@@ -293,7 +348,9 @@ describe('Omniture', function() {
         });
         analytics.equal(window.s.eVar63, 'boeing 747');
         analytics.equal(window.s.prop20, 'boeing 747');
-        analytics.assert(contains(window.s.linkTrackVars, 'events', 'prop20', 'eVar63'));
+        analytics.assert(
+          contains(window.s.linkTrackVars, 'events', 'prop20', 'eVar63')
+        );
       });
 
       it('should respect properties.timestamp', function() {
@@ -385,7 +442,10 @@ describe('Omniture', function() {
           good: false
         });
         analytics.equal(window.s.pageName, 'Drank Some Milk');
-        analytics.equal(window.s.eVar1, '2003 Accord (only one previous owner)');
+        analytics.equal(
+          window.s.eVar1,
+          '2003 Accord (only one previous owner)'
+        );
         analytics.equal(window.s.eVar47, 'Dog');
       });
 
@@ -396,7 +456,10 @@ describe('Omniture', function() {
           good: false
         });
         analytics.equal(window.s.pageName, 'Drank Some Milk');
-        analytics.equal(window.s.eVar101, '2003 Accord (only one previous owner)');
+        analytics.equal(
+          window.s.eVar101,
+          '2003 Accord (only one previous owner)'
+        );
         analytics.equal(window.s.eVar401, 'Dog');
       });
 

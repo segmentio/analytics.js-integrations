@@ -21,7 +21,7 @@ var has = Object.prototype.hasOwnProperty;
  * Expose `Pardot` integration.
  */
 
-var Pardot = module.exports = integration('Pardot')
+var Pardot = (module.exports = integration('Pardot')
   .assumesPageview()
   .global('pi')
   .global('piAId')
@@ -31,7 +31,7 @@ var Pardot = module.exports = integration('Pardot')
   .option('piAId', '')
   .option('piCId', '')
   .tag('http', '<script src="http://cdn.pardot.com/pd.js">')
-  .tag('https', '<script src="https://pi.pardot.com/pd.js">');
+  .tag('https', '<script src="https://pi.pardot.com/pd.js">'));
 
 /**
  * Initialize.

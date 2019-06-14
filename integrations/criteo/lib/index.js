@@ -20,13 +20,13 @@ var integration = require('@segment/analytics.js-integration');
  * Expose Criteo integration.
  */
 
-var Criteo = module.exports = integration('Criteo')
+var Criteo = (module.exports = integration('Criteo')
   .option('account', '')
   .option('homeUrl', '')
   .option('supportingUserData', {})
   .option('supportingPageData', {})
   .tag('http', '<script src="http://static.criteo.net/js/ld/ld.js">')
-  .tag('https', '<script src="https://static.criteo.net/js/ld/ld.js">');
+  .tag('https', '<script src="https://static.criteo.net/js/ld/ld.js">'));
 
 /**
  * Initialize.
@@ -40,7 +40,7 @@ Criteo.prototype.initialize = function() {
   window.criteo_q = window.criteo_q || [];
   window.criteo_q.push({ event: 'setAccount', account: account });
 
-  var protocol = useHttps() ? 'https': 'http';
+  var protocol = useHttps() ? 'https' : 'http';
   this.load(protocol, this.ready);
 };
 
@@ -94,7 +94,7 @@ Criteo.prototype.track = function(track) {
     trackTransaction: 'orderCompleted'
   };
   var eventType = eventMappings[event];
-  
+
   if (eventTypeMappings[eventType]) {
     return this[eventTypeMappings[eventType]](track);
   }
@@ -174,11 +174,13 @@ Criteo.prototype.cartViewed = function(track) {
 Criteo.prototype.orderCompleted = function(track) {
   var orderId = objCase.find(track.properties(), 'orderId');
   var products = getProductMetadata(track);
-  var event = [{
-    event: 'trackTransaction',
-    id: orderId || '',
-    product: products
-  }];
+  var event = [
+    {
+      event: 'trackTransaction',
+      id: orderId || '',
+      product: products
+    }
+  ];
   var payload = [];
 
   payload = event.concat(this.setExtraData());
@@ -195,7 +197,7 @@ Criteo.prototype.orderCompleted = function(track) {
 Criteo.prototype.setExtraData = function() {
   var ret = [];
   var extraData = {};
-  
+
   // Add userId if available as customer_id
   var userId = this.analytics.user().id();
 
@@ -213,7 +215,6 @@ Criteo.prototype.setExtraData = function() {
     ret.push({ event: 'setEmail', email: md5(traits.email) });
     delete traits.email;
   }
-
 
   // Add supporting user data.
   var supportingUserData = this.options.supportingUserData;
@@ -251,4 +252,3 @@ function getProductMetadata(track) {
 
   return products;
 }
-

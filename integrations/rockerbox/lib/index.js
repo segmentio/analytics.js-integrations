@@ -14,17 +14,29 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Rockerbox`.
  */
 
-var Rockerbox = module.exports = integration('Rockerbox')
+var Rockerbox = (module.exports = integration('Rockerbox')
   .option('source', '')
   .option('allAnSeg', '')
   .option('customerAnSeg', '')
   .option('conversionId', '')
   .option('segmentId', '')
   .mapping('events')
-  .tag('page', '<script src="https://getrockerbox.com/pixel?source={{ source }}&type=imp&an_seg={{ allAnSeg }}">')
-  .tag('user', '<script src="https://getrockerbox.com/pixel?source={{ source }}&type=imp&an_seg={{ customerAnSeg }}">')
-  .tag('appnexus', '<script src="https://secure.adnxs.com/px?id={{ conversionId }}&seg={{ segmentId }}&t=1&order_id={{ id }}">')
-  .tag('track', '<script src="https://getrockerbox.com/pixel?source={{ source }}&type=conv&id={{ conversionId }}&an_seg={{ segmentId }}&order_type={{ id }}">');
+  .tag(
+    'page',
+    '<script src="https://getrockerbox.com/pixel?source={{ source }}&type=imp&an_seg={{ allAnSeg }}">'
+  )
+  .tag(
+    'user',
+    '<script src="https://getrockerbox.com/pixel?source={{ source }}&type=imp&an_seg={{ customerAnSeg }}">'
+  )
+  .tag(
+    'appnexus',
+    '<script src="https://secure.adnxs.com/px?id={{ conversionId }}&seg={{ segmentId }}&t=1&order_id={{ id }}">'
+  )
+  .tag(
+    'track',
+    '<script src="https://getrockerbox.com/pixel?source={{ source }}&type=conv&id={{ conversionId }}&an_seg={{ segmentId }}&order_type={{ id }}">'
+  ));
 
 /**
  * Initialize.
@@ -67,20 +79,20 @@ Rockerbox.prototype.track = function(track) {
     var id;
 
     switch (property) {
-    case 'email':
-      id = user && email(user);
-      break;
-    case 'orderId':
-      id = track.orderId();
-      break;
-    case 'userId':
-      id = user && user.id();
-      break;
-    case 'revenue':
-      id = track.revenue();
-      break;
-    default:
-        // No default case
+      case 'email':
+        id = user && email(user);
+        break;
+      case 'orderId':
+        id = track.orderId();
+        break;
+      case 'userId':
+        id = user && user.id();
+        break;
+      case 'revenue':
+        id = track.revenue();
+        break;
+      default:
+      // No default case
     }
 
     var params = {

@@ -30,21 +30,24 @@ describe('Localytics', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Localytics, integration('Localytics')
-      .global('LocalyticsGlobal')
-      .option('appKey', '')
-      .option('namespace', null)
-      .option('polling', null)
-      .option('appVersion', null)
-      .option('networkCarrier', null)
-      .option('uploadTimeout', null)
-      .option('sessionTimeoutSeconds', null)
-      .option('storage', null)
-      .option('logger', null)
-      .option('trackAllPages', false)
-      .option('trackNamedPages', true)
-      .option('trackCategorizedPages', true)
-      .assumesPageview());
+    analytics.compare(
+      Localytics,
+      integration('Localytics')
+        .global('LocalyticsGlobal')
+        .option('appKey', '')
+        .option('namespace', null)
+        .option('polling', null)
+        .option('appVersion', null)
+        .option('networkCarrier', null)
+        .option('uploadTimeout', null)
+        .option('sessionTimeoutSeconds', null)
+        .option('storage', null)
+        .option('logger', null)
+        .option('trackAllPages', false)
+        .option('trackNamedPages', true)
+        .option('trackCategorizedPages', true)
+        .assumesPageview()
+    );
   });
 
   describe('before loading', function() {
@@ -194,7 +197,13 @@ describe('Localytics', function() {
 
       it('should send customer value', function() {
         analytics.track('event2', { prop: true, revenue: 42 });
-        analytics.called(window.ll, 'tagEvent', 'event2', { prop: true, revenue: 42 }, 42);
+        analytics.called(
+          window.ll,
+          'tagEvent',
+          'event2',
+          { prop: true, revenue: 42 },
+          42
+        );
       });
     });
 

@@ -29,13 +29,16 @@ describe('Cxense', function() {
   });
 
   it('should have the correct options', function() {
-    analytics.compare(Cxense, integration('Cxense')
-    .option('customerPrefix', '')
-    .option('siteId', '')
-    .option('persistedQueryId', '')
-    .option('origin', '')
-    .option('setExternalId', false)
-    .tag('<script src="//cdn.cxense.com/cx.js">'));
+    analytics.compare(
+      Cxense,
+      integration('Cxense')
+        .option('customerPrefix', '')
+        .option('siteId', '')
+        .option('persistedQueryId', '')
+        .option('origin', '')
+        .option('setExternalId', false)
+        .tag('<script src="//cdn.cxense.com/cx.js">')
+    );
   });
 
   describe('before loading', function() {
@@ -46,7 +49,7 @@ describe('Cxense', function() {
     afterEach(function() {
       cxense.reset();
     });
-    
+
     describe('#initialize', function() {
       it('should create window.cX', function() {
         analytics.assert(!window.cX);
@@ -90,40 +93,49 @@ describe('Cxense', function() {
           title: 'Home Page',
           path: '/',
           customProp: 'foobar',
-          url: 'http://segment.com', 
+          url: 'http://segment.com',
           referrer: 'https://segment.com/warehouses'
         });
 
-        analytics.called(window.cX.callQueue.push, ['setCustomParameters', {
-          title: 'Home Page',
-          customProp: 'foobar',
-          path: '/',
-          name: 'Home',
-          search: ''
-        }]);
+        analytics.called(window.cX.callQueue.push, [
+          'setCustomParameters',
+          {
+            title: 'Home Page',
+            customProp: 'foobar',
+            path: '/',
+            name: 'Home',
+            search: ''
+          }
+        ]);
 
-        analytics.called(window.cX.callQueue.push, ['sendPageViewEvent', {
-          location: 'http://segment.com', 
-          referrer: 'https://segment.com/warehouses', 
-          useAutoRefreshCheck: false 
-        }]);
+        analytics.called(window.cX.callQueue.push, [
+          'sendPageViewEvent',
+          {
+            location: 'http://segment.com',
+            referrer: 'https://segment.com/warehouses',
+            useAutoRefreshCheck: false
+          }
+        ]);
       });
 
       // TODO: check args
       it('should not send url and referrer as custom properties', function() {
         analytics.page('Test', {
           registered: true,
-          url: 'http://segment.com', 
+          url: 'http://segment.com',
           referrer: 'https://segment.com/warehouses'
         });
 
-        analytics.called(window.cX.callQueue.push, ['setCustomParameters', {
-          name: 'Test',
-          search: '',
-          title: '',
-          registered: true,
-          path: '/context.html'
-        }]);
+        analytics.called(window.cX.callQueue.push, [
+          'setCustomParameters',
+          {
+            name: 'Test',
+            search: '',
+            title: '',
+            registered: true,
+            path: '/context.html'
+          }
+        ]);
       });
 
       it('should parse out unaccepted data types', function() {
@@ -131,20 +143,23 @@ describe('Cxense', function() {
           search: '',
           title: 'Home',
           path: '/',
-          badProp1: { foo: 'bar' }, 
+          badProp1: { foo: 'bar' },
           goodProp1: 'yolo',
           badProp2: [{ foo: 'bar' }],
           goodProp2: ['foo', 'bar']
         });
 
-        analytics.called(window.cX.callQueue.push, ['setCustomParameters', {
-          name: 'Test',
-          search: '',
-          title: 'Home',
-          path: '/', 
-          goodProp1: 'yolo',
-          goodProp2: ['foo', 'bar']
-        }]);
+        analytics.called(window.cX.callQueue.push, [
+          'setCustomParameters',
+          {
+            name: 'Test',
+            search: '',
+            title: 'Home',
+            path: '/',
+            goodProp1: 'yolo',
+            goodProp2: ['foo', 'bar']
+          }
+        ]);
       });
 
       it('should add an external id', function() {
@@ -152,27 +167,36 @@ describe('Cxense', function() {
         analytics.user().id('userId');
         analytics.page();
 
-        analytics.called(window.cX.callQueue.push, ['addExternalId', {
-          id: 'userId',
-          type: options.customerPrefix
-        }]);
+        analytics.called(window.cX.callQueue.push, [
+          'addExternalId',
+          {
+            id: 'userId',
+            type: options.customerPrefix
+          }
+        ]);
       });
-
 
       it('should add geolocation if available', function() {
         var latitude = '1234';
         var longitude = '5678';
 
-        analytics.page({}, {
-          context: {
-            location: {
-              latitude: latitude,
-              longitude: longitude
+        analytics.page(
+          {},
+          {
+            context: {
+              location: {
+                latitude: latitude,
+                longitude: longitude
+              }
             }
           }
-        });
+        );
 
-        analytics.called(window.cX.callQueue.push, ['setGeoPosition', latitude, longitude]);
+        analytics.called(window.cX.callQueue.push, [
+          'setGeoPosition',
+          latitude,
+          longitude
+        ]);
       });
     });
 
@@ -183,18 +207,30 @@ describe('Cxense', function() {
 
       it('should call sendEvent method', function() {
         analytics.track('Test Event');
-        analytics.called(window.cX.callQueue.push, ['sendEvent', 'Test Event', {}]);
+        analytics.called(window.cX.callQueue.push, [
+          'sendEvent',
+          'Test Event',
+          {}
+        ]);
       });
 
       it('should filter out unaccepted data types', function() {
         analytics.track('Test Event', { foo: 'bar', badProperty: [] });
-        analytics.called(window.cX.callQueue.push, ['sendEvent', 'Test Event', { foo: 'bar' }]);
+        analytics.called(window.cX.callQueue.push, [
+          'sendEvent',
+          'Test Event',
+          { foo: 'bar' }
+        ]);
       });
 
       it('should stringify booleans and dates', function() {
         var date = new Date();
         analytics.track('Test Event', { foo: true, date: date });
-        analytics.called(window.cX.callQueue.push, ['sendEvent', 'Test Event', { foo: 'true', date: date.toString() }]);
+        analytics.called(window.cX.callQueue.push, [
+          'sendEvent',
+          'Test Event',
+          { foo: 'true', date: date.toString() }
+        ]);
       });
     });
   });

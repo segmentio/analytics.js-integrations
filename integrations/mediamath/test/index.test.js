@@ -17,27 +17,33 @@ describe('MediaMath', function() {
           event: 'testEvent',
           mtAdId: 'mt-ad-id',
           mtId: 'mt-id',
-          vParameters: [{
-            key: 'revenue',
-            value: 'v1'
-          }, {
-            key: 'plan',
-            value: 'v2'
-          }, {
-            key: 'color',
-            value: 'v3'
-          }
+          vParameters: [
+            {
+              key: 'revenue',
+              value: 'v1'
+            },
+            {
+              key: 'plan',
+              value: 'v2'
+            },
+            {
+              key: 'color',
+              value: 'v3'
+            }
           ],
-          sParameters: [{
-            key: 'orderId',
-            value: 's1'
-          }, {
-            key: 'friendCount',
-            value: 's2'
-          }, {
-            key: 'name',
-            value: 's3'
-          }
+          sParameters: [
+            {
+              key: 'orderId',
+              value: 's1'
+            },
+            {
+              key: 'friendCount',
+              value: 's2'
+            },
+            {
+              key: 'name',
+              value: 's3'
+            }
           ]
         }
       },
@@ -55,10 +61,12 @@ describe('MediaMath', function() {
           event: 'testEvent3',
           mtAdId: 'mt-ad-id',
           mtId: 'mt-id',
-          sParameters: [{
-            key: 'random',
-            value: 's9'
-          }]
+          sParameters: [
+            {
+              key: 'random',
+              value: 's9'
+            }
+          ]
         }
       }
     ]
@@ -80,8 +88,7 @@ describe('MediaMath', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(MediaMath, integration('MediaMath')
-      .mapping('events'));
+    analytics.compare(MediaMath, integration('MediaMath').mapping('events'));
   });
 
   describe('before loading', function() {
@@ -101,7 +108,9 @@ describe('MediaMath', function() {
         mediamath.options.allPagesMtAdId = 'lkjh';
         analytics.initialize();
         analytics.page();
-        analytics.loaded('<script src="http://pixel.mathtag.com/event/js?mt_id=asdf&mt_adid=lkjh&v1=&v2=&v3=&s1=&s2=&s3=">');
+        analytics.loaded(
+          '<script src="http://pixel.mathtag.com/event/js?mt_id=asdf&mt_adid=lkjh&v1=&v2=&v3=&s1=&s2=&s3=">'
+        );
       });
     });
   });
@@ -120,7 +129,9 @@ describe('MediaMath', function() {
 
       it('should load the right pixel', function() {
         analytics.track('testEvent', { revenue: '$180', orderId: 43 });
-        analytics.loaded('<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=180.00&v2=&v3=&s1=43&s2=&s3=">');
+        analytics.loaded(
+          '<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=180.00&v2=&v3=&s1=43&s2=&s3=">'
+        );
       });
 
       it('should not load a pixel if not mapped', function() {
@@ -130,22 +141,44 @@ describe('MediaMath', function() {
 
       it('should work without `orderId` or `revenue`', function() {
         analytics.track('testEvent');
-        analytics.loaded('<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=0.00&v2=&v3=&s1=&s2=&s3=">');
+        analytics.loaded(
+          '<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=0.00&v2=&v3=&s1=&s2=&s3=">'
+        );
       });
 
       it('should map properties to params if set in settings', function() {
-        analytics.track('testEvent', { revenue: 99.99, orderId: 20, plan: 'Silver', color: 'silver', friendCount: 0, name: 'Chris' });
-        analytics.loaded('<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=99.99&v2=Silver&v3=silver&s1=20&s2=0&s3=Chris">');
+        analytics.track('testEvent', {
+          revenue: 99.99,
+          orderId: 20,
+          plan: 'Silver',
+          color: 'silver',
+          friendCount: 0,
+          name: 'Chris'
+        });
+        analytics.loaded(
+          '<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=99.99&v2=Silver&v3=silver&s1=20&s2=0&s3=Chris">'
+        );
       });
 
       it('should map arbitrarily ordered params', function() {
         analytics.track('testEvent3', { random: 'what' });
-        analytics.loaded('<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=&v2=&v3=&s1=&s2=&s3=&s9=what">');
+        analytics.loaded(
+          '<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=&v2=&v3=&s1=&s2=&s3=&s9=what">'
+        );
       });
 
       it('should fail gracefully if s/v params not present settings', function() {
-        analytics.track('testEvent2', { revenue: 99.99, orderId: 20, plan: 'Silver', color: 'silver', friendCount: 0, name: 'Chris' });
-        analytics.loaded('<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=&v2=&v3=&s1=&s2=&s3=">');
+        analytics.track('testEvent2', {
+          revenue: 99.99,
+          orderId: 20,
+          plan: 'Silver',
+          color: 'silver',
+          friendCount: 0,
+          name: 'Chris'
+        });
+        analytics.loaded(
+          '<script src="http://pixel.mathtag.com/event/js?mt_id=mt-id&mt_adid=mt-ad-id&v1=&v2=&v3=&s1=&s2=&s3=">'
+        );
       });
     });
   });

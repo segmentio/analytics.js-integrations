@@ -10,8 +10,10 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `tag-injector` integration.
  */
 
-var TagInjector = module.exports = integration('Tag Injector')
-  .option('tags', []);
+var TagInjector = (module.exports = integration('Tag Injector').option(
+  'tags',
+  []
+));
 
 /**
  * Initialize.

@@ -13,14 +13,23 @@ var integration = require('@segment/analytics.js-integration');
  * - Order of the URL parameters is important.
  */
 
-var Simplifi = module.exports = integration('Simpli.fi')
+var Simplifi = (module.exports = integration('Simpli.fi')
   .option('advertiserId', '')
   .option('optInSegment', '')
   .option('optOutSegment', '')
-  .tag('opt-in', '<script src="//i.simpli.fi/dpx.js?cid={{ advertiserId }}&action=100&segment={{ optInSegment }}&m=1"></script>')
-  .tag('opt-out', '<script src="//i.simpli.fi/dpx.js?cid={{ advertiserId }}&action=101&segment={{ optOutSegment }}&m=1"></script>')
-  .tag('conversion', '<script src="//i.simpli.fi/dpx.js?cid={{ advertiserId }}&conversion={{ conversionId }}&campaign_id={{ campaignId }}&m=1&tid={{ tid }}&sifi_tuid={{ sifi_tuid }}">')
-  .mapping('events');
+  .tag(
+    'opt-in',
+    '<script src="//i.simpli.fi/dpx.js?cid={{ advertiserId }}&action=100&segment={{ optInSegment }}&m=1"></script>'
+  )
+  .tag(
+    'opt-out',
+    '<script src="//i.simpli.fi/dpx.js?cid={{ advertiserId }}&action=101&segment={{ optOutSegment }}&m=1"></script>'
+  )
+  .tag(
+    'conversion',
+    '<script src="//i.simpli.fi/dpx.js?cid={{ advertiserId }}&conversion={{ conversionId }}&campaign_id={{ campaignId }}&m=1&tid={{ tid }}&sifi_tuid={{ sifi_tuid }}">'
+  )
+  .mapping('events'));
 
 /**
  * Loaded.

@@ -21,13 +21,13 @@ var has = Object.prototype.hasOwnProperty;
  * Expose `Marketo` integration.
  */
 
-var Marketo = module.exports = integration('Marketo')
+var Marketo = (module.exports = integration('Marketo')
   .assumesPageview()
   .global('Munchkin')
   .option('host', 'https://api.segment.io')
   .option('accountId', '')
   .option('projectId', '')
-  .tag('<script src="//munchkin.marketo.net/munchkin.js">');
+  .tag('<script src="//munchkin.marketo.net/munchkin.js">'));
 
 /**
  * Initialize.

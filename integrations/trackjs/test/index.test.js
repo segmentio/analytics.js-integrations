@@ -65,22 +65,25 @@ describe('Track JS', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(TrackJS, integration('Track JS')
-      .global('track')
-      .global('trackJs')
-      .global('_trackJs')
-      .option('enabled', true)
-      .option('token', '')
-      .option('application', '')
-      .option('callbackEnabled', true)
-      .option('callbackBindStack', false)
-      .option('consoleEnabled', true)
-      .option('consoleDisplay', true)
-      .option('consoleError', true)
-      .option('networkEnabled', true)
-      .option('networkError', true)
-      .option('visitorEnabled', true)
-      .option('windowEnabled', true));
+    analytics.compare(
+      TrackJS,
+      integration('Track JS')
+        .global('track')
+        .global('trackJs')
+        .global('_trackJs')
+        .option('enabled', true)
+        .option('token', '')
+        .option('application', '')
+        .option('callbackEnabled', true)
+        .option('callbackBindStack', false)
+        .option('consoleEnabled', true)
+        .option('consoleDisplay', true)
+        .option('consoleError', true)
+        .option('networkEnabled', true)
+        .option('networkError', true)
+        .option('visitorEnabled', true)
+        .option('windowEnabled', true)
+    );
   });
 
   describe('before loading', function() {
@@ -101,7 +104,11 @@ describe('Track JS', function() {
       });
 
       it('should merge pre-set configuration with options', function() {
-        var error = { onError: function() { return true; } };
+        var error = {
+          onError: function() {
+            return true;
+          }
+        };
         window._trackJs = error;
         analytics.assert(window._trackJs != null);
         analytics.initialize();

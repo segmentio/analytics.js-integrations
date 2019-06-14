@@ -12,12 +12,18 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `ShareASale`.
  */
 
-var ShareASale = module.exports = integration('ShareASale')
+var ShareASale = (module.exports = integration('ShareASale')
   .option('merchantId', '')
   .option('currency', 'USD')
   .option('createLeads', false)
-  .tag('orderCompleted', '<img src="https://shareasale.com/sale.cfm?amount={{ orderTotal }}&tracking={{ orderId }}&transtype=sale&merchantID={{ merchantId }}{{ repeat }}&skulist={{ skulist }}&quantitylist={{ quantitylist }}&pricelist={{ pricelist }}&currency={{ currency }}&couponcode={{ couponcode }}">')
-  .tag('leadCreated', '<img src="https://shareasale.com/sale.cfm?amount=0.00&tracking={{ userId }}&transtype=lead&merchantID={{ merchantId }}">');
+  .tag(
+    'orderCompleted',
+    '<img src="https://shareasale.com/sale.cfm?amount={{ orderTotal }}&tracking={{ orderId }}&transtype=sale&merchantID={{ merchantId }}{{ repeat }}&skulist={{ skulist }}&quantitylist={{ quantitylist }}&pricelist={{ pricelist }}&currency={{ currency }}&couponcode={{ couponcode }}">'
+  )
+  .tag(
+    'leadCreated',
+    '<img src="https://shareasale.com/sale.cfm?amount=0.00&tracking={{ userId }}&transtype=lead&merchantID={{ merchantId }}">'
+  ));
 
 /**
  * Track order completed.

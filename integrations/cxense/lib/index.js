@@ -11,13 +11,13 @@ var is = require('is');
  * Expose Cxense integration.
  */
 
-var Cxense = module.exports = integration('Cxense')
+var Cxense = (module.exports = integration('Cxense')
   .option('customerPrefix', '')
   .option('siteId', '')
   .option('persistedQueryId', '')
   .option('origin', '')
   .option('setExternalId', false)
-  .tag('<script src="//cdn.cxense.com/cx.js">');
+  .tag('<script src="//cdn.cxense.com/cx.js">'));
 
 /**
  * Initialize.
@@ -30,10 +30,13 @@ Cxense.prototype.initialize = function() {
   window.cX = window.cX || {};
   window.cX.callQueue = window.cX.callQueue || [];
   window.cX.callQueue.push(['setSiteId', this.options.siteId]);
-  window.cX.callQueue.push(['setEventAttributes', {
-    origin: this.options.customerPrefix + '-' + this.options.origin,
-    persistedQueryId: this.options.persistedQueryId
-  }]);
+  window.cX.callQueue.push([
+    'setEventAttributes',
+    {
+      origin: this.options.customerPrefix + '-' + this.options.origin,
+      persistedQueryId: this.options.persistedQueryId
+    }
+  ]);
   this.load(this.ready);
 };
 
@@ -61,7 +64,7 @@ Cxense.prototype.page = function(page) {
   // No need to include them as custom parameters.
   delete properties.url;
   delete properties.referrer;
-  
+
   var payload = {};
 
   // Cxense attempts to stringify all property values.
@@ -87,25 +90,31 @@ Cxense.prototype.page = function(page) {
   var id = this.analytics.user().id();
 
   if (id && this.options.setExternalId) {
-    window.cX.callQueue.push(['addExternalId', { id: id, type: this.options.customerPrefix }]);
+    window.cX.callQueue.push([
+      'addExternalId',
+      { id: id, type: this.options.customerPrefix }
+    ]);
   }
 
   // Add lat/long info if passed in the context.
   var latitude = page.proxy('context.location.latitude');
   var longitude = page.proxy('context.location.longitude');
-  
+
   if (latitude && longitude) {
     window.cX.callQueue.push(['setGeoPosition', latitude, longitude]);
   }
 
-  window.cX.callQueue.push(['sendPageViewEvent', {
-    location: page.url(),
-    referrer: page.referrer(),
-    useAutoRefreshCheck: false
-  }]);
+  window.cX.callQueue.push([
+    'sendPageViewEvent',
+    {
+      location: page.url(),
+      referrer: page.referrer(),
+      useAutoRefreshCheck: false
+    }
+  ]);
 };
 
-/** 
+/**
  * Track
  *
  * @api public
@@ -114,14 +123,14 @@ Cxense.prototype.page = function(page) {
 Cxense.prototype.track = function(track) {
   // send event data
   var properties = track.properties();
-  
+
   // Cxense requires property values be strings or numbers.
   // Need to sanitize as it will drop events if the payload has other data types.
   var payload = {};
   for (var key in properties) {
     if (properties.hasOwnProperty(key)) {
       var property = properties[key];
-      
+
       // Numbers and strings are passed as they are.
       // Booleans and dates can be stringified.
       // All other data types are discarded.

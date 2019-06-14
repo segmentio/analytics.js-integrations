@@ -29,11 +29,14 @@ describe('Eloqua', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Eloqua, integration('Eloqua')
-      .assumesPageview()
-      .global('_elq')
-      .global('_elqQ')
-      .option('siteId', ''));
+    analytics.compare(
+      Eloqua,
+      integration('Eloqua')
+        .assumesPageview()
+        .global('_elq')
+        .global('_elqQ')
+        .option('siteId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -81,7 +84,11 @@ describe('Eloqua', function() {
 
       it('should track pageview', function() {
         analytics.page(null, null, { url: '/', referrer: '/about' });
-        analytics.called(window._elqQ.push, ['elqTrackPageView', '/', '/about']);
+        analytics.called(window._elqQ.push, [
+          'elqTrackPageView',
+          '/',
+          '/about'
+        ]);
       });
     });
   });

@@ -13,11 +13,17 @@ var reject = require('reject');
  * Expose `NielsenDCR` integration.
  */
 
-var NielsenDCR = module.exports = integration('Nielsen DCR')
+var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('appId', '')
   .option('instanceName', '') // the snippet lets you override the instance so make sure you don't have any global window props w same value as this setting unless you are intentionally doing that.
-  .tag('http:', '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">')
-  .tag('https:', '<script src="https://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">');
+  .tag(
+    'http:',
+    '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
+  )
+  .tag(
+    'https:',
+    '<script src="https://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
+  ));
 
 /**
  * Initialize.
@@ -44,7 +50,11 @@ NielsenDCR.prototype.initialize = function() {
   var config = {};
   // debug mode
   if (!this.options.sfCode) config.nol_sdkDebug = 'debug';
-  this._client = window.NOLBUNDLE.nlsQ(this.options.appId, this.options.instanceName, config);
+  this._client = window.NOLBUNDLE.nlsQ(
+    this.options.appId,
+    this.options.instanceName,
+    config
+  );
   // we will need to keep our own state of the playhead position mapped to its corresponding assetId
   // for the currently viewing ad or content so that we can handle video switches in the same session
   this.currentAssetId;
@@ -139,7 +149,9 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
     program: track.proxy('properties.program'),
     title: track.proxy('properties.title'),
     // hardcode 86400 if livestream ¯\_(ツ)_/¯
-    length: track.proxy('properties.livestream') ? 86400 : track.proxy('properties.total_length'),
+    length: track.proxy('properties.livestream')
+      ? 86400
+      : track.proxy('properties.total_length'),
     isfullepisode: track.proxy('properties.full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
     adloadtype: find(integrationOpts, 'ad_load_type') === 'linear' ? '1' : '2' // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
@@ -155,10 +167,11 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
   if (segB) contentMetadata.segB = segB;
   if (segC) contentMetadata.segC = segC;
 
-  // Nielsen requires that you call `end` if you need to load new content during the same session. 
-  // Since we always keep track of the current last seen asset to the instance, if this event has a different assetId, we assume that it is content switch during the same session 
+  // Nielsen requires that you call `end` if you need to load new content during the same session.
+  // Since we always keep track of the current last seen asset to the instance, if this event has a different assetId, we assume that it is content switch during the same session
   // Segment video spec states that if you are switching between videos, you should be properly calling this event at the start of each of those switches (ie. two video players on the same page), meaning we only have to check this for this event
-  if (this.currentAssetId !== assetId) this._client.ggPM('end', this.currentPosition);
+  if (this.currentAssetId !== assetId)
+    this._client.ggPM('end', this.currentPosition);
 
   this._client.ggPM('loadMetadata', contentMetadata);
   this.heartbeat(assetId, track.proxy('properties.position'), config);
@@ -196,7 +209,9 @@ NielsenDCR.prototype.videoContentCompleted = function(track) {
   // for livestream just send the current utc timestamp
   var timestamp = track.timestamp();
   var livestream = track.proxy('properties.livestream');
-  var position = livestream ? +Date.now(timestamp): track.proxy('properties.position');
+  var position = livestream
+    ? +Date.now(timestamp)
+    : track.proxy('properties.position');
 
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('end', position);
@@ -315,7 +330,7 @@ NielsenDCR.prototype.videoPlaybackSeekCompleted = function(track) {
   var assetId = contentAssetId || adAssetId;
   var type = contentAssetId ? 'content' : 'ad';
 
-  this.heartbeat(assetId, position, { 
+  this.heartbeat(assetId, position, {
     type: type,
     livestream: livestream,
     timestamp: track.timestamp()
