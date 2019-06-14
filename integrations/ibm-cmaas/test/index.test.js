@@ -27,9 +27,12 @@ describe('ibm-cmaas', function() {
   });
 
   it('should have the correct options', function() {
-    analytics.compare(IbmCmaas, integration('CMaaS')
-    .option('apiKey', '')
-    .tag('<script src="">'));
+    analytics.compare(
+      IbmCmaas,
+      integration('CMaaS')
+        .option('apiKey', '')
+        .tag('<script src="">')
+    );
   });
 
   describe('before loading', function() {
@@ -61,19 +64,14 @@ describe('ibm-cmaas', function() {
 
     // write all your post-load assertions and unit tests here such
 
-    describe('#identify', function() {
-    });
+    describe('#identify', function() {});
 
-    describe('#page', function() {
-    });
+    describe('#page', function() {});
 
-    describe('#track', function() {
-    });
+    describe('#track', function() {});
 
-    describe('#group', function() {
-    });
+    describe('#group', function() {});
 
-    describe('#alias', function() {
-    });
+    describe('#alias', function() {});
   });
 });

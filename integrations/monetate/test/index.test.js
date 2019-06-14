@@ -124,32 +124,44 @@ describe('Monetate', function() {
           price: 299,
           quantity: 8
         });
-        analytics.called(window.monetateQ.push, ['addCartRows', [{
-          itemId: 'bb161be4',
-          sku: 'fc0b3bb',
-          quantity: 8,
-          unitPrice: '299.00'
-        }]]);
+        analytics.called(window.monetateQ.push, [
+          'addCartRows',
+          [
+            {
+              itemId: 'bb161be4',
+              sku: 'fc0b3bb',
+              quantity: 8,
+              unitPrice: '299.00'
+            }
+          ]
+        ]);
       });
 
       it('should track order completed', function() {
         analytics.track('order completed', {
           orderId: 'e493a192',
-          products: [{
-            product_id: '64f9fa13',
-            sku: 'd69bf602',
-            price: 299,
-            quantity: 1,
-            name: 'sony pulse'
-          }]
+          products: [
+            {
+              product_id: '64f9fa13',
+              sku: 'd69bf602',
+              price: 299,
+              quantity: 1,
+              name: 'sony pulse'
+            }
+          ]
         });
-        analytics.called(window.monetateQ.push, ['addPurchaseRows', [{
-          conversionId: 'e493a192',
-          itemId: '64f9fa13',
-          sku: 'd69bf602',
-          unitPrice: '299.00',
-          quantity: 1
-        }]]);
+        analytics.called(window.monetateQ.push, [
+          'addPurchaseRows',
+          [
+            {
+              conversionId: 'e493a192',
+              itemId: '64f9fa13',
+              sku: 'd69bf602',
+              unitPrice: '299.00',
+              quantity: 1
+            }
+          ]
+        ]);
       });
     });
   });
@@ -185,32 +197,44 @@ describe('Monetate', function() {
           price: 299,
           quantity: 8
         });
-        analytics.called(window.monetateQ.push, ['addReviewRows', [{
-          itemId: 'bb161be4',
-          sku: 'fc0b3bb',
-          quantity: 8,
-          unitPrice: '299.00'
-        }]]);
+        analytics.called(window.monetateQ.push, [
+          'addReviewRows',
+          [
+            {
+              itemId: 'bb161be4',
+              sku: 'fc0b3bb',
+              quantity: 8,
+              unitPrice: '299.00'
+            }
+          ]
+        ]);
       });
 
       it('should track order completed', function() {
         analytics.track('order completed', {
           orderId: 'e493a192',
-          products: [{
-            product_id: '64f9fa13',
-            sku: 'd69bf602',
-            price: 299,
-            quantity: 1,
-            name: 'sony pulse'
-          }]
+          products: [
+            {
+              product_id: '64f9fa13',
+              sku: 'd69bf602',
+              price: 299,
+              quantity: 1,
+              name: 'sony pulse'
+            }
+          ]
         });
-        analytics.called(window.monetateQ.push, ['addConversionRows', [{
-          conversionId: 'e493a192',
-          itemId: '64f9fa13',
-          sku: 'd69bf602',
-          unitPrice: '299.00',
-          quantity: 1
-        }]]);
+        analytics.called(window.monetateQ.push, [
+          'addConversionRows',
+          [
+            {
+              conversionId: 'e493a192',
+              itemId: '64f9fa13',
+              sku: 'd69bf602',
+              unitPrice: '299.00',
+              quantity: 1
+            }
+          ]
+        ]);
       });
     });
   });

@@ -16,11 +16,13 @@ var trample = require('@segment/trample');
  * Expose `Kenshoo Infinity` integration.
  */
 
-var KenshooInfinity = module.exports = integration('Kenshoo Infinity')
+var KenshooInfinity = (module.exports = integration('Kenshoo Infinity')
   .option('subdomain', '')
   .option('cid', '')
   .mapping('events')
-  .tag('<script src="https://services.xg4ken.com/js/kenshoo.js?cid={{ cid }}">');
+  .tag(
+    '<script src="https://services.xg4ken.com/js/kenshoo.js?cid={{ cid }}">'
+  ));
 
 /**
  * Initialize Kenshoo Infinity
@@ -114,7 +116,9 @@ function limitChars(string, limit) {
 function format(properties) {
   var ret = {};
   // Sort keys alphabetically and take the first 15
-  var sortedKeys = keys(properties).sort().slice(0, 15);
+  var sortedKeys = keys(properties)
+    .sort()
+    .slice(0, 15);
   each(function(key) {
     // Replace all whitespace with underscores
     var formattedKey = key.replace(/\s/g, '_');

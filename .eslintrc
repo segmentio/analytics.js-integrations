@@ -1,8 +1,11 @@
 {
   "extends": ["eslint-config-airbnb-base/legacy", "prettier"],
-  "plugins": ["mocha"],
+  "plugins": ["mocha", "prettier"],
   "rules": {
-    "func-names": "off"
+    "prettier/prettier": "error",
+    "func-names": "off",
+    "no-multi-assign": "off",
+    "vars-on-top": "warn"
   },
   "overrides": [
     {

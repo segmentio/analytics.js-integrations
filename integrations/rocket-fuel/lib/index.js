@@ -11,13 +11,22 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `RocketFuel`.
  */
 
-var RocketFuel = module.exports = integration('Rocket Fuel')
+var RocketFuel = (module.exports = integration('Rocket Fuel')
   .option('accountId', '')
   .option('universalActionId', '')
-  .tag('universal', '<img src="//{{ universalActionId }}p.rfihub.com/ca.gif?rb={{ accountId }}&ca={{ universalActionId }}&ra={{ cacheBuster }}&custtype={{ custType }}"/>')
-  .tag('conversion', '<img src="//p.rfihub.com/ca.gif?rb={{ accountId }}&ca={{ actionId }}&ra={{ cacheBuster }}"/>')
-  .tag('completed order', '<img src="//p.rfihub.com/ca.gif?rb={{ accountId }}&ca={{ actionId }}&ra={{ cacheBuster }}&transid={{ orderId }}&revenue={{ orderTotal }}&pid={{ productIds }}"/>')
-  .mapping('events');
+  .tag(
+    'universal',
+    '<img src="//{{ universalActionId }}p.rfihub.com/ca.gif?rb={{ accountId }}&ca={{ universalActionId }}&ra={{ cacheBuster }}&custtype={{ custType }}"/>'
+  )
+  .tag(
+    'conversion',
+    '<img src="//p.rfihub.com/ca.gif?rb={{ accountId }}&ca={{ actionId }}&ra={{ cacheBuster }}"/>'
+  )
+  .tag(
+    'completed order',
+    '<img src="//p.rfihub.com/ca.gif?rb={{ accountId }}&ca={{ actionId }}&ra={{ cacheBuster }}&transid={{ orderId }}&revenue={{ orderTotal }}&pid={{ productIds }}"/>'
+  )
+  .mapping('events'));
 
 /**
  * Page load the universal pixel.

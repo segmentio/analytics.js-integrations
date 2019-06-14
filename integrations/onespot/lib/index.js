@@ -10,9 +10,11 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `RocketFuel`.
  */
 
-var OneSpot = module.exports = integration('OneSpot')
+var OneSpot = (module.exports = integration('OneSpot')
   .option('accountId', '')
-  .tag('<script src="//d3xl0zyjyljwa.cloudfront.net/px/t/os-{{ accountId }}-0.js"></script>');
+  .tag(
+    '<script src="//d3xl0zyjyljwa.cloudfront.net/px/t/os-{{ accountId }}-0.js"></script>'
+  ));
 
 /**
  * Loaded.

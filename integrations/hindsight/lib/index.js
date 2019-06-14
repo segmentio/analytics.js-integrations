@@ -10,11 +10,11 @@ var each = require('@ndhoule/each');
  *
  */
 
-var Hindsight = module.exports = integration('Hindsight')
+var Hindsight = (module.exports = integration('Hindsight')
   .global('RB')
-  .option('pixel_code','')
+  .option('pixel_code', '')
   .tag('http', '<script src="http://getrockerbox.com/assets/xyz.js">')
-  .tag('https', '<script src="https://getrockerbox.com/assets/xyz.js">');
+  .tag('https', '<script src="https://getrockerbox.com/assets/xyz.js">'));
 
 /**
  * Initialize
@@ -24,9 +24,11 @@ Hindsight.prototype.initialize = function() {
   window.RB = {};
   window.RB.disablePushState = true;
   window.RB.queue = [];
-  window.RB.track = window.RB.track || function() {
-    window.RB.queue.push(Array.prototype.slice.call(arguments));
-  };
+  window.RB.track =
+    window.RB.track ||
+    function() {
+      window.RB.queue.push(Array.prototype.slice.call(arguments));
+    };
   window.RB.source = this.options.pixel_code;
 
   var protocol = useHttps() ? 'https' : 'http';
@@ -58,7 +60,6 @@ Hindsight.prototype.track = function(track) {
   window.RB.track(track.event(), format(track.properties()));
 };
 
-
 /**
  * Identify
  */
@@ -76,7 +77,7 @@ Hindsight.prototype.identify = function(identify) {
 function format(props) {
   var ret = {};
   each(function(value, key) {
-    return ret[key] = is.object(value) ? window.JSON.stringify(value) : value; 
+    return (ret[key] = is.object(value) ? window.JSON.stringify(value) : value);
   }, props);
 
   return ret;

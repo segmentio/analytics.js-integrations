@@ -31,6 +31,9 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Run Linter
+          command: yarn lint
+      - run:
           name: Run Tests
           command: yarn test
 

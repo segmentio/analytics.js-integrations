@@ -69,22 +69,34 @@ describe('AppNexus', function() {
       describe('conversion track', function() {
         it('should load the right script', function() {
           analytics.track('testEvent2', { orderId: 123, revenue: 42 });
-          analytics.loaded('<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=123&value=42.00">');
+          analytics.loaded(
+            '<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=123&value=42.00">'
+          );
         });
 
         it('should send value formatted with 2 decimals', function() {
           analytics.track('testEvent2', { orderId: 123, revenue: 42.123 });
-          analytics.loaded('<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=123&value=42.12">');
+          analytics.loaded(
+            '<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=123&value=42.12">'
+          );
         });
 
         it('should send total if available formatted with 2 decimals', function() {
           analytics.track('testEvent2', { orderId: '307d020e', total: 599 });
-          analytics.loaded('<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=307d020e&value=599.00">');
+          analytics.loaded(
+            '<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=307d020e&value=599.00">'
+          );
         });
 
         it('should send parameters properly overriding and added', function() {
-          analytics.track('testEvent1', { accountId: 'asdfasdf', total: 599, special: 998 });
-          analytics.loaded('<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=asdfasdf&value=599.00&spcl=998">');
+          analytics.track('testEvent1', {
+            accountId: 'asdfasdf',
+            total: 599,
+            special: 998
+          });
+          analytics.loaded(
+            '<script src="http://ib.adnxs.com/px?t=1&id=44&seg=45&order_id=asdfasdf&value=599.00&spcl=998">'
+          );
         });
       });
     });

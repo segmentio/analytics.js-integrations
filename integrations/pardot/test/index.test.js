@@ -33,14 +33,17 @@ describe('Pardot', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Pardot, integration('Pardot')
-      .assumesPageview()
-      .global('piAId')
-      .global('piCId')
-      .global('piTracker')
-      .option('projectId', '')
-      .option('piAId', '')
-      .option('piCId', ''));
+    analytics.compare(
+      Pardot,
+      integration('Pardot')
+        .assumesPageview()
+        .global('piAId')
+        .global('piCId')
+        .global('piTracker')
+        .option('projectId', '')
+        .option('piAId', '')
+        .option('piCId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -113,12 +116,20 @@ describe('Pardot', function() {
 
 // TODO: jank way to check
 function madeRequestWith(variables) {
-  variables = extend({}, {
-    account_id: '77777',
-    campaign_id: '99999',
-    pi_opt_in: undefined,
-    ver: 3,
-    visitor_id: undefined
-  }, variables);
-  return !!document.querySelector('script[src="http://pi.pardot.com/analytics?' + qs.stringify(variables) + '"]');
+  variables = extend(
+    {},
+    {
+      account_id: '77777',
+      campaign_id: '99999',
+      pi_opt_in: undefined,
+      ver: 3,
+      visitor_id: undefined
+    },
+    variables
+  );
+  return !!document.querySelector(
+    'script[src="http://pi.pardot.com/analytics?' +
+      qs.stringify(variables) +
+      '"]'
+  );
 }

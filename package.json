@@ -10,11 +10,7 @@
     "integrations/*"
   ],
   "scripts": {
-    "clean": "rm -rf *.log coverage bin/* node_modules",
-    "coverage": "codecov",
-    "lint": "eslint integrations/**/lib/ integrations/**/test/",
-    "precommit": "lint-staged",
-    "coverage-report": "open coverage/report/index.html",
+    "lint": "lerna exec --since master --no-bail -- npx eslint . --ext .js",
     "test": "lerna run --concurrency 1 --since master test --stream -- --single-run --reporters summary --log-level error",
     "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
     "fmt": "npx eslint --fix"
@@ -23,7 +19,7 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    ".js": [
+    "**/*.js": [
       "yarn fmt",
       "git-add --patch"
     ]
@@ -34,8 +30,10 @@
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-import": "^2.17.3",
     "eslint-plugin-mocha": "^5.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
     "husky": "^2.4.1",
     "lerna": "^3.15.0",
-    "lint-staged": "^8.2.1"
+    "lint-staged": "^8.2.1",
+    "prettier": "^1.18.2"
   }
 }

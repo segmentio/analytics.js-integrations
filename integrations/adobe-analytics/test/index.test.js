@@ -1104,7 +1104,7 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.assert(adobeAnalytics.mediaHeartbeats['default']);
+        analytics.assert(adobeAnalytics.mediaHeartbeats.default);
       });
 
       it('should keep sessions with different ids separate', function() {

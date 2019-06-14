@@ -34,13 +34,16 @@ describe('TV Squared', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(TvSquared, integration('TV Squared')
-      .global('_tvq')
-      .option('brandId', '')
-      .option('hostname', '')
-      .option('clientId', 0)
-      .option('customMetrics', [])
-      .option('trackWhitelist', []));
+    analytics.compare(
+      TvSquared,
+      integration('TV Squared')
+        .global('_tvq')
+        .option('brandId', '')
+        .option('hostname', '')
+        .option('clientId', 0)
+        .option('customMetrics', [])
+        .option('trackWhitelist', [])
+    );
   });
 
   describe('before loading', function() {
@@ -124,16 +127,23 @@ describe('TV Squared', function() {
         window._tvq.push.args[1][0][0].call(tvSquaredMock);
 
         analytics.assert(
-          spy.getCall(0).calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
+          spy
+            .getCall(0)
+            .calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
         );
 
         analytics.assert(
-          spy.getCall(1).calledWith(5, 'viewed product', JSON.stringify({
-            rev: 10,
-            prod: 'some-type',
-            id: '13333',
-            promo: 'GABCDEF'
-          }), 'page')
+          spy.getCall(1).calledWith(
+            5,
+            'viewed product',
+            JSON.stringify({
+              rev: 10,
+              prod: 'some-type',
+              id: '13333',
+              promo: 'GABCDEF'
+            }),
+            'page'
+          )
         );
       });
 
@@ -164,18 +174,25 @@ describe('TV Squared', function() {
         window._tvq.push.args[1][0][0].call(tvSquaredMock);
 
         analytics.assert(
-          spy.getCall(0).calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
+          spy
+            .getCall(0)
+            .calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
         );
 
         analytics.assert(
-          spy.getCall(1).calledWith(5, 'viewed product', JSON.stringify({
-            rev: 10,
-            prod: 'some-type',
-            id: '13333',
-            promo: 'GABCDEF',
-            customOne: 'some-custom-data',
-            customTwo: 'some-more-custom-data'
-          }), 'page')
+          spy.getCall(1).calledWith(
+            5,
+            'viewed product',
+            JSON.stringify({
+              rev: 10,
+              prod: 'some-type',
+              id: '13333',
+              promo: 'GABCDEF',
+              customOne: 'some-custom-data',
+              customTwo: 'some-more-custom-data'
+            }),
+            'page'
+          )
         );
       });
 
@@ -206,16 +223,23 @@ describe('TV Squared', function() {
         window._tvq.push.args[1][0][0].call(tvSquaredMock);
 
         analytics.assert(
-          spy.getCall(0).calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
+          spy
+            .getCall(0)
+            .calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
         );
 
         analytics.assert(
-          spy.getCall(1).calledWith(5, 'viewed product', JSON.stringify({
-            rev: 10,
-            prod: 'some-type',
-            id: '13333',
-            promo: 'GABCDEF'
-          }), 'page')
+          spy.getCall(1).calledWith(
+            5,
+            'viewed product',
+            JSON.stringify({
+              rev: 10,
+              prod: 'some-type',
+              id: '13333',
+              promo: 'GABCDEF'
+            }),
+            'page'
+          )
         );
       });
 
@@ -245,16 +269,23 @@ describe('TV Squared', function() {
         window._tvq.push.args[1][0][0].call(tvSquaredMock);
 
         analytics.assert(
-          spy.getCall(0).calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
+          spy
+            .getCall(0)
+            .calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
         );
 
         analytics.assert(
-          spy.getCall(1).calledWith(5, 'viewed product', JSON.stringify({
-            rev: 10,
-            prod: 'some-type',
-            id: '13333',
-            promo: 'GABCDEF'
-          }), 'page')
+          spy.getCall(1).calledWith(
+            5,
+            'viewed product',
+            JSON.stringify({
+              rev: 10,
+              prod: 'some-type',
+              id: '13333',
+              promo: 'GABCDEF'
+            }),
+            'page'
+          )
         );
       });
 
@@ -264,7 +295,10 @@ describe('TV Squared', function() {
         analytics.user().anonymousId(userId);
 
         tvSquared.options.customMetrics = [];
-        tvSquared.options.trackWhitelist = ['Completed Order', 'Finished Video'];
+        tvSquared.options.trackWhitelist = [
+          'Completed Order',
+          'Finished Video'
+        ];
 
         analytics.track('some completely random event no one would ever use', {
           name: 'some-product',
@@ -304,16 +338,23 @@ describe('TV Squared', function() {
         window._tvq.push.args[1][0][0].call(tvSquaredMock);
 
         analytics.assert(
-          spy.getCall(0).calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
+          spy
+            .getCall(0)
+            .calledWith(5, 'session', JSON.stringify({ user: userId }), 'visit')
         );
 
         analytics.assert(
-          spy.getCall(1).calledWith(5, 'some completely random event no one would ever use', JSON.stringify({
-            rev: 10,
-            prod: 'some-type',
-            id: '13333',
-            promo: 'GABCDEF'
-          }), 'page')
+          spy.getCall(1).calledWith(
+            5,
+            'some completely random event no one would ever use',
+            JSON.stringify({
+              rev: 10,
+              prod: 'some-type',
+              id: '13333',
+              promo: 'GABCDEF'
+            }),
+            'page'
+          )
         );
       });
     });

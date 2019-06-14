@@ -33,11 +33,14 @@ describe('Convertro', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Convertro, integration('Convertro')
-      .global('$CVO')
-      .global('__cvo')
-      .mapping('events')
-      .option('account', ''));
+    analytics.compare(
+      Convertro,
+      integration('Convertro')
+        .global('$CVO')
+        .global('__cvo')
+        .mapping('events')
+        .option('account', '')
+    );
   });
 
   describe('before loading', function() {
@@ -89,10 +92,13 @@ describe('Convertro', function() {
 
       it('should send the traits', function() {
         analytics.identify('id', { email: 'baz@email.com' });
-        analytics.called(window.$CVO.push, ['trackUser', {
-          email: 'baz@email.com',
-          id: 'id'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackUser',
+          {
+            email: 'baz@email.com',
+            id: 'id'
+          }
+        ]);
       });
 
       it('should not send if userId is omitted', function() {
@@ -116,11 +122,14 @@ describe('Convertro', function() {
 
         analytics.calledOnce(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: undefined,
-          type: 'mapped',
-          id: undefined
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: undefined,
+            type: 'mapped',
+            id: undefined
+          }
+        ]);
       });
 
       it('should send revenue', function() {
@@ -128,23 +137,32 @@ describe('Convertro', function() {
 
         analytics.calledOnce(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale',
-          id: undefined
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale',
+            id: undefined
+          }
+        ]);
       });
 
       it('should send orderId', function() {
-        analytics.track('order completed', { total: 50.99, orderId: 'asdfasdf' });
+        analytics.track('order completed', {
+          total: 50.99,
+          orderId: 'asdfasdf'
+        });
 
         analytics.calledOnce(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale',
-          id: 'asdfasdf'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale',
+            id: 'asdfasdf'
+          }
+        ]);
       });
 
       it('should send `sale` when .repeat=null', function() {
@@ -152,83 +170,123 @@ describe('Convertro', function() {
 
         analytics.calledOnce(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale',
-          id: '1'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale',
+            id: '1'
+          }
+        ]);
       });
 
       it('should only send `sale.repeat` when `.repeat=true` and `hybridAttributionModel=false`', function() {
-        analytics.track('order completed', { total: 50.99, orderId: '1', repeat: true });
+        analytics.track('order completed', {
+          total: 50.99,
+          orderId: '1',
+          repeat: true
+        });
 
         analytics.calledOnce(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale.repeat',
-          id: '1'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale.repeat',
+            id: '1'
+          }
+        ]);
       });
 
       it('should only send `sale.new` when `.repeat=false` and `hybridAttributionModel=false`', function() {
-        analytics.track('order completed', { total: 50.99, orderId: '1', repeat: false });
+        analytics.track('order completed', {
+          total: 50.99,
+          orderId: '1',
+          repeat: false
+        });
 
         analytics.calledOnce(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale.new',
-          id: '1'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale.new',
+            id: '1'
+          }
+        ]);
       });
 
       it('should send `sale` and `sale.new` when `.repeat=false` and `hybridAttributionModel=true`', function() {
         convertro.options.hybridAttributionModel = true;
-        analytics.track('order completed', { total: 50.99, orderId: '1', repeat: false });
+        analytics.track('order completed', {
+          total: 50.99,
+          orderId: '1',
+          repeat: false
+        });
 
         analytics.calledTwice(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale',
-          id: '1'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale',
+            id: '1'
+          }
+        ]);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale.new',
-          id: '1'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale.new',
+            id: '1'
+          }
+        ]);
       });
 
       it('should send `sale` and `sale.repeat` when `.repeat=true` and `hybridAttributionModel=true`', function() {
         convertro.options.hybridAttributionModel = true;
-        analytics.track('order completed', { total: 50.99, orderId: '1', repeat: true });
+        analytics.track('order completed', {
+          total: 50.99,
+          orderId: '1',
+          repeat: true
+        });
 
         analytics.calledTwice(window.$CVO.push);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale',
-          id: '1'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale',
+            id: '1'
+          }
+        ]);
 
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 50.99,
-          type: 'sale.repeat',
-          id: '1'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 50.99,
+            type: 'sale.repeat',
+            id: '1'
+          }
+        ]);
       });
 
       it('should support array events', function() {
         convertro.options.events = [{ key: 'event', value: 'event-value' }];
         analytics.track('event', { total: 99.99, orderId: 'x' });
-        analytics.called(window.$CVO.push, ['trackEvent', {
-          amount: 99.99,
-          type: 'event-value',
-          id: 'x'
-        }]);
+        analytics.called(window.$CVO.push, [
+          'trackEvent',
+          {
+            amount: 99.99,
+            type: 'event-value',
+            id: 'x'
+          }
+        ]);
       });
     });
   });
