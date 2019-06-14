@@ -47,7 +47,7 @@ module.exports = function(config) {
       'SL_Safari-1': {
         base: 'SauceLabs',
         browserName: 'safari',
-        version: 'latest-1'
+        version: '11'
       },
       'SL_Safari': {
         base: 'SauceLabs',
@@ -69,27 +69,29 @@ module.exports = function(config) {
     }
 
     config.set({
-      browserDisconnectTolerance: 1,
-
-      browserDisconnectTimeout: 60000,
-
-      browserNoActivityTimeout: 60000,
-
+      captureTimeout: 180000,
+      browserDisconnectTimeout: 180000,
+      browserDisconnectTolerance: 3,
+      browserNoActivityTimeout: 300000,
+      concurrency: 2,
       singleRun: true,
-
-      concurrency: 8,
-
-      retryLimit: 5,
-
       reporters: ['spec', 'summary'],
-
-      browsers: ['ChromeHeadless'].concat(Object.keys(customLaunchers)),
-
+      browsers: Object.keys(customLaunchers),
       customLaunchers: customLaunchers,
-
       sauceLabs: {
-        testName: require('./package.json').name
-      }
+        connectOptions: {
+          noSslBumpDomains: 'all'
+        },
+        testName: require('./package.json').name,
+        retryLimit: 3,
+        recordVideo: false,
+        recordScreenshots: false,
+        idleTimeout: 600,
+        commandTimeout: 600,
+        maxDuration: 5400,
+      },
+      transports: ['websocket', 'polling'],
+      port: 9876,
     })
   }
 };
