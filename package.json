@@ -12,34 +12,22 @@
   "scripts": {
     "clean": "rm -rf *.log coverage bin/* node_modules",
     "coverage": "codecov",
-    "fmt": "standard --fix",
     "lint": "eslint integrations/**/lib/ integrations/**/test/",
     "precommit": "lint-staged",
     "coverage-report": "open coverage/report/index.html",
     "test": "lerna run --concurrency 1 --since master test --stream -- --single-run --reporters summary --log-level error",
-    "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error"
+    "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
+    "fmt": "npx eslint --fix"
+  },
+  "husky": {
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "linters": {
-      "*.js": [
-        "eslint"
-      ]
-    }
-  },
-  "standard": {
-    "env": [
-      "mocha"
-    ]
+    ".js": ["yarn fmt", "git-add --patch"]
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^4.3.0",
-    "eslint-plugin-mocha": "^5.3.0",
-    "karma-browserstack-launcher": "^1.5.1",
-    "karma-spec-reporter": "^0.0.32",
-    "karma-summary-reporter": "^1.6.0",
+    "husky": "^2.4.1",
     "lerna": "^3.15.0",
-    "prettier": "^1.18.2"
+    "lint-staged": "^8.2.1"
   }
 }
