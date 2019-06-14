@@ -23,9 +23,17 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    ".js": ["yarn fmt", "git-add --patch"]
+    ".js": [
+      "yarn fmt",
+      "git-add --patch"
+    ]
   },
   "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-mocha": "^5.3.0",
     "husky": "^2.4.1",
     "lerna": "^3.15.0",
     "lint-staged": "^8.2.1"
