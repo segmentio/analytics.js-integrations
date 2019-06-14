@@ -13,11 +13,11 @@ var reject = require('reject');
  * Expose `Zopim`.
  */
 
-var Zopim = module.exports = integration('Zopim')
+var Zopim = (module.exports = integration('Zopim')
   .global('$zopim')
   .option('zopimId', '')
   .option('listen', false)
-  .readyOnLoad();
+  .readyOnLoad());
 
 /**
  * The context for this integration.
@@ -104,9 +104,11 @@ Zopim.prototype.attachListeners = function() {
  */
 
 Zopim.prototype.identify = function(identify) {
-  window.$zopim.livechat.set(reject({
-    email: identify.email(),
-    name: identify.name() || identify.firstName(),
-    phone: identify.phone()
-  }));
+  window.$zopim.livechat.set(
+    reject({
+      email: identify.email(),
+      name: identify.name() || identify.firstName(),
+      phone: identify.phone()
+    })
+  );
 };

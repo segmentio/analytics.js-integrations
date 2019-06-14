@@ -23,12 +23,12 @@ var events = {
  * Expose `Monetate` integration.
  */
 
-var Monetate = module.exports = integration('Monetate')
+var Monetate = (module.exports = integration('Monetate')
   .option('retail', false)
   .option('siteId', '')
   .option('domain', '')
   .option('events', events)
-  .global('monetateQ');
+  .global('monetateQ'));
 
 /**
  * Initialize.

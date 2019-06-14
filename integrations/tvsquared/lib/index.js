@@ -8,7 +8,7 @@ var useHttps = require('use-https');
  * Expose `TvSquared` integration.
  */
 
-var TvSquared = module.exports = integration('TV Squared')
+var TvSquared = (module.exports = integration('TV Squared')
   // NOTE(ndhoule): `tv2track.js` introduces the JSON2 global
   .global('JSON2')
   .global('_tvq')
@@ -17,7 +17,7 @@ var TvSquared = module.exports = integration('TV Squared')
   .option('clientId', 0)
   .option('customMetrics', [])
   .option('trackWhitelist', [])
-  .tag('<script src="{{ tvSquaredUrl }}/tv2track.js">');
+  .tag('<script src="{{ tvSquaredUrl }}/tv2track.js">'));
 
 /**
  * Initialize TV Squared.

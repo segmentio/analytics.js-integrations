@@ -9,7 +9,8 @@ describe('Hindsight', function() {
   var analytics;
   var hindsight;
   var options = {
-    pixel_code: 'cHVzaG1haWx8NDQ2MDM5OHw0NDYwMzkyOjY1NzU2OXw0NDYwMzkzOjY1NzU2OHw0NDYwMzk5'
+    pixel_code:
+      'cHVzaG1haWx8NDQ2MDM5OHw0NDYwMzkyOjY1NzU2OXw0NDYwMzkzOjY1NzU2OHw0NDYwMzk5'
   };
 
   beforeEach(function() {
@@ -80,7 +81,7 @@ describe('Hindsight', function() {
 
       it('should track a pageview and props', function() {
         analytics.page({ custom: 'blues eyes white dragon' });
-        analytics.called(window.RB.track, 'view', { 
+        analytics.called(window.RB.track, 'view', {
           custom: 'blues eyes white dragon',
           path: location.pathname,
           referrer: document.referrer,
@@ -92,13 +93,13 @@ describe('Hindsight', function() {
 
       it('should stringify props that are objects', function() {
         analytics.page({ stringifythis: { a: 'b' } });
-        analytics.called(window.RB.track, 'view', { 
+        analytics.called(window.RB.track, 'view', {
           path: location.pathname,
           referrer: document.referrer,
           search: location.search,
           title: document.title,
           url: location.href,
-          stringifythis: '{\"a\":\"b\"}'
+          stringifythis: '{"a":"b"}'
         });
       });
     });
@@ -127,13 +128,12 @@ describe('Hindsight', function() {
           });
           analytics.called(window.RB.track, 'event', {
             currency: 'XXX',
-            property: true, 
-            stringifythis: '{\"a\":\"b\"}'
+            property: true,
+            stringifythis: '{"a":"b"}'
           });
         });
       });
     });
-
 
     describe('#identify', function() {
       beforeEach(function() {
@@ -148,15 +148,19 @@ describe('Hindsight', function() {
 
         it('should send traits with an email', function() {
           analytics.identify({ email: 'name@example.com' });
-          analytics.called(window.RB.track, 'identify', { email: 'name@example.com' });
+          analytics.called(window.RB.track, 'identify', {
+            email: 'name@example.com'
+          });
         });
 
         it('should send an id and traits with an email', function() {
           analytics.identify('id', { email: 'name@example.com' });
-          analytics.called(window.RB.track, 'identify', { id: 'id', email: 'name@example.com' });
+          analytics.called(window.RB.track, 'identify', {
+            id: 'id',
+            email: 'name@example.com'
+          });
         });
       });
     });
   });
 });
-

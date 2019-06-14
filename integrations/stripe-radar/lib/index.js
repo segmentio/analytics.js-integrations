@@ -11,9 +11,9 @@ var when = require('do-when');
  * Expose `Stripe` integration.
  */
 
-var StripeRadar = module.exports = integration('Stripe Radar')
+var StripeRadar = (module.exports = integration('Stripe Radar')
   .option('apiKey', '')
-  .tag('<script src="https://js.stripe.com/v2/">');
+  .tag('<script src="https://js.stripe.com/v2/">'));
 
 /**
  * Initialize.
@@ -48,4 +48,3 @@ StripeRadar.prototype.initialize = function() {
 StripeRadar.prototype.loaded = function() {
   return window.Stripe && window.Stripe.setPublishableKey;
 };
-

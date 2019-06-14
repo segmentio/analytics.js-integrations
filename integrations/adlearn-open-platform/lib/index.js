@@ -12,9 +12,18 @@ var integration = require('@segment/analytics.js-integration');
  */
 var AdLearnOpenPlatform = integration('AdLearn Open Platform')
   .option('retargetingPixelId', '')
-  .tag('retargeting', '<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&betr={{ retargetingPixelId }}"/>')
-  .tag('existingUsers', '<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&srvc=1&betr={{ retargetingPixelId }}=920204[720]"/>')
-  .tag('conversion', '<img src="https://secure.ace-tag.advertising.com/action/type={{ type }}/bins=1/rich=0/mnum=1516/logs=0/xsstr1={{ userId }}/xsstr2={{ productIds }}/xssale={{ total }}/xsmemid={{ orderId }}/"/>')
+  .tag(
+    'retargeting',
+    '<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&betr={{ retargetingPixelId }}"/>'
+  )
+  .tag(
+    'existingUsers',
+    '<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&srvc=1&betr={{ retargetingPixelId }}=920204[720]"/>'
+  )
+  .tag(
+    'conversion',
+    '<img src="https://secure.ace-tag.advertising.com/action/type={{ type }}/bins=1/rich=0/mnum=1516/logs=0/xsstr1={{ userId }}/xsstr2={{ productIds }}/xssale={{ total }}/xsmemid={{ orderId }}/"/>'
+  )
   .mapping('events');
 
 /**

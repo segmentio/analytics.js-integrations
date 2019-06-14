@@ -122,7 +122,10 @@ describe('Adometry', function() {
 
     describe('#_hashify', function() {
       it('should format an object in key:value format with a leading semicolon', function() {
-        assert.equal(adometry._hashify({ one: 1, two: 'TWO' }), ';one:1;two:TWO');
+        assert.equal(
+          adometry._hashify({ one: 1, two: 'TWO' }),
+          ';one:1;two:TWO'
+        );
       });
 
       it('should return an empty string for an empty object', function() {

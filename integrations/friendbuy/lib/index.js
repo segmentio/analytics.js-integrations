@@ -16,12 +16,12 @@ var is = require('is');
  * Expose `FriendBuy` integration.
  */
 
-var FriendBuy = module.exports = integration('FriendBuy')
+var FriendBuy = (module.exports = integration('FriendBuy')
   .global('friendbuy')
   .option('siteId', '')
   .option('widgets', [])
   .option('siteWideWidgets', [])
-  .tag('<script src="//djnf6e5yyirys.cloudfront.net/js/friendbuy.min.js">');
+  .tag('<script src="//djnf6e5yyirys.cloudfront.net/js/friendbuy.min.js">'));
 
 /**
  * Initialize.
@@ -77,7 +77,9 @@ FriendBuy.prototype.page = function(page) {
     var config = {
       // The display configuration options control how and when a widget is invoked.
       configuration: {
-        auto_delay: widgetSettings.autoDelay ? parseInt(widgetSettings.autoDelay, 10) : null // A value of 0 indicates manual widget invocation which is the default. Waits this many milliseconds after loading to display. Must be null otherwise so that it allows FB UI entered value to override
+        auto_delay: widgetSettings.autoDelay
+          ? parseInt(widgetSettings.autoDelay, 10)
+          : null // A value of 0 indicates manual widget invocation which is the default. Waits this many milliseconds after loading to display. Must be null otherwise so that it allows FB UI entered value to override
       }
     };
 
@@ -88,7 +90,7 @@ FriendBuy.prototype.page = function(page) {
       var segmentKey = pair.key;
       var fbKey = pair.value;
       var value = page.proxy('properties.' + segmentKey);
-      if (value) return parameters[fbKey] = value;
+      if (value) return (parameters[fbKey] = value);
     }, widgetSettings.parameters);
 
     if (!is.empty(parameters)) config.parameters = parameters;
@@ -116,7 +118,7 @@ FriendBuy.prototype.page = function(page) {
         var segmentKey = pair.key;
         var fbKey = pair.value;
         var value = page.proxy('properties.' + segmentKey);
-        if (value) return parameters[fbKey] = value;
+        if (value) return (parameters[fbKey] = value);
       }, widget.parameters);
 
       if (!is.empty(parameters)) configs.parameters = parameters;
@@ -180,11 +182,13 @@ FriendBuy.prototype.orderCompleted = function(track) {
     var i = new Facade({ properties: item });
 
     if (i.sku()) {
-      orderList.push(reject({
-        sku: i.sku(),
-        price: i.price(),
-        quantity: i.quantity()
-      }));
+      orderList.push(
+        reject({
+          sku: i.sku(),
+          price: i.price(),
+          quantity: i.quantity()
+        })
+      );
     }
   }, track.products());
 
@@ -219,7 +223,7 @@ function get(events, name) {
     if (widget.value && pageName === normalize(widget.value.name)) {
       ret = widget.value;
     } else if (pageName === normalize(widget.name)) {
-      ret = widget;      
+      ret = widget;
     }
   }, events);
 

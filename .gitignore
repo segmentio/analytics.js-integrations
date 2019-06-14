@@ -3,5 +3,5 @@ node_modules/
 coverage/
 *.log
 package-lock.json
-integrations/**/yarn.lock
 *.xml
+yarn-error.log
