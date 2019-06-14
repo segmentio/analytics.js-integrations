@@ -24,54 +24,54 @@ module.exports = function(config) {
 
   if (process.env.CI) {
     const customLaunchers = {
-      // 'Chrome': {
-      //   base: 'SauceLabs',
-      //   browserName: 'chrome',
-      //   version: 'latest'
-      // },
-      // 'Chrome-1': {
-      //   base: 'SauceLabs',
-      //   browserName: 'chrome',
-      //   version: 'latest-1'
-      // },
-      // 'Firefox': {
-      //   base: 'SauceLabs',
-      //   browserName: 'firefox',
-      //   version: 'latest'
-      // },
-      // 'Firefox-1': {
-      //   base: 'SauceLabs',
-      //   browserName: 'firefox',
-      //   version: 'latest-1'
-      // },
-      // 'Safari-1': {
-      //   base: 'SauceLabs',
-      //   browserName: 'safari',
-      //   version: '11'
-      // },
-      // 'Safari': {
-      //   base: 'SauceLabs',
-      //   browserName: 'safari',
-      //   version: 'latest'
-      // },
-      // 'EDGE': {
-      //   base: 'SauceLabs',
-      //   browserName: 'microsoftedge',
-      //   platform: 'Windows 10',
-      //   version: 'latest'
-      // },
-      // 'EDGE-1': {
-      //   base: 'SauceLabs',
-      //   browserName: 'microsoftedge',
-      //   platform: 'Windows 10',
-      //   version: 'latest-1'
-      // },
-      'BS_CHROME': {base: 'BrowserStack', browser: 'chrome', os: 'OS X', os_version: 'Yosemite'},
-      'BS_FIREFOX': {base: 'BrowserStack', browser: 'firefox', os: 'Windows', os_version: '10'},
-      'BS_SAFARI7': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'Mavericks'},
-      'BS_SAFARI8': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'Yosemite'},
-      'BS_SAFARI9': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'El Capitan'},
-      'BS_SAFARI10': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'Sierra'},
+      'Chrome': {
+        base: 'SauceLabs',
+        browserName: 'chrome',
+        version: 'latest'
+      },
+      'Chrome-1': {
+        base: 'SauceLabs',
+        browserName: 'chrome',
+        version: 'latest-1'
+      },
+      'Firefox': {
+        base: 'SauceLabs',
+        browserName: 'firefox',
+        version: 'latest'
+      },
+      'Firefox-1': {
+        base: 'SauceLabs',
+        browserName: 'firefox',
+        version: 'latest-1'
+      },
+      'Safari-1': {
+        base: 'SauceLabs',
+        browserName: 'safari',
+        version: '11'
+      },
+      'Safari': {
+        base: 'SauceLabs',
+        browserName: 'safari',
+        version: 'latest'
+      },
+      'EDGE': {
+        base: 'SauceLabs',
+        browserName: 'microsoftedge',
+        platform: 'Windows 10',
+        version: 'latest'
+      },
+      'EDGE-1': {
+        base: 'SauceLabs',
+        browserName: 'microsoftedge',
+        platform: 'Windows 10',
+        version: 'latest-1'
+      },
+      // 'BS_CHROME': {base: 'BrowserStack', browser: 'chrome', os: 'OS X', os_version: 'Yosemite'},
+      // 'BS_FIREFOX': {base: 'BrowserStack', browser: 'firefox', os: 'Windows', os_version: '10'},
+      // 'BS_SAFARI7': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'Mavericks'},
+      // 'BS_SAFARI8': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'Yosemite'},
+      // 'BS_SAFARI9': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'El Capitan'},
+      // 'BS_SAFARI10': {base: 'BrowserStack', browser: 'safari', os: 'OS X', os_version: 'Sierra'},
     }
 
     config.set({
@@ -79,9 +79,8 @@ module.exports = function(config) {
       browserDisconnectTimeout: 180000,
       browserDisconnectTolerance: 3,
       browserNoActivityTimeout: 300000,
-      // concurrency: 2,
       singleRun: true,
-      reporters: ['summary'],
+      reporters: ['dots', 'summary'],
       browsers: Object.keys(customLaunchers),
       customLaunchers: customLaunchers,
       browserstack: {
