@@ -1,6 +1,15 @@
 {
-  "extends": ["prettier"],
-  "parserOptions": {
-    "ecmaVersion": 6
-  }
+  "extends": ["eslint-config-airbnb-base/legacy", "prettier"],
+  "plugins": ["mocha"],
+  "rules": {
+    "func-names": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/test/**"],
+      "env": {
+        "mocha": true
+      }
+    }
+  ]
 }
