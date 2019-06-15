@@ -132,7 +132,7 @@ describe('Monetate', function() {
             price: 100
           }]
         });
-      analytics.called(window.monetateQ.push, ['addProducts', ['bb161be4', 'bb161be5']]); 
+      analytics.called(window.monetateQ.push, ['addProducts', [{ itemId: 'bb161be4', sku: 'fc0b3bb' }, { itemId: 'bb161be5', sku: 'gg0b3bb' }]]); 
      }); 
 
       it('should track product added', function() {
