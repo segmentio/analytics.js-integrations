@@ -25,6 +25,9 @@ describe('Pinterest', function() {
     analytics.use(Pinterest);
     analytics.use(tester);
     analytics.add(pinterest);
+    analytics.identify('123', {
+      e_mail: 'chris@sperand.io'
+    });
   });
 
   afterEach(function() {
@@ -56,6 +59,14 @@ describe('Pinterest', function() {
         analytics.page();
         analytics.called(pinterest.load);
       });
+
+      it("should call load with the user's email if it's there", function() {
+        analytics.stub(window, 'pintrk');
+        analytics.initialize();
+        analytics.called(window.pintrk, 'load', options.tid, {
+          em: 'chris@sperand.io'
+        });
+      });
     });
   });
 
@@ -70,23 +81,6 @@ describe('Pinterest', function() {
       analytics.once('ready', done);
       analytics.initialize();
       analytics.stub(pinterest, 'load');
-    });
-
-    describe('#identify', function() {
-      beforeEach(function() {
-        analytics.spy(window, 'pintrk');
-      });
-
-      it('should not fire the Pinterest pixel tag', function() {
-        analytics.identify();
-        analytics.didNotCall(window.pintrk);
-      });
-      it('should push Segment email to Pinterest Enhanced Match', function() {
-        analytics.identify('123', { email: 'prakash@segment.com' });
-        analytics.called(window.pintrk, 'load', '2620795819800', {
-          em: 'prakash@segment.com'
-        });
-      });
     });
   });
 });

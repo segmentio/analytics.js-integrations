@@ -6,6 +6,7 @@
 
 var integration = require('@segment/analytics.js-integration');
 var analyticsEvents = require('analytics-events');
+var Identify = require('segmentio-facade').Identify;
 
 /**
  * Expose `Pinterest` integration.
@@ -26,24 +27,23 @@ Pinterest.prototype.initialize = function() {
   (function(e){if(!window.pintrk){window.pintrk=function(){window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var n=window.pintrk;n.queue=[],n.version="3.0";}})(); // eslint-disable-line
 
   this.load(this.ready);
-  window.pintrk('load', this.options.tid);
-  window.pintrk('page'); // This is treated semantically different than our own page implementation.
 
+  var traits = this.analytics.user().traits() || {};
+  var id = new Identify({ traits: traits });
+  var email = id.email();
+
+  if (email) {
+    window.pintrk('load', this.options.tid, { em: email });
+  } else {
+    window.pintrk('load', this.options.tid);
+  }
+
+  window.pintrk('page'); 
   this.createPropertyMapping();
 };
 
 Pinterest.prototype.loaded = function() {
   return !!(window.pintrk && window.pintrk.queue);
-};
-
-Pinterest.prototype.identify = function(identify) {
-  // If we have an email then enable Enhanced Match feature by reloading the Pinterest library.
-  // TODO: We may want to add a toggle in the Pinterest integration UI as a configuration to enable enhanced match
-  if (identify.email()) {
-    window.pintrk('load', this.options.tid, {
-      em: identify.email()
-    });
-  }
 };
 
 Pinterest.prototype.page = function(page) {
