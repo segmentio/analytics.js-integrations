@@ -42,9 +42,6 @@ jobs:
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
-          name: Run Linter (not enforcing for now)
-          command: yarn lint || exit 0
-      - run:
           name: Run Tests
           command: yarn test
 
@@ -70,6 +67,20 @@ jobs:
           name: Snyk Setup
           command: curl -sL https://raw.githubusercontent.com/segmentio/snyk_helpers/master/initialization/snyk.sh | sh
 
+  publish:
+    docker:
+      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+    steps:
+      - attach_workspace: { at: . }
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Authenticate npm
+          command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
+      - run:
+          name: Publish packages
+          command: yarn lerna publish from-package --yes
+
 workflows:
   version: 2
   test:
@@ -90,3 +101,12 @@ workflows:
           context: snyk
           requires:
             - setup
+      - publish:
+          context: npm
+          requires:
+            - test
+            - test_saucelabs
+            - test_snyk
+          filters:
+            branches:
+              only: master
