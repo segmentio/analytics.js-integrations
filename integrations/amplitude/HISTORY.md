@@ -1,3 +1,7 @@
+# 3.0.0 / 2019-06-10
+
+- Update Amplitude SDK to v5.2.2
+
 # 2.93.2 / 2018-10-16
 
 - Minor (idempotent) changes to some branching logic for cleaner tests
