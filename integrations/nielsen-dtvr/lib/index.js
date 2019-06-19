@@ -25,7 +25,7 @@ var NielsenDTVR = (module.exports = integration('Nielsen DTVR')
  */
 
 NielsenDTVR.prototype.initialize = function() {
-  this.ID3 = undefined
+  this.ID3;
 
   var config = {};
   // debug mode
@@ -57,7 +57,15 @@ NielsenDTVR.prototype.loaded = function() {
  */
 
 NielsenDTVR.prototype.videoContentStarted = function(track) {
-  const metadata = mapVideo(track)
+  // Every time content begins playing, we assume it's not ad content unless 
+  // an adAssetId exists in the payload to tell us otherwise. Ads have their
+  // own content events: 
+  let mapAd = false
+
+  const adAssetId = track.proxy('properties.ad_asset_id') || track.proxy('properties.adAssetId')
+  if (adAssetId) mapAd = true
+  
+  const metadata = mapAd ? this.mapAd(track) : this.mapVideo(track)
   this._client.ggPM('loadMetadata', metadata)
   this.sendID3(track)
 };
@@ -81,7 +89,7 @@ NielsenDTVR.prototype.videoContentCompleted = function(track) {
 NielsenDTVR.prototype.videoAdStarted = function(track) {
   const metadata = mapAd(track)
   this._client.ggPM('loadMetadata', metadata)
-  sendID3(track)
+  this.sendID3(track)
 };
 
 /**
@@ -121,7 +129,7 @@ NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
-  const metadata = mapVideo(track)
+  const metadata = this[mappingType](track)
   this._client.ggPM('loadMetadata', metadata)
   this.sendID3(track)
 };
@@ -167,7 +175,7 @@ NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
 NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
   const metadata = mapVideo(track)
   this._client.ggPM('loadMetadata', metadata)
-  sendID3(track)
+  this.sendID3(track)
 };
 
 /**
@@ -186,7 +194,7 @@ NielsenDTVR.prototype.videoPlaybackCompleted = function(track) {
  * @api private
  */
 
-NielsenDTVR.prototype.sendId3 = function(event) {
+NielsenDTVR.prototype.sendID3 = function(event) {
   const options = event.options('Nielsen DTVR')
 
   if (!options) return
@@ -197,7 +205,7 @@ NielsenDTVR.prototype.sendId3 = function(event) {
     this._client.ggPM('sendID3', this.ID3);
   } else if (this.ID3 !== options.ID3) {
     this.ID3 = options.ID3
-    // we'll only send ID3 tags if we detect they've been updated
+    // we'll only send ID3 tags to Nielsen if we detect they've been updated
     this._client.ggPM('sendID3', this.ID3);
   }
 };
@@ -213,7 +221,7 @@ NielsenDTVR.prototype.end = function(event) {
   const position = event.proxy('properties.position')
   let time
   if (livestream) {
-    time = Math.floor(new Date().getUTCDate()) / 1000
+    time = event.timestamp().getUTCDate()
   } else if (position) {
     time = position
   }
@@ -227,7 +235,7 @@ NielsenDTVR.prototype.end = function(event) {
  * @api private
  */
 
-function mapVideo(event) {
+NielsenDTVR.prototype.mapVideo = function(event) {
   let load_type
   let loadTypeVal = event.proxy('properties.load_type') || event.proxy('properties.load_type')
 
@@ -250,9 +258,9 @@ function mapVideo(event) {
  * @api private
  */
 
-function mapAd(event) {
+NielsenDTVR.prototype.mapAd = function(event) {
   return reject({
     type: event.proxy('properties.type'),
-    asset_id: event.proxy('properties.assetId') || event.proxy('properties.asset_id')
+    asset_id: event.proxy('properties.adAssetId') || event.proxy('properties.ad_asset_id')
   })
 }
