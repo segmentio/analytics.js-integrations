@@ -39,7 +39,7 @@ var Appboy = (module.exports = integration('Appboy')
   )
   .tag(
     'v2',
-    '<script src="https://js.appboycdn.com/web-sdk/2.2/appboy.min.js">'
+    '<script src="https://js.appboycdn.com/web-sdk/2.3/appboy.min.js">'
   ));
 
 Appboy.prototype.initialize = function() {
