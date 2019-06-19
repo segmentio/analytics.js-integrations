@@ -5,7 +5,15 @@
     "prettier/prettier": "error",
     "func-names": "off",
     "no-multi-assign": "off",
-    "vars-on-top": "warn"
+    "vars-on-top": "off",
+    "no-underscore-dangle": "warn",
+    "no-prototype-builtins": "warn",
+    "no-use-before-define": "warn",
+    "no-loop-func": "warn",
+    "no-restricted-syntax": "warn",
+    "no-continue": "warn",
+    "consistent-return": "warn",
+    "no-shadow": "warn"
   },
   "overrides": [
     {
