@@ -13,15 +13,17 @@
     "lint": "lerna exec --since master --no-bail -- npx eslint . --ext .js",
     "test": "lerna run --concurrency 1 --since master test --stream -- --single-run --reporters summary --log-level error",
     "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
-    "fmt": "npx eslint --fix"
+    "fmt": "lerna exec --since master -- npx eslint . --fix --ext .js"
   },
   "husky": {
-    "pre-commit": "lint-staged"
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
-    "**/*.js": [
+    "*.js": [
       "yarn fmt",
-      "git-add --patch"
+      "git add"
     ]
   },
   "devDependencies": {
