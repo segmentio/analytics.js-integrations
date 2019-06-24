@@ -84,8 +84,8 @@ Monetate.prototype.productListViewed = function(track) {
 
   each(products, function(product) {
     var track = new Track({ properties: product });
-    product = toProducts(track);
-    items.push(product);
+    var p = toProducts(track);
+    items.push(p);
   });
 
   push(this.options.events.productListViewed, items);
@@ -125,9 +125,9 @@ Monetate.prototype.orderCompleted = function(track) {
 
   each(products, function(product) {
     var track = new Track({ properties: product });
-    product = toProduct(track);
-    product.conversionId = orderId;
-    items.push(product);
+    var p = toProduct(track);
+    p.conversionId = orderId;
+    items.push(p);
   });
 
   push(this.options.events.orderCompleted, items);
