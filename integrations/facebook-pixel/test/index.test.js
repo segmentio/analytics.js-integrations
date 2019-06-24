@@ -29,7 +29,8 @@ describe('Facebook Pixel', function() {
       search: 'Search'
     },
     contentTypes: {
-      Cars: 'vehicle'
+      Cars: 'vehicle',
+      Snacks: 'food'
     },
     pixelId: '123123123',
     agent: 'test',
@@ -1840,6 +1841,7 @@ describe('Facebook Pixel', function() {
               '505bd76785ebb509fc183733'
             ],
             value: '25.00',
+            content_type: ['product'],
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
               { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
@@ -1894,6 +1896,7 @@ describe('Facebook Pixel', function() {
               '507f1f77bcf86cd799439011',
               '505bd76785ebb509fc183733'
             ],
+            content_type: ['product'],
             value: '25.00',
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
@@ -1952,6 +1955,7 @@ describe('Facebook Pixel', function() {
               '507f1f77bcf86cd799439011',
               '505bd76785ebb509fc183733'
             ],
+            content_type: ['product'],
             value: '25.00',
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
@@ -2013,6 +2017,7 @@ describe('Facebook Pixel', function() {
               '505bd76785ebb509fc183733'
             ],
             value: '25.00',
+            content_type: ['product'],
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
               { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
@@ -2020,6 +2025,126 @@ describe('Facebook Pixel', function() {
             num_items: 2,
             currency: 'USD',
             content_category: 'Games'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
+      it('should use custom content_type if provided', function() {
+        analytics.track(
+          'Checkout Started',
+          {
+            order_id: '50314b8e9bcf000000000000',
+            affiliation: 'Google Store',
+            value: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games'
+              }
+            ]
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            value: '25.00',
+            content_type: ['myCustomType'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'Games'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
+      it('should use custom content_type if provided in the mappings', function() {
+        analytics.track('Checkout Started', {
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          value: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Almonds',
+              price: 19,
+              quantity: 1,
+              category: 'Snacks',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Doritos',
+              price: 3,
+              quantity: 2,
+              category: 'Snacks'
+            }
+          ]
+        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            value: '25.00',
+            content_type: ['food'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'Snacks'
           }
         );
         assertEventId(window.fbq);
@@ -2069,6 +2194,7 @@ describe('Facebook Pixel', function() {
               { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
             ],
             num_items: 2,
+            content_type: ['product'],
             currency: 'USD',
             content_category: 'Games'
           }

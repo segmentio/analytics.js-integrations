@@ -476,6 +476,7 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
     {
       content_category: contentCategory,
       content_ids: contentIds,
+      content_type: this.getContentType(track, ['product']),
       contents: contents,
       currency: track.currency(),
       num_items: contentIds.length,
