@@ -132,8 +132,7 @@ FacebookPixel.prototype.track = function(track) {
 
       if (dateFields.indexOf(camel(key)) >= 0) {
         if (is.date(val)) {
-          val = val.toISOString().split('T')[0];
-          acc[key] = val;
+          acc[key] = val.toISOString().split('T')[0];
           return acc;
         }
       }
@@ -255,10 +254,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
     'ViewContent',
     {
       content_ids: contentIds,
-      content_type: this.mappedContentTypesOrDefault(
-        track.category(),
-        contentType
-      )
+      content_type: this.getContentType(track, contentType)
     },
     { eventID: track.proxy('messageId') }
   );
@@ -295,9 +291,7 @@ FacebookPixel.prototype.productViewed = function(track) {
     'ViewContent',
     {
       content_ids: [track.productId() || track.id() || track.sku() || ''],
-      content_type: this.mappedContentTypesOrDefault(track.category(), [
-        'product'
-      ]),
+      content_type: this.getContentType(track, ['product']),
       content_name: track.name() || '',
       content_category: track.category() || '',
       currency: track.currency(),
@@ -342,9 +336,7 @@ FacebookPixel.prototype.productAdded = function(track) {
     'AddToCart',
     {
       content_ids: [track.productId() || track.id() || track.sku() || ''],
-      content_type: this.mappedContentTypesOrDefault(track.category(), [
-        'product'
-      ]),
+      content_type: this.getContentType(track, ['product']),
       content_name: track.name() || '',
       content_category: track.category() || '',
       currency: track.currency(),
@@ -383,7 +375,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   var self = this;
   var products = track.products();
 
-  var content_ids = foldl(
+  var contentIds = foldl(
     function(acc, product) {
       var item = new Track({ properties: product });
       var key = item.productId() || item.id() || item.sku();
@@ -398,20 +390,14 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 
   // Order completed doesn't have a top-level category spec'd.
   // Let's default to the category of the first product. - @gabriel
-  var contentType = ['product'];
-  if (products.length) {
-    contentType = this.mappedContentTypesOrDefault(
-      products[0].category,
-      contentType
-    );
-  }
+  var contentType = this.getContentType(track, ['product']);
 
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'Purchase',
     {
-      content_ids: content_ids,
+      content_ids: contentIds,
       content_type: contentType,
       currency: track.currency(),
       value: revenue
@@ -514,20 +500,42 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
 };
 
 /**
- * mappedContentTypesOrDefault returns an array of mapped content types for
- * the category - or returns the defaul value.
- * @param {Facade.Track} track
- * @param {Array} def
+ * Returns an array of mapped content types for the category,
+ * the provided value as an integration option or the default provided value.
+ *
+ * @param {Facade.Track} track Track payload
+ * @param {Array} defaultValue Default array value returned if the previous parameters are not defined.
+ *
+ * @return Content Type array as defined in:
+ * - https://developers.facebook.com/docs/facebook-pixel/reference/#object-properties
+ * - https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-real-estate/audience
  */
-FacebookPixel.prototype.mappedContentTypesOrDefault = function(category, def) {
-  if (!category) return def;
-
-  var mapped = this.contentTypes(category);
-  if (mapped.length) {
-    return mapped;
+FacebookPixel.prototype.getContentType = function(track, defaultValue) {
+  // 1- Integration options takes preference over everything
+  var options = track.options('Facebook Pixel');
+  if (options && options.contentType) {
+    return [options.contentType];
   }
 
-  return def;
+  // 2- Defined by category and its mappings
+  var category = track.category();
+  if (!category) {
+    // Get the first product's category
+    var products = track.products();
+    if (products && products.length) {
+      category = products[0].category;
+    }
+  }
+
+  if (category) {
+    var mapped = this.contentTypes(category);
+    if (mapped.length) {
+      return mapped;
+    }
+  }
+
+  // 3- The default value
+  return defaultValue;
 };
 
 /**

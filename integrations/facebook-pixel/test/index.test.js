@@ -641,6 +641,54 @@ describe('Facebook Pixel', function() {
       beforeEach(function() {
         analytics.stub(window, 'fbq');
       });
+      it('Should map content_ids parameter to product_ids and content_type to the value in integrations options if possible', function() {
+        analytics.track(
+          'Product List Viewed',
+          {
+            category: 'Games',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Cars',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Cars'
+              }
+            ]
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['myCustomType']
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
       it('Should map content_ids parameter to product_ids and content_type to "product" if possible', function() {
         analytics.track('Product List Viewed', {
           category: 'Games',
@@ -736,6 +784,54 @@ describe('Facebook Pixel', function() {
         assertEventId(window.fbq);
       });
 
+      it('should send the custom content type in options even if mapped', function() {
+        analytics.track(
+          'Product List Viewed',
+          {
+            category: 'Cars',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Games',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Games'
+              }
+            ]
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['myCustomType']
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
       it('should send a legacy event', function() {
         facebookPixel.options.legacyEvents = {
           'Product List Viewed': '123456'
@@ -769,6 +865,29 @@ describe('Facebook Pixel', function() {
           {
             content_ids: [''],
             content_type: ['product_group']
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
+      it('should use the contentType option', function() {
+        analytics.track(
+          'Product List Viewed',
+          { category: null },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [''],
+            content_type: ['myCustomType']
           }
         );
         assertEventId(window.fbq);
@@ -890,6 +1009,42 @@ describe('Facebook Pixel', function() {
           {
             content_ids: ['507f1f77bcf86cd799439011'],
             content_type: ['vehicle'],
+            content_name: 'my product',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
+      it('should send the custom content type if provided', function() {
+        analytics.track(
+          'Product Viewed',
+          {
+            product_id: '507f1f77bcf86cd799439011',
+            currency: 'USD',
+            quantity: 1,
+            price: 44.33,
+            name: 'my product',
+            category: 'Cars',
+            sku: 'p-298',
+            value: 24.75
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['myCustomType'],
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
@@ -1217,6 +1372,43 @@ describe('Facebook Pixel', function() {
         assertEventId(window.fbq);
       });
 
+      it('should send the custom content type if provided in the options', function() {
+        analytics.track(
+          'Product Added',
+          {
+            product_id: '507f1f77bcf86cd799439011',
+            currency: 'USD',
+            quantity: 1,
+            price: 44.33,
+            name: 'my product',
+            category: 'Cars',
+            sku: 'p-298',
+            value: 24.75,
+            content_type: 'stuff'
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['myCustomType'],
+            content_name: 'my product',
+            content_category: 'Cars',
+            currency: 'USD',
+            value: '24.75'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
       it('should fallback to id for content_id', function() {
         analytics.track('Product Added', {
           id: '507f1f77bcf86cd799439011',
@@ -1528,6 +1720,41 @@ describe('Facebook Pixel', function() {
               '505bd76785ebb509fc183733'
             ],
             content_type: ['vehicle'],
+            currency: 'USD',
+            value: '0.50'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
+      it('should send the custom content type if provided', function() {
+        analytics.track(
+          'Order Completed',
+          {
+            products: [
+              { product_id: '507f1f77bcf86cd799439011', category: 'Cars' },
+              { product_id: '505bd76785ebb509fc183733', category: 'Cars' }
+            ],
+            currency: 'USD',
+            total: 0.5
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['myCustomType'],
             currency: 'USD',
             value: '0.50'
           }
