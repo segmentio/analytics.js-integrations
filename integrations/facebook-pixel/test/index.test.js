@@ -5,6 +5,16 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var FacebookPixel = require('../lib');
 
+/**
+ * Event ID is generated automatically by Analytics.js, this function
+ * only checks that it was succesfully added as an argument to a `window.fbq` call.
+ */
+function assertEventId(spy) {
+  if (!spy.args[0][4].eventID.startsWith('ajs-')) {
+    throw new Error('Expected eventId on window.fbq.call. Not found.');
+  }
+}
+
 describe('Facebook Pixel', function() {
   var analytics;
   var facebookPixel;
@@ -219,9 +229,9 @@ describe('Facebook Pixel', function() {
             'event',
             {
               team: 'Warriors'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should send whitelisted PII properties', function() {
@@ -251,9 +261,9 @@ describe('Facebook Pixel', function() {
             {
               team: 'Warriors',
               country: 'USA'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should blacklist properties defined in the blacklistPiiProperties setting', function() {
@@ -287,9 +297,9 @@ describe('Facebook Pixel', function() {
             'event',
             {
               position: 'point guard'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should hash and send blacklisted properties if the hashProperty flag is true', function() {
@@ -334,9 +344,9 @@ describe('Facebook Pixel', function() {
               email:
                 '6dd27a21704a843224245b20369e216eecd3a599b78c4489e5f6cabb5aeca24a',
               position: 'point guard'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should only attempt to hash string values', function() {
@@ -373,9 +383,9 @@ describe('Facebook Pixel', function() {
             {
               email:
                 '6dd27a21704a843224245b20369e216eecd3a599b78c4489e5f6cabb5aeca24a'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should fallback to an empty array when blacklistPiiProperties is falsy', function() {
@@ -405,9 +415,9 @@ describe('Facebook Pixel', function() {
             'event',
             {
               team: 'Warriors'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should fallback to an empty array when whitelistPiiProperties is falsy', function() {
@@ -437,9 +447,9 @@ describe('Facebook Pixel', function() {
             'event',
             {
               team: 'Warriors'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
       });
 
@@ -451,9 +461,9 @@ describe('Facebook Pixel', function() {
             'trackSingleCustom',
             options.pixelId,
             'event',
-            {},
-            { eventID: undefined }
+            {}
           );
+          assertEventId(window.fbq);
         });
 
         it('should send a "custom" event and properties', function() {
@@ -465,9 +475,9 @@ describe('Facebook Pixel', function() {
             'event',
             {
               property: true
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should send properties correctly', function() {
@@ -485,9 +495,9 @@ describe('Facebook Pixel', function() {
               currency: 'XXX',
               value: '13.00',
               property: true
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
       });
 
@@ -502,9 +512,9 @@ describe('Facebook Pixel', function() {
             {
               currency: 'USD',
               value: '0.00'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should send an event and properties', function() {
@@ -517,9 +527,9 @@ describe('Facebook Pixel', function() {
             {
               currency: 'USD',
               value: '10.00'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should send only currency and revenue', function() {
@@ -532,27 +542,24 @@ describe('Facebook Pixel', function() {
             {
               currency: 'USD',
               value: '13.00'
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
       });
 
       describe('event mapped to standard', function() {
-        it(
-          'should send a correctly mapped event — no required properties',
-          function() {
-            analytics.track('standardEvent');
-            analytics.called(
-              window.fbq,
-              'trackSingle',
-              options.pixelId,
-              'standard',
-              {}
-            );
-          },
-          { eventID: undefined }
-        );
+        it('should send a correctly mapped event — no required properties', function() {
+          analytics.track('standardEvent');
+          analytics.called(
+            window.fbq,
+            'trackSingle',
+            options.pixelId,
+            'standard',
+            {}
+          );
+          assertEventId(window.fbq);
+        });
 
         it('should send properties correctly', function() {
           analytics.track('standardEvent', {
@@ -569,9 +576,9 @@ describe('Facebook Pixel', function() {
               currency: 'XXX',
               value: '13.00',
               property: true
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
 
         it('should default currency to USD if mapped to "Purchase"', function() {
@@ -588,9 +595,9 @@ describe('Facebook Pixel', function() {
               currency: 'USD',
               value: '13.00',
               property: true
-            },
-            { eventID: undefined }
+            }
           );
+          assertEventId(window.fbq);
         });
         describe('Dyanmic Ads for Travel date parsing', function() {
           it('should correctly pass in iso8601 formatted date objects', function() {
@@ -605,9 +612,9 @@ describe('Facebook Pixel', function() {
               'Search',
               {
                 checkin_date: '2017-07-01'
-              },
-              { eventID: undefined }
+              }
             );
+            assertEventId(window.fbq);
           });
 
           it('should pass through strings that we did not recognize as dates as-is', function() {
@@ -622,9 +629,9 @@ describe('Facebook Pixel', function() {
               'Search',
               {
                 checkin_date: '2017-06-23T15:30:00GMT'
-              },
-              { eventID: undefined }
+              }
             );
+            assertEventId(window.fbq);
           });
         });
       });
@@ -669,9 +676,9 @@ describe('Facebook Pixel', function() {
               '505bd76785ebb509fc183733'
             ],
             content_type: ['product']
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('Should fallback on mapping content_ids to the product category and content_type to "product_group"', function() {
@@ -684,9 +691,9 @@ describe('Facebook Pixel', function() {
           {
             content_ids: ['Games'],
             content_type: ['product_group']
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send the custom content type if mapped', function() {
@@ -724,9 +731,9 @@ describe('Facebook Pixel', function() {
               '505bd76785ebb509fc183733'
             ],
             content_type: ['vehicle']
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send a legacy event', function() {
@@ -742,20 +749,14 @@ describe('Facebook Pixel', function() {
           {
             content_ids: ['Games'],
             content_type: ['product_group']
-          },
-          { eventID: undefined }
+          }
         );
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          '123456',
-          {
-            currency: 'USD',
-            value: '0.00'
-          },
-          { eventID: undefined }
-        );
+        assertEventId(window.fbq);
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456', {
+          currency: 'USD',
+          value: '0.00'
+        });
+        assertEventId(window.fbq);
       });
 
       it('should default to an empty string for category', function() {
@@ -768,9 +769,9 @@ describe('Facebook Pixel', function() {
           {
             content_ids: [''],
             content_type: ['product_group']
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
     });
 
@@ -801,9 +802,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send a legacy event', function() {
@@ -831,20 +832,14 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          '123456',
-          {
-            currency: 'USD',
-            value: '24.75'
-          },
-          { eventID: undefined }
-        );
+        assertEventId(window.fbq);
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456', {
+          currency: 'USD',
+          value: '24.75'
+        });
+        assertEventId(window.fbq);
       });
 
       it('Should map properties.price to facebooks value if price is selected', function() {
@@ -871,9 +866,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '44.33'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send the custom content type if mapped', function() {
@@ -899,9 +894,9 @@ describe('Facebook Pixel', function() {
             content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to id for content_id', function() {
@@ -927,9 +922,9 @@ describe('Facebook Pixel', function() {
             content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to sku for content_id', function() {
@@ -954,9 +949,9 @@ describe('Facebook Pixel', function() {
             content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to an empty string for content_id', function() {
@@ -980,9 +975,9 @@ describe('Facebook Pixel', function() {
             content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to an empty string for content_name', function() {
@@ -1007,9 +1002,9 @@ describe('Facebook Pixel', function() {
             content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to an empty string for content_category', function() {
@@ -1034,9 +1029,9 @@ describe('Facebook Pixel', function() {
             content_category: '',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should use price in the legacy event', function() {
@@ -1065,20 +1060,14 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '44.33'
-          },
-          { eventID: undefined }
+          }
         );
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          '123456',
-          {
-            currency: 'USD',
-            value: '44.33'
-          },
-          { eventID: undefined }
-        );
+        assertEventId(window.fbq);
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456', {
+          currency: 'USD',
+          value: '44.33'
+        });
+        assertEventId(window.fbq);
       });
 
       it('should not map products if its falsy', function() {
@@ -1094,9 +1083,9 @@ describe('Facebook Pixel', function() {
           {
             content_ids: ['Games'],
             content_type: ['product_group']
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
     });
 
@@ -1128,9 +1117,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send a legacy event for product added', function() {
@@ -1159,21 +1148,15 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
 
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          '123456',
-          {
-            currency: 'USD',
-            value: '24.75'
-          },
-          { eventID: undefined }
-        );
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456', {
+          currency: 'USD',
+          value: '24.75'
+        });
+        assertEventId(window.fbq);
       });
 
       it('Should map properties.price to facebooks value if price is selected', function() {
@@ -1200,9 +1183,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '44.33'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send the custom content type if mapped', function() {
@@ -1229,9 +1212,9 @@ describe('Facebook Pixel', function() {
             content_category: 'Cars',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to id for content_id', function() {
@@ -1257,9 +1240,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to sku for content_id', function() {
@@ -1284,9 +1267,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to an empty string for content_id', function() {
@@ -1310,9 +1293,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to an empty string for content_name', function() {
@@ -1337,9 +1320,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should fallback to an empty string for content_category', function() {
@@ -1364,9 +1347,9 @@ describe('Facebook Pixel', function() {
             content_category: '',
             currency: 'USD',
             value: '24.75'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should use price in the legacy event', function() {
@@ -1395,20 +1378,14 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '44.33'
-          },
-          { eventID: undefined }
+          }
         );
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          '123456',
-          {
-            currency: 'USD',
-            value: '44.33'
-          },
-          { eventID: undefined }
-        );
+        assertEventId(window.fbq);
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456', {
+          currency: 'USD',
+          value: '44.33'
+        });
+        assertEventId(window.fbq);
       });
     });
 
@@ -1439,9 +1416,9 @@ describe('Facebook Pixel', function() {
             content_type: ['product'],
             currency: 'USD',
             value: '0.50'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('Should send both pixel and standard event if mapped', function() {
@@ -1467,20 +1444,14 @@ describe('Facebook Pixel', function() {
             content_type: ['product'],
             currency: 'USD',
             value: '0.50'
-          },
-          { eventID: undefined }
+          }
         );
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          '123456',
-          {
-            currency: 'USD',
-            value: '0.50'
-          },
-          { eventID: undefined }
-        );
+        assertEventId(window.fbq);
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456', {
+          currency: 'USD',
+          value: '0.50'
+        });
+        assertEventId(window.fbq);
       });
 
       it('should default to id for content_id', function() {
@@ -1505,9 +1476,9 @@ describe('Facebook Pixel', function() {
             content_type: ['product'],
             currency: 'USD',
             value: '0.50'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should default to sku for content_id', function() {
@@ -1532,9 +1503,9 @@ describe('Facebook Pixel', function() {
             content_type: ['product'],
             currency: 'USD',
             value: '0.50'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send the custom content type if mapped', function() {
@@ -1559,9 +1530,9 @@ describe('Facebook Pixel', function() {
             content_type: ['vehicle'],
             currency: 'USD',
             value: '0.50'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
     });
 
@@ -1572,16 +1543,10 @@ describe('Facebook Pixel', function() {
 
       it('should send pixel the search string', function() {
         analytics.track('Products Searched', { query: 'yo' });
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          'Search',
-          {
-            search_string: 'yo'
-          },
-          { eventID: undefined }
-        );
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, 'Search', {
+          search_string: 'yo'
+        });
+        assertEventId(window.fbq);
       });
 
       it('should send standard and legacy events', function() {
@@ -1590,16 +1555,11 @@ describe('Facebook Pixel', function() {
         };
 
         analytics.track('Products Searched', { query: 'yo' });
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          'Search',
-          {
-            search_string: 'yo'
-          },
-          { eventID: undefined }
-        );
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, 'Search', {
+          search_string: 'yo'
+        });
+        assertEventId(window.fbq);
+
         analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456');
       });
     });
@@ -1660,9 +1620,9 @@ describe('Facebook Pixel', function() {
             num_items: 2,
             currency: 'USD',
             content_category: 'NotGames'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should call InitiateCheckout with the first product category', function() {
@@ -1715,9 +1675,9 @@ describe('Facebook Pixel', function() {
             num_items: 2,
             currency: 'USD',
             content_category: 'Games'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should send a standard and legacy events', function() {
@@ -1773,20 +1733,14 @@ describe('Facebook Pixel', function() {
             num_items: 2,
             currency: 'USD',
             content_category: 'Games'
-          },
-          { eventID: undefined }
+          }
         );
-        analytics.called(
-          window.fbq,
-          'trackSingle',
-          options.pixelId,
-          '123456',
-          {
-            currency: 'USD',
-            value: '25.00'
-          },
-          { eventID: undefined }
-        );
+        assertEventId(window.fbq);
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456', {
+          currency: 'USD',
+          value: '25.00'
+        });
+        assertEventId(window.fbq);
       });
 
       it('should default to id for content_ids', function() {
@@ -1839,9 +1793,9 @@ describe('Facebook Pixel', function() {
             num_items: 2,
             currency: 'USD',
             content_category: 'Games'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
 
       it('should default to sku for content_ids', function() {
@@ -1890,9 +1844,9 @@ describe('Facebook Pixel', function() {
             num_items: 2,
             currency: 'USD',
             content_category: 'Games'
-          },
-          { eventID: undefined }
+          }
         );
+        assertEventId(window.fbq);
       });
     });
   });
