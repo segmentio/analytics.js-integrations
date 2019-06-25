@@ -34,6 +34,46 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .tag('<script src="//connect.facebook.net/en_US/fbevents.js">'));
 
 /**
+ * FB requires these date fields be formatted in a specific way.
+ * The specifications are non iso8601 compliant.
+ * https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-travel/audience
+ * Therefore, we check if the property is one of these reserved fields.
+ * If so, we check if we have converted it to an iso date object already.
+ * If we have, we convert it again into Facebook's spec.
+ * If we have not, the user has likely passed in a date string that already
+ * adheres to FB's docs so we can just pass it through as is.
+ */
+var dateFields = [
+  'checkinDate',
+  'checkoutDate',
+  'departingArrivalDate',
+  'departingDepartureDate',
+  'returningArrivalDate',
+  'returningDepartureDate',
+  'travelEnd',
+  'travelStart'
+];
+
+/**
+ * FB does not allow sending PII data with events. They provide a list of what they consider PII here:
+ * https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking
+ * We need to check each property key to see if it matches what FB considers to be a PII property and strip it from the payload.
+ * User's can override this by manually whitelisting keys they are ok with sending through in their integration settings.
+ */
+var defaultPiiProperties = [
+  'email',
+  'firstName',
+  'lastName',
+  'gender',
+  'city',
+  'country',
+  'phone',
+  'state',
+  'zip',
+  'birthday'
+];
+
+/**
  * Initialize Facebook Pixel.
  *
  * @param {Facade} page
@@ -98,86 +138,16 @@ FacebookPixel.prototype.track = function(track) {
   var self = this;
   var event = track.event();
   var revenue = formatRevenue(track.revenue());
-  var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
-  var customPiiProperties = this.options.blacklistPiiProperties || [];
-  var payload = foldl(
-    function(acc, val, key) {
-      if (key === 'revenue') {
-        acc.value = revenue;
-        return acc;
-      }
+  var payload = this.buildPayload(track);
 
-      /**
-       * FB requires these date fields be formatted in a specific way.
-       * The specifications are non iso8601 compliant.
-       * https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-travel/audience
-       * Therefore, we check if the property is one of these reserved fields.
-       * If so, we check if we have converted it to an iso date object already.
-       * If we have, we convert it again into Facebook's spec.
-       * If we have not, the user has likely passed in a date string that already
-       * adheres to FB's docs so we can just pass it through as is.
-       * @ccnixon
-       */
+  // Revenue
+  if (track.properties().hasOwnProperty('revenue')) {
+    payload.value = formatRevenue(track.revenue());
+    // To keep compatible with the old implementation
+    // that never added revenue to the payload
+    delete payload.revenue;
+  }
 
-      var dateFields = [
-        'checkinDate',
-        'checkoutDate',
-        'departingArrivalDate',
-        'departingDepartureDate',
-        'returningArrivalDate',
-        'returningDepartureDate',
-        'travelEnd',
-        'travelStart'
-      ];
-
-      if (dateFields.indexOf(camel(key)) >= 0) {
-        if (is.date(val)) {
-          acc[key] = val.toISOString().split('T')[0];
-          return acc;
-        }
-      }
-
-      // FB does not allow sending PII data with events. They provide a list of what they consider PII here:
-      // https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking
-      // We need to check each property key to see if it matches what FB considers to be a PII property and strip it from the payload.
-      // User's can override this by manually whitelisting keys they are ok with sending through in their integration settings.
-
-      var defaultPiiProperties = [
-        'email',
-        'firstName',
-        'lastName',
-        'gender',
-        'city',
-        'country',
-        'phone',
-        'state',
-        'zip',
-        'birthday'
-      ];
-
-      var propertyWhitelisted = whitelistPiiProperties.indexOf(key) >= 0;
-      if (defaultPiiProperties.indexOf(key) >= 0) {
-        if (propertyWhitelisted) {
-          acc[key] = val;
-        }
-      } else {
-        acc[key] = val;
-      }
-
-      customPiiProperties.forEach(function(config) {
-        if (config.propertyName === key) {
-          if (config.hashProperty && typeof val === 'string') {
-            acc[key] = sha256(val);
-          } else {
-            delete acc[key];
-          }
-        }
-      });
-      return acc;
-    },
-    {},
-    track.properties()
-  );
   var standard = this.standardEvents(event);
   var legacy = this.legacyEvents(event);
 
@@ -597,4 +567,63 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
     st: state,
     zp: postalCode
   });
+};
+
+/**
+ * Builds the FB Event payload. It checks for PII fields and custom properties. If the event is Standard Event,
+ * only properties defined in the setting are passed to the payload.
+ *
+ * @param {Facade.Track} track Track event.
+ * @param {boolean} isStandardEvent Defines if the track call is a standard event.
+ *
+ * @return Payload to send deriveded from the track properties.
+ */
+FacebookPixel.prototype.buildPayload = function(track) {
+  var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
+  var blacklistPiiProperties = this.options.blacklistPiiProperties || [];
+
+  // Transforming the setting in a map for easier lookups.
+  var customPiiProperties = {};
+  for (var i = 0; i < blacklistPiiProperties.length; i++) {
+    var configuration = blacklistPiiProperties[i];
+    customPiiProperties[configuration.propertyName] =
+      configuration.hashProperty;
+  }
+
+  var payload = {};
+  var properties = track.properties();
+
+  for (var property in properties) {
+    if (!properties.hasOwnProperty(property)) {
+      continue;
+    }
+
+    var value = properties[property];
+
+    // Dates
+    if (dateFields.indexOf(camel(property)) >= 0) {
+      if (is.date(value)) {
+        payload[property] = value.toISOString().split('T')[0];
+        continue;
+      }
+    }
+
+    // Custom PII properties
+    if (customPiiProperties.hasOwnProperty(property)) {
+      // hash or drop
+      if (customPiiProperties[property] && typeof value === 'string') {
+        payload[property] = sha256(value);
+      }
+      continue;
+    }
+
+    // Default PII properties
+    var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
+    var isPropertyWhitelisted = whitelistPiiProperties.indexOf(property) >= 0;
+    if (!isPropertyPii || isPropertyWhitelisted) {
+      payload[property] = value;
+    }
+  }
+
+  return payload;
 };
