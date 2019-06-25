@@ -28,6 +28,7 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('automaticConfiguration', true)
   .option('whitelistPiiProperties', [])
   .option('blacklistPiiProperties', [])
+  .option('standardEventsCustomProperties', [])
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -198,6 +199,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
   var contentType;
   var contentIds = [];
   var products = track.products();
+  var customProperties = this.buildPayload(track, true);
 
   // First, check to see if a products array with productIds has been defined.
   if (Array.isArray(products)) {
@@ -222,10 +224,13 @@ FacebookPixel.prototype.productListViewed = function(track) {
     'trackSingle',
     this.options.pixelId,
     'ViewContent',
-    {
-      content_ids: contentIds,
-      content_type: this.getContentType(track, contentType)
-    },
+    merge(
+      {
+        content_ids: contentIds,
+        content_type: this.getContentType(track, contentType)
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -254,21 +259,25 @@ FacebookPixel.prototype.productListViewed = function(track) {
 FacebookPixel.prototype.productViewed = function(track) {
   var self = this;
   var useValue = this.options.valueIdentifier === 'value';
+  var customProperties = this.buildPayload(track, true);
 
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'ViewContent',
-    {
-      content_ids: [track.productId() || track.id() || track.sku() || ''],
-      content_type: this.getContentType(track, ['product']),
-      content_name: track.name() || '',
-      content_category: track.category() || '',
-      currency: track.currency(),
-      value: useValue
-        ? formatRevenue(track.value())
-        : formatRevenue(track.price())
-    },
+    merge(
+      {
+        content_ids: [track.productId() || track.id() || track.sku() || ''],
+        content_type: this.getContentType(track, ['product']),
+        content_name: track.name() || '',
+        content_category: track.category() || '',
+        currency: track.currency(),
+        value: useValue
+          ? formatRevenue(track.value())
+          : formatRevenue(track.price())
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -299,21 +308,25 @@ FacebookPixel.prototype.productViewed = function(track) {
 FacebookPixel.prototype.productAdded = function(track) {
   var self = this;
   var useValue = this.options.valueIdentifier === 'value';
+  var customProperties = this.buildPayload(track, true);
 
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'AddToCart',
-    {
-      content_ids: [track.productId() || track.id() || track.sku() || ''],
-      content_type: this.getContentType(track, ['product']),
-      content_name: track.name() || '',
-      content_category: track.category() || '',
-      currency: track.currency(),
-      value: useValue
-        ? formatRevenue(track.value())
-        : formatRevenue(track.price())
-    },
+    merge(
+      {
+        content_ids: [track.productId() || track.id() || track.sku() || ''],
+        content_type: this.getContentType(track, ['product']),
+        content_name: track.name() || '',
+        content_category: track.category() || '',
+        currency: track.currency(),
+        value: useValue
+          ? formatRevenue(track.value())
+          : formatRevenue(track.price())
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -344,6 +357,7 @@ FacebookPixel.prototype.productAdded = function(track) {
 FacebookPixel.prototype.orderCompleted = function(track) {
   var self = this;
   var products = track.products();
+  var customProperties = this.buildPayload(track, true);
 
   var contentIds = foldl(
     function(acc, product) {
@@ -366,12 +380,15 @@ FacebookPixel.prototype.orderCompleted = function(track) {
     'trackSingle',
     this.options.pixelId,
     'Purchase',
-    {
-      content_ids: contentIds,
-      content_type: contentType,
-      currency: track.currency(),
-      value: revenue
-    },
+    merge(
+      {
+        content_ids: contentIds,
+        content_type: contentType,
+        currency: track.currency(),
+        value: revenue
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -392,13 +409,18 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 
 FacebookPixel.prototype.productsSearched = function(track) {
   var self = this;
+  var customProperties = this.buildPayload(track, true);
+
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'Search',
-    {
-      search_string: track.proxy('properties.query')
-    },
+    merge(
+      {
+        search_string: track.proxy('properties.query')
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -423,6 +445,7 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
   var contentIds = [];
   var contents = [];
   var contentCategory = track.category();
+  var customProperties = this.buildPayload(track, true);
 
   each(function(product) {
     var track = new Track({ properties: product });
@@ -443,15 +466,18 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
     'trackSingle',
     this.options.pixelId,
     'InitiateCheckout',
-    {
-      content_category: contentCategory,
-      content_ids: contentIds,
-      content_type: this.getContentType(track, ['product']),
-      contents: contents,
-      currency: track.currency(),
-      num_items: contentIds.length,
-      value: formatRevenue(track.revenue())
-    },
+    merge(
+      {
+        content_category: contentCategory,
+        content_ids: contentIds,
+        content_type: this.getContentType(track, ['product']),
+        contents: contents,
+        currency: track.currency(),
+        num_items: contentIds.length,
+        value: formatRevenue(track.revenue())
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -578,9 +604,11 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
  *
  * @return Payload to send deriveded from the track properties.
  */
-FacebookPixel.prototype.buildPayload = function(track) {
+FacebookPixel.prototype.buildPayload = function(track, isStandardEvent) {
   var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
   var blacklistPiiProperties = this.options.blacklistPiiProperties || [];
+  var standardEventsCustomProperties =
+    this.options.standardEventsCustomProperties || [];
 
   // Transforming the setting in a map for easier lookups.
   var customPiiProperties = {};
@@ -595,6 +623,15 @@ FacebookPixel.prototype.buildPayload = function(track) {
 
   for (var property in properties) {
     if (!properties.hasOwnProperty(property)) {
+      continue;
+    }
+
+    // Standard Events only contains custom properties defined in the configuration
+    // If the property is not listed there, we just drop it.
+    if (
+      isStandardEvent &&
+      standardEventsCustomProperties.indexOf(property) < 0
+    ) {
       continue;
     }
 
@@ -627,3 +664,38 @@ FacebookPixel.prototype.buildPayload = function(track) {
 
   return payload;
 };
+
+/**
+ * Merge two javascript objects. This works similarly to `Object.assign({}, obj1, obj2)`
+ * but it's compatible with old browsers. The properties of the first argument takes preference
+ * over the other.
+ *
+ * It does not do fancy stuff, just use it with top level properties.
+ *
+ * @param {Object} obj1 Object 1
+ * @param {Object} obj2 Object 2
+ *
+ * @return {Object} a new object with all the properties of obj1 and the remainder of obj2.
+ */
+function merge(obj1, obj2) {
+  var res = {};
+
+  // All properties of obj1
+  for (var propObj1 in obj1) {
+    if (obj1.hasOwnProperty(propObj1)) {
+      res[propObj1] = obj1[propObj1];
+    }
+  }
+
+  // Extra properties of obj2
+  for (var propObj2 in obj2) {
+    if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+      res[propObj2] = obj2[propObj2];
+    }
+  }
+
+  return res;
+}
+
+// Exposed only for testing
+FacebookPixel.merge = merge;

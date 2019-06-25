@@ -36,7 +36,8 @@ describe('Facebook Pixel', function() {
     agent: 'test',
     initWithExistingTraits: false,
     whitelistPiiProperties: [],
-    blacklistPiiProperties: []
+    blacklistPiiProperties: [],
+    standardEventsCustomProperties: []
   };
 
   beforeEach(function() {
@@ -690,6 +691,66 @@ describe('Facebook Pixel', function() {
         assertEventId(window.fbq);
       });
 
+      it('Should add custom properties if available', function() {
+        facebookPixel.options.standardEventsCustomProperties = [
+          'color',
+          'piiSecret'
+        ];
+        facebookPixel.options.blacklistPiiProperties = [
+          { propertyName: 'piiSecret', hashProperty: true }
+        ];
+        analytics.track(
+          'Product List Viewed',
+          {
+            category: 'Games',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Cars',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Cars'
+              }
+            ],
+            color: 'blue',
+            piiSecret: 'piiInfo'
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['myCustomType'],
+            color: 'blue',
+            piiSecret:
+              '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
       it('Should map content_ids parameter to product_ids and content_type to "product" if possible', function() {
         analytics.track('Product List Viewed', {
           category: 'Games',
@@ -922,6 +983,46 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
+      it('should send custom properties', function() {
+        facebookPixel.options.standardEventsCustomProperties = [
+          'color',
+          'piiSecret'
+        ];
+        facebookPixel.options.blacklistPiiProperties = [
+          { propertyName: 'piiSecret', hashProperty: true }
+        ];
+        analytics.track('Product Viewed', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75,
+          color: 'blue',
+          piiSecret: 'piiInfo'
+        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75',
+            color: 'blue',
+            piiSecret:
+              '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
           }
         );
         assertEventId(window.fbq);
@@ -1278,6 +1379,46 @@ describe('Facebook Pixel', function() {
         assertEventId(window.fbq);
       });
 
+      it('shoud add custom properties', function() {
+        facebookPixel.options.standardEventsCustomProperties = [
+          'color',
+          'piiSecret'
+        ];
+        facebookPixel.options.blacklistPiiProperties = [
+          { propertyName: 'piiSecret', hashProperty: true }
+        ];
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75,
+          color: 'blue',
+          piiSecret: 'piiInfo'
+        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75',
+            color: 'blue',
+            piiSecret:
+              '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
       it('should send a legacy event for product added', function() {
         facebookPixel.options.legacyEvents = { 'Product Added': '123456' };
 
@@ -1614,6 +1755,45 @@ describe('Facebook Pixel', function() {
         assertEventId(window.fbq);
       });
 
+      it('should add custom properties', function() {
+        facebookPixel.options.standardEventsCustomProperties = [
+          'color',
+          'piiSecret'
+        ];
+        facebookPixel.options.blacklistPiiProperties = [
+          { propertyName: 'piiSecret', hashProperty: true }
+        ];
+        analytics.track('Order Completed', {
+          products: [
+            { product_id: '507f1f77bcf86cd799439011' },
+            { product_id: '505bd76785ebb509fc183733' }
+          ],
+          currency: 'USD',
+          total: 0.5,
+          color: 'blue',
+          piiSecret: 'piiInfo'
+        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['product'],
+            currency: 'USD',
+            value: '0.50',
+            color: 'blue',
+            piiSecret:
+              '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
       it('Should send both pixel and standard event if mapped', function() {
         facebookPixel.options.legacyEvents = { 'Order Completed': '123456' };
         analytics.track('Order Completed', {
@@ -1777,6 +1957,28 @@ describe('Facebook Pixel', function() {
         assertEventId(window.fbq);
       });
 
+      it('should add custom properties', function() {
+        facebookPixel.options.standardEventsCustomProperties = [
+          'color',
+          'piiSecret'
+        ];
+        facebookPixel.options.blacklistPiiProperties = [
+          { propertyName: 'piiSecret', hashProperty: true }
+        ];
+        analytics.track('Products Searched', {
+          query: 'yo',
+          color: 'blue',
+          piiSecret: 'piiInfo'
+        });
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, 'Search', {
+          search_string: 'yo',
+          color: 'blue',
+          piiSecret:
+            '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
+        });
+        assertEventId(window.fbq);
+      });
+
       it('should send standard and legacy events', function() {
         facebookPixel.options.legacyEvents = {
           'Products Searched': '123456'
@@ -1849,6 +2051,75 @@ describe('Facebook Pixel', function() {
             num_items: 2,
             currency: 'USD',
             content_category: 'NotGames'
+          }
+        );
+        assertEventId(window.fbq);
+      });
+
+      it('should add custom properties', function() {
+        facebookPixel.options.standardEventsCustomProperties = [
+          'color',
+          'piiSecret'
+        ];
+        facebookPixel.options.blacklistPiiProperties = [
+          { propertyName: 'piiSecret', hashProperty: true }
+        ];
+        analytics.track('Checkout Started', {
+          category: 'NotGames',
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          value: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games',
+              url: 'https://www.example.com/product/path',
+              image_url: 'https://www.example.com/product/path.jpg'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ],
+          color: 'blue',
+          piiSecret: 'piiInfo'
+        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'InitiateCheckout',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            value: '25.00',
+            content_type: ['product'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
+            ],
+            num_items: 2,
+            currency: 'USD',
+            content_category: 'NotGames',
+            color: 'blue',
+            piiSecret:
+              '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
           }
         );
         assertEventId(window.fbq);
@@ -2282,6 +2553,47 @@ describe('Facebook Pixel', function() {
       var actual = facebookPixel.formatTraits(analytics);
 
       analytics.deepEqual(expected, actual);
+    });
+  });
+
+  describe('#merge', function() {
+    it('should merge 2 objects', function() {
+      var got = FacebookPixel.merge(
+        {
+          name: 'my value',
+          price: 10
+        },
+        {
+          otherField: true
+        }
+      );
+      var expected = {
+        name: 'my value',
+        price: 10,
+        otherField: true
+      };
+
+      analytics.deepEqual(got, expected);
+    });
+
+    it('should not override properties', function() {
+      var got = FacebookPixel.merge(
+        {
+          name: 'my value',
+          price: 10,
+          otherField: 'hi'
+        },
+        {
+          otherField: true
+        }
+      );
+      var expected = {
+        name: 'my value',
+        price: 10,
+        otherField: 'hi'
+      };
+
+      analytics.deepEqual(got, expected);
     });
   });
 });
