@@ -36,7 +36,12 @@ var mockOptimizelyClassicDataObject = function() {
         2: 'Inactive Variation',
         11: 'Redirect Variation'
       },
-      variationIdsMap: { 0: ['123'], 1: ['123', '22', '789'], 11: ['22'], 2: ['44'] },
+      variationIdsMap: {
+        0: ['123'],
+        1: ['123', '22', '789'],
+        11: ['22'],
+        2: ['44']
+      },
       redirectExperiment: {
         variationId: '22',
         experimentId: '11',
@@ -69,7 +74,7 @@ var mockOptimizelyXDataObject = function() {
         id: '7551111120',
         name: 'Variation Corruption #1884'
       },
-      isInCampaignHoldback: false,      
+      isInCampaignHoldback: false,
       // these are returned by real Optimizely API but will not be send to integrations
       isActive: false,
       reason: undefined,
@@ -92,7 +97,7 @@ var mockOptimizelyXDataObject = function() {
         id: '7557950020',
         name: 'Variation #1'
       },
-      isInCampaignHoldback: true,      
+      isInCampaignHoldback: true,
       // these are returned by real Optimizely API but will not be send to integrations
       isActive: true,
       reason: undefined,
@@ -119,7 +124,7 @@ var mockOptimizelyXDataObject = function() {
         id: '7333333333',
         name: 'Variation DBC'
       },
-      isInCampaignHoldback: false,      
+      isInCampaignHoldback: false,
       // these are returned by real Optimizely API but will not be send to integrations
       isActive: true,
       reason: undefined,
@@ -134,7 +139,10 @@ var mockOptimizelyXDataObject = function() {
         // returns all campaigns with option to return just active ones (which is what we do in the snippet)
         var ret = {};
         for (var campaign in window.optimizely.newMockData) {
-          if (window.optimizely.newMockData[campaign].isActive === options.isActive) {
+          if (
+            window.optimizely.newMockData[campaign].isActive ===
+            options.isActive
+          ) {
             ret[campaign] = window.optimizely.newMockData[campaign];
           }
         }
@@ -143,9 +151,9 @@ var mockOptimizelyXDataObject = function() {
       getRedirectInfo: function() {
         var campaigns = this.getCampaignStates({ isActive: true });
         for (var id in campaigns) {
-          if (campaigns[id].visitorRedirected) return { referrer: 'barstools.com' };
+          if (campaigns[id].visitorRedirected)
+            return { referrer: 'barstools.com' };
         }
-        return;
       }
     };
   };
@@ -189,7 +197,11 @@ describe('Optimizely', function() {
 
   describe('before loading', function() {
     beforeEach(function() {
-      analytics.stub(Optimizely, 'initOptimizelyIntegration', Optimizely.initOptimizelyIntegration); // Reference to constructor intentionally
+      analytics.stub(
+        Optimizely,
+        'initOptimizelyIntegration',
+        Optimizely.initOptimizelyIntegration
+      ); // Reference to constructor intentionally
       analytics.stub(optimizely, 'load');
       analytics.stub(optimizely, 'sendClassicDataToSegment');
       analytics.stub(optimizely, 'sendNewDataToSegment');
@@ -236,29 +248,37 @@ describe('Optimizely', function() {
         it('should call sendClassicDataToSegment for active Classic experiments', function() {
           // we have two active experiments running in the mock data object
           analytics.calledTwice(optimizely.sendClassicDataToSegment);
-          analytics.deepEqual(optimizely.sendClassicDataToSegment.args[0], [{
-            experiment: {
-              id: '0',
-              name: 'Test'
-            },
-            variations: [{
-              id: '123',
-              name: 'Variation #123'
-            }],
-            sections: undefined
-          }]);
-          analytics.deepEqual(optimizely.sendClassicDataToSegment.args[1], [{
-            experiment: {
-              id: '11',
-              name: 'Redirect Test',
-              referrer: 'google.com'
-            },
-            variations: [{
-              id: '22',
-              name: 'Redirect Variation'
-            }],
-            sections: undefined
-          }]);
+          analytics.deepEqual(optimizely.sendClassicDataToSegment.args[0], [
+            {
+              experiment: {
+                id: '0',
+                name: 'Test'
+              },
+              variations: [
+                {
+                  id: '123',
+                  name: 'Variation #123'
+                }
+              ],
+              sections: undefined
+            }
+          ]);
+          analytics.deepEqual(optimizely.sendClassicDataToSegment.args[1], [
+            {
+              experiment: {
+                id: '11',
+                name: 'Redirect Test',
+                referrer: 'google.com'
+              },
+              variations: [
+                {
+                  id: '22',
+                  name: 'Redirect Variation'
+                }
+              ],
+              sections: undefined
+            }
+          ]);
         });
       });
 
@@ -358,29 +378,37 @@ describe('Optimizely', function() {
           executeAsyncTest(done, function() {
             analytics.calledTwice(optimizely.sendClassicDataToSegment);
             analytics.calledTwice(optimizely.sendNewDataToSegment);
-            analytics.deepEqual(optimizely.sendClassicDataToSegment.args[0], [{
-              experiment: {
-                id: '0',
-                name: 'Test'
-              },
-              variations: [{
-                id: '123',
-                name: 'Variation #123'
-              }],
-              sections: undefined
-            }]);
-            analytics.deepEqual(optimizely.sendClassicDataToSegment.args[1], [{
-              experiment: {
-                id: '11',
-                name: 'Redirect Test',
-                referrer: 'google.com'
-              },
-              variations: [{
-                id: '22',
-                name: 'Redirect Variation'
-              }],
-              sections: undefined
-            }]);
+            analytics.deepEqual(optimizely.sendClassicDataToSegment.args[0], [
+              {
+                experiment: {
+                  id: '0',
+                  name: 'Test'
+                },
+                variations: [
+                  {
+                    id: '123',
+                    name: 'Variation #123'
+                  }
+                ],
+                sections: undefined
+              }
+            ]);
+            analytics.deepEqual(optimizely.sendClassicDataToSegment.args[1], [
+              {
+                experiment: {
+                  id: '11',
+                  name: 'Redirect Test',
+                  referrer: 'google.com'
+                },
+                variations: [
+                  {
+                    id: '22',
+                    name: 'Redirect Variation'
+                  }
+                ],
+                sections: undefined
+              }
+            ]);
             analytics.deepEqual(optimizely.sendNewDataToSegment.args[0], [
               {
                 audiences: [
@@ -490,12 +518,16 @@ describe('Optimizely', function() {
         // This test proves the breaking changes for the option (it used to send both experiment data in one
         // `.identify()` call)
         analytics.calledTwice(analytics.identify);
-        analytics.deepEqual(analytics.identify.args[0], [{
-          'Experiment: Test': 'Variation #123'
-        }]);
-        analytics.deepEqual(analytics.identify.args[1], [{
-          'Experiment: Redirect Test': 'Redirect Variation'
-        }]);
+        analytics.deepEqual(analytics.identify.args[0], [
+          {
+            'Experiment: Test': 'Variation #123'
+          }
+        ]);
+        analytics.deepEqual(analytics.identify.args[1], [
+          {
+            'Experiment: Redirect Test': 'Redirect Variation'
+          }
+        ]);
       });
     });
 
@@ -546,7 +578,6 @@ describe('Optimizely', function() {
       });
     });
 
-
     describe('#options.listen', function() {
       beforeEach(function() {
         optimizely.options.listen = true;
@@ -574,7 +605,9 @@ describe('Optimizely', function() {
       it('should send multivariate active experiment data via `.track()`', function(done) {
         // activate multivariate experiment and set section info
         window.optimizely.data.state.activeExperiments = ['0'];
-        window.optimizely.data.sections = { 123409: { name: 'Section 1', variation_ids: ['123'] } };
+        window.optimizely.data.sections = {
+          123409: { name: 'Section 1', variation_ids: ['123'] }
+        };
         analytics.initialize();
         executeAsyncTest(done, function() {
           analytics.deepEqual(analytics.track.args[0], [
@@ -595,7 +628,9 @@ describe('Optimizely', function() {
       it('should dedupe sectionNames for multi section multivariate active experiment data via `.track()`', function(done) {
         // activate multivariate experiment and set section info
         window.optimizely.data.state.activeExperiments = ['1'];
-        window.optimizely.data.sections = { 123409: { name: 'Section 1', variation_ids: ['123', '22', '789'] } };
+        window.optimizely.data.sections = {
+          123409: { name: 'Section 1', variation_ids: ['123', '22', '789'] }
+        };
         analytics.initialize();
         executeAsyncTest(done, function() {
           analytics.deepEqual(analytics.track.args[0], [
@@ -660,7 +695,7 @@ describe('Optimizely', function() {
         });
       });
 
-      it('should send Google\'s nonInteraction flag via `.track()`', function(done) {
+      it("should send Google's nonInteraction flag via `.track()`", function(done) {
         // flip the nonInteraction option on and activate standard experiment
         optimizely.options.nonInteraction = true;
         window.optimizely.data.state.activeExperiments = ['0'];
@@ -711,12 +746,16 @@ describe('Optimizely', function() {
         // This test proves the breaking changes for the option (it used to send both experiment data in one
         // `.identify()` call)
         analytics.calledTwice(analytics.identify);
-        analytics.deepEqual(analytics.identify.args[0], [{
-          'Experiment: Coding Bootcamp': 'Variation DBC'
-        }]);
-        analytics.deepEqual(analytics.identify.args[1], [{
-          'Experiment: Worlds Group Stage': 'Variation #1'
-        }]);
+        analytics.deepEqual(analytics.identify.args[0], [
+          {
+            'Experiment: Coding Bootcamp': 'Variation DBC'
+          }
+        ]);
+        analytics.deepEqual(analytics.identify.args[1], [
+          {
+            'Experiment: Worlds Group Stage': 'Variation #1'
+          }
+        ]);
       });
     });
 
@@ -853,7 +892,7 @@ describe('Optimizely', function() {
         });
       });
 
-      it('should send Google\'s nonInteraction flag via `.track()`', function(done) {
+      it("should send Google's nonInteraction flag via `.track()`", function(done) {
         // Mock data has two active campaigns running
         // For convenience, we'll disable one of them
         window.optimizely.newMockData[2542102702] = false;
@@ -913,7 +952,7 @@ describe('Optimizely', function() {
           tags: {}
         });
       });
-      
+
       it('should repace colons with underscore in eventName', function() {
         analytics.track('event:foo:bar');
         analytics.called(window.optimizely.push, {
@@ -963,34 +1002,86 @@ describe('Optimizely', function() {
         it('should send an event through the Optimizely X Fullstack JS SDK using the logged in user', function() {
           analytics.identify('user1');
           analytics.track('event', { purchasePrice: 9.99, property: 'foo' });
-          analytics.called(window.optimizelyClientInstance.track, 'event', 'user1', {}, { purchasePrice: 9.99, property: 'foo' });
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'event',
+            'user1',
+            {},
+            { purchasePrice: 9.99, property: 'foo' }
+          );
         });
 
         it('should replace colons with underscores for event names', function() {
           analytics.identify('user1');
           analytics.track('foo:bar:baz');
-          analytics.called(window.optimizelyClientInstance.track, 'foo_bar_baz', 'user1', {}, {});
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'foo_bar_baz',
+            'user1',
+            {},
+            {}
+          );
         });
 
         it('should send an event through the Optimizely X Fullstack JS SDK using the user provider user id', function() {
-          analytics.track('event', { purchasePrice: 9.99, property: 'foo' }, { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } });
-          analytics.called(window.optimizelyClientInstance.track, 'event', 'user1', { country: 'usa' }, { property: 'foo', purchasePrice: 9.99 });
+          analytics.track(
+            'event',
+            { purchasePrice: 9.99, property: 'foo' },
+            { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } }
+          );
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'event',
+            'user1',
+            { country: 'usa' },
+            { property: 'foo', purchasePrice: 9.99 }
+          );
         });
 
         it('should send revenue on `Order Completed` through the Optimizely X Fullstack JS SDK and `properites.revenue` is passed', function() {
-          analytics.track('Order Completed', { purchasePrice: 9.99, property: 'foo', revenue: 1.99 }, { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } });
-          analytics.called(window.optimizelyClientInstance.track, 'Order Completed', 'user1', { country: 'usa' }, { property: 'foo', purchasePrice: 9.99, revenue: 199 });
+          analytics.track(
+            'Order Completed',
+            { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
+            { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } }
+          );
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'Order Completed',
+            'user1',
+            { country: 'usa' },
+            { property: 'foo', purchasePrice: 9.99, revenue: 199 }
+          );
         });
 
         it('should not default to sending revenue through the Optimizely X Fullstack JS SDK on non `Order Completed` events and `properites.revenue` is passed', function() {
-          analytics.track('event', { purchasePrice: 9.99, property: 'foo', revenue: 1.99 }, { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } });
-          analytics.called(window.optimizelyClientInstance.track, 'event', 'user1', { country: 'usa' }, { property: 'foo', purchasePrice: 9.99 });
+          analytics.track(
+            'event',
+            { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
+            { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } }
+          );
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'event',
+            'user1',
+            { country: 'usa' },
+            { property: 'foo', purchasePrice: 9.99 }
+          );
         });
 
         it('should send revenue through the Optimizely X Fullstack JS SDK on all events if `sendRevenueOnlyForOrderCompleted` is disabled and `properites.revenue` is passed', function() {
           optimizely.options.sendRevenueOnlyForOrderCompleted = false;
-          analytics.track('event', { purchasePrice: 9.99, property: 'foo', revenue: 1.99 }, { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } });
-          analytics.called(window.optimizelyClientInstance.track, 'event', 'user1', { country: 'usa' }, { property: 'foo', purchasePrice: 9.99, revenue: 199 });
+          analytics.track(
+            'event',
+            { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
+            { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } }
+          );
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'event',
+            'user1',
+            { country: 'usa' },
+            { property: 'foo', purchasePrice: 9.99, revenue: 199 }
+          );
         });
       });
     });

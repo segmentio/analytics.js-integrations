@@ -16,13 +16,13 @@ var tick = require('next-tick');
  * Expose `Optimizely` integration.
  */
 
-var Optimizely = module.exports = integration('Optimizely')
+var Optimizely = (module.exports = integration('Optimizely')
   .option('trackCategorizedPages', true)
   .option('trackNamedPages', true)
   .option('variations', false) // send data via `.identify()`
   .option('listen', true) // send data via `.track()`
   .option('nonInteraction', false)
-  .option('sendRevenueOnlyForOrderCompleted', true);
+  .option('sendRevenueOnlyForOrderCompleted', true));
 
 /**
  * The name and version for this integration.
@@ -97,9 +97,12 @@ Optimizely.prototype.track = function(track) {
     } else if (track.event() !== 'Order Completed') {
       delete eventProperties.revenue;
     }
-    // This is legacy Segment-Optimizely behavior, 
+    // This is legacy Segment-Optimizely behavior,
     // which passes revenue whenever it is present
-  } else if (opts.sendRevenueOnlyForOrderCompleted === false && eventProperties.revenue) {
+  } else if (
+    opts.sendRevenueOnlyForOrderCompleted === false &&
+    eventProperties.revenue
+  ) {
     eventProperties.revenue = Math.round(eventProperties.revenue * 100);
   }
 
@@ -116,10 +119,19 @@ Optimizely.prototype.track = function(track) {
   var optimizelyClientInstance = window.optimizelyClientInstance;
   if (optimizelyClientInstance && optimizelyClientInstance.track) {
     var optimizelyOptions = track.options('Optimizely');
-    var userId = optimizelyOptions.userId || track.userId() || this.analytics.user().id();
-    var attributes = optimizelyOptions.attributes || track.traits() || this.analytics.user().traits();
+    var userId =
+      optimizelyOptions.userId || track.userId() || this.analytics.user().id();
+    var attributes =
+      optimizelyOptions.attributes ||
+      track.traits() ||
+      this.analytics.user().traits();
     if (userId) {
-      optimizelyClientInstance.track(eventName, userId, attributes, payload.tags);
+      optimizelyClientInstance.track(
+        eventName,
+        userId,
+        attributes,
+        payload.tags
+      );
     }
   }
 };
@@ -178,10 +190,15 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
   var context = { integration: optimizelyContext }; // backward compatibility
 
   // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-  var variationsMap = foldl(function(results, variation) {
-    results[variation.id] = variation.name;
-    return results;
-  }, {}, variations);
+  var variationsMap = foldl(
+    function(results, variation) {
+      var res = results;
+      res[variation.id] = variation.name;
+      return res;
+    },
+    {},
+    variations
+  );
 
   // Sorting for consistency across browsers
   var variationIds = keys(variationsMap).sort();
@@ -211,21 +228,31 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
       // The global optimizely data object does not expose a mapping between which section(s) were involved within an experiment.
       // So we will build our own mapping to quickly get the section name(s) and id(s) for any displayed variation.
       var activeSections = {};
-      var variationIdsToSectionsMap = foldl(function(results, section, sectionId) {
-        each(function(variationId) {
-          results[variationId] = { id: sectionId, name: section.name };
-        }, section.variation_ids);
-        return results;
-      }, {}, sections);
+      var variationIdsToSectionsMap = foldl(
+        function(results, section, sectionId) {
+          var res = results;
+          each(function(variationId) {
+            res[variationId] = { id: sectionId, name: section.name };
+          }, section.variation_ids);
+          return res;
+        },
+        {},
+        sections
+      );
       for (var j = 0; j < variationIds.length; j++) {
         var activeVariation = variationIds[j];
         var activeSection = variationIdsToSectionsMap[activeVariation];
-        if (activeSection) activeSections[activeSection.id] = activeSection.name;
+        if (activeSection)
+          activeSections[activeSection.id] = activeSection.name;
       }
 
       // Sorting for consistency across browsers
-      props.sectionId = keys(activeSections).sort().join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
-      props.sectionName = values(activeSections).sort().join(', ');
+      props.sectionId = keys(activeSections)
+        .sort()
+        .join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
+      props.sectionName = values(activeSections)
+        .sort()
+        .join(', ');
     }
 
     // For Google's nonInteraction flag
@@ -274,7 +301,7 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
  * @param {Object} campaignState.variation: the variation the visitor is seeing
  * @param {String} campaignState.variation.id: the id of the variation
  * @param {String} campaignState.variation.name: the name of the variation
- * @param {String} campaignState.isInCampaignHoldback: whether the visitor is in the Campaign holdback 
+ * @param {String} campaignState.isInCampaignHoldback: whether the visitor is in the Campaign holdback
  */
 
 Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
@@ -283,14 +310,23 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
   var context = { integration: optimizelyContext }; // backward compatibility
 
   // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-  var audiencesMap = foldl(function(results, audience) {
-    results[audience.id] = audience.name;
-    return results;
-  }, {}, campaignState.audiences);
+  var audiencesMap = foldl(
+    function(results, audience) {
+      var res = results;
+      res[audience.id] = audience.name;
+      return res;
+    },
+    {},
+    campaignState.audiences
+  );
 
   // Sorting for consistency across browsers
-  var audienceIds = keys(audiencesMap).sort().join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
-  var audienceNames = values(audiencesMap).sort().join(', ');
+  var audienceIds = keys(audiencesMap)
+    .sort()
+    .join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
+  var audienceNames = values(audiencesMap)
+    .sort()
+    .join(', ');
 
   // Send data via `.track()`
   if (this.options.listen) {
@@ -350,7 +386,10 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
  */
 
 Optimizely.prototype.setEffectiveReferrer = function(referrer) {
-  if (referrer) return window.optimizelyEffectiveReferrer = referrer;
+  if (referrer) {
+    window.optimizelyEffectiveReferrer = referrer;
+    return referrer;
+  }
 };
 
 /**
@@ -381,7 +420,10 @@ Optimizely.initOptimizelyIntegration = function(handlers) {
    * @param {Function} sendExperimentData - This function is called for every running experiment on the page.
    *   The function is called with all the relevant ids and names.
    */
-  var initClassicOptimizelyIntegration = function(referrerOverride, sendExperimentData) {
+  var initClassicOptimizelyIntegration = function(
+    referrerOverride,
+    sendExperimentData
+  ) {
     var data = window.optimizely && window.optimizely.data;
     var state = data && data.state;
     if (state) {
@@ -417,12 +459,18 @@ Optimizely.initOptimizelyIntegration = function(handlers) {
 
         /** Segment added code */
         // for backward compatability since we send referrer with the experiment properties
-        if (state.redirectExperiment && currentExperimentId === redirectExperimentId && state.redirectExperiment.referrer) {
-          activeExperimentState.experiment.referrer = state.redirectExperiment.referrer;
+        if (
+          state.redirectExperiment &&
+          currentExperimentId === state.redirectExperiment.experimentId &&
+          state.redirectExperiment.referrer
+        ) {
+          activeExperimentState.experiment.referrer =
+            state.redirectExperiment.referrer;
         }
         /**/
 
-        var variationIds = state.variationIdsMap[activeExperimentState.experiment.id];
+        var variationIds =
+          state.variationIdsMap[activeExperimentState.experiment.id];
         for (var j = 0; j < variationIds.length; j++) {
           var id = variationIds[j];
           var name = data.variations[id].name;
@@ -448,7 +496,10 @@ Optimizely.initOptimizelyIntegration = function(handlers) {
    * @param {Function} sendCampaignData - This function is called for every running campaign on the page.
    *   The function is called with the campaignState for the activated campaign
    */
-  var initNewOptimizelyIntegration = function(referrerOverride, sendCampaignData) {
+  var initNewOptimizelyIntegration = function(
+    referrerOverride,
+    sendCampaignData
+  ) {
     var newActiveCampaign = function(id, referrer) {
       var state = window.optimizely.get && window.optimizely.get('state');
       if (state) {
@@ -465,7 +516,8 @@ Optimizely.initOptimizelyIntegration = function(handlers) {
     var checkReferrer = function() {
       var state = window.optimizely.get && window.optimizely.get('state');
       if (state) {
-        var referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+        var referrer =
+          state.getRedirectInfo() && state.getRedirectInfo().referrer;
 
         if (referrer) {
           referrerOverride(referrer);
@@ -510,7 +562,11 @@ Optimizely.initOptimizelyIntegration = function(handlers) {
         for (var id in activeCampaigns) {
           if ({}.hasOwnProperty.call(activeCampaigns, id)) {
             // Segment modified code: need to pass down referrer in the cb for backward compat reasons
-            referrer ? newActiveCampaign(id, referrer) : newActiveCampaign(id);
+            if (referrer) {
+              newActiveCampaign(id, referrer);
+            } else {
+              newActiveCampaign(id);
+            }
           }
         }
       } else {
@@ -530,6 +586,12 @@ Optimizely.initOptimizelyIntegration = function(handlers) {
     registerFutureActiveCampaigns();
   };
 
-  initClassicOptimizelyIntegration(handlers.referrerOverride, handlers.sendExperimentData);
-  initNewOptimizelyIntegration(handlers.referrerOverride, handlers.sendCampaignData);
+  initClassicOptimizelyIntegration(
+    handlers.referrerOverride,
+    handlers.sendExperimentData
+  );
+  initNewOptimizelyIntegration(
+    handlers.referrerOverride,
+    handlers.sendCampaignData
+  );
 };
