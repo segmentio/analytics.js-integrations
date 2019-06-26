@@ -473,7 +473,10 @@ describe('Appboy', function() {
           {
             total: 30,
             revenue: 25,
-            shipping: 3
+            shipping: 3,
+            sku: '45790-32',
+            name: 'Monopoly: 3rd Edition',
+            category: 'Games'
           }
         );
         analytics.called(
@@ -485,7 +488,10 @@ describe('Appboy', function() {
           {
             total: 30,
             revenue: 25,
-            shipping: 3
+            shipping: 3,
+            sku: '46493-32',
+            name: 'Uno Card Game',
+            category: 'Games'
           }
         );
       });

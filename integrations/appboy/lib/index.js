@@ -412,12 +412,26 @@ Appboy.prototype.orderCompleted = function(track) {
     var productId = track.productId();
     var price = track.price();
     var quantity = track.quantity();
+    var productProperties = track.properties();
+    del(productProperties, 'productId');
+    del(productProperties, 'price');
+    del(productProperties, 'quantity');
+
+    for (var property in purchaseProperties) {
+      if (
+        purchaseProperties.hasOwnProperty(property) &&
+        !productProperties.hasOwnProperty(property)
+      ) {
+        productProperties[property] = purchaseProperties[property];
+      }
+    }
+
     window.appboy.logPurchase(
       productId,
       price,
       currencyCode,
       quantity,
-      purchaseProperties
+      productProperties
     );
   }, products);
 };
