@@ -407,33 +407,9 @@ Appboy.prototype.orderCompleted = function(track) {
   del(purchaseProperties, 'currency');
 
   // we have to make a separate call to appboy for each product
-  each(function(product) {
-    var track = new Track({ properties: product });
-    var productId = track.productId();
-    var price = track.price();
-    var quantity = track.quantity();
-    var productProperties = track.properties();
-    del(productProperties, 'productId');
-    del(productProperties, 'price');
-    del(productProperties, 'quantity');
-
-    for (var property in purchaseProperties) {
-      if (
-        purchaseProperties.hasOwnProperty(property) &&
-        !productProperties.hasOwnProperty(property)
-      ) {
-        productProperties[property] = purchaseProperties[property];
-      }
-    }
-
-    window.appboy.logPurchase(
-      productId,
-      price,
-      currencyCode,
-      quantity,
-      productProperties
-    );
-  }, products);
+  for (var i = 0; i < products.length; i++) {
+    logProduct(products[i], currencyCode, purchaseProperties);
+  }
 };
 
 /**
@@ -462,4 +438,93 @@ function getGender(gender) {
     return window.appboy.ab.User.Genders.MALE;
   if (otherGenders.indexOf(gender.toLowerCase()) > -1)
     return window.appboy.ab.User.Genders.OTHER;
+}
+
+/**
+ * Logs a Purchase containing a product as described in Braze's documentation:
+ * https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.logPurchase
+ *
+ * @param {Object} product Product from the Order Completed call
+ * @param {String} currencyCode Currency code
+ * @param {Object} extraProperties Root properties from the track call
+ */
+function logProduct(product, currencyCode, extraProperties) {
+  var track = new Track({ properties: product });
+  var productId = track.productId();
+  var price = track.price();
+  var quantity = track.quantity();
+  var productProperties = track.properties();
+  var properties = {};
+
+  del(productProperties, 'productId');
+  del(productProperties, 'price');
+  del(productProperties, 'quantity');
+
+  for (var productProperty in productProperties) {
+    if (!productProperties.hasOwnProperty(productProperty)) {
+      continue;
+    }
+
+    var value = productProperties[productProperty];
+    if (isValidProperty(productProperty, value)) {
+      properties[productProperty] = value;
+    }
+  }
+
+  for (var property in extraProperties) {
+    if (!extraProperties.hasOwnProperty(property)) {
+      continue;
+    }
+
+    var val = extraProperties[property];
+    if (
+      !productProperties.hasOwnProperty(property) &&
+      isValidProperty(property, val)
+    ) {
+      properties[property] = val;
+    }
+  }
+
+  window.appboy.logPurchase(
+    productId,
+    price,
+    currencyCode,
+    quantity,
+    properties
+  );
+}
+
+/**
+ * Validates a name and value of a property, following Braze's restrictions:
+ *
+ * Names are limited to 255 characters in length, cannot begin with a $, and
+ * can only contain alphanumeric characters and punctuation. Values can be
+ * numeric, boolean, Date objects, or strings 255 characters or shorter.
+ *
+ * @param {String} name Name of the property.
+ * @param {*} value Value of the property.
+ *
+ * @return {boolean} <code>true</code> if the name and value are valid, <code>false</code> otherwise.
+ */
+function isValidProperty(name, value) {
+  if (name.length > 255 || name.startsWith('$')) {
+    return false;
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return true;
+  }
+
+  if (typeof value === 'object' && value instanceof Date) {
+    return true;
+  }
+
+  if (
+    (typeof value === 'string' || value instanceof String) &&
+    value.length <= 255
+  ) {
+    return true;
+  }
+
+  return false;
 }
