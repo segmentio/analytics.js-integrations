@@ -1,5 +1,7 @@
 'use strict';
 
+/* global pintrk */
+
 /**
  * Module dependencies.
  */
@@ -14,6 +16,7 @@ var analyticsEvents = require('analytics-events');
 var Pinterest = (module.exports = integration('Pinterest Tag')
   .global('pintrk')
   .option('tid', '')
+  .option('initWithExistingTraits', false)
   .option('pinterestCustomProperties', [])
   .mapping('pinterestEventMapping')
   .tag('<script src="https://s.pinimg.com/ct/core.js"></script>'));
@@ -26,8 +29,13 @@ Pinterest.prototype.initialize = function() {
   (function(e){if(!window.pintrk){window.pintrk=function(){window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var n=window.pintrk;n.queue=[],n.version="3.0";}})(); // eslint-disable-line
 
   this.load(this.ready);
-  window.pintrk('load', this.options.tid);
-  window.pintrk('page'); // This is treated semantically different than our own page implementation.
+  if (this.options.initWithExistingTraits) {
+    var traits = formatTraits(this.analytics);
+    pintrk('load', this.options.tid, traits);
+  } else {
+    pintrk('load', this.options.tid);
+  }
+  pintrk('page'); // This is treated semantically different than our own page implementation.
 
   this.createPropertyMapping();
 };
@@ -38,7 +46,6 @@ Pinterest.prototype.loaded = function() {
 
 Pinterest.prototype.identify = function(identify) {
   // If we have an email then enable Enhanced Match feature by reloading the Pinterest library.
-  // TODO: We may want to add a toggle in the Pinterest integration UI as a configuration to enable enhanced match
   if (identify.email()) {
     window.pintrk('load', this.options.tid, {
       em: identify.email()
@@ -66,13 +73,18 @@ Pinterest.prototype.track = function(track) {
   var pinterestEvent = this.getPinterestEvent(segmentEvent);
   var pinterestObject = this.generatePropertiesObject(track);
 
-  pinterestEvent
-    ? window.pintrk('track', pinterestEvent, pinterestObject)
-    : window.pintrk('track', segmentEvent, pinterestObject);
+  if (pinterestEvent) {
+    window.pintrk('track', pinterestEvent, pinterestObject);
+  } else {
+    window.pintrk('track', segmentEvent, pinterestObject);
+  }
 };
 
 Pinterest.prototype.getPinterestEvent = function(segmentEvent) {
   for (var mappedEvent in this.options.pinterestEventMapping) {
+    if (!this.options.pinterestEventMapping.hasOwnProperty(mappedEvent)) {
+      continue;
+    }
     if (mappedEvent.toLowerCase() === segmentEvent.toLowerCase()) {
       return this.options.pinterestEventMapping[mappedEvent];
     }
@@ -88,7 +100,9 @@ Pinterest.prototype.getPinterestEvent = function(segmentEvent) {
   ];
 
   for (var index in eventMap) {
-    if (!eventMap.hasOwnProperty(index)) continue;
+    if (!eventMap.hasOwnProperty(index)) {
+      continue;
+    }
     var eventRegex = eventMap[index][0];
     var pinterestEvent = eventMap[index][1];
 
@@ -146,13 +160,15 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
   if (Array.isArray(products)) {
     lineItemsArray = [];
     for (var i = 0; i < products.length; i++) {
-      for (prop in this.productPropertyMap) {
-        if (!this.productPropertyMap.hasOwnProperty(prop)) continue;
-        trackValue = products[i][prop];
+      for (var productProperty in this.productPropertyMap) {
+        if (!this.productPropertyMap.hasOwnProperty(productProperty)) continue;
+        trackValue = products[i][productProperty];
         if (trackValue) {
           // Product values are added into a `line_items` array, with a nested object. If that doesn't exist, make it first.
           if (lineItemsArray[i] === undefined) lineItemsArray[i] = {};
-          lineItemsArray[i][this.productPropertyMap[prop]] = trackValue;
+          lineItemsArray[i][
+            this.productPropertyMap[productProperty]
+          ] = trackValue;
         }
       }
     }
@@ -161,11 +177,11 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
     // There will only be a single layer, since we have, at most, one product.
     lineItemsArray = [{}];
     var propAdded = false;
-    for (prop in this.productPropertyMap) {
-      if (!this.productPropertyMap.hasOwnProperty(prop)) continue;
-      trackValue = track.proxy('properties.' + prop);
+    for (var prodProperty in this.productPropertyMap) {
+      if (!this.productPropertyMap.hasOwnProperty(prodProperty)) continue;
+      trackValue = track.proxy('properties.' + prodProperty);
       if (trackValue) {
-        lineItemsArray[0][this.productPropertyMap[prop]] = trackValue;
+        lineItemsArray[0][this.productPropertyMap[prodProperty]] = trackValue;
         propAdded = true;
       }
     }
@@ -175,10 +191,32 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
   // Finally, add in any custom properties defined by the user.
   var customProps = this.options.pinterestCustomProperties;
   for (var j = 0; j < customProps.length; j++) {
-    prop = customProps[j];
-    trackValue = track.proxy('properties.' + prop);
-    if (trackValue) pinterestProps[prop] = trackValue;
+    var customProperty = customProps[j];
+    trackValue = track.proxy('properties.' + customProperty);
+    if (trackValue) pinterestProps[customProperty] = trackValue;
   }
 
   return pinterestProps;
 };
+
+/**
+ * Get traits formatted correctly for Pinterest.
+ * See https://developers.pinterest.com/docs/ad-tools/enhanced-match/
+ *
+ * @param {Analytics} analytics Analytics SDK instance
+ * @return {Object} Traits object
+ */
+
+function formatTraits(analytics) {
+  var traits = {};
+  if (analytics && analytics.user()) {
+    traits = analytics.user().traits();
+  }
+
+  var pinterestTraits = {};
+  if (traits.email) {
+    pinterestTraits.em = traits.email;
+  }
+
+  return pinterestTraits;
+}
