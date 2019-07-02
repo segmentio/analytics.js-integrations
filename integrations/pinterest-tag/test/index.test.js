@@ -16,7 +16,6 @@ describe('Pinterest', function() {
       'Lead Generated': 'Lead',
       'User Signed Up': 'Signup'
     },
-    initWithExistingTraits: false,
     pinterestCustomProperties: ['custom_prop']
   };
 
@@ -42,7 +41,6 @@ describe('Pinterest', function() {
         .global('pintrk')
         .mapping('pinterestEventMapping')
         .option('pinterestCustomProperties', [])
-        .option('initWithExistingTraits', false)
         .option('tid', '')
     );
   });
@@ -50,7 +48,6 @@ describe('Pinterest', function() {
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(pinterest, 'load');
-      analytics.stub(window, 'pintrk');
     });
 
     describe('#initialize', function() {
@@ -58,45 +55,6 @@ describe('Pinterest', function() {
         analytics.initialize();
         analytics.page();
         analytics.called(pinterest.load);
-        analytics.called(window.pintrk, 'load', options.tid);
-      });
-    });
-
-    describe('#initialize with traits enabled', function() {
-      before(function() {
-        options.initWithExistingTraits = true;
-      });
-
-      after(function() {
-        options.initWithExistingTraits = false;
-      });
-
-      it("should call init with the user's traits if option enabled", function() {
-        // For existing traits
-        analytics.identify('123', {
-          name: 'Ash Ketchum',
-          email: 'ash@ketchum.com',
-          gender: 'Male',
-          birthday: '01/13/1991',
-          address: {
-            city: 'Emerald',
-            state: 'Kanto',
-            postalCode: 123456
-          }
-        });
-
-        analytics.initialize();
-
-        analytics.called(window.pintrk, 'load', options.tid, {
-          em: 'ash@ketchum.com'
-        });
-      });
-
-      it("should call init with the user's traits if option enabled but no identify call was made", function() {
-        analytics.reset();
-        analytics.initialize();
-
-        analytics.called(window.pintrk, 'load', options.tid);
       });
     });
   });
