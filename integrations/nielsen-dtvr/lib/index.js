@@ -36,10 +36,6 @@ var NielsenDTVR = (module.exports = integration('Nielsen DTVR')
  */
 
 NielsenDTVR.prototype.initialize = function() {
-  this.ID3;
-  this.previousEvent;
-  this.isAd = false
-
   // Modified Nielsen snippet. It shouldn't load the Nielsen tag, but it should
   // still successfully queue events fired before the tag loads.
   !function(t, n) {
@@ -56,15 +52,30 @@ NielsenDTVR.prototype.initialize = function() {
     }
   } (window, 'NOLBUNDLE');
 
-  const config = {}
-  const protocol = useHttps() ? 'https' : 'http'
+  // empty object to hold more than one Nielsen DTVR SDK instance
+  // multiple instances are required if multiple videos are playing on the
+  // same page at the same time
+  this.clientMap = {};
+  this.currentSession;
+  this.ID3;
+  this.previousEvent;
+  this.isAd = false;
+
+  const protocol = useHttps() ? 'https' : 'http';
+  const config = {};
   if (this.options.debug) config.nol_sdkDebug = 'debug';
-  config.optout = this.options.optout
-  this._client = window.NOLBUNDLE.nlsQ(
+
+  // we go ahead and instantiate a default video client,but may create more
+  // instances later if the customer has mutiple videos playing on the same
+  // page at the same time. if a customer does not pass `session_id` with any of
+  // their video events, we fall back to using the default Nielsen client
+  this.defaultClient = window.NOLBUNDLE.nlsQ(
     this.options.appId,
     this.options.instanceName,
     config
   );
+  this._client = this.defaultClient;
+  this.clientMap['defaultClient'] = this.defaultClient
 
   this.load(protocol, this.ready);
 };
@@ -77,17 +88,20 @@ NielsenDTVR.prototype.initialize = function() {
  */
 
 NielsenDTVR.prototype.loaded = function() {
-  // does invoke this function
+  console.log(this._client && typeof this._client.ggPM === 'function')
   return this._client && typeof this._client.ggPM === 'function';
 };
 
 /**
- * Track test
+ * Track
  *
  * @api public
  */
 
 NielsenDTVR.prototype.track = function(track) {
+  console.log('entering generic track event')
+  this._createOrUpdateInstance(track).bind(this)
+
   const videoEvents = {
     'Video Ad Completed': this.videoAdCompleted.bind(this),
     'Video Ad Started': this.videoAdStarted.bind(this),
@@ -129,7 +143,7 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
     this._client.ggPM('end', time)
   }
   
-  // Every time content begins playing, we assume it's not ad content unless 
+  // Every time content begins playing, we assume it's not ad content unless
   // an adAssetId exists in the payload to tell us otherwise. Ads have their
   // own content events.
   this.isAd = false
@@ -137,9 +151,11 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
   const adAssetId = track.proxy('properties.ad_asset_id') || track.proxy('properties.adAssetId')
   if (adAssetId) this.isAd = true
   
-  const metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track)
+  const metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track)
   this._client.ggPM('loadMetadata', JSON.parse(JSON.stringify(metadata)))
-  this.sendID3(track)
+  this._sendID3(track)
+  // We need to store the previous event in memory b/c in some situations we
+  // need access to the previous event's properties
   this.previousEvent = track
 };
 
@@ -151,7 +167,7 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
 
 NielsenDTVR.prototype.videoContentCompleted = function(track) {
   console.log('entering video content completed', track.event())
-  this.end(track)
+  this._end(track)
 };
 
 /**
@@ -162,10 +178,10 @@ NielsenDTVR.prototype.videoContentCompleted = function(track) {
 
 NielsenDTVR.prototype.videoAdStarted = function(track) {
   console.log('entering video ad started', track.event())
-  const metadata = this.mapAd(track)
+  const metadata = this._mapAd(track)
   console.log('video ad started', metadata)
   this._client.ggPM('loadMetadata', metadata)
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -176,7 +192,7 @@ NielsenDTVR.prototype.videoAdStarted = function(track) {
 
 NielsenDTVR.prototype.videoAdCompleted = function(track) {
   console.log('entering video ad completed', track.event())
-  this.end(track)
+  this._end(track)
 };
 
 /**
@@ -187,7 +203,7 @@ NielsenDTVR.prototype.videoAdCompleted = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackInterrupted = function(track) {
   console.log('entering video playback interrupted', track.event())
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -198,7 +214,7 @@ NielsenDTVR.prototype.videoPlaybackInterrupted = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
   console.log('entering video playback seek started', track.event())
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -209,9 +225,9 @@ NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
   console.log('entering video playback seek completed', track.event())
-  const metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track)
+  const metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track)
   this._client.ggPM('loadMetadata', metadata)
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -222,7 +238,7 @@ NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackBufferStarted = function(track) {
   console.log('entering video playback buffer started', track.event())
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -233,9 +249,9 @@ NielsenDTVR.prototype.videoPlaybackBufferStarted = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackBufferCompleted = function(track) {
   console.log('entering video playback buffer completed', track.event())
-  const metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track)
+  const metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track)
   this._client.ggPM('loadMetadata', metadata)
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -246,7 +262,7 @@ NielsenDTVR.prototype.videoPlaybackBufferCompleted = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
   console.log('entering video playback paused', track.event())
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -257,9 +273,9 @@ NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
   console.log('entering video playback resumed', track.event())
-  const metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track)
+  const metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track)
   this._client.ggPM('loadMetadata', metadata)
-  this.sendID3(track)
+  this._sendID3(track)
 };
 
 /**
@@ -270,8 +286,46 @@ NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
 
 NielsenDTVR.prototype.videoPlaybackCompleted = function(track) {
   console.log('entering video playback completed', track.event())
-  this.end(track)
+  this._end(track)
 };
+
+/**
+ * Create a new instance/change current working Nielsen SDK instance. This step
+ * enables Segment to track multiple videos playing on the same page at the
+ * same time b/c Nielsen DTVR instances can only track one video at a time.
+ *
+ * @api private
+ */
+
+NielsenDTVR.prototype._createOrUpdateInstance = function(event) {
+  console.log('entered create or update instance')
+  const currentSession = event.proxy('properties.session_id') || event.proxy('properties.sessionId')
+  // if sessions aren't defined, fall back to the default client
+  if (!currentSession) return;
+  if (currentSession === this.currentSession) return;
+
+  const config = {}
+  if (this.options.debug) config.nol_sdkDebug = 'debug';
+
+  const clients = Object.keys(this.clientMap)
+  const thisClient = clients.indexOf(currentSession)
+
+  if (thisClient > -1) {
+    this._client = this.clientMap.currentSession
+  } else {
+    this.clientMap.currentSession = window.NOLBUNDLE.nlsQ(
+        this.options.appId,
+        this.options.instanceName,
+        config
+      );
+
+    this._client = this.clientMap.currentSession;
+  }
+  this.currentSession = currentSession;
+  console.log('the current session is', this.currentSession)
+  console.log('the current client is', this._client)
+}
+
 
 /**
  * Send ID3 tags to Nielsen
@@ -279,7 +333,7 @@ NielsenDTVR.prototype.videoPlaybackCompleted = function(track) {
  * @api private
  */
 
-NielsenDTVR.prototype.sendID3 = function(event) {
+NielsenDTVR.prototype._sendID3 = function(event) {
   console.log('entering send ID3 method', event.event())
   const id3Events = this.options.sendId3Events
   if (id3Events.length <= 0) return;
@@ -317,7 +371,7 @@ NielsenDTVR.prototype.sendID3 = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype.end = function(event) {
+NielsenDTVR.prototype._end = function(event) {
   console.log('entering end playback method', event.event())
   const livestream = event.proxy('properties.livestream')
   const position = event.proxy('properties.position')
@@ -330,6 +384,12 @@ NielsenDTVR.prototype.end = function(event) {
   }
   
   this._client.ggPM('end', time)
+
+  // need to define current session
+  if (this._client !== this.defaultClient) {
+    this._client = null
+    delete this.clients.currentSession
+  }
 };
 
 /**
@@ -338,7 +398,7 @@ NielsenDTVR.prototype.end = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype.mapVideo = function(event) {
+NielsenDTVR.prototype._mapVideo = function(event) {
   console.log('entering map video method', event.event())
   let load_type
   let loadTypeVal = event.proxy('properties.load_type') || event.proxy('properties.load_type')
@@ -362,7 +422,7 @@ NielsenDTVR.prototype.mapVideo = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype.mapAd = function(event) {
+NielsenDTVR.prototype._mapAd = function(event) {
   console.log('entering map ad event', event.event())
   return reject({
     type: event.proxy('properties.type'),
