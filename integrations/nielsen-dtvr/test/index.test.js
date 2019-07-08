@@ -6,6 +6,8 @@ var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var NielsenDTVR = require('../lib/');
 var sinon = require('sinon');
+var Track = require('segmentio-facade').Track;
+var assert = require('assert');
 
 describe('NielsenDTVR', function () {
   var analytics;
@@ -235,7 +237,7 @@ describe('NielsenDTVR', function () {
 
         it('should send video playback completed livestream', function () {
           var timestamp = new Date();
-          var sandbox = sinon.sandbox.create();
+          var sandbox = sinon.createSandbox();
           var currentUTC = +Date.now(timestamp);
           sandbox.stub(Date, 'now').returns(currentUTC);
 
@@ -334,23 +336,36 @@ describe('NielsenDTVR', function () {
       });
 
       describe('#persisted data', function () {
+        var properties;
         beforeEach(function () {
-          analytics.stub(nielsenDTVR._client, 'ggPM');
-          var props;
+          properties = {
+            asset_id: '123',
+            ad_asset_id: null,
+            channel: 'segment',
+            load_type: 'linear',
+            position: 1,
+            ID3: Math.floor(Math.random() * 100).toString(),
+            livestream: false
+          };
         });
 
         it('should persist the previous supported Segment event in memory', function () {
-
+          analytics.track('Video Content Started', properties);
+          var previousEvent = new Track({
+            event: 'Video Content Started',
+            properties
+          });
+          assert.deepStrictEqual(nielsenDTVR.previousEvent.properties(), previousEvent.properties())
         });
 
         it('should persist the previous supported event\'s ID3 tags in memory', function () {
-
+          analytics.track('Video Content Started', properties)
+          var previousEvent = new Track({
+            event: 'Video Content Started',
+            properties
+          });
+          assert.deepStrictEqual(nielsenDTVR.ID3, previousEvent.properties().ID3)
         });
-
-        it('should not send ID3 tags unless the tags have changed', function () {
-
-        });
-
       });
     });
   });
