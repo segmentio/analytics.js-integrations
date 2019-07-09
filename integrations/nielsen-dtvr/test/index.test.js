@@ -198,7 +198,7 @@ describe('NielsenDTVR', function() {
         it('should send video playback completed livestream', function() {
           var timestamp = new Date();
           var currentUTC = +Date.now(timestamp);
-          var newSandbox = sinon.createSandbox();
+          var newSandbox = sinon.sandbox.create();
           newSandbox.stub(Date, 'now').returns(currentUTC);
 
           props.livestream = true;
