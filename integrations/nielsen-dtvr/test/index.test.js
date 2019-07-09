@@ -244,7 +244,7 @@ describe('NielsenDTVR', function() {
         var props;
         beforeEach(function() {
           props = {
-            ad_asset_id: 123,
+            ad_asset_id: '123',
             type: 'mid-roll',
             position: 1,
             load_type: 'dynamic',
