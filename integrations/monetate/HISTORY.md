@@ -1,4 +1,10 @@
 
+3.0.0 / 2019-06-24
+==================
+
+  * support for product list viewed events as `addProducts`
+  * change product view Monetate event to `addProductDetails`
+
 2.2.0 / 2016-09-06
 ==================
 

@@ -28,10 +28,51 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('automaticConfiguration', true)
   .option('whitelistPiiProperties', [])
   .option('blacklistPiiProperties', [])
+  .option('standardEventsCustomProperties', [])
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
   .tag('<script src="//connect.facebook.net/en_US/fbevents.js">'));
+
+/**
+ * FB requires these date fields be formatted in a specific way.
+ * The specifications are non iso8601 compliant.
+ * https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-travel/audience
+ * Therefore, we check if the property is one of these reserved fields.
+ * If so, we check if we have converted it to an iso date object already.
+ * If we have, we convert it again into Facebook's spec.
+ * If we have not, the user has likely passed in a date string that already
+ * adheres to FB's docs so we can just pass it through as is.
+ */
+var dateFields = [
+  'checkinDate',
+  'checkoutDate',
+  'departingArrivalDate',
+  'departingDepartureDate',
+  'returningArrivalDate',
+  'returningDepartureDate',
+  'travelEnd',
+  'travelStart'
+];
+
+/**
+ * FB does not allow sending PII data with events. They provide a list of what they consider PII here:
+ * https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking
+ * We need to check each property key to see if it matches what FB considers to be a PII property and strip it from the payload.
+ * User's can override this by manually whitelisting keys they are ok with sending through in their integration settings.
+ */
+var defaultPiiProperties = [
+  'email',
+  'firstName',
+  'lastName',
+  'gender',
+  'city',
+  'country',
+  'phone',
+  'state',
+  'zip',
+  'birthday'
+];
 
 /**
  * Initialize Facebook Pixel.
@@ -98,87 +139,16 @@ FacebookPixel.prototype.track = function(track) {
   var self = this;
   var event = track.event();
   var revenue = formatRevenue(track.revenue());
-  var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
-  var customPiiProperties = this.options.blacklistPiiProperties || [];
-  var payload = foldl(
-    function(acc, val, key) {
-      if (key === 'revenue') {
-        acc.value = revenue;
-        return acc;
-      }
+  var payload = this.buildPayload(track);
 
-      /**
-       * FB requires these date fields be formatted in a specific way.
-       * The specifications are non iso8601 compliant.
-       * https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-travel/audience
-       * Therefore, we check if the property is one of these reserved fields.
-       * If so, we check if we have converted it to an iso date object already.
-       * If we have, we convert it again into Facebook's spec.
-       * If we have not, the user has likely passed in a date string that already
-       * adheres to FB's docs so we can just pass it through as is.
-       * @ccnixon
-       */
+  // Revenue
+  if (track.properties().hasOwnProperty('revenue')) {
+    payload.value = formatRevenue(track.revenue());
+    // To keep compatible with the old implementation
+    // that never added revenue to the payload
+    delete payload.revenue;
+  }
 
-      var dateFields = [
-        'checkinDate',
-        'checkoutDate',
-        'departingArrivalDate',
-        'departingDepartureDate',
-        'returningArrivalDate',
-        'returningDepartureDate',
-        'travelEnd',
-        'travelStart'
-      ];
-
-      if (dateFields.indexOf(camel(key)) >= 0) {
-        if (is.date(val)) {
-          val = val.toISOString().split('T')[0];
-          acc[key] = val;
-          return acc;
-        }
-      }
-
-      // FB does not allow sending PII data with events. They provide a list of what they consider PII here:
-      // https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking
-      // We need to check each property key to see if it matches what FB considers to be a PII property and strip it from the payload.
-      // User's can override this by manually whitelisting keys they are ok with sending through in their integration settings.
-
-      var defaultPiiProperties = [
-        'email',
-        'firstName',
-        'lastName',
-        'gender',
-        'city',
-        'country',
-        'phone',
-        'state',
-        'zip',
-        'birthday'
-      ];
-
-      var propertyWhitelisted = whitelistPiiProperties.indexOf(key) >= 0;
-      if (defaultPiiProperties.indexOf(key) >= 0) {
-        if (propertyWhitelisted) {
-          acc[key] = val;
-        }
-      } else {
-        acc[key] = val;
-      }
-
-      customPiiProperties.forEach(function(config) {
-        if (config.propertyName === key) {
-          if (config.hashProperty && typeof val === 'string') {
-            acc[key] = sha256(val);
-          } else {
-            delete acc[key];
-          }
-        }
-      });
-      return acc;
-    },
-    {},
-    track.properties()
-  );
   var standard = this.standardEvents(event);
   var legacy = this.legacyEvents(event);
 
@@ -229,6 +199,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
   var contentType;
   var contentIds = [];
   var products = track.products();
+  var customProperties = this.buildPayload(track, true);
 
   // First, check to see if a products array with productIds has been defined.
   if (Array.isArray(products)) {
@@ -253,13 +224,13 @@ FacebookPixel.prototype.productListViewed = function(track) {
     'trackSingle',
     this.options.pixelId,
     'ViewContent',
-    {
-      content_ids: contentIds,
-      content_type: this.mappedContentTypesOrDefault(
-        track.category(),
-        contentType
-      )
-    },
+    merge(
+      {
+        content_ids: contentIds,
+        content_type: this.getContentType(track, contentType)
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -288,23 +259,25 @@ FacebookPixel.prototype.productListViewed = function(track) {
 FacebookPixel.prototype.productViewed = function(track) {
   var self = this;
   var useValue = this.options.valueIdentifier === 'value';
+  var customProperties = this.buildPayload(track, true);
 
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'ViewContent',
-    {
-      content_ids: [track.productId() || track.id() || track.sku() || ''],
-      content_type: this.mappedContentTypesOrDefault(track.category(), [
-        'product'
-      ]),
-      content_name: track.name() || '',
-      content_category: track.category() || '',
-      currency: track.currency(),
-      value: useValue
-        ? formatRevenue(track.value())
-        : formatRevenue(track.price())
-    },
+    merge(
+      {
+        content_ids: [track.productId() || track.id() || track.sku() || ''],
+        content_type: this.getContentType(track, ['product']),
+        content_name: track.name() || '',
+        content_category: track.category() || '',
+        currency: track.currency(),
+        value: useValue
+          ? formatRevenue(track.value())
+          : formatRevenue(track.price())
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -335,23 +308,25 @@ FacebookPixel.prototype.productViewed = function(track) {
 FacebookPixel.prototype.productAdded = function(track) {
   var self = this;
   var useValue = this.options.valueIdentifier === 'value';
+  var customProperties = this.buildPayload(track, true);
 
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'AddToCart',
-    {
-      content_ids: [track.productId() || track.id() || track.sku() || ''],
-      content_type: this.mappedContentTypesOrDefault(track.category(), [
-        'product'
-      ]),
-      content_name: track.name() || '',
-      content_category: track.category() || '',
-      currency: track.currency(),
-      value: useValue
-        ? formatRevenue(track.value())
-        : formatRevenue(track.price())
-    },
+    merge(
+      {
+        content_ids: [track.productId() || track.id() || track.sku() || ''],
+        content_type: this.getContentType(track, ['product']),
+        content_name: track.name() || '',
+        content_category: track.category() || '',
+        currency: track.currency(),
+        value: useValue
+          ? formatRevenue(track.value())
+          : formatRevenue(track.price())
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -382,8 +357,9 @@ FacebookPixel.prototype.productAdded = function(track) {
 FacebookPixel.prototype.orderCompleted = function(track) {
   var self = this;
   var products = track.products();
+  var customProperties = this.buildPayload(track, true);
 
-  var content_ids = foldl(
+  var contentIds = foldl(
     function(acc, product) {
       var item = new Track({ properties: product });
       var key = item.productId() || item.id() || item.sku();
@@ -398,24 +374,21 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 
   // Order completed doesn't have a top-level category spec'd.
   // Let's default to the category of the first product. - @gabriel
-  var contentType = ['product'];
-  if (products.length) {
-    contentType = this.mappedContentTypesOrDefault(
-      products[0].category,
-      contentType
-    );
-  }
+  var contentType = this.getContentType(track, ['product']);
 
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'Purchase',
-    {
-      content_ids: content_ids,
-      content_type: contentType,
-      currency: track.currency(),
-      value: revenue
-    },
+    merge(
+      {
+        content_ids: contentIds,
+        content_type: contentType,
+        currency: track.currency(),
+        value: revenue
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -436,13 +409,18 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 
 FacebookPixel.prototype.productsSearched = function(track) {
   var self = this;
+  var customProperties = this.buildPayload(track, true);
+
   window.fbq(
     'trackSingle',
     this.options.pixelId,
     'Search',
-    {
-      search_string: track.proxy('properties.query')
-    },
+    merge(
+      {
+        search_string: track.proxy('properties.query')
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -467,6 +445,7 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
   var contentIds = [];
   var contents = [];
   var contentCategory = track.category();
+  var customProperties = this.buildPayload(track, true);
 
   each(function(product) {
     var track = new Track({ properties: product });
@@ -487,14 +466,18 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
     'trackSingle',
     this.options.pixelId,
     'InitiateCheckout',
-    {
-      content_category: contentCategory,
-      content_ids: contentIds,
-      contents: contents,
-      currency: track.currency(),
-      num_items: contentIds.length,
-      value: formatRevenue(track.revenue())
-    },
+    merge(
+      {
+        content_category: contentCategory,
+        content_ids: contentIds,
+        content_type: this.getContentType(track, ['product']),
+        contents: contents,
+        currency: track.currency(),
+        num_items: contentIds.length,
+        value: formatRevenue(track.revenue())
+      },
+      customProperties
+    ),
     { eventID: track.proxy('messageId') }
   );
 
@@ -514,20 +497,42 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
 };
 
 /**
- * mappedContentTypesOrDefault returns an array of mapped content types for
- * the category - or returns the defaul value.
- * @param {Facade.Track} track
- * @param {Array} def
+ * Returns an array of mapped content types for the category,
+ * the provided value as an integration option or the default provided value.
+ *
+ * @param {Facade.Track} track Track payload
+ * @param {Array} defaultValue Default array value returned if the previous parameters are not defined.
+ *
+ * @return Content Type array as defined in:
+ * - https://developers.facebook.com/docs/facebook-pixel/reference/#object-properties
+ * - https://developers.facebook.com/docs/marketing-api/dynamic-ads-for-real-estate/audience
  */
-FacebookPixel.prototype.mappedContentTypesOrDefault = function(category, def) {
-  if (!category) return def;
-
-  var mapped = this.contentTypes(category);
-  if (mapped.length) {
-    return mapped;
+FacebookPixel.prototype.getContentType = function(track, defaultValue) {
+  // 1- Integration options takes preference over everything
+  var options = track.options('Facebook Pixel');
+  if (options && options.contentType) {
+    return [options.contentType];
   }
 
-  return def;
+  // 2- Defined by category and its mappings
+  var category = track.category();
+  if (!category) {
+    // Get the first product's category
+    var products = track.products();
+    if (products && products.length) {
+      category = products[0].category;
+    }
+  }
+
+  if (category) {
+    var mapped = this.contentTypes(category);
+    if (mapped.length) {
+      return mapped;
+    }
+  }
+
+  // 3- The default value
+  return defaultValue;
 };
 
 /**
@@ -589,3 +594,108 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
     zp: postalCode
   });
 };
+
+/**
+ * Builds the FB Event payload. It checks for PII fields and custom properties. If the event is Standard Event,
+ * only properties defined in the setting are passed to the payload.
+ *
+ * @param {Facade.Track} track Track event.
+ * @param {boolean} isStandardEvent Defines if the track call is a standard event.
+ *
+ * @return Payload to send deriveded from the track properties.
+ */
+FacebookPixel.prototype.buildPayload = function(track, isStandardEvent) {
+  var whitelistPiiProperties = this.options.whitelistPiiProperties || [];
+  var blacklistPiiProperties = this.options.blacklistPiiProperties || [];
+  var standardEventsCustomProperties =
+    this.options.standardEventsCustomProperties || [];
+
+  // Transforming the setting in a map for easier lookups.
+  var customPiiProperties = {};
+  for (var i = 0; i < blacklistPiiProperties.length; i++) {
+    var configuration = blacklistPiiProperties[i];
+    customPiiProperties[configuration.propertyName] =
+      configuration.hashProperty;
+  }
+
+  var payload = {};
+  var properties = track.properties();
+
+  for (var property in properties) {
+    if (!properties.hasOwnProperty(property)) {
+      continue;
+    }
+
+    // Standard Events only contains custom properties defined in the configuration
+    // If the property is not listed there, we just drop it.
+    if (
+      isStandardEvent &&
+      standardEventsCustomProperties.indexOf(property) < 0
+    ) {
+      continue;
+    }
+
+    var value = properties[property];
+
+    // Dates
+    if (dateFields.indexOf(camel(property)) >= 0) {
+      if (is.date(value)) {
+        payload[property] = value.toISOString().split('T')[0];
+        continue;
+      }
+    }
+
+    // Custom PII properties
+    if (customPiiProperties.hasOwnProperty(property)) {
+      // hash or drop
+      if (customPiiProperties[property] && typeof value === 'string') {
+        payload[property] = sha256(value);
+      }
+      continue;
+    }
+
+    // Default PII properties
+    var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
+    var isPropertyWhitelisted = whitelistPiiProperties.indexOf(property) >= 0;
+    if (!isPropertyPii || isPropertyWhitelisted) {
+      payload[property] = value;
+    }
+  }
+
+  return payload;
+};
+
+/**
+ * Merge two javascript objects. This works similarly to `Object.assign({}, obj1, obj2)`
+ * but it's compatible with old browsers. The properties of the first argument takes preference
+ * over the other.
+ *
+ * It does not do fancy stuff, just use it with top level properties.
+ *
+ * @param {Object} obj1 Object 1
+ * @param {Object} obj2 Object 2
+ *
+ * @return {Object} a new object with all the properties of obj1 and the remainder of obj2.
+ */
+function merge(obj1, obj2) {
+  var res = {};
+
+  // All properties of obj1
+  for (var propObj1 in obj1) {
+    if (obj1.hasOwnProperty(propObj1)) {
+      res[propObj1] = obj1[propObj1];
+    }
+  }
+
+  // Extra properties of obj2
+  for (var propObj2 in obj2) {
+    if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+      res[propObj2] = obj2[propObj2];
+    }
+  }
+
+  return res;
+}
+
+// Exposed only for testing
+FacebookPixel.merge = merge;
