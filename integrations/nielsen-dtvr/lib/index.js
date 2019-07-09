@@ -35,8 +35,16 @@ var NielsenDTVR = (module.exports = integration('Nielsen DTVR')
  */
 
 NielsenDTVR.prototype.initialize = function() {
+  var protocol = useHttps() ? 'https' : 'http';
+  var config = {};
+  this.ID3 = null;
+  this.previousEvent = null;
+  this.isAd = false;
+
   // Modified Nielsen snippet. It shouldn't load the Nielsen tag, but it should
   // still successfully queue events fired before the tag loads.
+
+  /* eslint-disable */
   !(function(t, n) {
     t[n] = t[n] || {
       // t = window, n = 'NOLBUNDLE'
@@ -54,16 +62,10 @@ NielsenDTVR.prototype.initialize = function() {
       }
     };
   })(window, 'NOLBUNDLE');
+  /* eslint-enable */
 
-  this.ID3;
-  this.previousEvent;
-  this.isAd = false;
-
-  var protocol = useHttps() ? 'https' : 'http';
-  var config = {};
   if (this.options.debug) config.nol_sdkDebug = 'debug';
-
-  this._client = window.NOLBUNDLE.nlsQ(
+  this.client = window.NOLBUNDLE.nlsQ(
     this.options.appId,
     this.options.instanceName,
     config
@@ -80,7 +82,7 @@ NielsenDTVR.prototype.initialize = function() {
  */
 
 NielsenDTVR.prototype.loaded = function() {
-  return this._client && typeof this._client.ggPM === 'function';
+  return this.client && typeof this.client.ggPM === 'function';
 };
 
 /**
@@ -90,19 +92,21 @@ NielsenDTVR.prototype.loaded = function() {
  */
 
 NielsenDTVR.prototype.videoContentStarted = function(track) {
+  var time;
+  var adAssetId;
+  var metadata;
   // Proactively ensure that we call "end" whenever new content
   // starts. Here, we'll catch it if a customer forgets to call a Segment
   // "Completed" event, so we'll end the video for them. `end` is also
   // appropriate during a video interruption,
   // e.g. if a user is alternating b/w watching two videos on the same page.
   if (this.previousEvent && track !== this.previousEvent) {
-    var time;
-    if (this.previousEvent.proxy('properties.livestream') == true) {
+    if (this.previousEvent.proxy('properties.livestream') === true) {
       time = this.previousEvent.timestamp().getUTCDate();
     } else if (this.previousEvent.proxy('properties.position')) {
       time = this.previousEvent.proxy('properties.position');
     }
-    this._client.ggPM('end', time);
+    this.client.ggPM('end', time);
   }
 
   // Every time content begins playing, we assume it's not ad content unless
@@ -110,14 +114,14 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
   // own content events.
   this.isAd = false;
 
-  var adAssetId =
+  adAssetId =
     track.proxy('properties.ad_asset_id') ||
     track.proxy('properties.adAssetId');
   if (adAssetId) this.isAd = true;
 
-  var metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track);
-  this._client.ggPM('loadMetadata', JSON.parse(JSON.stringify(metadata)));
-  this._sendID3(track);
+  metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  this.client.ggPM('loadMetadata', JSON.parse(JSON.stringify(metadata)));
+  this.sendID3(track);
   // We need to store the previous event in memory b/c in some situations we
   // need access to the previous event's properties
   this.previousEvent = track;
@@ -130,7 +134,7 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoContentCompleted = function(track) {
-  this._end(track);
+  this.end(track);
 };
 
 /**
@@ -140,9 +144,9 @@ NielsenDTVR.prototype.videoContentCompleted = function(track) {
  */
 
 NielsenDTVR.prototype.videoAdStarted = function(track) {
-  var metadata = this._mapAd(track);
-  this._client.ggPM('loadMetadata', metadata);
-  this._sendID3(track);
+  var metadata = this.mapAd(track);
+  this.client.ggPM('loadMetadata', metadata);
+  this.sendID3(track);
 };
 
 /**
@@ -152,7 +156,7 @@ NielsenDTVR.prototype.videoAdStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoAdCompleted = function(track) {
-  this._end(track);
+  this.end(track);
 };
 
 /**
@@ -162,7 +166,8 @@ NielsenDTVR.prototype.videoAdCompleted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackInterrupted = function(track) {
-  this._sendID3(track);
+  this.sendID3(track);
+  this.end(track);
 };
 
 /**
@@ -172,7 +177,8 @@ NielsenDTVR.prototype.videoPlaybackInterrupted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
-  this._sendID3(track);
+  this.sendID3(track);
+  this.end(track);
 };
 
 /**
@@ -182,9 +188,9 @@ NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
-  var metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track);
-  this._client.ggPM('loadMetadata', metadata);
-  this._sendID3(track);
+  var metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  this.client.ggPM('loadMetadata', metadata);
+  this.sendID3(track);
 };
 
 /**
@@ -194,7 +200,8 @@ NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackBufferStarted = function(track) {
-  this._sendID3(track);
+  this.sendID3(track);
+  this.end(track);
 };
 
 /**
@@ -204,9 +211,9 @@ NielsenDTVR.prototype.videoPlaybackBufferStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackBufferCompleted = function(track) {
-  var metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track);
-  this._client.ggPM('loadMetadata', metadata);
-  this._sendID3(track);
+  var metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  this.client.ggPM('loadMetadata', metadata);
+  this.sendID3(track);
 };
 
 /**
@@ -216,7 +223,8 @@ NielsenDTVR.prototype.videoPlaybackBufferCompleted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
-  this._sendID3(track);
+  this.sendID3(track);
+  this.end(track);
 };
 
 /**
@@ -226,9 +234,9 @@ NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
-  var metadata = this.isAd ? this._mapAd(track) : this._mapVideo(track);
-  this._client.ggPM('loadMetadata', metadata);
-  this._sendID3(track);
+  var metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  this.client.ggPM('loadMetadata', metadata);
+  this.sendID3(track);
 };
 
 /**
@@ -238,7 +246,7 @@ NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackCompleted = function(track) {
-  this._end(track);
+  this.end(track);
 };
 
 /**
@@ -247,11 +255,15 @@ NielsenDTVR.prototype.videoPlaybackCompleted = function(track) {
  * @api private
  */
 
-NielsenDTVR.prototype._sendID3 = function(event) {
+NielsenDTVR.prototype.sendID3 = function(event) {
   var id3Events = this.options.sendId3Events;
+  var i;
+  var id3Prop;
+  var id3Tags;
+
   if (id3Events.length <= 0) return;
   if (id3Events.length > 0) {
-    for (var i = 0; i < id3Events.length; i++) {
+    for (i = 0; i < id3Events.length; i += 1) {
       if (id3Events[i] === event.event()) {
         break;
       }
@@ -261,17 +273,17 @@ NielsenDTVR.prototype._sendID3 = function(event) {
     }
   }
 
-  var id3Prop = this.options.id3Property || 'ID3';
-  var id3Tags = event.proxy('properties.' + id3Prop);
+  id3Prop = this.options.id3Property || 'ID3';
+  id3Tags = event.proxy('properties.' + id3Prop);
   if (id3Tags) {
     // we'll only send ID3 tags to Nielsen if we detect the customer has either
     // never sent ID3 tags, or if they're different from the previous ID3 tags
     // sent during the session
     if (!this.ID3) {
       this.ID3 = id3Tags;
-      this._client.ggPM('sendID3', this.ID3);
+      this.client.ggPM('sendID3', this.ID3);
     } else if (id3Tags !== this.ID3) {
-      this._client.ggPM('sendID3', this.ID3);
+      this.client.ggPM('sendID3', this.ID3);
     }
   }
 };
@@ -282,7 +294,7 @@ NielsenDTVR.prototype._sendID3 = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype._end = function(event) {
+NielsenDTVR.prototype.end = function(event) {
   var livestream = event.proxy('properties.livestream');
   var position = event.proxy('properties.position');
   var time;
@@ -292,7 +304,7 @@ NielsenDTVR.prototype._end = function(event) {
     time = position;
   }
 
-  this._client.ggPM('end', time);
+  this.client.ggPM('end', time);
 };
 
 /**
@@ -301,21 +313,21 @@ NielsenDTVR.prototype._end = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype._mapVideo = function(event) {
-  var load_type;
+NielsenDTVR.prototype.mapVideo = function(event) {
+  var loadType;
   var loadTypeVal =
-    event.proxy('properties.load_type') || event.proxy('properties.load_type');
+    event.proxy('properties.loadType') || event.proxy('properties.load_type');
 
   if (loadTypeVal === 'linear') {
-    load_type = '1';
+    loadType = '1';
   } else if (loadTypeVal === 'dynamic') {
-    load_type = '2';
+    loadType = '2';
   }
 
   return reject({
     type: 'content',
     channelName: event.proxy('properties.channel'),
-    load_type: load_type
+    loadType: loadType
   });
 };
 
@@ -325,7 +337,7 @@ NielsenDTVR.prototype._mapVideo = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype._mapAd = function(event) {
+NielsenDTVR.prototype.mapAd = function(event) {
   return reject({
     type: event.proxy('properties.type'),
     asset_id:

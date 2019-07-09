@@ -95,18 +95,16 @@ describe('NielsenDTVR', function() {
 
     describe('options', function() {
       beforeEach(function() {
-        analytics.stub(nielsenDTVR._client, 'ggPM');
+        analytics.stub(nielsenDTVR.client, 'ggPM');
       });
 
       it('should not map ID3 tags for events not mapped in the sendId3Events option', function() {
         nielsenDTVR.options.sendId3Events = [];
         analytics.track('Video Content Started');
-        analytics.didNotCall(nielsenDTVR._client.ggPM, 'sendID3');
+        analytics.didNotCall(nielsenDTVR.client.ggPM, 'sendID3');
       });
 
       it('should respect a custom ID3 tag property set in options', function() {
-        nielsenDTVR.options.id3Property = 'custom';
-        nielsenDTVR.options.sendId3Events = ['Video Playback Interrupted'];
         var props = {
           asset_id: '123',
           ad_asset_id: null,
@@ -116,15 +114,18 @@ describe('NielsenDTVR', function() {
           custom: Math.floor(Math.random() * 100).toString(),
           livestream: false
         };
+        nielsenDTVR.options.id3Property = 'custom';
+        nielsenDTVR.options.sendId3Events = ['Video Playback Interrupted'];
 
         analytics.track('Video Playback Interrupted', props);
-        analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.custom);
+        analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.custom);
+        analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
       });
     });
 
     describe('#track', function() {
       beforeEach(function() {
-        analytics.stub(nielsenDTVR._client, 'ggPM');
+        analytics.stub(nielsenDTVR.client, 'ggPM');
       });
 
       describe('#playback events', function() {
@@ -143,66 +144,69 @@ describe('NielsenDTVR', function() {
 
         it('should send video playback buffer completed', function() {
           analytics.track('Video Playback Buffer Completed', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'loadMetadata', {
+          analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'content',
             channelName: 'segment',
-            load_type: '1'
+            loadType: '1'
           });
-          analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
 
         it('should send video playback buffer started', function() {
           analytics.track('Video Playback Buffer Started', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video playback interrupted', function() {
           analytics.track('Video Playback Interrupted', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video playback resumed', function() {
           analytics.track('Video Playback Resumed', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'loadMetadata', {
+          analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'content',
             channelName: 'segment',
-            load_type: '1'
+            loadType: '1'
           });
-          analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
 
         it('should send video playback seek started', function() {
-          analytics.track('Video Playback Resumed', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+          analytics.track('Video Playback Seek Started', props);
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video playback seek completed', function() {
           analytics.track('Video Playback Seek Completed', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'loadMetadata', {
+          analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'content',
             channelName: 'segment',
-            load_type: '1'
+            loadType: '1'
           });
-          analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
 
         it('should send video playback completed', function() {
           analytics.track('Video Playback Completed', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'end', props.position);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video playback completed livestream', function() {
           var timestamp = new Date();
-          var sandbox = sinon.createSandbox();
           var currentUTC = +Date.now(timestamp);
-          sandbox.stub(Date, 'now').returns(currentUTC);
+          var newSandbox = sinon.createSandbox();
+          newSandbox.stub(Date, 'now').returns(currentUTC);
 
           props.livestream = true;
           props.timestamp = currentUTC;
 
           analytics.track('Video Playback Completed', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'end', currentUTC);
-          sandbox.restore();
+          analytics.called(nielsenDTVR.client.ggPM, 'end', currentUTC);
+          newSandbox.restore();
         });
       });
 
@@ -215,23 +219,23 @@ describe('NielsenDTVR', function() {
             channel: 'segment',
             load_type: 'dynamic',
             position: 1,
-            ID3: ID3,
+            ID3: '1',
             livestream: false
           };
 
           it('should send video content completed', function() {
             analytics.track('Video Content Completed', props);
-            analytics.called(nielsenDTVR._client.ggPM, 'end', props.position);
+            analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
           });
 
           it('should send video content started', function() {
             analytics.track('Video Content Started', props);
-            analytics.called(nielsenDTVR._client.ggPM, 'loadMetadata', {
+            analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
               type: 'content',
               channel: 'segment',
-              load_type: '2'
+              loadType: '2'
             });
-            analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+            analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
           });
         });
       });
@@ -250,16 +254,16 @@ describe('NielsenDTVR', function() {
 
         it('should send video ad completed', function() {
           analytics.track('Video Ad Completed', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'end', props.position);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video ad started', function() {
           analytics.track('Video Ad Started', props);
-          analytics.called(nielsenDTVR._client.ggPM, 'loadMetadata', {
+          analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'mid-roll',
             asset_id: props.ad_asset_id
           });
-          analytics.called(nielsenDTVR._client.ggPM, 'sendID3', props.ID3);
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
       });
 
@@ -278,11 +282,11 @@ describe('NielsenDTVR', function() {
         });
 
         it('should persist the previous supported Segment event in memory', function() {
-          analytics.track('Video Content Started', properties);
           var previousEvent = new Track({
             event: 'Video Content Started',
             properties: properties
           });
+          analytics.track('Video Content Started', properties);
           assert.deepStrictEqual(
             nielsenDTVR.previousEvent.properties(),
             previousEvent.properties()
@@ -290,11 +294,11 @@ describe('NielsenDTVR', function() {
         });
 
         it("should persist the previous supported event's ID3 tags in memory", function() {
-          analytics.track('Video Content Started', properties);
           var previousEvent = new Track({
             event: 'Video Content Started',
             properties: properties
           });
+          analytics.track('Video Content Started', properties);
           assert.deepStrictEqual(
             nielsenDTVR.ID3,
             previousEvent.properties().ID3
