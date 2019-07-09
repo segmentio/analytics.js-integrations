@@ -202,9 +202,10 @@ describe('NielsenDTVR', function() {
           newSandbox.stub(Date, 'now').returns(currentUTC);
 
           props.livestream = true;
-          props.timestamp = currentUTC;
 
-          analytics.track('Video Playback Completed', props);
+          analytics.track('Video Playback Completed', props, {
+            timestamp: timestamp
+          });
           analytics.called(nielsenDTVR.client.ggPM, 'end', currentUTC);
           newSandbox.restore();
         });
