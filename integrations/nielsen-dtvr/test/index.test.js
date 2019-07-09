@@ -104,6 +104,15 @@ describe('NielsenDTVR', function() {
         analytics.didNotCall(nielsenDTVR.client.ggPM, 'sendID3');
       });
 
+      it('should send ID3 tags for any mapped track event', function() {
+        var props = {
+          ID3: '1'
+        };
+        nielsenDTVR.options.sendId3Events = ['Send ID3'];
+        analytics.track('Send ID3', props);
+        analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
+      });
+
       it('should respect a custom ID3 tag property set in options', function() {
         var props = {
           asset_id: '123',

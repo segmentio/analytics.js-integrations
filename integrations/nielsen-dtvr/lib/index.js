@@ -88,6 +88,16 @@ NielsenDTVR.prototype.loaded = function() {
 };
 
 /**
+ * Track
+ *
+ * @api public
+ */
+
+NielsenDTVR.prototype.track = function(track) {
+  this.sendID3(track);
+};
+
+/**
  * Video Content Started
  *
  * @api public
