@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var useHttps = require('use-https');
 var find = require('obj-case').find;
 var reject = require('reject');
 
@@ -16,6 +15,8 @@ var reject = require('reject');
 var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('appId', '')
   .option('instanceName', '') // the snippet lets you override the instance so make sure you don't have any global window props w same value as this setting unless you are intentionally doing that.
+  .option('debug', false)
+  .option('optout', false)
   .tag(
     'http:',
     '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
@@ -32,6 +33,13 @@ var NielsenDCR = (module.exports = integration('Nielsen DCR')
  */
 
 NielsenDCR.prototype.initialize = function() {
+  var protocol =
+  window.location.protocol === 'https:' ||
+  window.location.protocol === 'chrome-extension:'
+    ? 'https'
+    : 'http';
+  var config = {};
+
   /* eslint-disable */
   !function(t,n)
   {
@@ -46,10 +54,9 @@ NielsenDCR.prototype.initialize = function() {
 }
   (window,"NOLBUNDLE");
   /* eslint-enable */
-  var protocol = useHttps() ? 'https:' : 'http:';
-  var config = {};
+
   // debug mode
-  if (!this.options.sfCode) config.nol_sdkDebug = 'debug';
+  if (this.options.debug) config.nol_sdkDebug = 'debug';
   this._client = window.NOLBUNDLE.nlsQ(
     this.options.appId,
     this.options.instanceName,
