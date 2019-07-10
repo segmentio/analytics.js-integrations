@@ -104,6 +104,7 @@ NielsenDTVR.prototype.track = function(track) {
  */
 
 NielsenDTVR.prototype.videoContentStarted = function(track) {
+  var date;
   var time;
   var adAssetId;
   var metadata;
@@ -113,7 +114,11 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
   // appropriate during a video interruption,
   // e.g. if a user is alternating b/w watching two videos on the same page.
   if (this.previousEvent && track !== this.previousEvent) {
-    if (this.previousEvent.proxy('properties.livestream') === true) {
+    date = this.previousEvent.timestamp();
+    if (
+      this.previousEvent.proxy('properties.livestream') === true &&
+      date instanceof Date
+    ) {
       time = this.previousEvent.timestamp().getUTCDate();
     } else if (this.previousEvent.proxy('properties.position')) {
       time = this.previousEvent.proxy('properties.position');
