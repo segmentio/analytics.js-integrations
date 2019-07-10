@@ -9,7 +9,7 @@ var TracktorLib = require('@segment/tracktor');
  * Expose `Tracktor` integration.
  */
 
-var Tracktor = (module.exports = integration('Tracktor')
+var Tracktor = (module.exports = integration('Visual Tagger')
   .global('Tracktor')
   .option('workspaceId', '')
   .option('sourceId', ''));
