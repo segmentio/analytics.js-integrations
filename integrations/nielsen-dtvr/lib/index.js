@@ -327,7 +327,9 @@ NielsenDTVR.prototype.end = function(event) {
 };
 
 /**
- * Helper to validate that metadata contains required properties
+ * Helper to validate that metadata contains required properties, i.e.
+ * all values are truthy Strings. We don't need to validate keys b/c
+ * we hard-code into the object the metadata keys Nielsen requires.
  *
  * @api private
  */
@@ -354,20 +356,20 @@ function validate(metadata) {
  */
 
 NielsenDTVR.prototype.mapVideo = function(event) {
-  var loadType;
-  var loadTypeVal =
+  var adModel;
+  var loadType =
     event.proxy('properties.loadType') || event.proxy('properties.load_type');
 
-  if (loadTypeVal === 'linear') {
-    loadType = '1';
-  } else if (loadTypeVal === 'dynamic') {
-    loadType = '2';
+  if (loadType === 'linear') {
+    adModel = '1';
+  } else if (loadType === 'dynamic') {
+    adModel = '2';
   }
 
   return validate({
     type: 'content',
     channelName: event.proxy('properties.channel'),
-    loadType: loadType
+    adModel: adModel
   });
 };
 
@@ -378,9 +380,11 @@ NielsenDTVR.prototype.mapVideo = function(event) {
  */
 
 NielsenDTVR.prototype.mapAd = function(event) {
+  var type = event.proxy('properties.type');
+  if (typeof type === 'string') type = type.replace('-', '');
   return validate({
-    type: event.proxy('properties.type'),
-    asset_id:
+    type: type,
+    assetid:
       event.proxy('properties.adAssetId') ||
       event.proxy('properties.ad_asset_id')
   });

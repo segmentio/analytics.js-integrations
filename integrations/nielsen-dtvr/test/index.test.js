@@ -156,7 +156,7 @@ describe('NielsenDTVR', function() {
           analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'content',
             channelName: 'segment',
-            loadType: '1'
+            adModel: '1'
           });
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
@@ -178,7 +178,7 @@ describe('NielsenDTVR', function() {
           analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'content',
             channelName: 'segment',
-            loadType: '1'
+            adModel: '1'
           });
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
@@ -194,7 +194,7 @@ describe('NielsenDTVR', function() {
           analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'content',
             channelName: 'segment',
-            loadType: '1'
+            adModel: '1'
           });
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
@@ -243,7 +243,7 @@ describe('NielsenDTVR', function() {
             analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
               type: 'content',
               channel: 'segment',
-              loadType: '2'
+              adModel: '2'
             });
             analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
           });
@@ -270,8 +270,8 @@ describe('NielsenDTVR', function() {
         it('should send video ad started', function() {
           analytics.track('Video Ad Started', props);
           analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
-            type: 'mid-roll',
-            asset_id: props.ad_asset_id
+            type: 'midroll',
+            assetid: props.ad_asset_id
           });
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
         });
