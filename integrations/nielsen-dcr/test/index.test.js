@@ -82,7 +82,7 @@ describe('NielsenDCR', function() {
         analytics.page();
         var staticMetadata = {
           type: 'static',
-          assetid: location.href,
+          assetid: window.location.href,
           section: 'Loaded a Page'
         };
         analytics.called(
