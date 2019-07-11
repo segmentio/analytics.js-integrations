@@ -15,8 +15,8 @@ var NielsenDTVR = (module.exports = integration('Nielsen DTVR')
   .option('instanceName', '')
   .option('id3Property', 'ID3')
   .option('sendId3Events', [])
-  .option('optout', false)
   .option('debug', false) // per Nielsen, customers should NOT ever enable in a production environment
+  .option('optout', false)
   .tag(
     'http',
     '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
@@ -66,6 +66,7 @@ NielsenDTVR.prototype.initialize = function() {
   /* eslint-enable */
 
   if (this.options.debug) config.nol_sdkDebug = 'debug';
+  if (this.options.optout) config.optout = true;
   this.client = window.NOLBUNDLE.nlsQ(
     this.options.appId,
     this.options.instanceName,
