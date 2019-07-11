@@ -163,7 +163,12 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
       : track.proxy(properties + 'total_length'),
     isfullepisode: track.proxy(properties + 'full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
-    adloadtype: find(integrationOpts, 'ad_load_type') === 'linear' ? '1' : '2' // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
+    airdate: track.proxy(properties + 'airdate'),
+    // below metadata fields must all be set in event's integrations opts object
+    adloadtype: find(integrationOpts, 'ad_load_type') === 'linear' ? '1' : '2', // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
+    crossId1: find(integrationOpts, 'crossId1'),
+    crossId2: find(integrationOpts, 'crossId2'),
+    hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
   // optional: used for grouping data into different buckets
   var segB = find(integrationOpts, 'segB');
@@ -171,7 +176,7 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
   if (segB) contentMetadata.segB = segB;
   if (segC) contentMetadata.segC = segC;
 
-  return contentMetadata;
+  return reject(contentMetadata);
 };
 
 /**
@@ -205,7 +210,7 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
   // Nielsen requires that you call `end` if you need to load new content during the same session.
   // Since we always keep track of the current last seen asset to the instance, if this event has a different assetId, we assume that it is content switch during the same session
   // Segment video spec states that if you are switching between videos, you should be properly calling this event at the start of each of those switches (ie. two video players on the same page), meaning we only have to check this for this event
-  if (this.currentAssetId !== contentMetadata.assetid) {
+  if (this.currentAssetId && this.currentAssetId !== contentMetadata.assetid) {
     this._client.ggPM('end', this.currentPosition);
   }
 

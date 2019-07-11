@@ -252,7 +252,9 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            adloadtype: '2'
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
           });
           analytics.called(
             nielsenDCR.heartbeat,
@@ -285,7 +287,9 @@ describe('NielsenDCR', function() {
             length: 86400,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            adloadtype: '2'
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
           });
           analytics.called(
             nielsenDCR.heartbeat,
@@ -319,7 +323,9 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
+            airdate: new Date(props.airdate),
             adloadtype: '2',
+            hasAds: '0',
             segB: 'bend',
             segC: 'the knee'
           });
@@ -451,7 +457,9 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              adloadtype: '2'
+              airdate: new Date(props.content.airdate),
+              adloadtype: '2',
+              hasAds: '0'
             }
           ]);
           analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[1], [
