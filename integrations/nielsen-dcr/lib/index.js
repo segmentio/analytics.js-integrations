@@ -15,7 +15,7 @@ var reject = require('reject');
 var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('appId', '')
   .option('instanceName', '') // the snippet lets you override the instance so make sure you don't have any global window props w same value as this setting unless you are intentionally doing that.
-  .option('debug', false)
+  .option('nolDevDebug', false)
   .option('optout', false)
   .tag(
     'http',
@@ -56,7 +56,8 @@ NielsenDCR.prototype.initialize = function() {
   /* eslint-enable */
 
   // debug mode
-  if (this.options.debug) config.nol_sdkDebug = 'debug';
+  if (this.options.nolDevDebug) config.nol_sdkDebug = 'debug';
+  if (this.options.optout) config.optout = true;
   this._client = window.NOLBUNDLE.nlsQ(
     this.options.appId,
     this.options.instanceName,

@@ -13,7 +13,7 @@ describe('NielsenDCR', function() {
   var options = {
     appId: 'PE624774F-D1ED-4244-AA7E-62B3A9A6ED0E',
     instanceName: 'segmentNielsen',
-    debug: false,
+    nolDevDebug: false,
     optout: false
   };
 
