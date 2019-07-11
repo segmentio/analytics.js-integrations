@@ -41,7 +41,6 @@ NielsenDTVR.prototype.initialize = function() {
   var config = {};
   this.ID3 = null;
   this.previousEvent = null;
-  this.isAd = false;
 
   // Modified Nielsen snippet. It shouldn't load the Nielsen tag, but it should
   // still successfully queue events fired before the tag loads.
@@ -106,12 +105,11 @@ NielsenDTVR.prototype.track = function(track) {
 NielsenDTVR.prototype.videoContentStarted = function(track) {
   var date;
   var time;
-  var adAssetId;
   var metadata;
   // Proactively ensure that we call "end" whenever new content
   // starts. Here, we'll catch it if a customer forgets to call a Segment
   // "Completed" event, so we'll end the video for them. `end` is also
-  // appropriate during a video interruption,
+  // appropriate during a video "interruption",
   // e.g. if a user is alternating b/w watching two videos on the same page.
   if (this.previousEvent && track !== this.previousEvent) {
     date = this.previousEvent.timestamp();
@@ -126,17 +124,7 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
     this.client.ggPM('end', time);
   }
 
-  // Every time content begins playing, we assume it's not ad content unless
-  // an adAssetId exists in the payload to tell us otherwise. Ads have their
-  // own content events.
-  this.isAd = false;
-
-  adAssetId =
-    track.proxy('properties.ad_asset_id') ||
-    track.proxy('properties.adAssetId');
-  if (adAssetId) this.isAd = true;
-
-  metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  metadata = this.mapMetadata(track);
   if (!metadata) return;
   this.client.ggPM('loadMetadata', metadata);
   this.sendID3(track);
@@ -152,29 +140,6 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoContentCompleted = function(track) {
-  this.end(track);
-};
-
-/**
- * Video Ad Started
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoAdStarted = function(track) {
-  var metadata = this.mapAd(track);
-  if (!metadata) return;
-  this.client.ggPM('loadMetadata', metadata);
-  this.sendID3(track);
-};
-
-/**
- * Video Ad Completed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoAdCompleted = function(track) {
   this.end(track);
 };
 
@@ -207,7 +172,7 @@ NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
-  var metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  var metadata = this.mapMetadata(track);
   if (!metadata) return;
   this.client.ggPM('loadMetadata', metadata);
   this.sendID3(track);
@@ -231,7 +196,7 @@ NielsenDTVR.prototype.videoPlaybackBufferStarted = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackBufferCompleted = function(track) {
-  var metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  var metadata = this.mapMetadata(track);
   if (!metadata) return;
   this.client.ggPM('loadMetadata', metadata);
   this.sendID3(track);
@@ -255,7 +220,7 @@ NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
  */
 
 NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
-  var metadata = this.isAd ? this.mapAd(track) : this.mapVideo(track);
+  var metadata = this.mapMetadata(track);
   if (!metadata) return;
   this.client.ggPM('loadMetadata', metadata);
   this.sendID3(track);
@@ -324,6 +289,9 @@ NielsenDTVR.prototype.end = function(event) {
   if (time) {
     this.client.ggPM('end', time);
   }
+
+  this.ID3 = null;
+  this.previousEvent = null;
 };
 
 /**
@@ -355,7 +323,7 @@ function validate(metadata) {
  * @api private
  */
 
-NielsenDTVR.prototype.mapVideo = function(event) {
+NielsenDTVR.prototype.mapMetadata = function(event) {
   var adModel;
   var loadType =
     event.proxy('properties.loadType') || event.proxy('properties.load_type');
@@ -370,22 +338,5 @@ NielsenDTVR.prototype.mapVideo = function(event) {
     type: 'content',
     channelName: event.proxy('properties.channel'),
     adModel: adModel
-  });
-};
-
-/**
- * Map ad properties
- *
- * @api private
- */
-
-NielsenDTVR.prototype.mapAd = function(event) {
-  var type = event.proxy('properties.type');
-  if (typeof type === 'string') type = type.replace('-', '');
-  return validate({
-    type: type,
-    assetid:
-      event.proxy('properties.adAssetId') ||
-      event.proxy('properties.ad_asset_id')
   });
 };

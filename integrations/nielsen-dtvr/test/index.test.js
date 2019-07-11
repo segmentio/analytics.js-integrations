@@ -250,33 +250,6 @@ describe('NielsenDTVR', function() {
         });
       });
 
-      describe('#ad events', function() {
-        var props;
-        beforeEach(function() {
-          props = {
-            ad_asset_id: '123',
-            type: 'mid-roll',
-            position: 1,
-            load_type: 'dynamic',
-            ID3: '1'
-          };
-        });
-
-        it('should send video ad completed', function() {
-          analytics.track('Video Ad Completed', props);
-          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
-        });
-
-        it('should send video ad started', function() {
-          analytics.track('Video Ad Started', props);
-          analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
-            type: 'midroll',
-            assetid: props.ad_asset_id
-          });
-          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.ID3);
-        });
-      });
-
       describe('#persisted data', function() {
         var properties;
         beforeEach(function() {
