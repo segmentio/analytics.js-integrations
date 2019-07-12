@@ -112,7 +112,13 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
   var self = this;
   var newPosition;
   var opts = options || {};
-  if (typeof position !== 'number') newPosition = parseInt(position, 10); // in case it is sent as a string
+  try {
+    if (typeof position !== 'number') newPosition = parseInt(position, 10); // in case it is sent as a string
+  } catch (e) {
+    // if we can't parse position into an Int for some reason, early return
+    // to prevent internal errors every second
+    return;
+  }
 
   if (!this.currentAssetId) this.currentAssetId = assetId;
 
@@ -357,7 +363,7 @@ NielsenDCR.prototype.videoPlaybackSeekCompleted = function(track) {
   var assetId = contentAssetId || adAssetId;
   var type = contentAssetId ? 'content' : 'ad';
 
-  if (this.currentAssetId !== assetId) {
+  if (this.currentAssetId && this.currentAssetId !== assetId) {
     if (type === 'ad') {
       this._client.ggPM('loadMetadata', this.getAdMetadata(track));
     } else if (type === 'content') {
@@ -401,7 +407,7 @@ NielsenDCR.prototype.videoPlaybackResumed = function(track) {
   var type = contentAssetId ? 'content' : 'ad';
   var assetId = contentAssetId || adAssetId;
 
-  if (this.currentAssetId !== assetId) {
+  if (this.currentAssetId && this.currentAssetId !== assetId) {
     if (type === 'ad') {
       this._client.ggPM('loadMetadata', this.getAdMetadata(track));
     } else if (type === 'content') {
