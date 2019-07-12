@@ -13,7 +13,8 @@ describe('NielsenDCR', function() {
   var options = {
     appId: 'PE624774F-D1ED-4244-AA7E-62B3A9A6ED0E',
     instanceName: 'segmentNielsen',
-    sfCode: true // true = production mode, false = debug mode
+    nolDevDebug: false,
+    optout: false
   };
 
   beforeEach(function() {
@@ -82,7 +83,7 @@ describe('NielsenDCR', function() {
         analytics.page();
         var staticMetadata = {
           type: 'static',
-          assetid: location.href,
+          assetid: window.location.href,
           section: 'Loaded a Page'
         };
         analytics.called(
@@ -251,7 +252,9 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            adloadtype: '2'
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
           });
           analytics.called(
             nielsenDCR.heartbeat,
@@ -284,7 +287,9 @@ describe('NielsenDCR', function() {
             length: 86400,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            adloadtype: '2'
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
           });
           analytics.called(
             nielsenDCR.heartbeat,
@@ -318,7 +323,9 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
+            airdate: new Date(props.airdate),
             adloadtype: '2',
+            hasAds: '0',
             segB: 'bend',
             segC: 'the knee'
           });
@@ -450,7 +457,9 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              adloadtype: '2'
+              airdate: new Date(props.content.airdate),
+              adloadtype: '2',
+              hasAds: '0'
             }
           ]);
           analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[1], [
