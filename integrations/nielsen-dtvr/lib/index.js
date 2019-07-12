@@ -13,7 +13,7 @@ var integration = require('@segment/analytics.js-integration');
 var NielsenDTVR = (module.exports = integration('Nielsen DTVR')
   .option('appId', '')
   .option('instanceName', '')
-  .option('id3Property', 'ID3')
+  .option('id3Property', 'id3')
   .option('sendId3Events', [])
   .option('debug', false) // per Nielsen, customers should NOT ever enable in a production environment
   .option('optout', false)
@@ -258,7 +258,7 @@ NielsenDTVR.prototype.sendID3 = function(event) {
   }
   if (!found) return;
 
-  id3Prop = this.options.id3Property || 'ID3';
+  id3Prop = this.options.id3Property;
   id3Tags = event.proxy('properties.' + id3Prop);
   if (id3Tags) {
     // we'll only send ID3 tags to Nielsen if we detect the customer has either
