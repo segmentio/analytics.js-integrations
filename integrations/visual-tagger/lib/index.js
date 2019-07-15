@@ -1,12 +1,11 @@
 /**
  * Module dependencies.
  */
-// var TracktorLib = require('@segment/tracktor');
 var integration = require('@segment/analytics.js-integration');
 var TracktorLib = require('@segment/tracktor');
 
 /**
- * Expose `Tracktor` integration.
+ * Expose `Visual Tagger` integration.
  */
 
 var Tracktor = (module.exports = integration('Visual Tagger')
@@ -39,5 +38,5 @@ Tracktor.prototype.initialize = function() {
  */
 
 Tracktor.prototype.loaded = function() {
-  return window.Tracktor.instance.initialized;
+  return window.Tracktor.instance.isInitialized();
 };
