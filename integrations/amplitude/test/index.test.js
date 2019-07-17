@@ -539,6 +539,29 @@ describe('Amplitude', function() {
         );
       });
 
+      it('should send a revenueV2 event with quantity and productId and revenueType if a standard event type is used', function() {
+        amplitude.options.useLogRevenueV2 = true;
+        var props = {
+          revenue: 20.0,
+          quantity: 2,
+          price: 10.0,
+          productId: 'AMP1',
+          revenueType: 'I am custom'
+        };
+        analytics.track('Completed Order', props);
+        var ampRevenue = new window.amplitude.Revenue()
+          .setPrice(10.0)
+          .setQuantity(2)
+          .setProductId('AMP1');
+        ampRevenue.setRevenueType(props.revenueType).setEventProperties(props);
+
+        analytics.didNotCall(window.amplitude.getInstance().logRevenue);
+        analytics.called(
+          window.amplitude.getInstance().logRevenueV2,
+          ampRevenue
+        );
+      });
+
       it('should send a revenueV2 event with revenue if missing price', function() {
         amplitude.options.useLogRevenueV2 = true;
         analytics.track('event', {

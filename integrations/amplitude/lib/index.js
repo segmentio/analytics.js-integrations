@@ -434,7 +434,7 @@ function mapRevenueAttributes(track) {
     price: track.price(),
     productId: track.productId(),
     revenueType:
-      track.proxy('properties.revenueType') ||
+      track.proxy('properties.revenueType') ? track.proxy('properties.revenueType') :
       mapRevenueType[track.event().toLowerCase()],
     quantity: track.quantity(),
     eventProps: track.properties(),
