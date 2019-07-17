@@ -6,6 +6,7 @@
     "analytics.js",
     "analytics.js-integration",
     "segment",
+    "Braze",
     "Appboy"
   ],
   "main": "lib/index.js",
