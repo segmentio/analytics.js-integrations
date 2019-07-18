@@ -13,12 +13,15 @@ var is = require('is');
  * Expose `CleverTap` integration.
  */
 
-var CleverTap = module.exports = integration('CleverTap')
+var CleverTap = (module.exports = integration('CleverTap')
   .global('clevertap')
   .option('clevertap_account_id', '')
   .option('region', '')
   .tag('http', '<script src="http://static.clevertap.com/js/a.js">')
-  .tag('https', '<script src="https://d2r1yp2w7bby2u.cloudfront.net/js/a.js">');
+  .tag(
+    'https',
+    '<script src="https://d2r1yp2w7bby2u.cloudfront.net/js/a.js">'
+  ));
 
 /**
  * Initialize.
@@ -29,7 +32,13 @@ var CleverTap = module.exports = integration('CleverTap')
  */
 
 CleverTap.prototype.initialize = function() {
-  window.clevertap = { event: [], profile: [], account: [], onUserLogin: [], notifications: [] };
+  window.clevertap = {
+    event: [],
+    profile: [],
+    account: [],
+    onUserLogin: [],
+    notifications: []
+  };
   window.clevertap.enablePersonalization = true;
   window.clevertap.account.push({ id: this.options.clevertap_account_id });
   var region = this.options.region;
@@ -38,7 +47,7 @@ CleverTap.prototype.initialize = function() {
     // and since dealing with mongo is much more painful, we will strip here
     window.clevertap.region = region.replace('.', '');
   }
-  var protocol = useHttps() ? 'https': 'http';
+  var protocol = useHttps() ? 'https' : 'http';
   this.load(protocol, this.ready);
 };
 

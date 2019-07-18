@@ -14,7 +14,7 @@ var iso = require('@segment/to-iso-string');
  * Expose `Totango` integration.
  */
 
-var Totango = module.exports = integration('Totango')
+var Totango = (module.exports = integration('Totango')
   .assumesPageview()
   .global('totango')
   .global('totango_options')
@@ -23,7 +23,7 @@ var Totango = module.exports = integration('Totango')
   .option('serviceId', null)
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .tag('<script src="//tracker.totango.com/totango3.js">');
+  .tag('<script src="//tracker.totango.com/totango3.js">'));
 
 /**
  * Initialize.
@@ -79,7 +79,8 @@ Totango.prototype.page = function(page) {
   if (category && opts.trackCategorizedPages) this.track(page.track(category));
   if (name && opts.trackNamedPages) this.track(page.track(name));
   this._category = category;
-  if (!user.id() || !group.id()) return this.debug('must identify and group first');
+  if (!user.id() || !group.id())
+    return this.debug('must identify and group first');
   if (!category) return this.debug('category required');
   this.go({ module: category });
 };

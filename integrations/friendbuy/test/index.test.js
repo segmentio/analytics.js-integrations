@@ -35,11 +35,14 @@ describe('FriendBuy', function() {
   });
 
   it('should have the correct options', function() {
-    analytics.compare(FriendBuy, integration('FriendBuy')
-      .global('friendbuy')
-      .option('siteId', '')
-      .option('widgets', [])
-      .option('siteWideWidgets', []));
+    analytics.compare(
+      FriendBuy,
+      integration('FriendBuy')
+        .global('friendbuy')
+        .option('siteId', '')
+        .option('widgets', [])
+        .option('siteWideWidgets', [])
+    );
   });
 
   describe('before loading', function() {
@@ -64,13 +67,19 @@ describe('FriendBuy', function() {
   describe('loading', function() {
     it('should load', function(done) {
       // We can't use analytics.load directly
-      analytics.assert(!friendbuy.loaded(), 'Expected `integration.loaded()` to be false before loading.');
+      analytics.assert(
+        !friendbuy.loaded(),
+        'Expected `integration.loaded()` to be false before loading.'
+      );
       analytics.once('ready', function() {
         try {
-          analytics.assert(friendbuy.loaded(), 'Expected `integration.loaded()` to be true after loading.');    
+          analytics.assert(
+            friendbuy.loaded(),
+            'Expected `integration.loaded()` to be true after loading.'
+          );
           done();
         } catch (err) {
-          done(err)
+          done(err);
         }
       });
       analytics.initialize();
@@ -97,50 +106,74 @@ describe('FriendBuy', function() {
         });
 
         it('should always fire the site wide widget', function() {
-          friendbuy.options.siteWideWidgets = [{
-            value: {
-              id: 'dyc-mlz',
-              autoDelay: 0,
-              parameters: []
+          friendbuy.options.siteWideWidgets = [
+            {
+              value: {
+                id: 'dyc-mlz',
+                autoDelay: 0,
+                parameters: []
+              }
             }
-          }];
+          ];
           // should load widget regardless of page name (even unnamed)
           analytics.page();
-          analytics.called(window.friendbuy.push, ['widget', friendbuy.options.siteWideWidgets[0].value.id, expectedConfig]);
+          analytics.called(window.friendbuy.push, [
+            'widget',
+            friendbuy.options.siteWideWidgets[0].value.id,
+            expectedConfig
+          ]);
         });
 
         it('should load widget with default configs if widgetId defined in options', function() {
-          friendbuy.options.widgets = [{
-            value: {
-              name: 'Jaythoven',
-              id: 'dyc-mlz',
-              autoDelay: 0,
-              parameters: []
+          friendbuy.options.widgets = [
+            {
+              value: {
+                name: 'Jaythoven',
+                id: 'dyc-mlz',
+                autoDelay: 0,
+                parameters: []
+              }
             }
-          }];
+          ];
           analytics.page('jaythoven');
-          analytics.called(window.friendbuy.push, ['widget', friendbuy.options.widgets[0].value.id, expectedConfig]);
+          analytics.called(window.friendbuy.push, [
+            'widget',
+            friendbuy.options.widgets[0].value.id,
+            expectedConfig
+          ]);
         });
 
         it('should call both site wide and explicit widgets', function() {
-          friendbuy.options.siteWideWidgets = [{
-            value: {
-              id: 'dyc-mlz',
-              autoDelay: 0,
-              parameters: []
+          friendbuy.options.siteWideWidgets = [
+            {
+              value: {
+                id: 'dyc-mlz',
+                autoDelay: 0,
+                parameters: []
+              }
             }
-          }];
-          friendbuy.options.widgets = [{
-            value: {
-              name: 'Jaythoven',
-              id: 'dyc-mlz',
-              autoDelay: 0,
-              parameters: []
+          ];
+          friendbuy.options.widgets = [
+            {
+              value: {
+                name: 'Jaythoven',
+                id: 'dyc-mlz',
+                autoDelay: 0,
+                parameters: []
+              }
             }
-          }];
+          ];
           analytics.page('jaythoven');
-          analytics.called(window.friendbuy.push, ['widget', friendbuy.options.widgets[0].value.id, expectedConfig]);
-          analytics.called(window.friendbuy.push, ['widget', friendbuy.options.siteWideWidgets[0].value.id, expectedConfig]);
+          analytics.called(window.friendbuy.push, [
+            'widget',
+            friendbuy.options.widgets[0].value.id,
+            expectedConfig
+          ]);
+          analytics.called(window.friendbuy.push, [
+            'widget',
+            friendbuy.options.siteWideWidgets[0].value.id,
+            expectedConfig
+          ]);
         });
 
         it('should not load widget if nothing mapped', function() {
@@ -149,20 +182,30 @@ describe('FriendBuy', function() {
         });
 
         it('should load widget with custom configs', function() {
-          friendbuy.options.widgets = [{
-            value: {
-              name: 'jaythoven',
-              id: 'dyc-mlz',
-              selector: 'div.stranger-things',
-              autoDelay: '5000',
-              parameters: [{ key: 'isSurvey', value: 'survey' }]
+          friendbuy.options.widgets = [
+            {
+              value: {
+                name: 'jaythoven',
+                id: 'dyc-mlz',
+                selector: 'div.stranger-things',
+                autoDelay: '5000',
+                parameters: [{ key: 'isSurvey', value: 'survey' }]
+              }
             }
-          }];
-          expectedConfig.configuration.auto_delay = parseInt(friendbuy.options.widgets[0].value.autoDelay, 10);
+          ];
+          expectedConfig.configuration.auto_delay = parseInt(
+            friendbuy.options.widgets[0].value.autoDelay,
+            10
+          );
           expectedConfig.parameters = { survey: true };
           var traits = { vip: true };
           analytics.page('jaythoven', { isSurvey: true }, { traits: traits });
-          analytics.called(window.friendbuy.push, ['widget', friendbuy.options.widgets[0].value.id, friendbuy.options.widgets[0].value.selector, expectedConfig]);
+          analytics.called(window.friendbuy.push, [
+            'widget',
+            friendbuy.options.widgets[0].value.id,
+            friendbuy.options.widgets[0].value.selector,
+            expectedConfig
+          ]);
         });
       });
     });
@@ -181,16 +224,23 @@ describe('FriendBuy', function() {
 
       it('should track customer', function() {
         analytics.identify(userId, myElectrifyingTraits, {
-          FriendBuy: { stripe_customer_id: 'staging-billing-is-broken', chargebee_customer_id: 'buzz-buzz' }
+          FriendBuy: {
+            stripe_customer_id: 'staging-billing-is-broken',
+            chargebee_customer_id: 'buzz-buzz'
+          }
         });
-        analytics.called(window.friendbuy.push, ['track', 'customer', {
-          id: userId,
-          email: myElectrifyingTraits.email,
-          first_name: myElectrifyingTraits.firstName,
-          last_name: myElectrifyingTraits.lastName,
-          stripe_customer_id: 'staging-billing-is-broken',
-          chargebee_customer_id: 'buzz-buzz'
-        }]);
+        analytics.called(window.friendbuy.push, [
+          'track',
+          'customer',
+          {
+            id: userId,
+            email: myElectrifyingTraits.email,
+            first_name: myElectrifyingTraits.firstName,
+            last_name: myElectrifyingTraits.lastName,
+            stripe_customer_id: 'staging-billing-is-broken',
+            chargebee_customer_id: 'buzz-buzz'
+          }
+        ]);
       });
     });
 
@@ -237,42 +287,58 @@ describe('FriendBuy', function() {
           traits: { email: 'han@segment.com' },
           FriendBuy: { new_customer: true }
         });
-        analytics.called(window.friendbuy.push, ['track', 'order', {
-          id: props.order_id,
-          email: 'han@segment.com',
-          amount: props.revenue,
-          coupon_code: props.coupon,
-          new_customer: true
-        }]);
+        analytics.called(window.friendbuy.push, [
+          'track',
+          'order',
+          {
+            id: props.order_id,
+            email: 'han@segment.com',
+            amount: props.revenue,
+            coupon_code: props.coupon,
+            new_customer: true
+          }
+        ]);
       });
 
       it('should track products in the order', function() {
         var products = props.products;
-        analytics.track('Order Completed', props, { traits: { email: 'han@segment.com' } });
-        analytics.deepEqual(window.friendbuy.push.args[1], [['track', 'products', [
-          {
-            sku: products[0].sku,
-            price: products[0].price,
-            quantity: products[0].quantity
-          },
-          {
-            sku: products[1].sku,
-            price: products[1].price,
-            quantity: products[1].quantity
-          }
-        ]]]);
+        analytics.track('Order Completed', props, {
+          traits: { email: 'han@segment.com' }
+        });
+        analytics.deepEqual(window.friendbuy.push.args[1], [
+          [
+            'track',
+            'products',
+            [
+              {
+                sku: products[0].sku,
+                price: products[0].price,
+                quantity: products[0].quantity
+              },
+              {
+                sku: products[1].sku,
+                price: products[1].price,
+                quantity: products[1].quantity
+              }
+            ]
+          ]
+        ]);
       });
 
       it('should not send order completed event without order_id', function() {
         delete props.order_id;
-        analytics.track('Order Completed', props, { traits: { email: 'han@segment.com' } });
+        analytics.track('Order Completed', props, {
+          traits: { email: 'han@segment.com' }
+        });
         analytics.didNotCall(window.friendbuy.push);
       });
 
       it('should not send product data without sku', function() {
         delete props.products[0].product_id;
         delete props.products[1].product_id;
-        analytics.track('Order Completed', props, { traits: { email: 'han@segment.com' } });
+        analytics.track('Order Completed', props, {
+          traits: { email: 'han@segment.com' }
+        });
         analytics.didNotCall(window.friendbuy.push);
       });
     });

@@ -27,15 +27,21 @@ var TRACK_SPECIAL_PROPERTIES = {
  * Expose `Adometry`.
  */
 
-var Adometry = module.exports = integration('Adometry')
+var Adometry = (module.exports = integration('Adometry')
   .global('DMTRY')
   .option('advertiserId', '')
   .option('campaignId', '')
   .option('pageId', '')
-  .tag('page', '<script src="//js.dmtry.com/channel.js#gid:{{ campaignId }};advid:{{ advertiserId }};pid:{{ pageId }}{{ properties }}">')
-  .tag('track', '<script src="//js.dmtry.com/channel.js#gid:{{ campaignId }};advid:{{ advertiserId }};pid:{{ placementId }}{{ properties }}">')
+  .tag(
+    'page',
+    '<script src="//js.dmtry.com/channel.js#gid:{{ campaignId }};advid:{{ advertiserId }};pid:{{ pageId }}{{ properties }}">'
+  )
+  .tag(
+    'track',
+    '<script src="//js.dmtry.com/channel.js#gid:{{ campaignId }};advid:{{ advertiserId }};pid:{{ placementId }}{{ properties }}">'
+  )
   .mapping('events')
-  .mapping('aliases');
+  .mapping('aliases'));
 
 /**
  * Track.
@@ -99,7 +105,10 @@ Adometry.prototype._hashify = function(props, prefix) {
     return '';
   }
 
-  return ';' + map(function(prop) {
-    return prefix + prop[0] + ':' + prop[1];
-  }, props).join(';');
+  return (
+    ';' +
+    map(function(prop) {
+      return prefix + prop[0] + ':' + prop[1];
+    }, props).join(';')
+  );
 };

@@ -4,5 +4,10 @@
   "version": "independent",
   "packages": [
     "integrations/*"
-  ]
+  ],
+  "publish": {
+    "ignoreChanges": [
+      "*.md"
+    ]
+  }
 }

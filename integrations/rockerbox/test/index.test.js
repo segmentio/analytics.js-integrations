@@ -59,13 +59,16 @@ describe('Rockerbox', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Rockerbox, integration('Rockerbox')
-      .option('source', '')
-      .option('allAnSeg', '')
-      .option('customerAnSeg', '')
-      .option('conversionId', '')
-      .option('segmentId', '')
-      .mapping('events'));
+    analytics.compare(
+      Rockerbox,
+      integration('Rockerbox')
+        .option('source', '')
+        .option('allAnSeg', '')
+        .option('customerAnSeg', '')
+        .option('conversionId', '')
+        .option('segmentId', '')
+        .mapping('events')
+    );
   });
 
   describe('after loading', function() {
@@ -82,14 +85,18 @@ describe('Rockerbox', function() {
 
       it('should load the pixel on every page', function() {
         analytics.page();
-        analytics.loaded('<script src="https://getrockerbox.com/pixel'
-          + '?source=' + options.source
-          + '&type=imp'
-          + '&an_seg=' + options.allAnSeg
-          + '">');
+        analytics.loaded(
+          '<script src="https://getrockerbox.com/pixel' +
+            '?source=' +
+            options.source +
+            '&type=imp' +
+            '&an_seg=' +
+            options.allAnSeg +
+            '">'
+        );
       });
 
-      it('shouldn\'t load customer pixel if not identified', function() {
+      it("shouldn't load customer pixel if not identified", function() {
         analytics.page();
         analytics.calledOnce(rockerbox.load);
       });
@@ -102,11 +109,15 @@ describe('Rockerbox', function() {
         });
 
         analytics.page();
-        analytics.loaded('<script src="https://getrockerbox.com/pixel'
-          + '?source=' + options.source
-          + '&type=imp'
-          + '&an_seg=' + options.customerAnSeg
-          + '">');
+        analytics.loaded(
+          '<script src="https://getrockerbox.com/pixel' +
+            '?source=' +
+            options.source +
+            '&type=imp' +
+            '&an_seg=' +
+            options.customerAnSeg +
+            '">'
+        );
 
         analytics.assert(rockerbox.load.calledTwice);
       });
@@ -127,19 +138,30 @@ describe('Rockerbox', function() {
         analytics.user().traits({ email: 'example@email.com' });
         analytics.track('signup');
         var event = options.events[0].value;
-        analytics.loaded('<script src="https://secure.adnxs.com/px'
-          + '?id=' + event.conversionId
-          + '&seg=' + event.segmentId
-          + '&t=1'
-          + '&order_id=' + 'example@email.com'
-          + '">');
-        analytics.loaded('<script src="https://getrockerbox.com/pixel'
-          + '?source=' + options.source
-          + '&type=conv'
-          + '&id=' + event.conversionId
-          + '&an_seg=' + event.segmentId
-          + '&order_type=' + 'example@email.com'
-          + '">');
+        analytics.loaded(
+          '<script src="https://secure.adnxs.com/px' +
+            '?id=' +
+            event.conversionId +
+            '&seg=' +
+            event.segmentId +
+            '&t=1' +
+            '&order_id=' +
+            'example@email.com' +
+            '">'
+        );
+        analytics.loaded(
+          '<script src="https://getrockerbox.com/pixel' +
+            '?source=' +
+            options.source +
+            '&type=conv' +
+            '&id=' +
+            event.conversionId +
+            '&an_seg=' +
+            event.segmentId +
+            '&order_type=' +
+            'example@email.com' +
+            '">'
+        );
       });
 
       it('should use custom property for id if defined', function() {
@@ -147,19 +169,28 @@ describe('Rockerbox', function() {
         analytics.user().traits({ email: 'example@email.com' });
         analytics.track('play', { orderId: 123 });
         var event = options.events[2].value;
-        analytics.loaded('<script src="https://secure.adnxs.com/px'
-          + '?id=' + event.conversionId
-          + '&seg=' + event.segmentId
-          + '&t=1'
-          + '&order_id=123'
-          + '">');
-        analytics.loaded('<script src="https://getrockerbox.com/pixel'
-          + '?source=' + options.source
-          + '&type=conv'
-          + '&id=' + event.conversionId
-          + '&an_seg=' + event.segmentId
-          + '&order_type=123'
-          + '">');
+        analytics.loaded(
+          '<script src="https://secure.adnxs.com/px' +
+            '?id=' +
+            event.conversionId +
+            '&seg=' +
+            event.segmentId +
+            '&t=1' +
+            '&order_id=123' +
+            '">'
+        );
+        analytics.loaded(
+          '<script src="https://getrockerbox.com/pixel' +
+            '?source=' +
+            options.source +
+            '&type=conv' +
+            '&id=' +
+            event.conversionId +
+            '&an_seg=' +
+            event.segmentId +
+            '&order_type=123' +
+            '">'
+        );
       });
     });
   });

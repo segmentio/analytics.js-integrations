@@ -440,11 +440,15 @@ describe('Appboy', function() {
       });
 
       it('should call logPurchase for each product in a Completed Order event', function() {
+        var today = new Date();
+
         analytics.track('Order Completed', {
           total: 30,
           revenue: 25,
           shipping: 3,
           currency: 'USD',
+          date: today,
+          invalidPropertyLength: 'a'.repeat(500),
           products: [
             {
               product_id: '507f1f77bcf86cd799439011',
@@ -452,7 +456,9 @@ describe('Appboy', function() {
               name: 'Monopoly: 3rd Edition',
               price: 19.23,
               quantity: 1,
-              category: 'Games'
+              category: 'Games',
+              $invalidPropertyName: 3,
+              invalidPropertyValue: ['red', 'blue']
             },
             {
               product_id: '505bd76785ebb509fc183733',
@@ -460,7 +466,8 @@ describe('Appboy', function() {
               name: 'Uno Card Game',
               price: 3,
               quantity: 2,
-              category: 'Games'
+              category: 'Games',
+              size: 6
             }
           ]
         });
@@ -473,7 +480,11 @@ describe('Appboy', function() {
           {
             total: 30,
             revenue: 25,
-            shipping: 3
+            shipping: 3,
+            sku: '45790-32',
+            name: 'Monopoly: 3rd Edition',
+            category: 'Games',
+            date: today
           }
         );
         analytics.called(
@@ -485,7 +496,12 @@ describe('Appboy', function() {
           {
             total: 30,
             revenue: 25,
-            shipping: 3
+            shipping: 3,
+            sku: '46493-32',
+            name: 'Uno Card Game',
+            category: 'Games',
+            size: 6,
+            date: today
           }
         );
       });

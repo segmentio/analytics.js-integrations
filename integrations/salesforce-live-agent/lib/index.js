@@ -10,7 +10,7 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Salesforce Live Agent` integration.
  */
 
-var SalesforceLiveAgent = module.exports = integration('Salesforce Live Agent')
+var SalesforceLiveAgent = (module.exports = integration('Salesforce Live Agent')
   .global('liveagent')
   .option('deploymentId', '')
   .option('orgId', '')
@@ -20,12 +20,16 @@ var SalesforceLiveAgent = module.exports = integration('Salesforce Live Agent')
   .option('contactMappings', [])
   .option('caseMappings', [])
   .option('accountMappings', [])
-  .tag('<script src="https://{{ hostname }}.salesforceliveagent.com/content/g/js/29.0/deployment.js">');
+  .tag(
+    '<script src="https://{{ hostname }}.salesforceliveagent.com/content/g/js/29.0/deployment.js">'
+  ));
 
 SalesforceLiveAgent.prototype.initialize = function() {
-  this.load(function() {
-    this.ready();
-  }.bind(this));
+  this.load(
+    function() {
+      this.ready();
+    }.bind(this)
+  );
 };
 
 SalesforceLiveAgent.prototype.track = function(track) {
@@ -49,7 +53,7 @@ SalesforceLiveAgent.prototype.track = function(track) {
       var value = traits[trait];
       addCustomDetail(mapping, value);
     });
-    
+
     if (traits.firstName && traits.lastName) {
       window.liveagent.setName(traits.firstName + ' ' + traits.lastName);
     }
@@ -88,7 +92,8 @@ SalesforceLiveAgent.prototype.track = function(track) {
     findOrCreate.map(fieldName, label, doFind, isExactMatch, doCreate);
   }
 
-  var endpoint = 'https://' + options.liveAgentEndpointUrl + '.salesforceliveagent.com/chat';
+  var endpoint =
+    'https://' + options.liveAgentEndpointUrl + '.salesforceliveagent.com/chat';
   window.liveagent.init(endpoint, options.deploymentId, options.orgId);
 
   if (options.enableLogging) {

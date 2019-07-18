@@ -14,9 +14,9 @@ var toNoCase = require('to-no-case');
  * Expose `AppNexus`.
  */
 
-var AppNexus = module.exports = integration('AppNexus')
+var AppNexus = (module.exports = integration('AppNexus')
   .tag('http', '<script src="http://ib.adnxs.com/px?{{ vars }}">')
-  .tag('https', '<script src="https://secure.adnxs.com/px?{{ vars }}">');
+  .tag('https', '<script src="https://secure.adnxs.com/px?{{ vars }}">'));
 
 /**
  * Loaded.
@@ -39,10 +39,11 @@ AppNexus.prototype.track = function(track) {
   if (!this.options.events || !this.options.events.length) return;
 
   // retrieve event mappings that match the current event
-  for (var i=0; i<this.options.events.length; i++) {
+  for (var i = 0; i < this.options.events.length; i++) {
     var item = this.options.events[i];
     if (item.value) {
-      if (toNoCase(item.key) === toNoCase(track.event())) events.push(item.value);
+      if (toNoCase(item.key) === toNoCase(track.event()))
+        events.push(item.value);
     } else if (toNoCase(item.event) === toNoCase(track.event())) {
       events.push(item);
     }

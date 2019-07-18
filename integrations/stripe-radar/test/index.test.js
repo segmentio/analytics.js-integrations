@@ -29,9 +29,12 @@ describe('Stripe Radar', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(StripeRadar, integration('Stripe Radar')
-      .option('apiKey', '')
-      .tag('<script src="https://js.stripe.com/v2/">'));
+    analytics.compare(
+      StripeRadar,
+      integration('Stripe Radar')
+        .option('apiKey', '')
+        .tag('<script src="https://js.stripe.com/v2/">')
+    );
   });
 
   describe('before loading', function() {

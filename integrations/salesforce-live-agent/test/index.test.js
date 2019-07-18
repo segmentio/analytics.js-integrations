@@ -112,16 +112,19 @@ describe('Salesforce Live Agent', function() {
   });
 
   it('should store the proper settings', function() {
-    analytics.compare(SalesforceLiveAgent, integration('Salesforce Live Agent')
-      .global('liveagent')
-      .option('deploymentId', '')
-      .option('liveAgentEndpointUrl', '')
-      .option('orgId', '')
-      .option('hostname', '')
-      .option('enableLogging', false)
-      .option('contactMappings', [])
-      .option('accountMappings', [])
-      .option('caseMappings', []));
+    analytics.compare(
+      SalesforceLiveAgent,
+      integration('Salesforce Live Agent')
+        .global('liveagent')
+        .option('deploymentId', '')
+        .option('liveAgentEndpointUrl', '')
+        .option('orgId', '')
+        .option('hostname', '')
+        .option('enableLogging', false)
+        .option('contactMappings', [])
+        .option('accountMappings', [])
+        .option('caseMappings', [])
+    );
   });
 
   describe('before loading', function() {
@@ -160,14 +163,19 @@ describe('Salesforce Live Agent', function() {
       it('should add custom details from the traits object', function() {
         var contactMappings = options.contactMappings;
         var traits = { email: 'chris.nixon@segment.com', lastName: 'Nixon' };
-        
+
         analytics.identify('ccnixon', traits);
         analytics.track('Live Chat Conversation Started', {});
-        
+
         contactMappings.forEach(function(mapping) {
           mapping = mapping.value;
           var trait = traits[mapping.trait];
-          analytics.called(window.liveagent.addCustomDetail, mapping.label, trait, mapping.displayToAgent);
+          analytics.called(
+            window.liveagent.addCustomDetail,
+            mapping.label,
+            trait,
+            mapping.displayToAgent
+          );
         });
       });
 
@@ -191,7 +199,12 @@ describe('Salesforce Live Agent', function() {
         };
         analytics.identify('ccnixon', traits);
         analytics.track('Live Chat Conversation Started');
-        analytics.didNotCall(window.liveagent.addCustomDetail, undefined, true, undefined);
+        analytics.didNotCall(
+          window.liveagent.addCustomDetail,
+          undefined,
+          true,
+          undefined
+        );
       });
 
       it('should add case details from the track event properties', function() {
@@ -201,7 +214,12 @@ describe('Salesforce Live Agent', function() {
         caseMappings.forEach(function(mapping) {
           mapping = mapping.value;
           var prop = props[mapping.property];
-          analytics.called(window.liveagent.addCustomDetail, mapping.label, prop, mapping.displayToAgent);
+          analytics.called(
+            window.liveagent.addCustomDetail,
+            mapping.label,
+            prop,
+            mapping.displayToAgent
+          );
         });
       });
 
@@ -213,14 +231,24 @@ describe('Salesforce Live Agent', function() {
         accountMappings.forEach(function(mapping) {
           mapping = mapping.value;
           var prop = props[mapping.property];
-          analytics.called(window.liveagent.addCustomDetail, mapping.label, prop, mapping.displayToAgent);
+          analytics.called(
+            window.liveagent.addCustomDetail,
+            mapping.label,
+            prop,
+            mapping.displayToAgent
+          );
         });
       });
 
       it('should initiatlize with the correct endpoint and ids', function() {
         analytics.track('Live Chat Conversation Started');
         var endpoint = 'https://d.la3-c1cs-phx.salesforceliveagent.com/chat';
-        analytics.called(window.liveagent.init, endpoint, options.deploymentId, options.orgId);
+        analytics.called(
+          window.liveagent.init,
+          endpoint,
+          options.deploymentId,
+          options.orgId
+        );
       });
     });
   });

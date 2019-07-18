@@ -1,6 +1,6 @@
-# Integrations operations
+This directory contains useful scripts and commands to update integrations in bulk.
 
-This folder contains useful scripts and commands to update integrations in bulk.
+**Please Note:** the commands in this directory are only useful for Segment engineers. External contributors can safely ignore.
 
 ## Env vars
 - `GITHUB_TOKEN`: To query/update GitHub.

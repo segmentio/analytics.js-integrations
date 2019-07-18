@@ -1,6 +1,27 @@
 {
-  "extends": ["prettier"],
-  "parserOptions": {
-    "ecmaVersion": 6
-  }
+  "extends": ["eslint-config-airbnb-base/legacy", "prettier"],
+  "plugins": ["mocha", "prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "func-names": "off",
+    "no-multi-assign": "off",
+    "vars-on-top": "off",
+    "no-underscore-dangle": "warn",
+    "no-prototype-builtins": "warn",
+    "no-use-before-define": "warn",
+    "no-loop-func": "warn",
+    "no-restricted-syntax": "warn",
+    "no-continue": "off",
+    "consistent-return": "warn",
+    "no-shadow": "warn",
+    "no-plusplus": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/test/**"],
+      "env": {
+        "mocha": true
+      }
+    }
+  ]
 }

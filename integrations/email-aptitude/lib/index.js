@@ -10,12 +10,12 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `EmailAptitude` integration.
  */
 
-var EmailAptitude = module.exports = integration('Email Aptitude')
+var EmailAptitude = (module.exports = integration('Email Aptitude')
   .assumesPageview()
   .global('_ea')
   .global('EmailAptitudeTracker')
   .option('accountId', '')
-  .tag('<script src="//tracker.emailaptitude.com/ea.js">');
+  .tag('<script src="//tracker.emailaptitude.com/ea.js">'));
 
 /**
  * Initialize.

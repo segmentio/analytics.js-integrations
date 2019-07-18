@@ -13,13 +13,13 @@ var omit = require('omit');
  * Expose `Wootric` integration.
  */
 
-var Wootric = module.exports = integration('Wootric')
+var Wootric = (module.exports = integration('Wootric')
   .assumesPageview()
   .option('accountToken', '')
   .global('wootricSettings')
   .global('wootric_survey_immediately')
   .global('wootric')
-  .tag('library', '<script src="//cdn.wootric.com/wootric-sdk.js"></script>')
+  .tag('library', '<script src="//cdn.wootric.com/wootric-sdk.js"></script>'));
 
 /**
  * Initialize Wootric.
@@ -136,7 +136,12 @@ function convertDate(date) {
 if (!String.prototype.endsWith) {
   String.prototype.endsWith = function(searchString, position) {
     var subjectString = this.toString();
-    if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+    if (
+      typeof position !== 'number' ||
+      !isFinite(position) ||
+      Math.floor(position) !== position ||
+      position > subjectString.length
+    ) {
       position = subjectString.length;
     }
     position -= searchString.length;
@@ -146,13 +151,13 @@ if (!String.prototype.endsWith) {
 }
 
 /**
-  * Survey end user
-  *
-  * @param {String} email
-  * @param {Date} createdAt
-  * @param {Object} properties
-  * @param {String} eventName
-  */
+ * Survey end user
+ *
+ * @param {String} email
+ * @param {Date} createdAt
+ * @param {Object} properties
+ * @param {String} eventName
+ */
 
 function survey(email, createdAt, properties, eventName) {
   if (createdAt && createdAt.getTime) window.wootricSettings.created_at = Math.round(createdAt.getTime() / 1000);
@@ -161,12 +166,21 @@ function survey(email, createdAt, properties, eventName) {
   window.wootricSettings.event_name = eventName;
 
   // Convert keys to Wootric format
-  var newProperties = foldl(function(results, value, key) {
-    results[convertKey(key, value)] = is.date(value) ? convertDate(value) : value;
-    return results;
-  }, {}, properties);
+  var newProperties = foldl(
+    function(results, value, key) {
+      results[convertKey(key, value)] = is.date(value)
+        ? convertDate(value)
+        : value;
+      return results;
+    },
+    {},
+    properties
+  );
 
-  window.wootricSettings.properties = omit(['created', 'createdAt', 'email'], newProperties);
+  window.wootricSettings.properties = omit(
+    ['created', 'createdAt', 'email'],
+    newProperties
+  );
 
   window.wootric('run');
 }

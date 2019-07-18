@@ -23,12 +23,12 @@ var events = {
  * Expose `Monetate` integration.
  */
 
-var Monetate = module.exports = integration('Monetate')
+var Monetate = (module.exports = integration('Monetate')
   .option('retail', false)
   .option('siteId', '')
   .option('domain', '')
   .option('events', events)
-  .global('monetateQ');
+  .global('monetateQ'));
 
 /**
  * Initialize.
@@ -40,7 +40,8 @@ Monetate.prototype.initialize = function() {
   if (this.options.retail) {
     this.options.events = {
       orderCompleted: 'addPurchaseRows',
-      productViewed: 'addProducts',
+      productViewed: 'addProductDetails',
+      productListViewed: 'addProducts',
       productAdded: 'addCartRows'
     };
   }
@@ -69,6 +70,25 @@ Monetate.prototype.loaded = function() {
 
 Monetate.prototype.page = function(page) {
   push('setPageType', page.category() || page.name() || 'unknown');
+};
+
+/**
+ * Product list viewed.
+ *
+ * @param {Track} track
+ */
+
+Monetate.prototype.productListViewed = function(track) {
+  var products = track.products();
+  var items = [];
+
+  each(products, function(product) {
+    var track = new Track({ properties: product });
+    var p = toProducts(track);
+    items.push(p);
+  });
+
+  push(this.options.events.productListViewed, items);
 };
 
 /**
@@ -105,13 +125,28 @@ Monetate.prototype.orderCompleted = function(track) {
 
   each(products, function(product) {
     var track = new Track({ properties: product });
-    product = toProduct(track);
-    product.conversionId = orderId;
-    items.push(product);
+    var p = toProduct(track);
+    p.conversionId = orderId;
+    items.push(p);
   });
 
   push(this.options.events.orderCompleted, items);
 };
+
+/**
+ * Reformat a product list view into a Monetate-compatible format.
+ *
+ * @api private
+ * @param {Track} track
+ * @return {Object}
+ */
+
+function toProducts(track) {
+  return {
+    itemId: track.productId() || track.id(),
+    sku: track.sku()
+  };
+}
 
 /**
  * Reformat a product into to a Monetate-compatible format.

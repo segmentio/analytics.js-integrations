@@ -66,9 +66,11 @@ Pinterest.prototype.track = function(track) {
   var pinterestEvent = this.getPinterestEvent(segmentEvent);
   var pinterestObject = this.generatePropertiesObject(track);
 
-  pinterestEvent
-    ? window.pintrk('track', pinterestEvent, pinterestObject)
-    : window.pintrk('track', segmentEvent, pinterestObject);
+  if (pinterestEvent) {
+    window.pintrk('track', pinterestEvent, pinterestObject);
+  } else {
+    window.pintrk('track', segmentEvent, pinterestObject);
+  }
 };
 
 Pinterest.prototype.getPinterestEvent = function(segmentEvent) {
@@ -146,13 +148,15 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
   if (Array.isArray(products)) {
     lineItemsArray = [];
     for (var i = 0; i < products.length; i++) {
-      for (prop in this.productPropertyMap) {
-        if (!this.productPropertyMap.hasOwnProperty(prop)) continue;
-        trackValue = products[i][prop];
+      for (var productProperty in this.productPropertyMap) {
+        if (!this.productPropertyMap.hasOwnProperty(productProperty)) continue;
+        trackValue = products[i][productProperty];
         if (trackValue) {
           // Product values are added into a `line_items` array, with a nested object. If that doesn't exist, make it first.
           if (lineItemsArray[i] === undefined) lineItemsArray[i] = {};
-          lineItemsArray[i][this.productPropertyMap[prop]] = trackValue;
+          lineItemsArray[i][
+            this.productPropertyMap[productProperty]
+          ] = trackValue;
         }
       }
     }
@@ -161,11 +165,11 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
     // There will only be a single layer, since we have, at most, one product.
     lineItemsArray = [{}];
     var propAdded = false;
-    for (prop in this.productPropertyMap) {
-      if (!this.productPropertyMap.hasOwnProperty(prop)) continue;
-      trackValue = track.proxy('properties.' + prop);
+    for (var productProp in this.productPropertyMap) {
+      if (!this.productPropertyMap.hasOwnProperty(productProp)) continue;
+      trackValue = track.proxy('properties.' + productProp);
       if (trackValue) {
-        lineItemsArray[0][this.productPropertyMap[prop]] = trackValue;
+        lineItemsArray[0][this.productPropertyMap[productProp]] = trackValue;
         propAdded = true;
       }
     }
@@ -175,9 +179,9 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
   // Finally, add in any custom properties defined by the user.
   var customProps = this.options.pinterestCustomProperties;
   for (var j = 0; j < customProps.length; j++) {
-    prop = customProps[j];
-    trackValue = track.proxy('properties.' + prop);
-    if (trackValue) pinterestProps[prop] = trackValue;
+    var customProperty = customProps[j];
+    trackValue = track.proxy('properties.' + customProperty);
+    if (trackValue) pinterestProps[customProperty] = trackValue;
   }
 
   return pinterestProps;

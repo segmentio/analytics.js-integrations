@@ -17,7 +17,7 @@ var has = Object.prototype.hasOwnProperty;
  * Expose `Localytics`
  */
 
-var Localytics = module.exports = integration('Localytics')
+var Localytics = (module.exports = integration('Localytics')
   .assumesPageview()
   .global('LocalyticsGlobal')
   .option('appKey', '')
@@ -33,7 +33,7 @@ var Localytics = module.exports = integration('Localytics')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
   .option('dimensions', {})
-  .tag('localytics', '<script src="//web.localytics.com/v3/localytics.js">');
+  .tag('localytics', '<script src="//web.localytics.com/v3/localytics.js">'));
 
 /**
  * Initialize
@@ -47,10 +47,12 @@ Localytics.prototype.initialize = function() {
   var self = this;
 
   window.LocalyticsGlobal = 'll';
-  window.ll = window.ll || function() {
-    window.ll.q = window.ll.q || [];
-    window.ll.q.push(arguments);
-  };
+  window.ll =
+    window.ll ||
+    function() {
+      window.ll.q = window.ll.q || [];
+      window.ll.q.push(arguments);
+    };
   window.ll.t = +new Date();
   window.ll('init', self.options.appKey, {});
 

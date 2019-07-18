@@ -20,7 +20,9 @@ describe('Rocket Fuel', function() {
 
   beforeEach(function() {
     analytics = new Analytics();
-    RocketFuel.prototype.cacheBuster = function() { return 0; };
+    RocketFuel.prototype.cacheBuster = function() {
+      return 0;
+    };
     rocketFuel = new RocketFuel(options);
     analytics.use(RocketFuel);
     analytics.use(tester);
@@ -35,10 +37,13 @@ describe('Rocket Fuel', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(RocketFuel, integration('Rocket Fuel')
-      .option('accountId', '')
-      .option('universalActionId', '')
-      .mapping('events'));
+    analytics.compare(
+      RocketFuel,
+      integration('Rocket Fuel')
+        .option('accountId', '')
+        .option('universalActionId', '')
+        .mapping('events')
+    );
   });
 
   describe('after loading', function() {
@@ -55,13 +60,17 @@ describe('Rocket Fuel', function() {
 
       it('should trigger the universal pixel with new user', function() {
         analytics.page();
-        analytics.loaded('<img src="http://1999p.rfihub.com/ca.gif?rb=advertiser&ca=1999&ra=0&custtype=new"/>');
+        analytics.loaded(
+          '<img src="http://1999p.rfihub.com/ca.gif?rb=advertiser&ca=1999&ra=0&custtype=new"/>'
+        );
       });
 
       it('should trigger the universal pixel if there is an existing user', function() {
         analytics.identify('userId');
         analytics.page();
-        analytics.loaded('<img src="http://1999p.rfihub.com/ca.gif?rb=advertiser&ca=1999&ra=0&custtype=existing"/>');
+        analytics.loaded(
+          '<img src="http://1999p.rfihub.com/ca.gif?rb=advertiser&ca=1999&ra=0&custtype=existing"/>'
+        );
       });
     });
 
@@ -78,7 +87,9 @@ describe('Rocket Fuel', function() {
       describe('mapped events', function() {
         it('should track basic conversions', function() {
           analytics.track('conversion');
-          analytics.loaded('<img src="http://p.rfihub.com/ca.gif?rb=advertiser&ca=1989&ra=0"/>');
+          analytics.loaded(
+            '<img src="http://p.rfihub.com/ca.gif?rb=advertiser&ca=1989&ra=0"/>'
+          );
         });
 
         it('should track completed order conversions with orderId, total and product ids', function() {
@@ -104,7 +115,9 @@ describe('Rocket Fuel', function() {
               }
             ]
           });
-          analytics.loaded('<img src="http://p.rfihub.com/ca.gif?rb=advertiser&ca=1979&ra=0&transid=asdf&revenue=123.00&pid=507f1f77bcf86cd799439011,505bd76785ebb509fc183733"/>');
+          analytics.loaded(
+            '<img src="http://p.rfihub.com/ca.gif?rb=advertiser&ca=1979&ra=0&transid=asdf&revenue=123.00&pid=507f1f77bcf86cd799439011,505bd76785ebb509fc183733"/>'
+          );
         });
       });
     });
