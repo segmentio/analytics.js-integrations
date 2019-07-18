@@ -17,6 +17,8 @@ var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('instanceName', '') // the snippet lets you override the instance so make sure you don't have any global window props w same value as this setting unless you are intentionally doing that.
   .option('nolDevDebug', false)
   .option('assetIdPropertyName', 'asset_id')
+  .option('subbrandPropertyName', '')
+  .option('clientIdPropertyName', '')
   .option('optout', false)
   .tag(
     'http',
@@ -178,6 +180,16 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
 
+  if (this.options.subbrandPropertyName) {
+    var subbrandProp = this.options.subbrandPropertyName;
+    contentMetadata.subbrand = track.proxy(properties + subbrandProp);
+  }
+
+  if (this.options.clientIdPropertyName) {
+    var clientIdProp = this.options.clientIdPropertyName;
+    contentMetadata.clientid = track.proxy(properties + clientIdProp);
+  }
+
   // optional: used for grouping data into different buckets
   var segB = find(integrationOpts, 'segB');
   var segC = find(integrationOpts, 'segC');
@@ -281,7 +293,11 @@ NielsenDCR.prototype.videoContentCompleted = function(track) {
 NielsenDCR.prototype.videoAdStarted = function(track) {
   clearInterval(this.heartbeatId);
 
-  var adAssetId = getAssetId(track, this.options.assetIdPropertyName);
+  var adAssetId = getAssetId(
+    track,
+    this.options.assetIdPropertyName,
+    'adMetadata'
+  );
   var position = track.proxy('properties.position');
   var type = track.proxy('properties.type');
   if (typeof type === 'string') type = type.replace('-', '');
@@ -457,11 +473,13 @@ NielsenDCR.prototype.videoPlaybackCompleted = function(track) {
 function getAssetId(track, customAssetId, type) {
   var assetIdValue;
   var properties = 'properties.';
-  if (customAssetId !== 'asset_id') {
-    assetIdValue = track.proxy(properties + customAssetId);
-  } else if (type === 'preroll') {
+  if (type === 'preroll') {
+    var assetIdKey = 'asset_id';
+    if (customAssetId !== 'asset_id') assetIdKey = customAssetId;
     properties = 'properties.content.';
-    assetIdValue = track.proxy(properties + 'asset_id');
+    assetIdValue = track.proxy(properties + assetIdKey);
+  } else if (customAssetId !== 'asset_id' && type !== 'adMetadata') {
+    assetIdValue = track.proxy(properties + customAssetId);
   } else {
     assetIdValue = track.proxy(properties + 'asset_id');
   }
