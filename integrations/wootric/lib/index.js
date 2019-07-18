@@ -87,7 +87,9 @@ Wootric.prototype.track = function(track) {
   var eventName = track.event();
   var language = properties.language;
 
-  if (language) { window.wootricSettings.language = language; }
+  if (language) {
+    window.wootricSettings.language = language;
+  }
 
   survey(email, null, properties, eventName);
 };
@@ -134,6 +136,7 @@ function convertDate(date) {
 }
 
 if (!String.prototype.endsWith) {
+  /* eslint-disable */
   String.prototype.endsWith = function(searchString, position) {
     var subjectString = this.toString();
     if (
@@ -148,6 +151,7 @@ if (!String.prototype.endsWith) {
     var lastIndex = subjectString.lastIndexOf(searchString, position);
     return lastIndex !== -1 && lastIndex === position;
   };
+  /* eslint-enable */
 }
 
 /**
@@ -160,18 +164,20 @@ if (!String.prototype.endsWith) {
  */
 
 function survey(email, createdAt, properties, eventName) {
-  if (createdAt && createdAt.getTime) window.wootricSettings.created_at = Math.round(createdAt.getTime() / 1000);
-  if (email) { window.wootricSettings.email = email; }
+  if (createdAt && createdAt.getTime)
+    window.wootricSettings.created_at = Math.round(createdAt.getTime() / 1000);
+  if (email) {
+    window.wootricSettings.email = email;
+  }
 
   window.wootricSettings.event_name = eventName;
 
   // Convert keys to Wootric format
   var newProperties = foldl(
     function(results, value, key) {
-      results[convertKey(key, value)] = is.date(value)
-        ? convertDate(value)
-        : value;
-      return results;
+      var r = results;
+      r[convertKey(key, value)] = is.date(value) ? convertDate(value) : value;
+      return r;
     },
     {},
     properties
