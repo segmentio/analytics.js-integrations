@@ -539,27 +539,41 @@ describe('Amplitude', function() {
         );
       });
 
-      it('should send a revenueV2 event with quantity and productId and revenueType if a standard event type is used', function() {
+      it('should send a custom revenueType if trackRevenuePerProduct is set', function() {
         amplitude.options.useLogRevenueV2 = true;
+        amplitude.options.trackRevenuePerProduct = true;
         var props = {
           revenue: 20.0,
-          quantity: 2,
-          price: 10.0,
-          productId: 'AMP1',
-          revenueType: 'I am custom'
+          revenueType: 'I am custom',
+          products: [
+            {
+              quantity: 2,
+              price: 10.0,
+              productId: 'RT1'
+            }
+          ]
         };
-        analytics.track('Completed Order', props);
-        var ampRevenue = new window.amplitude.Revenue()
-          .setPrice(10.0)
-          .setQuantity(2)
-          .setProductId('AMP1');
-        ampRevenue.setRevenueType(props.revenueType).setEventProperties(props);
 
-        analytics.didNotCall(window.amplitude.getInstance().logRevenue);
-        analytics.called(
-          window.amplitude.getInstance().logRevenueV2,
-          ampRevenue
-        );
+        var setRevenue = sinon.spy(amplitude, 'setRevenue');
+
+        analytics.track('Completed Order', props);
+
+        var expected = {
+          price: 10.0,
+          productId: 'RT1',
+          revenueType: 'I am custom',
+          quantity: 2,
+          eventProps: {
+            revenue: 20.0,
+            revenueType: 'I am custom',
+            quantity: 2,
+            price: 10.0,
+            productId: 'RT1'
+          },
+          revenue: 20.0
+        };
+
+        analytics.assert(setRevenue.withArgs(expected).calledOnce);
       });
 
       it('should send a revenueV2 event with revenue if missing price', function() {
