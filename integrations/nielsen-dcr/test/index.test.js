@@ -38,6 +38,7 @@ describe('NielsenDCR', function() {
       integration('Nielsen DCR')
         .option('appId', '')
         .option('instanceName', '')
+        .option('assetIdPropertyName', 'asset_id')
         .tag(
           'http',
           '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
@@ -224,6 +225,7 @@ describe('NielsenDCR', function() {
             keywords: ['entrepreneurship', 'motivation'],
             season: '2',
             episode: '177',
+            custom_asset_id_prop: '12345',
             genre: 'entrepreneurship',
             program: 'Tim Ferris Show',
             publisher: 'Tim Ferris',
@@ -255,6 +257,77 @@ describe('NielsenDCR', function() {
             airdate: new Date(props.airdate),
             adloadtype: '2',
             hasAds: '0'
+          });
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.asset_id,
+            props.position,
+            {
+              livestream: props.livestream,
+              type: 'content',
+              timestamp: timestamp
+            }
+          );
+        });
+
+        it('video content started with custom asset id', function() {
+          var timestamp = new Date();
+          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          analytics.track('Video Content Started', props, {
+            page: { url: 'segment.com' },
+            'Nielsen DCR': { ad_load_type: 'dynamic' },
+            timestamp: timestamp
+          });
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
+            type: 'content',
+            assetid: props.custom_asset_id_prop,
+            program: props.program,
+            title: props.title,
+            length: props.total_length,
+            isfullepisode: 'y',
+            mediaURL: 'segment.com',
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
+          });
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.custom_asset_id_prop,
+            props.position,
+            {
+              livestream: props.livestream,
+              type: 'content',
+              timestamp: timestamp
+            }
+          );
+        });
+
+        it('video content started with cid/vcid override', function() {
+          var timestamp = new Date();
+          nielsenDCR.options.clientIdPropertyName = 'nielsen_client_id';
+          nielsenDCR.options.subbrandPropertyName = 'nielsen_subbrand';
+          props.nielsen_subbrand = 'test network name';
+          props.nielsen_client_id = 'test client id';
+          analytics.track('Video Content Started', props, {
+            page: { url: 'segment.com' },
+            'Nielsen DCR': { ad_load_type: 'dynamic' },
+            timestamp: timestamp
+          });
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
+            type: 'content',
+            assetid: props.asset_id,
+            program: props.program,
+            title: props.title,
+            length: props.total_length,
+            isfullepisode: 'y',
+            mediaURL: 'segment.com',
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0',
+            clientid: props.nielsen_client_id,
+            subbrand: props.nielsen_subbrand
           });
           analytics.called(
             nielsenDCR.heartbeat,
@@ -397,6 +470,7 @@ describe('NielsenDCR', function() {
           props = {
             session_id: '12345',
             asset_id: 'ad123',
+            custom_asset_id_prop: 'abcdef12345',
             pod_id: 'adSegA',
             type: 'mid-roll',
             title: 'Segment Connection Modes',
@@ -422,11 +496,28 @@ describe('NielsenDCR', function() {
           );
         });
 
+        it('video ad started with custom asset id', function() {
+          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          analytics.track('Video Ad Started', props);
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
+            assetid: props.asset_id,
+            type: 'midroll'
+          });
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.asset_id,
+            props.position,
+            { type: 'ad' }
+          );
+        });
+
         it('video ad started — preroll', function() {
           props.type = 'pre-roll';
           props.content = {
             session_id: '12345',
             asset_id: '0129370',
+            custom_asset_id_prop: 'abcdef12345',
             pod_id: 'segA',
             title: 'Interview with Tony Robbins',
             description: 'short description',
@@ -460,6 +551,125 @@ describe('NielsenDCR', function() {
               airdate: new Date(props.content.airdate),
               adloadtype: '2',
               hasAds: '0'
+            }
+          ]);
+          analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[1], [
+            'loadMetadata',
+            {
+              assetid: props.asset_id,
+              type: 'preroll'
+            }
+          ]);
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.asset_id,
+            props.position,
+            { type: 'ad' }
+          );
+        });
+
+        it('video ad started — preroll with custom asset id', function() {
+          props.type = 'pre-roll';
+          props.content = {
+            session_id: '12345',
+            asset_id: '0129370',
+            custom_asset_id_prop: 'abcdef12345',
+            pod_id: 'segA',
+            title: 'Interview with Tony Robbins',
+            description: 'short description',
+            keywords: ['entrepreneurship', 'motivation'],
+            season: '2',
+            episode: '177',
+            genre: 'entrepreneurship',
+            program: 'Tim Ferris Show',
+            publisher: 'Tim Ferris',
+            position: 0,
+            total_length: 360,
+            channel: 'espn',
+            full_episode: true,
+            livestream: false,
+            airdate: '1991-08-13'
+          };
+          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          analytics.track('Video Ad Started', props, {
+            page: { url: 'segment.com' }
+          });
+          analytics.called(window.clearInterval);
+          analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[0], [
+            'loadMetadata',
+            {
+              type: 'content',
+              assetid: props.content.custom_asset_id_prop,
+              program: props.content.program,
+              title: props.content.title,
+              length: props.content.total_length,
+              isfullepisode: 'y',
+              mediaURL: 'segment.com',
+              airdate: new Date(props.content.airdate),
+              adloadtype: '2',
+              hasAds: '0'
+            }
+          ]);
+          analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[1], [
+            'loadMetadata',
+            {
+              assetid: props.asset_id,
+              type: 'preroll'
+            }
+          ]);
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.asset_id,
+            props.position,
+            { type: 'ad' }
+          );
+        });
+
+        it('video ad started — preroll with cid/vcid override', function() {
+          nielsenDCR.options.clientIdPropertyName = 'nielsen_client_id';
+          nielsenDCR.options.subbrandPropertyName = 'nielsen_subbrand';
+          props.type = 'pre-roll';
+          props.content = {
+            session_id: '12345',
+            asset_id: '0129370',
+            custom_asset_id_prop: 'abcdef12345',
+            nielsen_subbrand: 'test network name',
+            nielsen_client_id: 'test client id',
+            pod_id: 'segA',
+            title: 'Interview with Tony Robbins',
+            description: 'short description',
+            keywords: ['entrepreneurship', 'motivation'],
+            season: '2',
+            episode: '177',
+            genre: 'entrepreneurship',
+            program: 'Tim Ferris Show',
+            publisher: 'Tim Ferris',
+            position: 0,
+            total_length: 360,
+            channel: 'espn',
+            full_episode: true,
+            livestream: false,
+            airdate: '1991-08-13'
+          };
+          analytics.track('Video Ad Started', props, {
+            page: { url: 'segment.com' }
+          });
+          analytics.called(window.clearInterval);
+          analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[0], [
+            'loadMetadata',
+            {
+              type: 'content',
+              assetid: props.content.asset_id,
+              program: props.content.program,
+              title: props.content.title,
+              length: props.content.total_length,
+              isfullepisode: 'y',
+              mediaURL: 'segment.com',
+              airdate: new Date(props.content.airdate),
+              adloadtype: '2',
+              hasAds: '0',
+              clientid: props.content.nielsen_client_id,
+              subbrand: props.content.nielsen_subbrand
             }
           ]);
           analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[1], [
