@@ -38,6 +38,7 @@ describe('NielsenDCR', function() {
       integration('Nielsen DCR')
         .option('appId', '')
         .option('instanceName', '')
+        .option('assetIdPropertyName', 'asset_id')
         .tag(
           'http',
           '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
@@ -222,6 +223,7 @@ describe('NielsenDCR', function() {
             title: 'Interview with Tony Robbins',
             description: 'short description',
             keywords: ['entrepreneurship', 'motivation'],
+            tms_video_id: '12345',
             season: '2',
             episode: '177',
             genre: 'entrepreneurship',
@@ -243,6 +245,39 @@ describe('NielsenDCR', function() {
             'Nielsen DCR': { ad_load_type: 'dynamic' },
             timestamp: timestamp
           });
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
+            type: 'content',
+            assetid: props.asset_id,
+            program: props.program,
+            title: props.title,
+            length: props.total_length,
+            isfullepisode: 'y',
+            mediaURL: 'segment.com',
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
+          });
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.asset_id,
+            props.position,
+            {
+              livestream: props.livestream,
+              type: 'content',
+              timestamp: timestamp
+            }
+          );
+        });
+
+        it('video content started with custom assetId', function() {
+          var timestamp = new Date();
+          analytics.track('Video Content Started', props, {
+            page: { url: 'segment.com' },
+            'Nielsen DCR': { ad_load_type: 'dynamic' },
+            timestamp: timestamp
+          });
+          nielsenDCR.options.assetIdPropertyName = 'tms_video_id';
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
             type: 'content',
@@ -498,6 +533,98 @@ describe('NielsenDCR', function() {
             props.position
           );
           analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+        });
+      });
+
+      describe('#custom setting events', function() {
+        var props;
+        beforeEach(function() {
+          props = {
+            session_id: '12345',
+            asset_id: '0129370',
+            pod_id: 'segA',
+            title: 'Interview with Tony Robbins',
+            description: 'short description',
+            keywords: ['entrepreneurship', 'motivation'],
+            custom_asset_id_prop: '12345',
+            season: '2',
+            episode: '177',
+            genre: 'entrepreneurship',
+            program: 'Tim Ferris Show',
+            publisher: 'Tim Ferris',
+            position: 0,
+            total_length: 360,
+            channel: 'espn',
+            full_episode: true,
+            livestream: false,
+            airdate: '1991-08-13'
+          };
+          // nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop'
+        });
+
+        it('video content started with custom asset id setting and prop in payload', function() {
+          var timestamp = new Date();
+          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          analytics.track('Video Content Started', props, {
+            page: { url: 'segment.com' },
+            'Nielsen DCR': { ad_load_type: 'dynamic' },
+            timestamp: timestamp
+          });
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
+            type: 'content',
+            assetid: props.custom_asset_id_prop,
+            program: props.program,
+            title: props.title,
+            length: props.total_length,
+            isfullepisode: 'y',
+            mediaURL: 'segment.com',
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
+          });
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.custom_asset_id_prop,
+            props.position,
+            {
+              livestream: props.livestream,
+              type: 'content',
+              timestamp: timestamp
+            }
+          );
+        });
+
+        it('video content started sends default with asset_id with not custom asset id setting', function() {
+          var timestamp = new Date();
+          analytics.track('Video Content Started', props, {
+            page: { url: 'segment.com' },
+            'Nielsen DCR': { ad_load_type: 'dynamic' },
+            timestamp: timestamp
+          });
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
+            type: 'content',
+            assetid: props.asset_id,
+            program: props.program,
+            title: props.title,
+            length: props.total_length,
+            isfullepisode: 'y',
+            mediaURL: 'segment.com',
+            airdate: new Date(props.airdate),
+            adloadtype: '2',
+            hasAds: '0'
+          });
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.asset_id,
+            props.position,
+            {
+              livestream: props.livestream,
+              type: 'content',
+              timestamp: timestamp
+            }
+          );
         });
       });
     });
