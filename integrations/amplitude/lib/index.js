@@ -242,7 +242,11 @@ function logEvent(track, dontSetRevenue) {
     each(function(value, key) {
       // add query params to either `user_properties` or `event_properties`
       type = value;
-      type === 'user_properties' ? (params[key] = query) : (props[key] = query);
+      if (type === 'user_properties') {
+        params[key] = query;
+      } else {
+        props[key] = query;
+      }
     }, mapQueryParams);
 
     if (type === 'user_properties')
@@ -271,6 +275,8 @@ Amplitude.prototype.orderCompleted = function(track) {
   var products = track.products();
   var clonedTrack = track.json();
   var trackRevenuePerProduct = this.options.trackRevenuePerProduct;
+  var revenueType = track.proxy('properties.revenueType');
+  var revenue = track.revenue();
 
   // Amplitude does not allow arrays of objects to as properties of events.
   // Our Order Completed event however uses a products array for product level tracking.
@@ -293,8 +299,16 @@ Amplitude.prototype.orderCompleted = function(track) {
       // Price and quantity are both required by Amplitude:
       // https://amplitude.zendesk.com/hc/en-us/articles/115001361248#tracking-revenue
       // Price could potentially be 0 so handle that edge case.
-      if (trackRevenuePerProduct && price != null && quantity)
+      if (trackRevenuePerProduct && price != null && quantity) {
+        // Add revenueType if exists, to be able to override.
+        if (revenueType) {
+          clonedTrack.properties.revenueType = revenueType;
+        }
+        if (revenue) {
+          clonedTrack.properties.revenue = revenue;
+        }
         this.setRevenue(mapRevenueAttributes(new Track(clonedTrack)));
+      }
       logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
     }.bind(this),
     products
@@ -408,9 +422,9 @@ Amplitude.prototype.sendReferrer = function() {
 
   var parts = referrer.split('/');
   if (parts.length >= 3) {
-    var referring_domain = parts[2];
-    identify.setOnce('initial_referring_domain', referring_domain);
-    identify.set('referring_domain', referring_domain);
+    var referringDomain = parts[2];
+    identify.setOnce('initial_referring_domain', referringDomain);
+    identify.set('referring_domain', referringDomain);
   }
 
   window.amplitude.getInstance().identify(identify);
