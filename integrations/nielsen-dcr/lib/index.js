@@ -19,6 +19,7 @@ var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('assetIdPropertyName', 'asset_id')
   .option('subbrandPropertyName', '')
   .option('clientIdPropertyName', '')
+  .option('contentLengthPropertyName', 'total_length')
   .option('optout', false)
   .tag(
     'http',
@@ -166,10 +167,6 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     assetid: getAssetId(track, this.options.assetIdPropertyName, type),
     program: track.proxy(properties + 'program'),
     title: track.proxy(properties + 'title'),
-    // hardcode 86400 if livestream ¯\_(ツ)_/¯
-    length: track.proxy(properties + 'livestream')
-      ? 86400
-      : track.proxy(properties + 'total_length'),
     isfullepisode: track.proxy(properties + 'full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
     airdate: track.proxy(properties + 'airdate'),
@@ -179,6 +176,16 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     crossId2: find(integrationOpts, 'crossId2'),
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
+
+  if (track.proxy(properties + 'livestream')) {
+    // hardcode 86400 if livestream ¯\_(ツ)_/¯
+    contentMetadata.length = 86400;
+  } else if (this.options.contentLengthPropertyName !== 'total_length') {
+    var contentLengthKey = this.options.contentLengthPropertyName;
+    contentMetadata.length = track.proxy(properties + contentLengthKey);
+  } else {
+    contentMetadata.length = track.proxy(properties + 'total_length');
+  }
 
   if (this.options.subbrandPropertyName) {
     var subbrandProp = this.options.subbrandPropertyName;
