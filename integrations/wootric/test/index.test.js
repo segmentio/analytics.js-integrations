@@ -66,6 +66,7 @@ describe('Wootric', function() {
 
       it('should setup the wootricSettings object', function() {
         is.object(window.wootricSettings);
+        analytics.assert(window.wootricSettings.version);
       });
 
       it('should have lastPageTracked set to null', function() {
@@ -128,6 +129,17 @@ describe('Wootric', function() {
         });
         analytics.assert(!window.wootricSettings.properties.email);
         analytics.assert(!window.wootricSettings.properties.createdAt);
+      });
+
+      it('should set language if present', function() {
+        analytics.track('track_event', {
+          email: 'shawn@shawnmorgan.com',
+          createdAt: '01/01/2015',
+          property1: 'foo',
+          property2: 'bar',
+          language: 'es'
+        });
+        analytics.assert(window.wootricSettings.language === 'es');
       });
     });
 
@@ -281,6 +293,13 @@ describe('Wootric', function() {
           email: 'shawn@shawnmorgan.com'
         });
         analytics.equal(window.wootricSettings.email, 'shawn@shawnmorgan.com');
+      });
+
+      it('should set email on identify if present', function() {
+        analytics.identify({
+          email: null
+        });
+        analytics.equal(window.wootricSettings.email, undefined);
       });
 
       it('should set created_at on identify using ISO YYYY-MM-DD format', function() {
