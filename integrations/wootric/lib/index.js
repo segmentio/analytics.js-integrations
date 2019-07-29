@@ -19,11 +19,7 @@ var Wootric = (module.exports = integration('Wootric')
   .global('wootricSettings')
   .global('wootric_survey_immediately')
   .global('wootric')
-  .tag('library', '<script src="//cdn.wootric.com/wootric-sdk.js"></script>')
-  .tag(
-    'pixel',
-    '<img src="//d8myem934l1zi.cloudfront.net/pixel.gif?account_token={{ accountToken }}&email={{ email }}&created_at={{ createdAt }}&url={{ url }}&random={{ cacheBuster }}">'
-  ));
+  .tag('library', '<script src="//cdn.wootric.com/wootric-sdk.js"></script>'));
 
 /**
  * Initialize Wootric.
@@ -37,6 +33,7 @@ Wootric.prototype.initialize = function() {
   this.lastPageTracked = null;
   window.wootricSettings = window.wootricSettings || {};
   window.wootricSettings.account_token = this.options.accountToken;
+  window.wootricSettings.version = 'wootric-segment-js-2.3.0';
 
   var self = this;
   this.load('library', function() {
@@ -88,6 +85,11 @@ Wootric.prototype.track = function(track) {
   var properties = track.properties();
   var email = track.email();
   var eventName = track.event();
+  var language = properties.language;
+
+  if (language) {
+    window.wootricSettings.language = language;
+  }
 
   survey(email, null, properties, eventName);
 };
@@ -99,7 +101,7 @@ Wootric.prototype.track = function(track) {
  * @param {Page} page
  */
 
-Wootric.prototype.page = function(page) {
+Wootric.prototype.page = function() {
   // Only track page if we haven't already tracked it
   if (this.lastPageTracked === window.location) {
     return;
@@ -107,15 +109,6 @@ Wootric.prototype.page = function(page) {
 
   // Set this page as the last page tracked
   this.lastPageTracked = window.location;
-
-  var wootricSettings = window.wootricSettings;
-  this.load('pixel', {
-    accountToken: this.options.accountToken,
-    email: encodeURIComponent(wootricSettings.email),
-    createdAt: wootricSettings.created_at,
-    url: encodeURIComponent(page.url()),
-    cacheBuster: Math.random()
-  });
 };
 
 /**
@@ -143,6 +136,7 @@ function convertDate(date) {
 }
 
 if (!String.prototype.endsWith) {
+  /* eslint-disable */
   String.prototype.endsWith = function(searchString, position) {
     var subjectString = this.toString();
     if (
@@ -157,6 +151,7 @@ if (!String.prototype.endsWith) {
     var lastIndex = subjectString.lastIndexOf(searchString, position);
     return lastIndex !== -1 && lastIndex === position;
   };
+  /* eslint-enable */
 }
 
 /**
@@ -171,16 +166,18 @@ if (!String.prototype.endsWith) {
 function survey(email, createdAt, properties, eventName) {
   if (createdAt && createdAt.getTime)
     window.wootricSettings.created_at = Math.round(createdAt.getTime() / 1000);
-  window.wootricSettings.email = email;
+  if (email) {
+    window.wootricSettings.email = email;
+  }
+
   window.wootricSettings.event_name = eventName;
 
   // Convert keys to Wootric format
   var newProperties = foldl(
     function(results, value, key) {
-      results[convertKey(key, value)] = is.date(value)
-        ? convertDate(value)
-        : value;
-      return results;
+      var r = results;
+      r[convertKey(key, value)] = is.date(value) ? convertDate(value) : value;
+      return r;
     },
     {},
     properties
