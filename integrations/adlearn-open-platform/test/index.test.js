@@ -33,9 +33,12 @@ describe('AdLearn Open Platform', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(AdLearnOpenPlatform, integration('AdLearn Open Platform')
-      .option('retargetingPixelId', '')
-      .mapping('events'));
+    analytics.compare(
+      AdLearnOpenPlatform,
+      integration('AdLearn Open Platform')
+        .option('retargetingPixelId', '')
+        .mapping('events')
+    );
   });
 
   describe('after loading', function() {
@@ -52,14 +55,20 @@ describe('AdLearn Open Platform', function() {
 
       it('should always trigger the retargeting pixel', function() {
         analytics.page();
-        analytics.loaded('<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&betr=1234"/>');
+        analytics.loaded(
+          '<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&betr=1234"/>'
+        );
       });
 
       it('should trigger the pixel if there is an existing user', function() {
         analytics.identify('userId');
         analytics.page();
-        analytics.loaded('<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&betr=1234"/>');
-        analytics.loaded('<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&srvc=1&betr=1234=920204[720]"/>');
+        analytics.loaded(
+          '<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&betr=1234"/>'
+        );
+        analytics.loaded(
+          '<img src="https://secure.leadback.advertising.com/adcedge/lb?site=695501&srvc=1&betr=1234=920204[720]"/>'
+        );
       });
     });
 
@@ -76,13 +85,17 @@ describe('AdLearn Open Platform', function() {
       describe('mapped events', function() {
         it('should track basic conversion with type', function() {
           analytics.track('conversion');
-          analytics.loaded('<img src="https://secure.ace-tag.advertising.com/action/type=1989/bins=1/rich=0/mnum=1516/logs=0/xsstr1=/xsstr2=/xssale=/xsmemid=/"/>');
+          analytics.loaded(
+            '<img src="https://secure.ace-tag.advertising.com/action/type=1989/bins=1/rich=0/mnum=1516/logs=0/xsstr1=/xsstr2=/xssale=/xsmemid=/"/>'
+          );
         });
 
         it('should track basic conversion with type and user ID', function() {
           analytics.identify('userId');
           analytics.track('conversion');
-          analytics.loaded('<img src="https://secure.ace-tag.advertising.com/action/type=1989/bins=1/rich=0/mnum=1516/logs=0/xsstr1=userId/xsstr2=/xssale=/xsmemid=/"/>');
+          analytics.loaded(
+            '<img src="https://secure.ace-tag.advertising.com/action/type=1989/bins=1/rich=0/mnum=1516/logs=0/xsstr1=userId/xsstr2=/xssale=/xsmemid=/"/>'
+          );
         });
 
         it('should track basic conversion with type, user ID, and ecommerce info', function() {
@@ -109,7 +122,9 @@ describe('AdLearn Open Platform', function() {
               }
             ]
           });
-          analytics.loaded('<img src="https://secure.ace-tag.advertising.com/action/type=1979/bins=1/rich=0/mnum=1516/logs=0/xsstr1=userId/xsstr2=507f1f77bcf86cd799439011,505bd76785ebb509fc183733/xssale=123.00/xsmemid=asdf/"/>');
+          analytics.loaded(
+            '<img src="https://secure.ace-tag.advertising.com/action/type=1979/bins=1/rich=0/mnum=1516/logs=0/xsstr1=userId/xsstr2=507f1f77bcf86cd799439011,505bd76785ebb509fc183733/xssale=123.00/xsmemid=asdf/"/>'
+          );
         });
       });
     });

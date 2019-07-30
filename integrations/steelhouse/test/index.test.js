@@ -12,15 +12,14 @@ describe('Steelhouse', function() {
   var analytics;
   var options = {
     advertiserId: '1234',
-    events: [
-      'Completed Order',
-      'Generic Conversion'
-    ]
+    events: ['Completed Order', 'Generic Conversion']
   };
 
   beforeEach(function() {
     analytics = new Analytics();
-    Steelhouse.prototype.cacheBuster = function() { return 0; };
+    Steelhouse.prototype.cacheBuster = function() {
+      return 0;
+    };
     steelhouse = new Steelhouse(options);
     analytics.use(plugin);
     analytics.use(tester);
@@ -35,9 +34,12 @@ describe('Steelhouse', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Steelhouse, integration('Steelhouse')
-      .option('advertiserId', '')
-      .mapping('events'));
+    analytics.compare(
+      Steelhouse,
+      integration('Steelhouse')
+        .option('advertiserId', '')
+        .mapping('events')
+    );
   });
 
   describe('after loading', function() {
@@ -56,7 +58,13 @@ describe('Steelhouse', function() {
         var url = encodeURIComponent(window.location.href);
         var referrer = encodeURIComponent(document.referrer);
         analytics.page();
-        analytics.loaded('<script src="http://dx.steelhousemedia.com/spx?dxver=4.0.0&shaid=1234&tdr=' + referrer + '&plh=' + url + '&cb=0">');
+        analytics.loaded(
+          '<script src="http://dx.steelhousemedia.com/spx?dxver=4.0.0&shaid=1234&tdr=' +
+            referrer +
+            '&plh=' +
+            url +
+            '&cb=0">'
+        );
       });
     });
 
@@ -96,7 +104,13 @@ describe('Steelhouse', function() {
               }
             ]
           });
-          analytics.loaded('<script src="http://dx.steelhousemedia.com/spx?conv=1&shaid=1234&tdr=' + referrer + '&plh=' + url + '&cb=0&shoid=asdf&shoamt=123&shocur=USD&shopid=45790-32,46493-32&shoq=1,2&shoup=19,3&shpil=">');
+          analytics.loaded(
+            '<script src="http://dx.steelhousemedia.com/spx?conv=1&shaid=1234&tdr=' +
+              referrer +
+              '&plh=' +
+              url +
+              '&cb=0&shoid=asdf&shoamt=123&shocur=USD&shopid=45790-32,46493-32&shoq=1,2&shoup=19,3&shpil=">'
+          );
         });
 
         it('should still work without ecommerce info', function() {
@@ -105,7 +119,13 @@ describe('Steelhouse', function() {
           analytics.track('Generic Conversion', {
             property: 'test'
           });
-          analytics.loaded('<script src="http://dx.steelhousemedia.com/spx?conv=1&shaid=1234&tdr=' + referrer + '&plh=' + url + '&cb=0&shoid=&shoamt=&shocur=USD&shopid=&shoq=&shoup=&shpil=">');
+          analytics.loaded(
+            '<script src="http://dx.steelhousemedia.com/spx?conv=1&shaid=1234&tdr=' +
+              referrer +
+              '&plh=' +
+              url +
+              '&cb=0&shoid=&shoamt=&shocur=USD&shopid=&shoq=&shoup=&shpil=">'
+          );
         });
       });
     });

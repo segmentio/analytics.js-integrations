@@ -33,12 +33,15 @@ describe('Criteo', function() {
   });
 
   it('should have the correct options', function() {
-    analytics.compare(Criteo, integration('Criteo')
-    .option('account', '')
-    .option('homeUrl', '')
-    .option('supportingUserData', {})
-    .option('supportingPageData', {})
-    .tag('<script src="http://static.criteo.net/js/ld/ld.js">'));
+    analytics.compare(
+      Criteo,
+      integration('Criteo')
+        .option('account', '')
+        .option('homeUrl', '')
+        .option('supportingUserData', {})
+        .option('supportingPageData', {})
+        .tag('<script src="http://static.criteo.net/js/ld/ld.js">')
+    );
   });
 
   describe('before loading', function() {
@@ -99,7 +102,10 @@ describe('Criteo', function() {
       it('should set supportingPageData', function() {
         criteo.options.supportingPageData = { team: 'team_page' };
         analytics.page('Home', { team: 'New York Giants' });
-        analytics.called(window.criteo_q.push, { event: 'setData', team_page: 'New York Giants' });
+        analytics.called(window.criteo_q.push, {
+          event: 'setData',
+          team_page: 'New York Giants'
+        });
         analytics.called(window.criteo_q.push, { event: 'viewHome' });
       });
     });
@@ -143,7 +149,10 @@ describe('Criteo', function() {
       it('should track productViewed events as `viewItem`', function() {
         var id = '12345';
         analytics.track('Product Viewed', { productId: id });
-        analytics.called(window.criteo_q.push, { event: 'viewItem', product: id });
+        analytics.called(window.criteo_q.push, {
+          event: 'viewItem',
+          product: id
+        });
       });
     });
 
@@ -153,9 +162,17 @@ describe('Criteo', function() {
       });
 
       it('should track productListViewed events as `viewList` with array of product ids', function() {
-        var products = [{ productId: '1' }, { productId: '2' }, { productId: '3' }, { productId: '4' }];
+        var products = [
+          { productId: '1' },
+          { productId: '2' },
+          { productId: '3' },
+          { productId: '4' }
+        ];
         analytics.track('Product List Viewed', { products: products });
-        analytics.called(window.criteo_q.push, { event: 'viewList', product: ['1', '2', '3', '4'] });
+        analytics.called(window.criteo_q.push, {
+          event: 'viewList',
+          product: ['1', '2', '3', '4']
+        });
       });
     });
 
@@ -188,11 +205,18 @@ describe('Criteo', function() {
           }
         ];
         var productsPayload = products.map(function(product) {
-          return { id: product.productId, price: product.price, quantity: product.quantity };
+          return {
+            id: product.productId,
+            price: product.price,
+            quantity: product.quantity
+          };
         });
 
         analytics.track('cartViewed', { products: products });
-        analytics.called(window.criteo_q.push, { event: 'viewBasket', product: productsPayload });
+        analytics.called(window.criteo_q.push, {
+          event: 'viewBasket',
+          product: productsPayload
+        });
       });
     });
 
@@ -225,11 +249,22 @@ describe('Criteo', function() {
           }
         ];
         var productsPayload = products.map(function(product) {
-          return { id: product.productId, price: product.price, quantity: product.quantity };
+          return {
+            id: product.productId,
+            price: product.price,
+            quantity: product.quantity
+          };
         });
 
-        analytics.track('orderCompleted', { orderId: '1234', products: products });
-        analytics.called(window.criteo_q.push, { event: 'trackTransaction', product: productsPayload, id: '1234' });
+        analytics.track('orderCompleted', {
+          orderId: '1234',
+          products: products
+        });
+        analytics.called(window.criteo_q.push, {
+          event: 'trackTransaction',
+          product: productsPayload,
+          id: '1234'
+        });
       });
     });
 
@@ -239,12 +274,21 @@ describe('Criteo', function() {
       });
 
       it('should add supportingUserData as extra params', function() {
-        var products = [{ productId: '1' }, { productId: '2' }, { productId: '3' }, { productId: '4' }];
+        var products = [
+          { productId: '1' },
+          { productId: '2' },
+          { productId: '3' },
+          { productId: '4' }
+        ];
         criteo.options.supportingUserData = { subscriptionStatus: 'sub_stat' };
 
         analytics.user().traits({ subscriptionStatus: 'trial' });
         analytics.track('Product List Viewed', { products: products });
-        analytics.called(window.criteo_q.push, { event: 'viewList', product: ['1', '2', '3', '4'] }, { event: 'setData', sub_stat: 'trial' });
+        analytics.called(
+          window.criteo_q.push,
+          { event: 'viewList', product: ['1', '2', '3', '4'] },
+          { event: 'setData', sub_stat: 'trial' }
+        );
       });
 
       it('should detect an email trait, hash it, and fire the `setEmail` tag', function() {
@@ -252,7 +296,11 @@ describe('Criteo', function() {
 
         analytics.user().traits({ email: email });
         analytics.track('Product Viewed', { productId: '12345' });
-        analytics.called(window.criteo_q.push, { event: 'viewItem', product: '12345' }, { event: 'setEmail', email: md5(email) });
+        analytics.called(
+          window.criteo_q.push,
+          { event: 'viewItem', product: '12345' },
+          { event: 'setEmail', email: md5(email) }
+        );
       });
 
       it('should not send email as an unencoded extraData parameter', function() {
@@ -262,20 +310,31 @@ describe('Criteo', function() {
 
         analytics.user().traits({ email: email });
         analytics.track('Product Viewed', { productId: id });
-        analytics.didNotCall(window.criteo_q.push, { event: 'viewItem', product: id }, { event: 'setData', email: email });
+        analytics.didNotCall(
+          window.criteo_q.push,
+          { event: 'viewItem', product: id },
+          { event: 'setData', email: email }
+        );
       });
 
       it('should fire setCustomerId tag if userId is defined', function() {
         analytics.user().id('userId');
         analytics.track('Product Viewed', { productId: '12345' });
-        analytics.called(window.criteo_q.push, { event: 'viewItem', product: '12345' }, { event: 'setCustomerId', id: 'userId' });
+        analytics.called(
+          window.criteo_q.push,
+          { event: 'viewItem', product: '12345' },
+          { event: 'setCustomerId', id: 'userId' }
+        );
       });
 
       it('should not set customer_id if userId is an email', function() {
         var email = 'chris.nixon@segment.com';
         analytics.user().id('userId');
         analytics.track('Product Viewed', { productId: '12345' });
-        analytics.didNotCall(window.criteo_q.push, { event: 'setCustomerId', id: email });
+        analytics.didNotCall(window.criteo_q.push, {
+          event: 'setCustomerId',
+          id: email
+        });
       });
     });
   });

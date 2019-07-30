@@ -11,9 +11,21 @@ describe('Tag Injector', function() {
   var tagInjector;
   var options = {
     tags: [
-      { tagKind: 'url', tagValue: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js' },
-      { tagKind: 'variable', tagValue: '{ a: { b: { c: 1 } }, aa: 1, aaa: 1 }', variableName: '__y' },
-      { tagKind: 'variable', tagValue: '{ a: { b: { cc: 2 } }, aa: 2 }', variableName: '__y' }
+      {
+        tagKind: 'url',
+        tagValue:
+          'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js'
+      },
+      {
+        tagKind: 'variable',
+        tagValue: '{ a: { b: { c: 1 } }, aa: 1, aaa: 1 }',
+        variableName: '__y'
+      },
+      {
+        tagKind: 'variable',
+        tagValue: '{ a: { b: { cc: 2 } }, aa: 2 }',
+        variableName: '__y'
+      }
     ]
   };
 
@@ -33,8 +45,10 @@ describe('Tag Injector', function() {
   });
 
   it('should have the correct options', function() {
-    analytics.compare(TagInjector, integration('Tag Injector')
-      .option('tags', []));
+    analytics.compare(
+      TagInjector,
+      integration('Tag Injector').option('tags', [])
+    );
   });
 
   describe('before loading', function() {
@@ -50,12 +64,20 @@ describe('Tag Injector', function() {
 
       it('should add a script tag for `url` tags', function() {
         analytics.initialize();
-        analytics.notEqual(null, document.querySelector('script[src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"][data-injected-by="segment"]'));
+        analytics.notEqual(
+          null,
+          document.querySelector(
+            'script[src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"][data-injected-by="segment"]'
+          )
+        );
       });
 
       it('should deep-merge variables for `variable` tags', function() {
         analytics.initialize();
-        analytics.deepEqual({ a: { b: { c: 1, cc: 2 } }, aa: 2, aaa: 1 }, window.__y);
+        analytics.deepEqual(
+          { a: { b: { c: 1, cc: 2 } }, aa: 2, aaa: 1 },
+          window.__y
+        );
       });
     });
   });

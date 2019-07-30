@@ -11,12 +11,12 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Eloqua`
  */
 
-var Eloqua = module.exports = integration('Eloqua')
+var Eloqua = (module.exports = integration('Eloqua')
   .assumesPageview()
   .global('_elq')
   .global('_elqQ')
   .option('siteId', '')
-  .tag('<script src="//img.en25.com/i/elqCfg.min.js">');
+  .tag('<script src="//img.en25.com/i/elqCfg.min.js">'));
 
 /**
  * Initialize.

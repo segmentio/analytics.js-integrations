@@ -34,11 +34,14 @@ describe('Email Aptitude', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(EmailAptitude, integration('Email Aptitude')
-      .assumesPageview()
-      .global('_ea')
-      .global('EmailAptitudeTracker')
-      .option('accountId', ''));
+    analytics.compare(
+      EmailAptitude,
+      integration('Email Aptitude')
+        .assumesPageview()
+        .global('_ea')
+        .global('EmailAptitudeTracker')
+        .option('accountId', '')
+    );
   });
 
   describe('before loading', function() {

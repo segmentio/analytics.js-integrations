@@ -12,13 +12,13 @@ var push = require('global-queue')('$CVO');
  * Expose `Convertro` integration.
  */
 
-var Convertro = module.exports = integration('Convertro')
+var Convertro = (module.exports = integration('Convertro')
   .global('$CVO')
   .global('__cvo')
   .option('account', '')
   .option('hybridAttributionModel', false)
   .mapping('events')
-  .tag('<script src="//d1ivexoxmp59q7.cloudfront.net/{{ account }}/live.js">');
+  .tag('<script src="//d1ivexoxmp59q7.cloudfront.net/{{ account }}/live.js">'));
 
 /**
  * Initialize.
@@ -64,7 +64,7 @@ Convertro.prototype.track = function(track) {
   var total = track.total();
   each(function(type) {
     push('trackEvent', {
-      amount: total ? total : revenue,
+      amount: total || revenue,
       id: track.orderId(),
       type: type
     });

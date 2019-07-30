@@ -79,14 +79,14 @@ var apiNameMapping = {
  * Expose `Marketo` integration.
  */
 
-var Marketo = module.exports = integration('Marketo V2')
+var Marketo = (module.exports = integration('Marketo V2')
   .assumesPageview()
   .global('Munchkin')
   .option('host', 'https://api.segment.io')
   .option('accountId', '')
   .option('projectId', '')
   .option('traits', [])
-  .tag('<script src="//munchkin.marketo.net/munchkin.js">');
+  .tag('<script src="//munchkin.marketo.net/munchkin.js">'));
 
 /**
  * Initialize.
@@ -167,13 +167,17 @@ Marketo.prototype.identify = function(identify) {
   var address = identify.address();
 
   traitsToSendMarketo.Email = email;
-  if (identify.birthday()) traitsToSendMarketo.DateofBirth = identify.birthday();
-  if (identify.firstName()) traitsToSendMarketo.FirstName = identify.firstName();
-  if (identify.gender()) traitsToSendMarketo.MarketoSocialGender = identify.gender();
+  if (identify.birthday())
+    traitsToSendMarketo.DateofBirth = identify.birthday();
+  if (identify.firstName())
+    traitsToSendMarketo.FirstName = identify.firstName();
+  if (identify.gender())
+    traitsToSendMarketo.MarketoSocialGender = identify.gender();
   if (identify.lastName()) traitsToSendMarketo.LastName = identify.lastName();
   if (identify.phone()) traitsToSendMarketo.Phone = identify.phone();
   if (identify.userId()) traitsToSendMarketo.userId = identify.userId();
-  if (identify.anonymousId()) traitsToSendMarketo.anonymousId = identify.anonymousId();
+  if (identify.anonymousId())
+    traitsToSendMarketo.anonymousId = identify.anonymousId();
 
   if (address) {
     if (is.object(address)) {
@@ -195,8 +199,12 @@ Marketo.prototype.identify = function(identify) {
   }
 
   each(function(trait) {
-    var segmentTrait = trait.value ? trait.value.segmentTrait : trait.segmentTrait;
-    var marketoField = trait.value ? trait.value.marketoFieldName : trait.marketoFieldName;
+    var segmentTrait = trait.value
+      ? trait.value.segmentTrait
+      : trait.segmentTrait;
+    var marketoField = trait.value
+      ? trait.value.marketoFieldName
+      : trait.marketoFieldName;
     // Marketo requires the SOAP API name when using munchkin but users will be giving us the REST API names
     // in their integrations settings so we have to do a check for any standard Marketo trait that we don't map by default
     // and use the SOAP name. Custom Marketo API names are the same between the REST and SOAP API.
@@ -227,7 +235,12 @@ Marketo.prototype.identify = function(identify) {
 Marketo.prototype.emailHashUrl = function(email) {
   var host = this.options.host;
   var projectId = this.options.projectId;
-  return fmt('%s/integrations/marketo/v1/%s/%s/hash-v2', host, projectId, email);
+  return fmt(
+    '%s/integrations/marketo/v1/%s/%s/hash-v2',
+    host,
+    projectId,
+    email
+  );
 };
 
 /**

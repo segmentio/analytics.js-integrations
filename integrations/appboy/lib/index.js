@@ -39,7 +39,7 @@ var Appboy = (module.exports = integration('Appboy')
   )
   .tag(
     'v2',
-    '<script src="https://js.appboycdn.com/web-sdk/2.2/appboy.min.js">'
+    '<script src="https://js.appboycdn.com/web-sdk/2.3/appboy.min.js">'
   ));
 
 Appboy.prototype.initialize = function() {
@@ -74,9 +74,35 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
 
   // stub out function
   /* eslint-disable */
-  +function(a,p,P,b,y) {
-    window.appboy={};for(var s="destroy toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib".split(" "),i=0;i<s.length;i++){for(var k=appboy,l=s[i].split("."),j=0;j<l.length-1;j++)k=k[l[j]];k[l[j]]=function(){console&&console.error("The Appboy SDK has not yet been loaded.")}}appboy.initialize=function(){console&&console.error("Appboy cannot be loaded - this is usually due to strict corporate firewalls or ad blockers.")};appboy.getUser=function(){return new appboy.ab.User};appboy.getCachedFeed=function(){return new appboy.ab.Feed};
-  }(document, 'script', 'link');
+  +(function(a, p, P, b, y) {
+    window.appboy = {};
+    for (
+      var s = 'destroy toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib'.split(
+          ' '
+        ),
+        i = 0;
+      i < s.length;
+      i++
+    ) {
+      for (var k = appboy, l = s[i].split('.'), j = 0; j < l.length - 1; j++)
+        k = k[l[j]];
+      k[l[j]] = function() {
+        console && console.error('The Appboy SDK has not yet been loaded.');
+      };
+    }
+    appboy.initialize = function() {
+      console &&
+        console.error(
+          'Appboy cannot be loaded - this is usually due to strict corporate firewalls or ad blockers.'
+        );
+    };
+    appboy.getUser = function() {
+      return new appboy.ab.User();
+    };
+    appboy.getCachedFeed = function() {
+      return new appboy.ab.Feed();
+    };
+  })(document, 'script', 'link');
   /* eslint-enable */
 
   // this is used to test this.loaded
@@ -131,14 +157,36 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
   var userId = this.analytics.user().id();
 
   /* eslint-disable */
-  +function (a, p, P, b, y) {
-    window.appboy = {}; window.appboyQueue = [];
-    for (var s = "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback trackLocation stopWebTracking resumeWebTracking wipeData ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib".split(" "), i = 0; i < s.length; i++){
-      for (var m = s[i], k = appboy, l = m.split("."), j = 0; j < l.length - 1; j++)k = k[l[j]]; k[l[j]] = (new Function("return function " + m.replace(/\./g, "_") + "(){appboyQueue.push(arguments); return true}"))()
+  +(function(a, p, P, b, y) {
+    window.appboy = {};
+    window.appboyQueue = [];
+    for (
+      var s = 'initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback trackLocation stopWebTracking resumeWebTracking wipeData ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib'.split(
+          ' '
+        ),
+        i = 0;
+      i < s.length;
+      i++
+    ) {
+      for (
+        var m = s[i], k = appboy, l = m.split('.'), j = 0;
+        j < l.length - 1;
+        j++
+      )
+        k = k[l[j]];
+      k[l[j]] = new Function(
+        'return function ' +
+          m.replace(/\./g, '_') +
+          '(){appboyQueue.push(arguments); return true}'
+      )();
     }
-    appboy.getUser = function () { return new appboy.ab.User };
-    appboy.getCachedFeed = function () { return new appboy.ab.Feed };
-  }(window, document, 'script');
+    appboy.getUser = function() {
+      return new appboy.ab.User();
+    };
+    appboy.getCachedFeed = function() {
+      return new appboy.ab.Feed();
+    };
+  })(window, document, 'script');
   /* eslint-enable */
 
   // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
@@ -359,19 +407,9 @@ Appboy.prototype.orderCompleted = function(track) {
   del(purchaseProperties, 'currency');
 
   // we have to make a separate call to appboy for each product
-  each(function(product) {
-    var track = new Track({ properties: product });
-    var productId = track.productId();
-    var price = track.price();
-    var quantity = track.quantity();
-    window.appboy.logPurchase(
-      productId,
-      price,
-      currencyCode,
-      quantity,
-      purchaseProperties
-    );
-  }, products);
+  for (var i = 0; i < products.length; i++) {
+    logProduct(products[i], currencyCode, purchaseProperties);
+  }
 };
 
 /**
@@ -400,4 +438,93 @@ function getGender(gender) {
     return window.appboy.ab.User.Genders.MALE;
   if (otherGenders.indexOf(gender.toLowerCase()) > -1)
     return window.appboy.ab.User.Genders.OTHER;
+}
+
+/**
+ * Logs a Purchase containing a product as described in Braze's documentation:
+ * https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.logPurchase
+ *
+ * @param {Object} product Product from the Order Completed call
+ * @param {String} currencyCode Currency code
+ * @param {Object} extraProperties Root properties from the track call
+ */
+function logProduct(product, currencyCode, extraProperties) {
+  var track = new Track({ properties: product });
+  var productId = track.productId();
+  var price = track.price();
+  var quantity = track.quantity();
+  var productProperties = track.properties();
+  var properties = {};
+
+  del(productProperties, 'productId');
+  del(productProperties, 'price');
+  del(productProperties, 'quantity');
+
+  for (var productProperty in productProperties) {
+    if (!productProperties.hasOwnProperty(productProperty)) {
+      continue;
+    }
+
+    var value = productProperties[productProperty];
+    if (isValidProperty(productProperty, value)) {
+      properties[productProperty] = value;
+    }
+  }
+
+  for (var property in extraProperties) {
+    if (!extraProperties.hasOwnProperty(property)) {
+      continue;
+    }
+
+    var val = extraProperties[property];
+    if (
+      !productProperties.hasOwnProperty(property) &&
+      isValidProperty(property, val)
+    ) {
+      properties[property] = val;
+    }
+  }
+
+  window.appboy.logPurchase(
+    productId,
+    price,
+    currencyCode,
+    quantity,
+    properties
+  );
+}
+
+/**
+ * Validates a name and value of a property, following Braze's restrictions:
+ *
+ * Names are limited to 255 characters in length, cannot begin with a $, and
+ * can only contain alphanumeric characters and punctuation. Values can be
+ * numeric, boolean, Date objects, or strings 255 characters or shorter.
+ *
+ * @param {String} name Name of the property.
+ * @param {*} value Value of the property.
+ *
+ * @return {boolean} <code>true</code> if the name and value are valid, <code>false</code> otherwise.
+ */
+function isValidProperty(name, value) {
+  if (name.length > 255 || name.startsWith('$')) {
+    return false;
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return true;
+  }
+
+  if (typeof value === 'object' && value instanceof Date) {
+    return true;
+  }
+
+  if (
+    (typeof value === 'string' || value instanceof String) &&
+    value.length <= 255
+  ) {
+    return true;
+  }
+
+  return false;
 }

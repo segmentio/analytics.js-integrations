@@ -46,7 +46,7 @@ var omnitureEventMap = {
  * Expose `Omniture`.
  */
 
-var Omniture = module.exports = integration('Omniture');
+var Omniture = (module.exports = integration('Omniture'));
 
 /**
  * Uses the default `field` from the `window.s` object if it exists,
@@ -74,8 +74,7 @@ Omniture.sOption = function(field, value) {
  * Add our omniture
  */
 
-Omniture
-  .global('s')
+Omniture.global('s')
   .global('s_gi')
   .option('initialPage', true)
   .option('events', {})
@@ -101,13 +100,18 @@ Omniture
   .sOption('trackDownloadLinks', true)
   .sOption('trackExternalLinks', true)
   .sOption('trackInlineStats', true)
-  .sOption('linkDownloadFileTypes', 'exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx')
+  .sOption(
+    'linkDownloadFileTypes',
+    'exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx'
+  )
   .sOption('linkInternalFilters')
   .sOption('linkLeaveQueryString', false)
   .sOption('linkTrackVars', 'None')
   .sOption('linkTrackEvents', 'None')
   .sOption('usePlugins', true)
-  .tag('<script src="//cdn.segment.io/integrations/omniture/H.26.2/omniture.min.js">');
+  .tag(
+    '<script src="//cdn.segment.io/integrations/omniture/H.26.2/omniture.min.js">'
+  );
 
 /**
  * Initialize.
@@ -130,7 +134,8 @@ Omniture.prototype.initialize = function() {
     var s = window.s;
     // TODO: rename on server-side and mobile
     s.trackingServer = s.trackingServer || options.trackingServerUrl;
-    s.trackingServerSecure = s.trackingServerSecure || options.trackingServerSecureUrl;
+    s.trackingServerSecure =
+      s.trackingServerSecure || options.trackingServerSecureUrl;
     self.ready();
   });
 };
@@ -397,7 +402,7 @@ function extractProperties(props, options) {
   // they don't have a specific mapping, but
   // named it like omniture does
   each(function(value, key) {
-    if ((/prop\d+/i).test(key) || (/eVar\d+/i).test(key) || (/hier\d+/i).test(key)) {
+    if (/prop\d+/i.test(key) || /eVar\d+/i.test(key) || /hier\d+/i.test(key)) {
       result[key] = value;
       return;
     }

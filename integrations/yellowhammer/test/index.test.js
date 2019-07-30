@@ -42,8 +42,10 @@ describe('Yellowhammer', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Yellowhammer, integration('Yellowhammer')
-      .option('segmentId', ''));
+    analytics.compare(
+      Yellowhammer,
+      integration('Yellowhammer').option('segmentId', '')
+    );
   });
 
   describe('after loading', function() {
@@ -60,7 +62,12 @@ describe('Yellowhammer', function() {
 
       it('should load the pixel on every page', function() {
         analytics.page();
-        analytics.loaded(fmt('<script src="https://secure.adnxs.com/seg?add=%s&t=1"/>', options.segmentId));
+        analytics.loaded(
+          fmt(
+            '<script src="https://secure.adnxs.com/seg?add=%s&t=1"/>',
+            options.segmentId
+          )
+        );
       });
     });
 
@@ -82,11 +89,21 @@ describe('Yellowhammer', function() {
         var loadedSecondTag = false;
         var integration = analytics.integration();
         each(function(el) {
-          if (el.src === 'https://jump.omnitarget.com/' + event.omnitargetId + '?customer_id=u12345&order_revenue=10.00&order_id=12345') {
+          if (
+            el.src ===
+            'https://jump.omnitarget.com/' +
+              event.omnitargetId +
+              '?customer_id=u12345&order_revenue=10.00&order_id=12345'
+          ) {
             loadedFirstTag = true;
           }
 
-          if (el.src === 'https://secure.adnxs.com/px?id=' + event.pixelId + '&value=10.00&t=1') {
+          if (
+            el.src ===
+            'https://secure.adnxs.com/px?id=' +
+              event.pixelId +
+              '&value=10.00&t=1'
+          ) {
             loadedSecondTag = true;
           }
           done();

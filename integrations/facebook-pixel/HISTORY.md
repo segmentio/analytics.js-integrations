@@ -1,3 +1,8 @@
+2.7.0/ 2019-06-10
+==================
+
+  * Add support for a custom property blacklist setting
+
 2.6.0/ 2019-03-08
 ==================
 

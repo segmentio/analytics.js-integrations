@@ -32,12 +32,15 @@ describe('Wootric', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Wootric, integration('Wootric')
-      .assumesPageview()
-      .option('accountToken', '')
-      .global('wootricSettings')
-      .global('wootric_survey_immediately')
-      .global('wootric'));
+    analytics.compare(
+      Wootric,
+      integration('Wootric')
+        .assumesPageview()
+        .option('accountToken', '')
+        .global('wootricSettings')
+        .global('wootric_survey_immediately')
+        .global('wootric')
+    );
   });
 
   describe('before loading', function() {
@@ -56,11 +59,14 @@ describe('Wootric', function() {
       });
 
       it('should have settings with account token', function() {
-        analytics.assert(window.wootricSettings.account_token === 'NPS-01fe3cbc');
+        analytics.assert(
+          window.wootricSettings.account_token === 'NPS-01fe3cbc'
+        );
       });
 
       it('should setup the wootricSettings object', function() {
         is.object(window.wootricSettings);
+        analytics.assert(window.wootricSettings.version);
       });
 
       it('should have lastPageTracked set to null', function() {
@@ -124,6 +130,17 @@ describe('Wootric', function() {
         analytics.assert(!window.wootricSettings.properties.email);
         analytics.assert(!window.wootricSettings.properties.createdAt);
       });
+
+      it('should set language if present', function() {
+        analytics.track('track_event', {
+          email: 'shawn@shawnmorgan.com',
+          createdAt: '01/01/2015',
+          property1: 'foo',
+          property2: 'bar',
+          language: 'es'
+        });
+        analytics.assert(window.wootricSettings.language === 'es');
+      });
     });
 
     describe('#identify', function() {
@@ -138,7 +155,10 @@ describe('Wootric', function() {
         analytics.identify({
           email: 'shawn@shawnmorgan.com'
         });
-        analytics.equal(window.wootricSettings.segment_user_id, analytics.user().anonymousId());
+        analytics.equal(
+          window.wootricSettings.segment_user_id,
+          analytics.user().anonymousId()
+        );
       });
 
       it('should set email on identify', function() {
@@ -209,9 +229,16 @@ describe('Wootric', function() {
           property2: '2015-01-01'
         });
         analytics.assert(window.wootricSettings.properties.property1 === 'foo');
-        analytics.assert(window.wootricSettings.properties.hasOwnProperty('property2_date'));
-        analytics.assert(!window.wootricSettings.properties.hasOwnProperty('property2'));
-        analytics.equal(window.wootricSettings.properties.property2_date, 1420070400);
+        analytics.assert(
+          window.wootricSettings.properties.hasOwnProperty('property2_date')
+        );
+        analytics.assert(
+          !window.wootricSettings.properties.hasOwnProperty('property2')
+        );
+        analytics.equal(
+          window.wootricSettings.properties.property2_date,
+          1420070400
+        );
       });
 
       it('should not convert to date if property key has suffix _date', function() {
@@ -222,8 +249,15 @@ describe('Wootric', function() {
           property2_date: 1420070400
         });
         analytics.assert(window.wootricSettings.properties.property1 === 'foo');
-        analytics.equal(window.wootricSettings.properties.property2_date, 1420070400);
-        analytics.assert(!window.wootricSettings.properties.hasOwnProperty('property2_date_date'));
+        analytics.equal(
+          window.wootricSettings.properties.property2_date,
+          1420070400
+        );
+        analytics.assert(
+          !window.wootricSettings.properties.hasOwnProperty(
+            'property2_date_date'
+          )
+        );
       });
 
       it('should omit email and createdAt when setting window.wootricSettings.properties', function() {
@@ -259,6 +293,13 @@ describe('Wootric', function() {
           email: 'shawn@shawnmorgan.com'
         });
         analytics.equal(window.wootricSettings.email, 'shawn@shawnmorgan.com');
+      });
+
+      it('should set email on identify if present', function() {
+        analytics.identify({
+          email: null
+        });
+        analytics.equal(window.wootricSettings.email, undefined);
       });
 
       it('should set created_at on identify using ISO YYYY-MM-DD format', function() {

@@ -40,12 +40,15 @@ describe('Marketo', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Marketo, integration('Marketo')
-      .assumesPageview()
-      .global('Munchkin')
-      .option('host', 'https://api.segment.io')
-      .option('accountId', '')
-      .option('projectId', ''));
+    analytics.compare(
+      Marketo,
+      integration('Marketo')
+        .assumesPageview()
+        .global('Munchkin')
+        .option('host', 'https://api.segment.io')
+        .option('accountId', '')
+        .option('projectId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -98,7 +101,11 @@ describe('Marketo', function() {
 
       it('should call munchkin with a specific url', function() {
         var parsed = url.parse();
-        analytics.page('Signup', { url: 'http://example.com' }, { Marketo: true });
+        analytics.page(
+          'Signup',
+          { url: 'http://example.com' },
+          { Marketo: true }
+        );
         analytics.called(window.mktoMunchkinFunction, 'visitWebPage', {
           url: 'http://example.com',
           params: parsed.query
@@ -113,7 +120,11 @@ describe('Marketo', function() {
       });
 
       it('should call window.mktoMunchkinFunction', function(done) {
-        analytics.identify('id', { email: 'name@example.com' }, { Marketo: true });
+        analytics.identify(
+          'id',
+          { email: 'name@example.com' },
+          { Marketo: true }
+        );
         analytics.equal(marketo.requestHash.args[0][0], 'name@example.com');
         when(function() {
           return window.mktoMunchkinFunction.called;
@@ -151,51 +162,65 @@ describe('Marketo', function() {
         };
         analytics.identify('id', traits, { Marketo: true });
         analytics.assert(marketo.requestHash.calledWith('name@example.com'));
-        when(function() {
-          return window.mktoMunchkinFunction.called;
-        }, function() {
-          // XXX: Trying to figure out why your spec is failing? Throwing
-          // uncaught exceptions? It's this! This assert is probably failing.
-          // I'm ashamed to have touched this code.
-          // TODO: Rewrite this to synchronously stub `requestHash` so we don't
-          // have to do this crap
-          analytics.assert(window.mktoMunchkinFunction.calledWith('associateLead', {
-            customTrait: 'something',
-            id: 'id',
-            userId: 'id',
-            Company: 'Marketo',
-            Email: 'name@example.com',
-            FirstName: 'Prateek',
-            Industry: 'SaaS',
-            LastName: 'Srivastava',
-            Phone: '123-456-7890',
-            City: 'San Francisco',
-            Country: 'USA',
-            PostalCode: '94103',
-            State: 'California'
-          }));
-          done();
-        });
+        when(
+          function() {
+            return window.mktoMunchkinFunction.called;
+          },
+          function() {
+            // XXX: Trying to figure out why your spec is failing? Throwing
+            // uncaught exceptions? It's this! This assert is probably failing.
+            // I'm ashamed to have touched this code.
+            // TODO: Rewrite this to synchronously stub `requestHash` so we don't
+            // have to do this crap
+            analytics.assert(
+              window.mktoMunchkinFunction.calledWith('associateLead', {
+                customTrait: 'something',
+                id: 'id',
+                userId: 'id',
+                Company: 'Marketo',
+                Email: 'name@example.com',
+                FirstName: 'Prateek',
+                Industry: 'SaaS',
+                LastName: 'Srivastava',
+                Phone: '123-456-7890',
+                City: 'San Francisco',
+                Country: 'USA',
+                PostalCode: '94103',
+                State: 'California'
+              })
+            );
+            done();
+          }
+        );
       });
 
       it('should call window.mktoMunchkinFunction with string address', function(done) {
-        analytics.identify('name@example.com', { address: 'SF, CA, USA' }, { Marketo: true });
-        when(function() {
-          return window.mktoMunchkinFunction.called;
-        }, function() {
-          // XXX: Trying to figure out why your spec is failing? Throwing
-          // uncaught exceptions? It's this! This assert is probably failing.
-          // I'm ashamed to have touched this code.
-          // TODO: Rewrite this to synchronously stub `requestHash` so we don't
-          // have to do this crap
-          analytics.assert(window.mktoMunchkinFunction.calledWith('associateLead', {
-            id: 'name@example.com',
-            userId: 'name@example.com',
-            Address: 'SF, CA, USA',
-            Email: 'name@example.com'
-          }));
-          done();
-        });
+        analytics.identify(
+          'name@example.com',
+          { address: 'SF, CA, USA' },
+          { Marketo: true }
+        );
+        when(
+          function() {
+            return window.mktoMunchkinFunction.called;
+          },
+          function() {
+            // XXX: Trying to figure out why your spec is failing? Throwing
+            // uncaught exceptions? It's this! This assert is probably failing.
+            // I'm ashamed to have touched this code.
+            // TODO: Rewrite this to synchronously stub `requestHash` so we don't
+            // have to do this crap
+            analytics.assert(
+              window.mktoMunchkinFunction.calledWith('associateLead', {
+                id: 'name@example.com',
+                userId: 'name@example.com',
+                Address: 'SF, CA, USA',
+                Email: 'name@example.com'
+              })
+            );
+            done();
+          }
+        );
       });
     });
 
@@ -243,7 +268,11 @@ describe('Marketo', function() {
         var url = marketo.emailHashUrl(email);
         assert.equal(
           url,
-          fmt('https://api.segment.io/integrations/marketo/v1/%s/%s/hash', options.projectId, email)
+          fmt(
+            'https://api.segment.io/integrations/marketo/v1/%s/%s/hash',
+            options.projectId,
+            email
+          )
         );
       });
     });

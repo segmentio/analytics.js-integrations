@@ -44,8 +44,7 @@ describe('Simpli.fi', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Simplifi, integration('Simpli.fi')
-      .mapping('events'));
+    analytics.compare(Simplifi, integration('Simpli.fi').mapping('events'));
   });
 
   describe('after loading', function() {
@@ -63,7 +62,9 @@ describe('Simpli.fi', function() {
       describe('should opt-out if a userId exists', function() {
         it('should load the right script', function() {
           analytics.identify('id');
-          analytics.loaded('<script src="http://i.simpli.fi/dpx.js?cid=advertiser&action=101&segment=optout&m=1"></script>');
+          analytics.loaded(
+            '<script src="http://i.simpli.fi/dpx.js?cid=advertiser&action=101&segment=optout&m=1"></script>'
+          );
         });
       });
     });
@@ -75,13 +76,17 @@ describe('Simpli.fi', function() {
 
       it('should opt-in non-identified users', function() {
         analytics.page();
-        analytics.loaded('<script src="http://i.simpli.fi/dpx.js?cid=advertiser&action=100&segment=optin&m=1"></script>');
+        analytics.loaded(
+          '<script src="http://i.simpli.fi/dpx.js?cid=advertiser&action=100&segment=optin&m=1"></script>'
+        );
       });
 
       it('should opt-out identified users', function() {
         analytics.identify('id');
         analytics.page();
-        analytics.loaded('<script src="http://i.simpli.fi/dpx.js?cid=advertiser&action=101&segment=optout&m=1"></script>');
+        analytics.loaded(
+          '<script src="http://i.simpli.fi/dpx.js?cid=advertiser&action=101&segment=optout&m=1"></script>'
+        );
       });
     });
 
@@ -98,12 +103,16 @@ describe('Simpli.fi', function() {
       describe('mapped events', function() {
         it('should track without campaignId', function() {
           analytics.track('without campaign id');
-          analytics.loaded('<script src="http://i.simpli.fi/dpx.js?cid=advertiser&conversion=1&campaign_id=0&m=1&tid=tidExample1&sifi_tuid=sifiExample1">');
+          analytics.loaded(
+            '<script src="http://i.simpli.fi/dpx.js?cid=advertiser&conversion=1&campaign_id=0&m=1&tid=tidExample1&sifi_tuid=sifiExample1">'
+          );
         });
 
         it('should track with campaignId', function() {
           analytics.track('with campaign id');
-          analytics.loaded('<script src="http://i.simpli.fi/dpx.js?cid=advertiser&conversion=2&campaign_id=100&m=1&tid=tidExample2&sifi_tuid=sifiExample2">');
+          analytics.loaded(
+            '<script src="http://i.simpli.fi/dpx.js?cid=advertiser&conversion=2&campaign_id=100&m=1&tid=tidExample2&sifi_tuid=sifiExample2">'
+          );
         });
       });
     });

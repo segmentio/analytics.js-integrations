@@ -29,8 +29,7 @@ describe('OneSpot', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(OneSpot, integration('OneSpot')
-      .option('accountId', ''));
+    analytics.compare(OneSpot, integration('OneSpot').option('accountId', ''));
   });
 
   describe('before loading', function() {
