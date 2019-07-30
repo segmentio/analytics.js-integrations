@@ -312,7 +312,7 @@ Appboy.prototype.identify = function(identify) {
   each(function(value, key) {
     if (
       typeof value === 'object' &&
-      Object.prototype.toString.call(value) !== '[object Array]'
+      Array.isArray(value)
     ) {
       delete traits[key];
     }
@@ -370,7 +370,7 @@ Appboy.prototype.track = function(track) {
   // Remove nested objects as Braze doesn't support nested objects in tracking calls
   // https://segment.com/docs/destinations/braze/#track
   each(function(value, key) {
-    if (typeof value === 'object') {
+    if (val != null && typeof value === 'object') {
       delete properties[key];
     }
   }, properties);
