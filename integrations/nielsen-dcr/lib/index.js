@@ -16,7 +16,8 @@ var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('appId', '')
   .option('instanceName', '') // the snippet lets you override the instance so make sure you don't have any global window props w same value as this setting unless you are intentionally doing that.
   .option('nolDevDebug', false)
-  .option('assetIdPropertyName', 'asset_id')
+  .option('assetIdPropertyName', '')
+  .option('adAssetIdPropertyName', '')
   .option('subbrandPropertyName', '')
   .option('clientIdPropertyName', '')
   .option('contentLengthPropertyName', 'total_length')
@@ -159,12 +160,18 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
 
 NielsenDCR.prototype.getContentMetadata = function(track, type) {
   var properties = 'properties.';
-  if (type && type === 'preroll') properties = 'properties.content.';
+  var assetIdProp = 'asset_id';
+  if (type) {
+    if (type === 'preroll') properties = 'properties.content.';
+    if (type === 'video') assetIdProp = 'content_asset_id';
+  }
 
   var integrationOpts = track.options(this.name);
   var contentMetadata = {
     type: 'content',
-    assetid: getAssetId(track, this.options.assetIdPropertyName, type),
+    assetid: this.options.assetIdPropertyName
+      ? track.proxy(properties + this.options.assetIdPropertyName)
+      : track.proxy(properties + assetIdProp),
     program: track.proxy(properties + 'program'),
     title: track.proxy(properties + 'title'),
     isfullepisode: track.proxy(properties + 'full_episode') ? 'y' : 'n',
@@ -214,15 +221,15 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
 
 NielsenDCR.prototype.getAdMetadata = function(track) {
   var type = track.proxy('properties.type');
-  var adMetadata;
-  var assetId = getAssetId(track, this.options.assetIdPropertyName);
-
   if (typeof type === 'string') type = type.replace('-', '');
 
-  adMetadata = {
-    assetid: track.proxy('ad_asset_id') || assetId,
+  var adMetadata = {
+    assetid: this.options.adAssetIdPropertyName
+      ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
+      : track.proxy('properties.ad_asset_id'),
     type: type
   };
+
   return adMetadata;
 };
 
@@ -260,7 +267,9 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
 NielsenDCR.prototype.videoContentPlaying = function(track) {
   clearInterval(this.heartbeatId);
 
-  var assetId = getAssetId(track, this.options.assetIdPropertyName);
+  var assetId = this.options.assetIdPropertyName
+    ? track.proxy('properties.' + this.options.assetIdPropertyName)
+    : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
@@ -300,11 +309,9 @@ NielsenDCR.prototype.videoContentCompleted = function(track) {
 NielsenDCR.prototype.videoAdStarted = function(track) {
   clearInterval(this.heartbeatId);
 
-  var adAssetId = getAssetId(
-    track,
-    this.options.assetIdPropertyName,
-    'adMetadata'
-  );
+  var adAssetId = this.options.adAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
+    : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
   var type = track.proxy('properties.type');
   if (typeof type === 'string') type = type.replace('-', '');
@@ -332,7 +339,9 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
 NielsenDCR.prototype.videoAdPlaying = function(track) {
   clearInterval(this.heartbeatId);
 
-  var assetId = getAssetId(track, this.options.assetIdPropertyName);
+  var assetId = this.options.adAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
+    : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
   this.heartbeat(assetId, position, { type: 'ad' });
 };
@@ -362,7 +371,9 @@ NielsenDCR.prototype.videoPlaybackInterrupted = function(track) {
 
   // if properly implemented, the point in which the playback is resumed
   // you should _only_ be sending the asset_id of whatever you are pausing in: content or ad
-  var adAssetId = track.proxy('properties.ad_asset_id');
+  var adAssetId = this.options.adAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
+    : track.proxy('properties.ad_asset_id');
   // if playback was interrupted during an ad, we only call `stop`
   // if interrupted during content play, we call both `end` and `stop`
   var position = track.proxy('properties.position');
@@ -381,8 +392,12 @@ NielsenDCR.prototype.videoPlaybackInterrupted = function(track) {
 NielsenDCR.prototype.videoPlaybackSeekCompleted = function(track) {
   clearInterval(this.heartbeatId);
 
-  var contentAssetId = track.proxy('properties.content_asset_id');
-  var adAssetId = track.proxy('properties.ad_asset_id');
+  var contentAssetId = this.options.assetIdPropertyName
+    ? track.proxy('properties.' + this.options.assetIdPropertyName)
+    : track.proxy('properties.content_asset_id');
+  var adAssetId = this.options.adAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
+    : track.proxy('properties.ad_asset_id');
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
   // if properly implemented, the point in which the playback is resumed
@@ -394,7 +409,10 @@ NielsenDCR.prototype.videoPlaybackSeekCompleted = function(track) {
     if (type === 'ad') {
       this._client.ggPM('loadMetadata', this.getAdMetadata(track));
     } else if (type === 'content') {
-      this._client.ggPM('loadMetadata', this.getContentMetadata(track));
+      this._client.ggPM(
+        'loadMetadata',
+        this.getContentMetadata(track, 'video')
+      );
     }
   }
 
@@ -426,8 +444,12 @@ NielsenDCR.prototype.videoPlaybackPaused = function(track) {
 NielsenDCR.prototype.videoPlaybackResumed = function(track) {
   clearInterval(this.heartbeatId);
 
-  var contentAssetId = track.proxy('properties.content_asset_id');
-  var adAssetId = track.proxy('properties.ad_asset_id');
+  var contentAssetId = this.options.assetIdPropertyName
+    ? track.proxy('properties.' + this.options.assetIdPropertyName)
+    : track.proxy('properties.content_asset_id');
+  var adAssetId = this.options.adAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
+    : track.proxy('properties.ad_asset_id');
   var position = track.proxy('properties.position');
   // if properly implemented, the point in which the playback is resumed
   // you should _only_ be sending the asset_id of whatever you are resuming in: content or ad
@@ -438,7 +460,10 @@ NielsenDCR.prototype.videoPlaybackResumed = function(track) {
     if (type === 'ad') {
       this._client.ggPM('loadMetadata', this.getAdMetadata(track));
     } else if (type === 'content') {
-      this._client.ggPM('loadMetadata', this.getContentMetadata(track));
+      this._client.ggPM(
+        'loadMetadata',
+        this.getContentMetadata(track, 'video')
+      );
     }
   }
 
@@ -468,27 +493,3 @@ NielsenDCR.prototype.videoPlaybackCompleted = function(track) {
   this.currentAssetId = null;
   this.heartbeatId = null;
 };
-
-/**
- * Get Asset ID
- *
- * @param {Track} track
- * @return {string}
- * @api private
- */
-
-function getAssetId(track, customAssetId, type) {
-  var assetIdValue;
-  var properties = 'properties.';
-  if (type === 'preroll') {
-    var assetIdKey = 'asset_id';
-    if (customAssetId !== 'asset_id') assetIdKey = customAssetId;
-    properties = 'properties.content.';
-    assetIdValue = track.proxy(properties + assetIdKey);
-  } else if (customAssetId !== 'asset_id' && type !== 'adMetadata') {
-    assetIdValue = track.proxy(properties + customAssetId);
-  } else {
-    assetIdValue = track.proxy(properties + 'asset_id');
-  }
-  return assetIdValue;
-}
