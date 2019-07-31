@@ -1,4 +1,9 @@
 
+2.2.1 / 2019-07-31
+==================
+
+  * Update recording snippet
+
 2.1.4 / 2018-05-01
 ==================
 
@@ -15,12 +20,12 @@
 2.1.2 / 2017-01-24
 ==================
 
-  * Fix error when null is passed as a trait value 
+  * Fix error when null is passed as a trait value
 
 2.1.1 / 2017-01-03
 ==================
 
-  * Remove option to override default namespace 
+  * Remove option to override default namespace
 
 2.1.0 / 2017-01-03
 ==================
