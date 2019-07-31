@@ -38,7 +38,13 @@ describe('NielsenDCR', function() {
       integration('Nielsen DCR')
         .option('appId', '')
         .option('instanceName', '')
-        .option('assetIdPropertyName', 'asset_id')
+        .option('nolDevDebug', false)
+        .option('assetIdPropertyName', '')
+        .option('adAssetIdPropertyName', '')
+        .option('subbrandPropertyName', '')
+        .option('clientIdPropertyName', '')
+        .option('contentLengthPropertyName', 'total_length')
+        .option('optout', false)
         .tag(
           'http',
           '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
