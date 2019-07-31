@@ -16,7 +16,8 @@ var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('appId', '')
   .option('instanceName', '') // the snippet lets you override the instance so make sure you don't have any global window props w same value as this setting unless you are intentionally doing that.
   .option('nolDevDebug', false)
-  .option('assetIdPropertyName', '')
+  .option('assetIdPropertyName', '') // deprecated
+  .option('contentAssetIdPropertyName', '')
   .option('adAssetIdPropertyName', '')
   .option('subbrandPropertyName', '')
   .option('clientIdPropertyName', '')
@@ -169,8 +170,8 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
   var integrationOpts = track.options(this.name);
   var contentMetadata = {
     type: 'content',
-    assetid: this.options.assetIdPropertyName
-      ? track.proxy(properties + this.options.assetIdPropertyName)
+    assetid: this.options.contentAssetIdPropertyName
+      ? track.proxy(properties + this.options.contentAssetIdPropertyName)
       : track.proxy(properties + assetIdProp),
     program: track.proxy(properties + 'program'),
     title: track.proxy(properties + 'title'),
@@ -267,8 +268,8 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
 NielsenDCR.prototype.videoContentPlaying = function(track) {
   clearInterval(this.heartbeatId);
 
-  var assetId = this.options.assetIdPropertyName
-    ? track.proxy('properties.' + this.options.assetIdPropertyName)
+  var assetId = this.options.contentAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.contentAssetIdPropertyName)
     : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
@@ -392,8 +393,8 @@ NielsenDCR.prototype.videoPlaybackInterrupted = function(track) {
 NielsenDCR.prototype.videoPlaybackSeekCompleted = function(track) {
   clearInterval(this.heartbeatId);
 
-  var contentAssetId = this.options.assetIdPropertyName
-    ? track.proxy('properties.' + this.options.assetIdPropertyName)
+  var contentAssetId = this.options.contentAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.contentAssetIdPropertyName)
     : track.proxy('properties.content_asset_id');
   var adAssetId = this.options.adAssetIdPropertyName
     ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
@@ -444,8 +445,8 @@ NielsenDCR.prototype.videoPlaybackPaused = function(track) {
 NielsenDCR.prototype.videoPlaybackResumed = function(track) {
   clearInterval(this.heartbeatId);
 
-  var contentAssetId = this.options.assetIdPropertyName
-    ? track.proxy('properties.' + this.options.assetIdPropertyName)
+  var contentAssetId = this.options.contentAssetIdPropertyName
+    ? track.proxy('properties.' + this.options.contentAssetIdPropertyName)
     : track.proxy('properties.content_asset_id');
   var adAssetId = this.options.adAssetIdPropertyName
     ? track.proxy('properties.' + this.options.adAssetIdPropertyName)

@@ -278,7 +278,8 @@ describe('NielsenDCR', function() {
 
         it('video content started - custom asset id', function() {
           var timestamp = new Date();
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.contentAssetIdPropertyName =
+            'custom_asset_id_prop';
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
             'Nielsen DCR': { ad_load_type: 'dynamic' },
@@ -630,7 +631,8 @@ describe('NielsenDCR', function() {
             livestream: false,
             airdate: '1991-08-13'
           };
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.contentAssetIdPropertyName =
+            'custom_asset_id_prop';
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
           });
