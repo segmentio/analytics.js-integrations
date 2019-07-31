@@ -46,6 +46,14 @@ Monetate.prototype.initialize = function() {
     };
   }
   window.monetateQ = window.monetateQ || [];
+
+  // Get monetateId from mt.v cookie.
+  var monetateIdCookie = document.cookie.match('(^|;) ?mt.v=([^;]*)(;|$)');
+  var monetateId = monetateIdCookie ? monetateIdCookie[2] : null;
+  if (monetateId && this.options.context && this.options.context.traits) {
+      this.options.context.traits.monetateId = monetateId;
+  }
+
   this.ready();
 };
 

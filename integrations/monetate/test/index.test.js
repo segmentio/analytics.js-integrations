@@ -34,6 +34,7 @@ describe('Monetate', function() {
     beforeEach(function() {
       queue = window.monetateQ;
       delete window.monetateQ;
+      monetate.options.context = {traits: {}};
     });
 
     afterEach(function() {
@@ -47,6 +48,23 @@ describe('Monetate', function() {
         analytics.page();
         analytics.assert(window.monetateQ);
       });
+
+      it('should not set monetateId as trait if mt.v cookie not set', function() {
+        analytics.assert(!monetate.options.context.traits.monetateId);
+        analytics.initialize();
+        analytics.assert(!monetate.options.context.traits.monetateId);
+      });
+
+      it('should set monetateId as trait if mt.v cookie is set', function() {
+        analytics.assert(!monetate.options.context.traits.monetateId);
+        var d = new Date;
+        d.setTime(d.getTime() + 24*60*60*1000);
+        document.cookie = 'mt.v=2.1879957417.1544197401555; path=/; expires=' + d.toGMTString();
+        analytics.initialize();
+        analytics.assert(monetate.options.context.traits.monetateId == '2.1879957417.1544197401555');
+        document.cookie = 'mt.v=2.1879957417.1544197401555; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      });
+
     });
 
     describe('#loaded', function() {
