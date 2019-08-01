@@ -52,17 +52,14 @@ describe('LiveChat', function() {
       windowRef: function() {},
       embedded_chat_enabled: function() {}
     };
-    window.__lc_lang = function() {};
   });
 
   it('should have the right settings', function() {
     var Test = integration('LiveChat')
       .assumesPageview()
       .global('LC_API')
-      .global('LC_Invite')
       .global('__lc')
       .global('__lc_inited')
-      .global('__lc_lang')
       .option('license', '')
       .option('listen', false);
 
@@ -160,7 +157,14 @@ describe('LiveChat', function() {
           window.LC_API.start_chat();
         }, 3000);
         setTimeout(function() {
-          analytics.called(analytics.track, 'Live Chat Conversation Started', {}, { context: { integration: { name: 'snapengage', version: '1.0.0' } } });
+          analytics.called(
+            analytics.track,
+            'Live Chat Conversation Started',
+            {},
+            {
+              context: { integration: { name: 'snapengage', version: '1.0.0' } }
+            }
+          );
           done();
         }, 8000);
       });
@@ -168,7 +172,14 @@ describe('LiveChat', function() {
       xit('should send a chat sent event', function(done) {
         window.userlikeTrackingEvent('message_operator_terminating');
         setTimeout(function() {
-          analytics.called(analytics.track, 'Live Chat Message Sent', {}, { context: { integration: { name: 'snapengage', version: '1.0.0' } } });
+          analytics.called(
+            analytics.track,
+            'Live Chat Message Sent',
+            {},
+            {
+              context: { integration: { name: 'snapengage', version: '1.0.0' } }
+            }
+          );
           done();
         }, 3000);
       });
@@ -176,7 +187,14 @@ describe('LiveChat', function() {
       xit('should send a chat received event', function(done) {
         window.userlikeTrackingEvent('message_client_terminating');
         setTimeout(function() {
-          analytics.called(analytics.track, 'Live Chat Message Received', {}, { context: { integration: { name: 'snapengage', version: '1.0.0' } } });
+          analytics.called(
+            analytics.track,
+            'Live Chat Message Received',
+            {},
+            {
+              context: { integration: { name: 'snapengage', version: '1.0.0' } }
+            }
+          );
           done();
         }, 3000);
       });
@@ -184,7 +202,14 @@ describe('LiveChat', function() {
       xit('should send a chat ended event', function(done) {
         window.LC_API.close_chat();
         setTimeout(function() {
-          analytics.called(analytics.track, 'Live Chat Conversation Ended', {}, { context: { integration: { name: 'snapengage', version: '1.0.0' } } });
+          analytics.called(
+            analytics.track,
+            'Live Chat Conversation Ended',
+            {},
+            {
+              context: { integration: { name: 'snapengage', version: '1.0.0' } }
+            }
+          );
           done();
         }, 3000);
       });
@@ -196,7 +221,6 @@ describe('LiveChat', function() {
   describe('loading', function() {
     it('should load', function(done) {
       analytics.load(livechat, function() {
-        analytics.assert(window.LC_Invite);
         analytics.assert(window.LC_API);
         done();
       });

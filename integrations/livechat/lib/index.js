@@ -15,7 +15,7 @@ var when = require('do-when');
  * Expose `LiveChat` integration.
  */
 
-var LiveChat = module.exports = integration('LiveChat')
+var LiveChat = (module.exports = integration('LiveChat')
   .assumesPageview()
   .global('LC_API')
   .global('__lc')
@@ -23,7 +23,7 @@ var LiveChat = module.exports = integration('LiveChat')
   .option('group', 0)
   .option('license', '')
   .option('listen', false)
-  .tag('<script src="//cdn.livechatinc.com/tracking.js">');
+  .tag('<script src="//cdn.livechatinc.com/tracking.js">'));
 
 /**
  * The context for this integration.
@@ -59,12 +59,15 @@ LiveChat.prototype.initialize = function() {
   delete window.__lc.listen;
 
   this.load(function() {
-    when(function() {
-      return self.loaded();
-    }, function() {
-      if (self.options.listen) self.attachListeners();
-      tick(self.ready);
-    });
+    when(
+      function() {
+        return self.loaded();
+      },
+      function() {
+        if (self.options.listen) self.attachListeners();
+        tick(self.ready);
+      }
+    );
   });
 };
 
@@ -105,8 +108,8 @@ LiveChat.prototype.attachListeners = function() {
     self.analytics.track(
       'Live Chat Conversation Started',
       { agentName: data.agent_name },
-      { context: { integration: integrationContext }
-    });
+      { context: { integration: integrationContext } }
+    );
   };
 
   window.LC_API.on_message = function(data) {
@@ -114,14 +117,14 @@ LiveChat.prototype.attachListeners = function() {
       self.analytics.track(
         'Live Chat Message Sent',
         {},
-        { context: { integration: integrationContext }
-      });
+        { context: { integration: integrationContext } }
+      );
     } else {
       self.analytics.track(
         'Live Chat Message Received',
         { agentName: data.agent_name, agentUsername: data.agent_login },
-        { context: { integration: integrationContext }
-      });
+        { context: { integration: integrationContext } }
+      );
     }
   };
 
