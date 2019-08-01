@@ -370,7 +370,7 @@ Appboy.prototype.track = function(track) {
   // Remove nested objects as Braze doesn't support nested objects in tracking calls
   // https://segment.com/docs/destinations/braze/#track
   each(function(value, key) {
-    if (val != null && typeof value === 'object') {
+    if (value != null && typeof value === 'object') {
       delete properties[key];
     }
   }, properties);
