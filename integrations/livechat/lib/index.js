@@ -18,10 +18,8 @@ var when = require('do-when');
 var LiveChat = module.exports = integration('LiveChat')
   .assumesPageview()
   .global('LC_API')
-  .global('LC_Invite')
   .global('__lc')
   .global('__lc_inited')
-  .global('__lc_lang')
   .option('group', 0)
   .option('license', '')
   .option('listen', false)
@@ -78,7 +76,7 @@ LiveChat.prototype.initialize = function() {
  */
 
 LiveChat.prototype.loaded = function() {
-  return !!(window.LC_API && window.LC_Invite);
+  return !!window.LC_API;
 };
 
 /**
