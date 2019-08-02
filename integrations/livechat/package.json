@@ -1,0 +1,45 @@
+{
+  "name": "@segment/analytics.js-integration-livechat",
+  "description": "The Livechat analytics.js integration.",
+  "version": "3.0.0",
+  "keywords": [
+    "analytics.js",
+    "analytics.js-integration",
+    "segment",
+    "livechat"
+  ],
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "karma start",
+    "test:ci": "karma start karma.conf-ci.js"
+  },
+  "author": "Segment \u003cfriends@segment.com\u003e",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/livechat#readme",
+  "bugs": {
+    "url": "https://github.com/segmentio/analytics.js-integrations/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
+  },
+  "dependencies": {
+    "@segment/analytics.js-integration": "^2.1.0",
+    "component-clone": "^0.2.2",
+    "component-each": "^0.2.6",
+    "do-when": "^1.0.0",
+    "next-tick": "^0.2.2",
+    "segmentio-facade": "^3.0.3"
+  },
+  "devDependencies": {
+    "@segment/analytics.js-core": "^3.0.0",
+    "@segment/analytics.js-integration-tester": "^2.0.0",
+    "@segment/clear-env": "^2.0.0",
+    "browserify": "^13.0.0",
+    "browserify-istanbul": "^2.0.0",
+    "mocha": "^2.2.5",
+    "npm-check": "^5.2.1",
+    "phantomjs-prebuilt": "^2.1.7",
+    "watchify": "^3.7.0"
+  }
+}
