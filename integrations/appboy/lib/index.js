@@ -307,6 +307,17 @@ Appboy.prototype.identify = function(identify) {
     delete traits[key];
   }, reserved);
 
+  // Remove nested hash objects as Braze only supports nested array objects in identify calls
+  // https://segment.com/docs/destinations/braze/#identify
+  each(function(value, key) {
+    if (
+      typeof value === 'object' &&
+      Array.isArray(value)
+    ) {
+      delete traits[key];
+    }
+  }, traits);
+
   each(function(value, key) {
     window.appboy.getUser().setCustomUserAttribute(key, value);
   }, traits);
@@ -355,6 +366,14 @@ Appboy.prototype.track = function(track) {
   each(function(key) {
     delete properties[key];
   }, reserved);
+
+  // Remove nested objects as Braze doesn't support nested objects in tracking calls
+  // https://segment.com/docs/destinations/braze/#track
+  each(function(value, key) {
+    if (value != null && typeof value === 'object') {
+      delete properties[key];
+    }
+  }, properties);
 
   window.appboy.changeUser(userId);
   window.appboy.logCustomEvent(eventName, properties);
