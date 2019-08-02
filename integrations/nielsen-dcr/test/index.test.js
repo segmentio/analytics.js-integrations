@@ -39,7 +39,8 @@ describe('NielsenDCR', function() {
         .option('appId', '')
         .option('instanceName', '')
         .option('nolDevDebug', false)
-        .option('assetIdPropertyName', '')
+        .option('assetIdPropertyName', '') // deprecated
+        .option('contentAssetIdPropertyName', '')
         .option('adAssetIdPropertyName', '')
         .option('subbrandPropertyName', '')
         .option('clientIdPropertyName', '')
@@ -538,16 +539,16 @@ describe('NielsenDCR', function() {
         });
 
         it('video ad started with custom asset id', function() {
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.adAssetIdPropertyName = 'custom_asset_id_prop';
           analytics.track('Video Ad Started', props);
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
-            assetid: props.asset_id,
+            assetid: props.custom_asset_id_prop,
             type: 'midroll'
           });
           analytics.called(
             nielsenDCR.heartbeat,
-            props.asset_id,
+            props.custom_asset_id_prop,
             props.position,
             { type: 'ad' }
           );
