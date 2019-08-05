@@ -116,7 +116,7 @@ NielsenDCR.prototype.page = function(page) {
 
 NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
   var self = this;
-  var newPosition;
+  var newPosition = position;
   var opts = options || {};
   // if position is not sent as a string
   try {
@@ -132,7 +132,7 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
   if (!this.currentAssetId) this.currentAssetId = assetId;
 
   // if position is passed in we should override the state of the current playhead position with the explicit position given from the customer
-  this.currentPosition = newPosition || position;
+  this.currentPosition = newPosition;
 
   // Segment expects our own heartbeats every 10 seconds, so we're adding 5 seconds of potential redundancy for buffer
   // for a total of 15 heartbeats
