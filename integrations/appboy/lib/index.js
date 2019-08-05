@@ -255,9 +255,7 @@ Appboy.prototype.identify = function(identify) {
   var phone = identify.phone();
   var traits = clone(identify.traits());
 
-  if (userId) {
-    window.appboy.changeUser(userId);
-  }
+  if (userId) window.appboy.changeUser(userId);
   if (avatar) {
     window.appboy.getUser().setAvatarImageUrl(avatar);
   }
@@ -350,7 +348,7 @@ Appboy.prototype.group = function(group) {
   var userId = group.userId();
   var groupIdKey = 'ab_segment_group_' + group.groupId();
 
-  window.appboy.changeUser(userId);
+  if (userId) window.appboy.changeUser(userId);
   window.appboy.getUser().setCustomUserAttribute(groupIdKey, true);
 };
 
@@ -389,7 +387,7 @@ Appboy.prototype.track = function(track) {
     }
   }, properties);
 
-  window.appboy.changeUser(userId);
+  if (userId) window.appboy.changeUser(userId);
   window.appboy.logCustomEvent(eventName, properties);
 };
 
@@ -412,7 +410,7 @@ Appboy.prototype.page = function(page) {
   var eventName = pageEvent.event();
   var properties = page.properties();
 
-  window.appboy.changeUser(userId);
+  if (userId) window.appboy.changeUser(userId);
   window.appboy.logCustomEvent(eventName, properties);
 };
 
@@ -433,7 +431,7 @@ Appboy.prototype.orderCompleted = function(track) {
   var currencyCode = track.currency();
   var purchaseProperties = track.properties();
 
-  window.appboy.changeUser(userId);
+  if (userId) window.appboy.changeUser(userId);
 
   // remove reduntant properties
   del(purchaseProperties, 'products');
