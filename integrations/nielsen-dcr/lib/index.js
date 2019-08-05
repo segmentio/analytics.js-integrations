@@ -118,8 +118,11 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
   var self = this;
   var newPosition;
   var opts = options || {};
+  // if position is not sent as a string
   try {
-    if (typeof position !== 'number') newPosition = parseInt(position, 10); // in case it is sent as a string
+    if (typeof position !== 'number') {
+      newPosition = parseInt(position, 10);
+    } // in case it is sent as a string
   } catch (e) {
     // if we can't parse position into an Int for some reason, early return
     // to prevent internal errors every second
@@ -129,7 +132,7 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
   if (!this.currentAssetId) this.currentAssetId = assetId;
 
   // if position is passed in we should override the state of the current playhead position with the explicit position given from the customer
-  this.currentPosition = newPosition;
+  this.currentPosition = newPosition || position;
 
   // Segment expects our own heartbeats every 10 seconds, so we're adding 5 seconds of potential redundancy for buffer
   // for a total of 15 heartbeats
