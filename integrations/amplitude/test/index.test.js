@@ -674,6 +674,43 @@ describe('Amplitude', function() {
         };
       });
 
+      it('should send a custom revenueType if trackRevenuePerProduct is set', function() {
+        amplitude.options.useLogRevenueV2 = true;
+        amplitude.options.trackRevenuePerProduct = true;
+        var props = {
+          revenue: 20.0,
+          revenueType: 'I am custom',
+          products: [
+            {
+              quantity: 2,
+              price: 10.0,
+              productId: 'AMP1'
+            }
+          ]
+        };
+
+        var setRevenue = sinon.spy(amplitude, 'setRevenue');
+
+        analytics.track('Completed Order', props);
+
+        var expected = {
+          price: 10.0,
+          productId: 'AMP1',
+          revenueType: 'I am custom',
+          quantity: 2,
+          eventProps: {
+            revenue: 20.0,
+            revenueType: 'I am custom',
+            quantity: 2,
+            price: 10.0,
+            productId: 'AMP1'
+          },
+          revenue: 20.0
+        };
+
+        analytics.assert(setRevenue.withArgs(expected).calledOnce);
+      });
+
       it('should send a logRevenueV2 event for all items in products array if trackRevenuePerProduct is true', function() {
         var spy = sinon.spy(window.amplitude.getInstance(), 'logRevenueV2');
         amplitude.options.trackRevenuePerProduct = true;

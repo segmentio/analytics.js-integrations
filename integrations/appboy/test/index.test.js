@@ -335,10 +335,11 @@ describe('Appboy', function() {
         );
       });
 
-      it('should handle custom traits of all types', function() {
+      it('should handle custom traits of acceptable types and excludes nested hashes', function() {
         analytics.identify('userId', {
           song: "Who's That Chick?",
           artists: ['David Guetta', 'Rihanna'],
+          details: { nested: 'object' },
           number: 16,
           date: 'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)'
         });
@@ -407,11 +408,14 @@ describe('Appboy', function() {
         analytics.called(window.appboy.logCustomEvent, 'event');
       });
 
-      it('should send all properties', function() {
+      it('should send all properties except nested arrays and hashes', function() {
         analytics.track('event with properties', {
           nickname: 'noonz',
           spiritAnimal: 'rihanna',
-          best_friend: 'han'
+          best_friend: 'han',
+          number_of_friends: 12,
+          idols: ['beyonce', 'madonna'],
+          favoriteThings: { whiskers: 'on-kittins' }
         });
         analytics.called(
           window.appboy.logCustomEvent,
@@ -419,7 +423,8 @@ describe('Appboy', function() {
           {
             nickname: 'noonz',
             spiritAnimal: 'rihanna',
-            best_friend: 'han'
+            best_friend: 'han',
+            number_of_friends: 12
           }
         );
       });

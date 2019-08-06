@@ -255,13 +255,27 @@ Appboy.prototype.identify = function(identify) {
   var phone = identify.phone();
   var traits = clone(identify.traits());
 
-  window.appboy.changeUser(userId);
-  window.appboy.getUser().setAvatarImageUrl(avatar);
-  window.appboy.getUser().setEmail(email);
-  window.appboy.getUser().setFirstName(firstName);
-  window.appboy.getUser().setGender(getGender(gender));
-  window.appboy.getUser().setLastName(lastName);
-  window.appboy.getUser().setPhoneNumber(phone);
+  if (userId) {
+    window.appboy.changeUser(userId);
+  }
+  if (avatar) {
+    window.appboy.getUser().setAvatarImageUrl(avatar);
+  }
+  if (email) {
+    window.appboy.getUser().setEmail(email);
+  }
+  if (firstName) {
+    window.appboy.getUser().setFirstName(firstName);
+  }
+  if (gender) {
+    window.appboy.getUser().setGender(getGender(gender));
+  }
+  if (lastName) {
+    window.appboy.getUser().setLastName(lastName);
+  }
+  if (phone) {
+    window.appboy.getUser().setPhoneNumber(phone);
+  }
   if (address) {
     window.appboy.getUser().setCountry(address.country);
     window.appboy.getUser().setHomeCity(address.city);
@@ -306,6 +320,14 @@ Appboy.prototype.identify = function(identify) {
   each(function(key) {
     delete traits[key];
   }, reserved);
+
+  // Remove nested hash objects as Braze only supports nested array objects in identify calls
+  // https://segment.com/docs/destinations/braze/#identify
+  each(function(value, key) {
+    if (typeof value === 'object' && Array.isArray(value)) {
+      delete traits[key];
+    }
+  }, traits);
 
   each(function(value, key) {
     window.appboy.getUser().setCustomUserAttribute(key, value);
@@ -355,6 +377,14 @@ Appboy.prototype.track = function(track) {
   each(function(key) {
     delete properties[key];
   }, reserved);
+
+  // Remove nested objects as Braze doesn't support nested objects in tracking calls
+  // https://segment.com/docs/destinations/braze/#track
+  each(function(value, key) {
+    if (value != null && typeof value === 'object') {
+      delete properties[key];
+    }
+  }, properties);
 
   window.appboy.changeUser(userId);
   window.appboy.logCustomEvent(eventName, properties);
