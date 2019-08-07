@@ -335,13 +335,9 @@ describe('Appboy', function() {
         );
       });
 
-      it('should handle custom traits of acceptable types and excludes nested hashes', function() {
+      it('should handle string traits', function() {
         analytics.identify('userId', {
-          song: "Who's That Chick?",
-          artists: ['David Guetta', 'Rihanna'],
-          details: { nested: 'object' },
-          number: 16,
-          date: 'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)'
+          song: "Who's That Chick?"
         });
         analytics.called(window.appboy.changeUser, 'userId');
         analytics.called(
@@ -349,20 +345,48 @@ describe('Appboy', function() {
           'song',
           "Who's That Chick?"
         );
-        analytics.called(
-          window.appboy.ab.User.prototype.setCustomUserAttribute,
-          'artists',
-          ['David Guetta', 'Rihanna']
-        );
+      });
+
+      it('should handle number traits', function() {
+        analytics.identify('userId', {
+          number: 16
+        });
+        analytics.called(window.appboy.changeUser, 'userId');
         analytics.called(
           window.appboy.ab.User.prototype.setCustomUserAttribute,
           'number',
           16
         );
+      });
+
+      it('should handle list traits', function() {
+        analytics.identify('userId', {
+          artists: ['David Guetta', 'Rihanna']
+        });
+        analytics.called(window.appboy.changeUser, 'userId');
+      });
+
+      it('should handle date traits', function() {
+        analytics.identify('userId', {
+          date: 'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)'
+        });
+        analytics.called(window.appboy.changeUser, 'userId');
         analytics.called(
           window.appboy.ab.User.prototype.setCustomUserAttribute,
           'date',
           'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)'
+        );
+      });
+
+      it('should exclude nested hash traits', function() {
+        analytics.identify('userId', {
+          details: { nested: 'object' }
+        });
+        analytics.called(window.appboy.changeUser, 'userId');
+        analytics.called(
+          window.appboy.ab.User.prototype.setCustomUserAttribute,
+          'details',
+          { nested: 'object' }
         );
       });
 
