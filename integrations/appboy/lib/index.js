@@ -322,10 +322,7 @@ Appboy.prototype.identify = function(identify) {
   // Remove nested hash objects as Braze only supports nested array objects in identify calls
   // https://segment.com/docs/destinations/braze/#identify
   each(function(value, key) {
-    if (
-      typeof value === 'object' &&
-      Array.isArray(value)
-    ) {
+    if (typeof value === 'object' && Array.isArray(value)) {
       delete traits[key];
     }
   }, traits);
