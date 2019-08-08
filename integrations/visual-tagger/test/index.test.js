@@ -35,8 +35,8 @@ describe('Tracktor', function() {
       Tracktor,
       integration('Tracktor')
         .global('Tracktor')
-        .option('sourceId', '')
-        .option('workspaceId', '')
+        .option('sourceId', 'a-source-id')
+        .option('workspaceId', 'a-workspace-id')
     );
   });
 });
