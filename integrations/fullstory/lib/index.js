@@ -17,7 +17,9 @@ var integration = require('@segment/analytics.js-integration');
 var FullStory = (module.exports = integration('FullStory')
   .option('org', '')
   .option('debug', false)
-  .tag('<script src="https://www.fullstory.com/s/fs.js"></script>'));
+  .tag(
+    '<script async src="https://www.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
+  ));
 
 /**
  * The ApiSource string.
