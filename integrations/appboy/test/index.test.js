@@ -229,6 +229,7 @@ describe('Appboy', function() {
           openInAppMessagesInNewTab: false,
           openNewsFeedCardsInNewTab: false,
           sessionTimeoutInSeconds: 30,
+          serviceWorkerLocation: undefined,
           requireExplicitInAppMessageDismissal: false,
           enableHtmlInAppMessages: false
         };
