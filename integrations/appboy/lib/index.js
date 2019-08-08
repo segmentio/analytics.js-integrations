@@ -203,6 +203,7 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
     openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
     requireExplicitInAppMessageDismissal:
       options.requireExplicitInAppMessageDismissal,
+    serviceWorkerLocation: options.serviceWorkerLocation,
     sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
   };
 
