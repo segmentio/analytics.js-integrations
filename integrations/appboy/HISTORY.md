@@ -1,3 +1,11 @@
+1.11.0 / 2019-08-08
+==================
+
+* Excludes nested non-null objects from customer user attributes in identify method
+* Excludes non-null objects from custom event properties in track method
+* Conditionally set user-related traits (ID, name, address, etc.)
+* Use serviceWorkerLocation from settings if it is available.
+
 1.9.0 / 2019-06-19
 ==================
 
