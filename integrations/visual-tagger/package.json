@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@segment/tracktor": "0.3.0"
+    "@segment/tracktor": "0.4.1"
   }
 }

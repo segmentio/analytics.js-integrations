@@ -1297,6 +1297,11 @@
     component-cookie "^1.1.2"
     component-url "^0.2.1"
 
+"@segment/tracktor@0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.4.1.tgz#633f64c6d591cf5dbbbbc3bbd87a5112d392a1cc"
+  integrity sha512-YJEwF7rPg22pyfkdour5nVaNa0MIF04119WdwVrVg2JqXHociZ/QKaTaCJl3wGKTEt/p0nKzUgv0v9i0VLJKvg==
+
 "@segment/trample@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@segment/trample/-/trample-0.2.0.tgz#5b141159f67b06efaa295d2ebe240b51096134c5"
