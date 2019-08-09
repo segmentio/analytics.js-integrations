@@ -1,8 +1,9 @@
 
-2.2.1 / 2019-07-31
+2.2.1 / 2019-08-09
 ==================
 
-  * Update recording snippet
+  * Enable cross-origin access to errors from fs.js.
+  * Make FS.log not throw an exception if it is called before FS is ready.
 
 2.1.4 / 2018-05-01
 ==================
