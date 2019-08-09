@@ -38,7 +38,14 @@ describe('NielsenDCR', function() {
       integration('Nielsen DCR')
         .option('appId', '')
         .option('instanceName', '')
-        .option('assetIdPropertyName', 'asset_id')
+        .option('nolDevDebug', false)
+        .option('assetIdPropertyName', '') // deprecated
+        .option('contentAssetIdPropertyName', '')
+        .option('adAssetIdPropertyName', '')
+        .option('subbrandPropertyName', '')
+        .option('clientIdPropertyName', '')
+        .option('contentLengthPropertyName', 'total_length')
+        .option('optout', false)
         .tag(
           'http',
           '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
@@ -272,7 +279,8 @@ describe('NielsenDCR', function() {
 
         it('video content started - custom asset id', function() {
           var timestamp = new Date();
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.contentAssetIdPropertyName =
+            'custom_asset_id_prop';
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
             'Nielsen DCR': { ad_load_type: 'dynamic' },
@@ -531,16 +539,16 @@ describe('NielsenDCR', function() {
         });
 
         it('video ad started with custom asset id', function() {
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.adAssetIdPropertyName = 'custom_asset_id_prop';
           analytics.track('Video Ad Started', props);
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
-            assetid: props.asset_id,
+            assetid: props.custom_asset_id_prop,
             type: 'midroll'
           });
           analytics.called(
             nielsenDCR.heartbeat,
-            props.asset_id,
+            props.custom_asset_id_prop,
             props.position,
             { type: 'ad' }
           );
@@ -624,7 +632,8 @@ describe('NielsenDCR', function() {
             livestream: false,
             airdate: '1991-08-13'
           };
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.contentAssetIdPropertyName =
+            'custom_asset_id_prop';
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
           });

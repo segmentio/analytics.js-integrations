@@ -1,3 +1,7 @@
+# 3.1.0 / 2019-08-09
+
+- Add mapping of non-property fields to event_props.
+
 # 3.0.0 / 2019-06-10
 
 - Update Amplitude SDK to v5.2.2
