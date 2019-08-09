@@ -49,6 +49,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('preferAnonymousIdForDeviceId', false)
   .option('traitsToSetOnce', [])
   .option('traitsToIncrement', [])
+  .option('appendFieldsToEventProps', {})
   .tag('<script src="' + src + '">'));
 
 /**
@@ -252,6 +253,11 @@ function logEvent(track, dontSetRevenue) {
     if (type === 'user_properties')
       window.amplitude.getInstance().setUserProperties(params);
   }
+
+  // Append extra fields to event_props
+  each(function(prop, field) {
+    props[prop] = track.proxy(field);
+  }, this.options.appendFieldsToEventProps);
 
   // track the event
   if (options.groups) {

@@ -64,6 +64,7 @@ describe('Amplitude', function() {
         .option('traitsToSetOnce', [])
         .option('traitsToIncrement', [])
         .option('deviceIdFromUrlParam', false)
+        .option('appendFieldsToEventProps', {})
     );
   });
 
@@ -632,6 +633,18 @@ describe('Amplitude', function() {
         amplitude.options.preferAnonymousIdForDeviceId = true;
         analytics.page();
         analytics.called(window.amplitude.getInstance().setDeviceId, 'example');
+      });
+
+      it('should send an event with context properties mapped', function() {
+        amplitude.options.appendFieldsToEventProps = {
+          'context.page.path': 'pagePath'
+        };
+
+        analytics.track('event', { foo: 'bar' });
+        analytics.called(window.amplitude.getInstance().logEvent, 'event', {
+          foo: 'bar',
+          pagePath: '/context.html'
+        });
       });
     });
 
