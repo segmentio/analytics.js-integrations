@@ -34,7 +34,7 @@ module.exports = exports = function(analytics) {
  * https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiBasicConfiguration#_gat.GA_Tracker_._setSiteSpeedSampleRate
  */
 
-var GA = exports.Integration = integration('Google Analytics')
+var GA = (exports.Integration = integration('Google Analytics')
   .readyOnLoad()
   .global('ga')
   .global('gaplugins')
@@ -65,13 +65,14 @@ var GA = exports.Integration = integration('Google Analytics')
   .tag('library', '<script src="//www.google-analytics.com/analytics.js">')
   .tag('double click', '<script src="//stats.g.doubleclick.net/dc.js">')
   .tag('http', '<script src="http://www.google-analytics.com/ga.js">')
-  .tag('https', '<script src="https://ssl.google-analytics.com/ga.js">');
+  .tag('https', '<script src="https://ssl.google-analytics.com/ga.js">'));
 
 /**
  * On `construct` swap any config-based methods to the proper implementation.
  */
 
 GA.on('construct', function(integration) {
+  /* eslint-disable */
   if (integration.options.classic) {
     integration.initialize = integration.initializeClassic;
     integration.loaded = integration.loadedClassic;
@@ -85,7 +86,8 @@ GA.on('construct', function(integration) {
     integration.productRemoved = integration.productRemovedEnhanced;
     integration.checkoutStarted = integration.checkoutStartedEnhanced;
     integration.checkoutStepViewed = integration.checkoutStepViewedEnhanced;
-    integration.checkoutStepCompleted = integration.checkoutStepCompletedEnhanced;
+    integration.checkoutStepCompleted =
+      integration.checkoutStepCompletedEnhanced;
     integration.orderUpdated = integration.orderUpdatedEnhanced;
     integration.orderCompleted = integration.orderCompletedEnhanced;
     integration.orderRefunded = integration.orderRefundedEnhanced;
@@ -94,6 +96,7 @@ GA.on('construct', function(integration) {
     integration.productListViewed = integration.productListViewedEnhanced;
     integration.productListFiltered = integration.productListFilteredEnhanced;
   }
+  /* eslint-enable */
 });
 
 /**
@@ -108,10 +111,12 @@ GA.prototype.initialize = function() {
 
   // setup the tracker globals
   window.GoogleAnalyticsObject = 'ga';
-  window.ga = window.ga || function() {
-    window.ga.q = window.ga.q || [];
-    window.ga.q.push(arguments);
-  };
+  window.ga =
+    window.ga ||
+    function() {
+      window.ga.q = window.ga.q || [];
+      window.ga.q.push(arguments);
+    };
   window.ga.l = new Date().getTime();
 
   if (window.location.hostname === 'localhost') opts.domain = 'none';
@@ -127,7 +132,7 @@ GA.prototype.initialize = function() {
   // set tracker name to avoid collisions with unnamed third party trackers
   if (opts.nameTracker) {
     config.name = 'segmentGATracker';
-    this._trackerName = 'segmentGATracker.';  // tracker name must be prepended to all ga method calls with format [name].[method]
+    this._trackerName = 'segmentGATracker.'; // tracker name must be prepended to all ga method calls with format [name].[method]
   } else {
     this._trackerName = ''; // tracker name must be set even if empty to avoid undefined references when prepending
   }
@@ -152,7 +157,8 @@ GA.prototype.initialize = function() {
 
   // anonymize after initializing, otherwise a warning is shown
   // in google analytics debugger
-  if (opts.anonymizeIp) window.ga(this._trackerName + 'set', 'anonymizeIp', true);
+  if (opts.anonymizeIp)
+    window.ga(this._trackerName + 'set', 'anonymizeIp', true);
 
   // initialize page with `id` appended to user's traits
   // sets `id` as a custom dimension for the lifetime of the tracker object and
@@ -222,7 +228,10 @@ GA.prototype.page = function(page) {
     title: pageTitle
   };
 
-  pageview = extend(pageview, setCustomDimenionsAndMetrics(props, opts, self._trackerName));
+  pageview = extend(
+    pageview,
+    setCustomDimenionsAndMetrics(props, opts, self._trackerName)
+  );
 
   if (pageReferrer !== document.referrer) payload.referrer = pageReferrer; // allow referrer override if referrer was manually set
   window.ga(this._trackerName + 'set', payload);
@@ -290,7 +299,10 @@ GA.prototype.track = function(track, options) {
     eventLabel: props.label,
     eventValue: formatValue(props.value || track.revenue()),
     // Allow users to override their nonInteraction integration setting for any single particluar event.
-    nonInteraction: props.nonInteraction !== undefined ? !!props.nonInteraction : !!opts.nonInteraction
+    nonInteraction:
+      props.nonInteraction !== undefined
+        ? !!props.nonInteraction
+        : !!opts.nonInteraction
   };
 
   if (campaign.name) payload.campaignName = campaign.name;
@@ -299,7 +311,10 @@ GA.prototype.track = function(track, options) {
   if (campaign.content) payload.campaignContent = campaign.content;
   if (campaign.term) payload.campaignKeyword = campaign.term;
 
-  payload = extend(payload, setCustomDimenionsAndMetrics(props, interfaceOpts, self._trackerName));
+  payload = extend(
+    payload,
+    setCustomDimenionsAndMetrics(props, interfaceOpts, self._trackerName)
+  );
 
   window.ga(this._trackerName + 'send', 'event', payload);
 };
@@ -382,7 +397,8 @@ GA.prototype.initializeClassic = function() {
 
   if (enhanced) {
     var protocol = document.location.protocol === 'https:' ? 'https:' : 'http:';
-    var pluginUrl = protocol + '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+    var pluginUrl =
+      protocol + '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
     push('_require', 'inpage_linkid', pluginUrl);
   }
 
@@ -481,7 +497,8 @@ GA.prototype.completedOrderClassic = function(track) {
   if (!orderId) return;
 
   // add transaction
-  push('_addTrans',
+  push(
+    '_addTrans',
     orderId,
     props.affiliation,
     total,
@@ -489,18 +506,21 @@ GA.prototype.completedOrderClassic = function(track) {
     track.shipping(),
     track.city(),
     track.state(),
-    track.country());
+    track.country()
+  );
 
   // add items
   each(products, function(product) {
     var track = new Track({ properties: product });
-    push('_addItem',
+    push(
+      '_addItem',
       orderId,
       track.sku(),
       track.name(),
       track.category(),
       track.price(),
-      track.quantity());
+      track.quantity()
+    );
   });
 
   // send
@@ -630,7 +650,10 @@ GA.prototype.pushEnhancedEcommerce = function(track, opts, trackerName) {
     track.category() || 'EnhancedEcommerce',
     track.event() || 'Action not defined',
     track.properties().label,
-    extend({ nonInteraction: 1 }, setCustomDimenionsAndMetrics(track.properties(), opts, trackerName))
+    extend(
+      { nonInteraction: 1 },
+      setCustomDimenionsAndMetrics(track.properties(), opts, trackerName)
+    )
   ]);
   window.ga.apply(window, args);
 };
@@ -827,7 +850,13 @@ GA.prototype.productRemovedEnhanced = function(track) {
   var opts = this.options;
 
   this.loadEnhancedEcommerce(track);
-  enhancedEcommerceProductAction(track, 'remove', null, self._trackerName, opts);
+  enhancedEcommerceProductAction(
+    track,
+    'remove',
+    null,
+    self._trackerName,
+    opts
+  );
   this.pushEnhancedEcommerce(track, opts, self._trackerName);
 };
 
@@ -849,7 +878,13 @@ GA.prototype.productViewedEnhanced = function(track) {
   this.loadEnhancedEcommerce(track);
   // list property is optional
   if (props.list) data.list = props.list;
-  enhancedEcommerceProductAction(track, 'detail', data, self._trackerName, opts);
+  enhancedEcommerceProductAction(
+    track,
+    'detail',
+    data,
+    self._trackerName,
+    opts
+  );
   this.pushEnhancedEcommerce(track, opts, self._trackerName);
 };
 
@@ -953,7 +988,12 @@ GA.prototype.productListViewedEnhanced = function(track) {
       brand: item.properties().brand,
       variant: item.properties().variant,
       price: item.price(),
-      position: products.map(function(x) { return x.product_id; }).indexOf(item.productId()) + 1
+      position:
+        products
+          .map(function(x) {
+            return x.product_id;
+          })
+          .indexOf(item.productId()) + 1
     };
 
     impressionObj = extend(impressionObj, metrics(item.properties(), opts));
@@ -981,8 +1021,16 @@ GA.prototype.productListFilteredEnhanced = function(track) {
   var products = track.products();
   props.filters = props.filters || [];
   props.sorters = props.sorters || [];
-  var filters = props.filters.map(function(obj) { return obj.type + ':' + obj.value;}).join();
-  var sorts = props.sorts.map(function(obj) { return obj.type + ':' + obj.value;}).join();
+  var filters = props.filters
+    .map(function(obj) {
+      return obj.type + ':' + obj.value;
+    })
+    .join();
+  var sorts = props.sorts
+    .map(function(obj) {
+      return obj.type + ':' + obj.value;
+    })
+    .join();
   var self = this;
   var opts = this.options;
 
@@ -999,7 +1047,12 @@ GA.prototype.productListFilteredEnhanced = function(track) {
       brand: item.properties().brand,
       variant: filters + '::' + sorts,
       price: item.price(),
-      position: products.map(function(x) { return x.product_id; }).indexOf(item.productId()) + 1
+      position:
+        products
+          .map(function(x) {
+            return x.product_id;
+          })
+          .indexOf(item.productId()) + 1
     };
 
     impressionObj = extend(impressionObj, metrics(item.properties(), opts));
@@ -1012,7 +1065,6 @@ GA.prototype.productListFilteredEnhanced = function(track) {
 
   this.pushEnhancedEcommerce(track, opts, self._trackerName);
 };
-
 
 /**
  * Enhanced ecommerce track product.
@@ -1060,7 +1112,13 @@ function enhancedEcommerceTrackProduct(track, trackerName, opts) {
  * @param {Object} data
  */
 
-function enhancedEcommerceProductAction(track, action, data, trackerName, opts) {
+function enhancedEcommerceProductAction(
+  track,
+  action,
+  data,
+  trackerName,
+  opts
+) {
   enhancedEcommerceTrackProduct(track, trackerName, opts);
   window.ga(trackerName + 'ec:setAction', action, data || {});
 }
@@ -1074,10 +1132,7 @@ function enhancedEcommerceProductAction(track, action, data, trackerName, opts) 
  */
 
 function extractCheckoutOptions(props) {
-  var options = [
-    props.paymentMethod,
-    props.shippingMethod
-  ];
+  var options = [props.paymentMethod, props.shippingMethod];
 
   // Remove all nulls, and join with commas.
   var valid = reject(options);
@@ -1094,6 +1149,7 @@ function extractCheckoutOptions(props) {
  */
 
 function createProductTrack(track, properties) {
-  properties.currency = properties.currency || track.currency();
-  return new Track({ properties: properties });
+  var props = properties || {};
+  props.currency = properties.currency || track.currency();
+  return new Track({ properties: props });
 }
