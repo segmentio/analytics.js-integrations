@@ -30,9 +30,12 @@ describe('Heap', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Heap, integration('Heap')
-      .global('heap')
-      .option('appId', ''));
+    analytics.compare(
+      Heap,
+      integration('Heap')
+        .global('heap')
+        .option('appId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -48,7 +51,17 @@ describe('Heap', function() {
       });
 
       it('should stub window.heap with the right methods', function() {
-        var methods = ['addEventProperties', 'addUserProperties', 'clearEventProperties', 'identify', 'removeEventProperty', 'setEventProperties', 'track', 'unsetEventProperty', 'resetIdentity'];
+        var methods = [
+          'addEventProperties',
+          'addUserProperties',
+          'clearEventProperties',
+          'identify',
+          'removeEventProperty',
+          'setEventProperties',
+          'track',
+          'unsetEventProperty',
+          'resetIdentity'
+        ];
         analytics.assert(!window.heap);
         analytics.initialize();
         each(methods, function(method) {
@@ -90,12 +103,18 @@ describe('Heap', function() {
 
       it('should send traits', function() {
         analytics.identify({ trait: true, number: 1 });
-        analytics.called(window.heap.addUserProperties, { trait: true, number: 1 });
+        analytics.called(window.heap.addUserProperties, {
+          trait: true,
+          number: 1
+        });
       });
 
       it('should alias email to _email', function() {
         analytics.identify({ trait: true, email: 'email@email.org' });
-        analytics.called(window.heap.addUserProperties, { trait: true, _email: 'email@email.org' });
+        analytics.called(window.heap.addUserProperties, {
+          trait: true,
+          _email: 'email@email.org'
+        });
       });
 
       it('should send id as handle', function() {
@@ -106,7 +125,10 @@ describe('Heap', function() {
       it('should send id as handle and traits', function() {
         analytics.identify('id', { trait: 'trait' });
         analytics.called(window.heap.identify, 'id');
-        analytics.called(window.heap.addUserProperties, { id: 'id', trait: 'trait' });
+        analytics.called(window.heap.addUserProperties, {
+          id: 'id',
+          trait: 'trait'
+        });
       });
 
       it('should flatten nested objects and arrays', function() {
@@ -119,10 +141,7 @@ describe('Heap', function() {
             },
             cheese: ['1', 2, 'cheers']
           },
-          products: [
-          { A: 'Jello', B: 1 },
-          { B: 'Peanut', C: true }
-          ]
+          products: [{ A: 'Jello', B: 1 }, { B: 'Peanut', C: true }]
         });
         analytics.called(window.heap.identify, 'id');
         analytics.called(window.heap.addUserProperties, {
@@ -130,8 +149,8 @@ describe('Heap', function() {
           _email: 'teemo@teemo.com',
           property: 3,
           'foo.bar.hello': 'teemo',
-          'foo.cheese': '[\"1\",2,\"cheers\"]',
-          products: '[{\"A\":\"Jello\",\"B\":1},{\"B\":\"Peanut\",\"C\":true}]'
+          'foo.cheese': '["1",2,"cheers"]',
+          products: '[{"A":"Jello","B":1},{"B":"Peanut","C":true}]'
         });
       });
 
@@ -139,7 +158,10 @@ describe('Heap', function() {
         var date = new Date('2016');
         analytics.identify('id', { date: date });
         analytics.called(window.heap.identify, 'id');
-        analytics.called(window.heap.addUserProperties, { id: 'id', date: '2016-01-01T00:00:00.000Z' });
+        analytics.called(window.heap.addUserProperties, {
+          id: 'id',
+          date: '2016-01-01T00:00:00.000Z'
+        });
       });
     });
 
@@ -173,19 +195,16 @@ describe('Heap', function() {
             },
             cheese: ['1', 2, 'cheers']
           },
-          products: [
-          { A: 'Jello', B: 'haha' },
-          { A: 'Peanut', B: true }
-          ],
+          products: [{ A: 'Jello', B: 'haha' }, { A: 'Peanut', B: true }],
           topArray: ['1', 2, true]
         });
         analytics.called(window.heap.track, 'event', {
           hello: 'hello',
           property: 3,
           'foo.bar.hello': 'teemo',
-          'foo.cheese': '[\"1\",2,\"cheers\"]',
-          products: '[{\"A\":\"Jello\",\"B\":\"haha\"},{\"A\":\"Peanut\",\"B\":true}]',
-          topArray: '[\"1\",2,true]'
+          'foo.cheese': '["1",2,"cheers"]',
+          products: '[{"A":"Jello","B":"haha"},{"A":"Peanut","B":true}]',
+          topArray: '["1",2,true]'
         });
       });
     });

@@ -1,4 +1,5 @@
 'use strict';
+
 /* global JSON */
 /* eslint no-restricted-globals: [0] */
 
@@ -17,10 +18,10 @@ var toString = Object.prototype.toString; // in case this method has been overri
  * Expose `Heap` integration.
  */
 
-var Heap = module.exports = integration('Heap')
+var Heap = (module.exports = integration('Heap')
   .global('heap')
   .option('appId', '')
-  .tag('<script src="//cdn.heapanalytics.com/js/heap-{{ appId }}.js">');
+  .tag('<script src="//cdn.heapanalytics.com/js/heap-{{ appId }}.js">'));
 
 /**
  * Initialize.
@@ -38,11 +39,23 @@ Heap.prototype.initialize = function() {
 
     var methodFactory = function(type) {
       return function() {
-        window.heap.push([type].concat(Array.prototype.slice.call(arguments, 0)));
+        window.heap.push(
+          [type].concat(Array.prototype.slice.call(arguments, 0))
+        );
       };
     };
 
-    var heapMethods = ['addEventProperties', 'addUserProperties', 'clearEventProperties', 'identify', 'removeEventProperty', 'setEventProperties', 'track', 'unsetEventProperty', 'resetIdentity'];
+    var heapMethods = [
+      'addEventProperties',
+      'addUserProperties',
+      'clearEventProperties',
+      'identify',
+      'removeEventProperty',
+      'setEventProperties',
+      'track',
+      'unsetEventProperty',
+      'resetIdentity'
+    ];
     each(heapMethods, function(method) {
       window.heap[method] = methodFactory(method);
     });
@@ -153,7 +166,8 @@ function clean(obj) {
 
     // stringify arrays inside nested object to be consistent with top level behavior of arrays
     for (var k in flattenedObj) {
-      if (is.array(flattenedObj[k])) flattenedObj[k] = JSON.stringify(flattenedObj[k]);
+      if (is.array(flattenedObj[k]))
+        flattenedObj[k] = JSON.stringify(flattenedObj[k]);
     }
 
     return flattenedObj;
@@ -171,29 +185,32 @@ function clean(obj) {
  */
 
 function flatten(target, opts) {
-  opts = opts || {};
+  var options = opts || {};
 
-  var delimiter = opts.delimiter || '.';
-  var maxDepth = opts.maxDepth;
+  var delimiter = options.delimiter || '.';
+  var maxDepth = options.maxDepth;
   var currentDepth = 1;
   var output = {};
 
   function step(object, prev) {
     Object.keys(object).forEach(function(key) {
       var value = object[key];
-      var isarray = opts.safe && Array.isArray(value);
+      var isarray = options.safe && Array.isArray(value);
       var type = Object.prototype.toString.call(value);
       var isobject = type === '[object Object]' || type === '[object Array]';
 
-      var newKey = prev
-        ? prev + delimiter + key
-        : key;
+      var newKey = prev ? prev + delimiter + key : key;
 
-      if (!opts.maxDepth) {
+      if (!options.maxDepth) {
         maxDepth = currentDepth + 1;
       }
 
-      if (!isarray && isobject && Object.keys(value).length && currentDepth < maxDepth) {
+      if (
+        !isarray &&
+        isobject &&
+        Object.keys(value).length &&
+        currentDepth < maxDepth
+      ) {
         ++currentDepth;
         return step(value, newKey);
       }
