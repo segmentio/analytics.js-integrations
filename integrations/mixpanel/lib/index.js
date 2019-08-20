@@ -18,7 +18,7 @@ var indexOf = require('component-indexof');
  * Expose `Mixpanel` integration.
  */
 
-var Mixpanel = module.exports = integration('Mixpanel')
+var Mixpanel = (module.exports = integration('Mixpanel')
   .global('mixpanel')
   .option('eventIncrements', [])
   .option('propIncrements', [])
@@ -38,7 +38,7 @@ var Mixpanel = module.exports = integration('Mixpanel')
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
   .option('sourceName', '')
-  .tag('<script src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">');
+  .tag('<script src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">'));
 
 /**
  * Options aliases.
@@ -211,8 +211,10 @@ Mixpanel.prototype.identify = function(identify) {
       var mappedPeopleProps = mapTraits(peopleProperties);
       var peoplePropsToSet = pick(mappedPeopleProps || [], traitsToSet);
       var peoplePropsToUnion = pick(mappedPeopleProps || [], traitsToUnion);
-      if (!is.empty(peoplePropsToSet)) window.mixpanel.people.set(peoplePropsToSet);
-      if (!is.empty(peoplePropsToUnion)) window.mixpanel.people.union(peoplePropsToUnion);
+      if (!is.empty(peoplePropsToSet))
+        window.mixpanel.people.set(peoplePropsToSet);
+      if (!is.empty(peoplePropsToUnion))
+        window.mixpanel.people.union(peoplePropsToUnion);
     }
   }
 };
@@ -279,7 +281,8 @@ Mixpanel.prototype.track = function(track) {
     query = props.link_query; // DOM query
     delete props.link_query;
     window.mixpanel.track_links(query, track.event(), props);
-  } else if (props.form_query) {  // DOM query
+  } else if (props.form_query) {
+    // DOM query
     query = props.form_query;
     delete props.form_query;
     window.mixpanel.track_forms(query, track.event(), props);
@@ -392,16 +395,18 @@ function extendTraits(arr) {
  */
 
 function invertObjectArrays(props) {
-  for (var propName in props) {  // eslint-disable-line
-    var propValue = props[propName];
-    if (!props.hasOwnProperty(propName) || !Array.isArray(propValue)) {
+  var properties = props;
+  for (var propName in properties) {  // eslint-disable-line
+    var propValue = properties[propName];
+    if (!properties.hasOwnProperty(propName) || !Array.isArray(propValue)) {
       continue;
     }
 
     var invertedArrays = invertObjectArray(propName, propValue);
-    if (Object.keys(invertedArrays).length !== 0) { // make sure obj isn't empty
-      mergeArraysIntoObj(props, invertedArrays);
-      delete props[propName];
+    if (Object.keys(invertedArrays).length !== 0) {
+      // make sure obj isn't empty
+      mergeArraysIntoObj(properties, invertedArrays);
+      delete properties[propName];
     }
   }
 }
@@ -413,7 +418,7 @@ function invertObjectArray(propName, arr) {
   var invertedArrays = {};
 
   // invert object lists and collect into invertedLists
-  for (var i=0; i<arr.length; i++) {
+  for (var i = 0; i < arr.length; i++) {
     var elem = arr[i];
 
     // abort operation if non-object encountered in array
@@ -424,7 +429,7 @@ function invertObjectArray(propName, arr) {
       if (!elem.hasOwnProperty(key)) {
         continue;
       }
-      var attrKey = propName+'_'+key+'s';  // e.g. products_skus
+      var attrKey = propName + '_' + key + 's'; // e.g. products_skus
 
       // append to list if it exists or create new one if not
       if (attrKey in invertedArrays) {
@@ -438,14 +443,14 @@ function invertObjectArray(propName, arr) {
 }
 
 function mergeArraysIntoObj(destination, source) {
+  var d = destination;
   for (var arrayName in source) {
     if (source.hasOwnProperty(arrayName)) {
       var arr = source[arrayName];
-      destination[arrayName] = arrayName in destination ? destination[arrayName].concat(arr) : arr;
+      d[arrayName] = arrayName in d ? d[arrayName].concat(arr) : arr;
     }
   }
 }
-
 
 /**
  * Return union of two arrays

@@ -36,22 +36,25 @@ describe('Mixpanel', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Mixpanel, integration('Mixpanel')
-      .global('mixpanel')
-      .option('token', '')
-      .option('crossSubdomainCookie', false)
-      .option('secureCookie', false)
-      .option('nameTag', true)
-      .option('pageview', false)
-      .option('people', false)
-      .option('token', '')
-      .option('trackAllPages', false)
-      .option('persistence', 'cookie')
-      .option('trackNamedPages', false)
-      .option('consolidatedPageCalls', true)
-      .option('setAllTraitsByDefault', true)
-      .option('trackCategorizedPages', false)
-      .option('sourceName', ''));
+    analytics.compare(
+      Mixpanel,
+      integration('Mixpanel')
+        .global('mixpanel')
+        .option('token', '')
+        .option('crossSubdomainCookie', false)
+        .option('secureCookie', false)
+        .option('nameTag', true)
+        .option('pageview', false)
+        .option('people', false)
+        .option('token', '')
+        .option('trackAllPages', false)
+        .option('persistence', 'cookie')
+        .option('trackNamedPages', false)
+        .option('consolidatedPageCalls', true)
+        .option('setAllTraitsByDefault', true)
+        .option('trackCategorizedPages', false)
+        .option('sourceName', '')
+    );
   });
 
   describe('before loading', function() {
@@ -99,7 +102,11 @@ describe('Mixpanel', function() {
       it('should tag mp_lib as Segment: web', function() {
         analytics.initialize();
         analytics.page();
-        analytics.assert(window.mixpanel.config.loaded.toString().slice(98, -2), 'mixpanel.register({"mp_lib":"Segment: web"})');
+        analytics.assert(
+          window.mixpanel.config.loaded
+            .toString()
+            .includes("{ mp_lib: 'Segment: web' }")
+        );
       });
     });
 
@@ -230,10 +237,22 @@ describe('Mixpanel', function() {
 
       it('should set super properties from the mixpanel.options.superProperties object if setAllTraitsByDefault is false', function() {
         mixpanel.options.setAllTraitsByDefault = false;
-        mixpanel.options.superProperties = ['accountStatus', 'subscribed', 'email'];
-        analytics.identify(123, { accountStatus: 'Paid', subscribed: true, email: 'androidjones@sky.net' });
+        mixpanel.options.superProperties = [
+          'accountStatus',
+          'subscribed',
+          'email'
+        ];
+        analytics.identify(123, {
+          accountStatus: 'Paid',
+          subscribed: true,
+          email: 'androidjones@sky.net'
+        });
         analytics.called(window.mixpanel.identify, 123);
-        analytics.called(window.mixpanel.register, { accountStatus: 'Paid', subscribed: true, $email: 'androidjones@sky.net' });
+        analytics.called(window.mixpanel.register, {
+          accountStatus: 'Paid',
+          subscribed: true,
+          $email: 'androidjones@sky.net'
+        });
       });
 
       it('should set people properties from the mixpanel.options.peopleProperties object if setAllTraitsByDefault is false', function() {
@@ -245,17 +264,19 @@ describe('Mixpanel', function() {
         analytics.called(window.mixpanel.people.set, { friend: 'elmo' });
       });
 
-      it('should set people properties from the Mixpanel\'s special traits if setAllTraitsByDefault is false and the property isn\'t on the call', function() {
+      it("should set people properties from the Mixpanel's special traits if setAllTraitsByDefault is false and the property isn't on the call", function() {
         mixpanel.options.people = true;
         mixpanel.options.setAllTraitsByDefault = false;
         mixpanel.options.peopleProperties = ['friend'];
         analytics.identify(123, { friend: 'elmo', email: 'dog@dog.com' });
         analytics.called(window.mixpanel.identify, 123);
-        analytics.called(window.mixpanel.people.set, { friend: 'elmo', $email: 'dog@dog.com' });
+        analytics.called(window.mixpanel.people.set, {
+          friend: 'elmo',
+          $email: 'dog@dog.com'
+        });
       });
 
-
-      it('shouldn\'t set super properties that aren\'t included in the mixpanel.options.superProperties object when setAllTraitsByDefault is false', function() {
+      it("shouldn't set super properties that aren't included in the mixpanel.options.superProperties object when setAllTraitsByDefault is false", function() {
         mixpanel.options.setAllTraitsByDefault = false;
         mixpanel.options.superProperties = ['accountStatus'];
         analytics.identify(123, { accountStatus: 'Paid', subscribed: true });
@@ -264,7 +285,7 @@ describe('Mixpanel', function() {
         analytics.didNotCall(window.mixpanel.register, { subscribed: true });
       });
 
-      it('shouldn\'t set people properties from the mixpanel.options.peopleProperties object if setAllTraitsByDefault is false', function() {
+      it("shouldn't set people properties from the mixpanel.options.peopleProperties object if setAllTraitsByDefault is false", function() {
         mixpanel.options.people = false;
         mixpanel.options.setAllTraitsByDefault = false;
         analytics.identify(123, { friend: 'elmo' });
@@ -396,9 +417,21 @@ describe('Mixpanel', function() {
       });
 
       it('should set super properties from the mixpanel.options.superProperties object', function() {
-        mixpanel.options.superProperties = ['accountStatus', 'subscribed', 'email'];
-        analytics.track('event', { accountStatus: 'Paid', subscribed: true, email: 'androidjones@sky.net' });
-        analytics.called(window.mixpanel.register, { accountStatus: 'Paid', subscribed: true, email: 'androidjones@sky.net' });
+        mixpanel.options.superProperties = [
+          'accountStatus',
+          'subscribed',
+          'email'
+        ];
+        analytics.track('event', {
+          accountStatus: 'Paid',
+          subscribed: true,
+          email: 'androidjones@sky.net'
+        });
+        analytics.called(window.mixpanel.register, {
+          accountStatus: 'Paid',
+          subscribed: true,
+          email: 'androidjones@sky.net'
+        });
       });
 
       // Exercise a bug where we set people properties in track calls. https://segment.phacility.com/T903
@@ -410,7 +443,7 @@ describe('Mixpanel', function() {
       });
 
       // Exercise a bug where we set people properties in track calls. https://segment.phacility.com/T903
-      it('should not set people properties from the Mixpanel\'s special traits', function() {
+      it("should not set people properties from the Mixpanel's special traits", function() {
         mixpanel.options.people = true;
         mixpanel.options.peopleProperties = ['friend'];
         analytics.track('event', { friend: 'elmo', email: 'dog@dog.com' });
@@ -418,7 +451,7 @@ describe('Mixpanel', function() {
       });
 
       // Exercise a bug where we set people properties in track calls. https://segment.phacility.com/T903
-      it('shouldn\'t try to register super properties if not specified', function() {
+      it("shouldn't try to register super properties if not specified", function() {
         mixpanel.options.superProperties = [];
         analytics.track('event', { friend: 'elmo' });
         analytics.didNotCall(window.mixpanel.register);
@@ -434,7 +467,9 @@ describe('Mixpanel', function() {
         var date = new Date();
         var date2 = new Date();
         analytics.track('event', { dates: [date, date2] });
-        analytics.called(window.mixpanel.track, 'event', { dates: [iso(date), iso(date2)] });
+        analytics.called(window.mixpanel.track, 'event', {
+          dates: [iso(date), iso(date2)]
+        });
       });
 
       it('should increment events that are in .increments option', function() {
@@ -456,12 +491,16 @@ describe('Mixpanel', function() {
 
       it('should not convert arrays of simple types', function() {
         analytics.track('event', { array: ['a', 'b', 'c'] });
-        analytics.called(window.mixpanel.track, 'event', { array: ['a', 'b', 'c'] });
+        analytics.called(window.mixpanel.track, 'event', {
+          array: ['a', 'b', 'c']
+        });
         analytics.track('event', { array: [13, 28, 99] });
-        analytics.called(window.mixpanel.track, 'event', { array: [13, 28, 99] });
+        analytics.called(window.mixpanel.track, 'event', {
+          array: [13, 28, 99]
+        });
       });
 
-      it('should remove mixpanel\'s reserved properties', function() {
+      it("should remove mixpanel's reserved properties", function() {
         analytics.track('event', {
           distinct_id: 'string',
           ip: 'string',
@@ -474,10 +513,7 @@ describe('Mixpanel', function() {
 
       it('should invert object list properties', function() {
         analytics.track('event', {
-          products: [
-            { price: 32, sku: 25 },
-            { price: 33, sku: 29 }
-          ]
+          products: [{ price: 32, sku: 25 }, { price: 33, sku: 29 }]
         });
         analytics.called(window.mixpanel.track, 'event', {
           products_skus: [25, 29],
