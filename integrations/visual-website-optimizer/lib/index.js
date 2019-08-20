@@ -12,7 +12,7 @@ var tick = require('next-tick');
  * Expose `VWO` integration.
  */
 
-var VWO = module.exports = integration('Visual Website Optimizer')
+var VWO = (module.exports = integration('Visual Website Optimizer')
   .global('_vis_opt_queue')
   .global('_vis_opt_revenue_conversion')
   .global('_vwo_exp')
@@ -24,7 +24,7 @@ var VWO = module.exports = integration('Visual Website Optimizer')
   .option('useExistingJQuery', false)
   .option('replay', true)
   .option('listen', false)
-  .option('experimentNonInteraction', false);
+  .option('experimentNonInteraction', false));
 
 /**
  * The context for this integration.
@@ -119,12 +119,10 @@ VWO.prototype.roots = function() {
       };
 
       if (self.options.experimentNonInteraction) props.nonInteraction = 1;
-      
-      analytics.track(
-        'Experiment Viewed',
-        props,
-        { context: { integration: integrationContext } }
-      );
+
+      analytics.track('Experiment Viewed', props, {
+        context: { integration: integrationContext }
+      });
     });
   });
 };
