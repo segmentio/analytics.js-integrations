@@ -97,7 +97,11 @@ Amplitude.prototype.initialize = function() {
       window.amplitude = amplitude;
       when(loaded, function() {
         window.amplitude.runQueuedFunctions();
-        ready();
+        ready(function() {
+          if (window.amplitude.unsetParamsReferrerOnNewSession) {
+            window.amplitude.unsetParamsReferrerOnNewSession();
+          }
+        });
       });
     });
     return;
@@ -106,7 +110,11 @@ Amplitude.prototype.initialize = function() {
   this.load(function() {
     if (window.amplitude.runQueuedFunctions) {
       window.amplitude.runQueuedFunctions();
-      ready();
+      ready(function() {
+        if (window.amplitude.unsetParamsReferrerOnNewSession) {
+          window.amplitude.unsetParamsReferrerOnNewSession();
+        }
+      });
     }
   });
 };
