@@ -6,6 +6,7 @@ var iso = require('@segment/to-iso-string');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var Mixpanel = require('../lib/');
+var assert = require('assert');
 
 describe('Mixpanel', function() {
   var analytics;
@@ -554,6 +555,22 @@ describe('Mixpanel', function() {
       it('should send a new and old id', function() {
         analytics.alias('new', 'old');
         analytics.called(window.mixpanel.alias, 'new', 'old');
+      });
+    });
+
+    describe('#group', function() {
+      beforeEach(function() {
+        analytics.stub(window.mixpanel, 'group');
+      });
+      var groupId;
+      var traits;
+
+      it('should have group id to send', function() {
+        assert.notEqual(groupId, undefined);
+      });
+
+      it('should call mixpanel group method', function() {
+        analytics.called(window.mixpanel.group, groupId, traits);
       });
     });
   });
