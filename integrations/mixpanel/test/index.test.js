@@ -556,5 +556,27 @@ describe('Mixpanel', function() {
         analytics.called(window.mixpanel.alias, 'new', 'old');
       });
     });
+
+    describe('#group', function() {
+      beforeEach(function() {
+        analytics.stub(window.mixpanel, 'group');
+        analytics.stub(window.mixpanel, 'set_group');
+      });
+
+      it('should not call set_group if groupId is passed or null/undefined/empty', function() {
+        analytics.group('');
+        analytics.didNotCall(window.mixpanel.set_group);
+      });
+
+      it('should call set_group', function() {
+        analytics.group('testGroupId', { key: 'value' });
+        analytics.called(window.mixpanel.set_group, 'key', 'testGroupId');
+      });
+
+      it('should call set_group if traits are not passed', function() {
+        analytics.group('testGroupId');
+        analytics.called(window.mixpanel.group, 'testGroupId');
+      });
+    });
   });
 });
