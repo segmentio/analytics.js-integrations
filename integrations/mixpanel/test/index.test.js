@@ -17,7 +17,8 @@ describe('Mixpanel', function() {
     secureCookie: true,
     consolidatedPageCalls: false,
     trackCategorizedPages: true,
-    trackNamedPages: true
+    trackNamedPages: true,
+    groupIdentifierTraits: {}
   };
 
   beforeEach(function() {
@@ -53,6 +54,7 @@ describe('Mixpanel', function() {
         .option('consolidatedPageCalls', true)
         .option('setAllTraitsByDefault', true)
         .option('trackCategorizedPages', false)
+        .option('groupIdentifierTraits', {})
         .option('sourceName', '')
     );
   });
@@ -566,16 +568,22 @@ describe('Mixpanel', function() {
       it('should not call set_group if groupId is passed or null/undefined/empty', function() {
         analytics.group('');
         analytics.didNotCall(window.mixpanel.set_group);
+        analytics.didNotCall(window.mixpanel.group);
       });
 
       it('should call set_group', function() {
-        analytics.group('testGroupId', { key: 'value' });
-        analytics.called(window.mixpanel.set_group, 'key', 'testGroupId');
+        mixpanel.options.groupIdentifierTraits = { key: 'value' };
+        var traits = mixpanel.options.groupIdentifierTraits;
+        analytics.group('testGroupId', traits);
+        var keys = Object.keys(traits);
+        for (var i = 0; i < keys.length; i++) {
+          analytics.called(window.mixpanel.set_group, keys[i], 'testGroupId');
+        }
       });
 
       it('should call set_group if traits are not passed', function() {
         analytics.group('testGroupId');
-        analytics.called(window.mixpanel.group, 'testGroupId');
+        analytics.called(window.mixpanel.set_group, 'testGroupId');
       });
     });
   });
