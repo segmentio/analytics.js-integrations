@@ -50,6 +50,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('traitsToSetOnce', [])
   .option('traitsToIncrement', [])
   .option('appendFieldsToEventProps', {})
+  .option('unsetParamsReferrerOnNewSession', false)
   .tag('<script src="' + src + '">'));
 
 /**
@@ -79,6 +80,8 @@ Amplitude.prototype.initialize = function() {
     saveParamsReferrerOncePerSession: this.options
       .saveParamsReferrerOncePerSession,
     deviceIdFromUrlParam: this.options.deviceIdFromUrlParam,
+    unsetParamsReferrerOnNewSession: this.options
+      .unsetParamsReferrerOnNewSession,
     deviceId:
       this.options.preferAnonymousIdForDeviceId &&
       this.analytics &&
@@ -97,11 +100,7 @@ Amplitude.prototype.initialize = function() {
       window.amplitude = amplitude;
       when(loaded, function() {
         window.amplitude.runQueuedFunctions();
-        ready(function() {
-          if (window.amplitude.unsetParamsReferrerOnNewSession) {
-            window.amplitude.unsetParamsReferrerOnNewSession();
-          }
-        });
+        ready();
       });
     });
     return;
@@ -110,11 +109,7 @@ Amplitude.prototype.initialize = function() {
   this.load(function() {
     if (window.amplitude.runQueuedFunctions) {
       window.amplitude.runQueuedFunctions();
-      ready(function() {
-        if (window.amplitude.unsetParamsReferrerOnNewSession) {
-          window.amplitude.unsetParamsReferrerOnNewSession();
-        }
-      });
+      ready();
     }
   });
 };
