@@ -7,6 +7,7 @@
 var integration = require('@segment/analytics.js-integration');
 var find = require('obj-case').find;
 var reject = require('reject');
+var dateformat = require('dateformat');
 
 /**
  * Expose `NielsenDCR` integration.
@@ -500,23 +501,18 @@ NielsenDCR.prototype.videoPlaybackCompleted = function(track) {
 
 /**
  * Formats airdate property per Nielsen DCR spec.
+ * Nielsen DCR requires dates to be in format YYYYMMDD HH:MI:SS
  *
  * @api private
  */
 
 function formatAirdate(airdate) {
-  if (typeof airdate !== 'object') return;
-
   var date;
   try {
-    date = airdate.toISOString();
+    date = dateformat(airdate, 'yyyymmdd hh:MM:ss', true);
   } catch (e) {
-    return;
+    // do nothing with this error for now
   }
-  // Nielsen DCR requires dates to be in format YYYYMMDD HH:MI:SS
-  // Segment formats all timestamp-like strings as ISO date strings, e.g.
-  // 1999-08-26T07:00:00.000Z, so that's the format this function expects
-  var yearMonthDay = date.slice(0, 10).replace(/-/g, '');
-  var hoursMinutesSeconds = date.slice(11, 19);
-  return yearMonthDay + ' ' + hoursMinutesSeconds;
+
+  return date;
 }
