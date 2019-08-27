@@ -572,12 +572,16 @@ describe('Mixpanel', function() {
       });
 
       it('should call set_group', function() {
-        mixpanel.options.groupIdentifierTraits = { key: 'value' };
-        var traits = mixpanel.options.groupIdentifierTraits;
+        mixpanel.options.groupIdentifierTraits = ['company'];
+        var groupIdentifierTraits = mixpanel.options.groupIdentifierTraits;
+        var traits = { comapny: 'testCompany' };
         analytics.group('testGroupId', traits);
-        var keys = Object.keys(traits);
-        for (var i = 0; i < keys.length; i++) {
-          analytics.called(window.mixpanel.set_group, keys[i], 'testGroupId');
+        for (var i = 0; i < groupIdentifierTraits.length; i++) {
+          analytics.called(
+            window.mixpanel.set_group,
+            groupIdentifierTraits[i],
+            traits[groupIdentifierTraits[i]]
+          );
         }
       });
 
