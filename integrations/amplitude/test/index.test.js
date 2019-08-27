@@ -26,7 +26,8 @@ describe('Amplitude', function() {
     mapQueryParams: {},
     traitsToIncrement: [],
     traitsToSetOnce: [],
-    preferAnonymousIdForDeviceId: true
+    preferAnonymousIdForDeviceId: true,
+    unsetParamsReferrerOnNewSession: false
   };
 
   beforeEach(function() {
@@ -65,6 +66,7 @@ describe('Amplitude', function() {
         .option('traitsToIncrement', [])
         .option('deviceIdFromUrlParam', false)
         .option('appendFieldsToEventProps', {})
+        .option('unsetParamsReferrerOnNewSession', false)
     );
   });
 
@@ -132,6 +134,10 @@ describe('Amplitude', function() {
         config.deviceIdFromUrlParam === options.deviceIdFromUrlParam
       );
       analytics.assert(config.deviceId === analytics.user().anonymousId());
+      analytics.assert(
+        config.unsetParamsReferrerOnNewSession ===
+          options.unsetParamsReferrerOnNewSession
+      );
     });
 
     it('should set api key', function() {
