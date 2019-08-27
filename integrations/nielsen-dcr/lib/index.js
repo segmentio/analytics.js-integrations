@@ -180,7 +180,7 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     title: track.proxy(properties + 'title'),
     isfullepisode: track.proxy(properties + 'full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
-    airdate: track.proxy(properties + 'airdate'),
+    airdate: formatAirdate(track.proxy(properties + 'airdate')),
     // below metadata fields must all be set in event's integrations opts object
     adloadtype: find(integrationOpts, 'ad_load_type') === 'linear' ? '1' : '2', // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
     crossId1: find(integrationOpts, 'crossId1'),
@@ -497,3 +497,26 @@ NielsenDCR.prototype.videoPlaybackCompleted = function(track) {
   this.currentAssetId = null;
   this.heartbeatId = null;
 };
+
+/**
+ * Formats airdate property per Nielsen DCR spec.
+ *
+ * @api private
+ */
+
+function formatAirdate(airdate) {
+  if (typeof airdate !== 'object') return;
+
+  var date;
+  try {
+    date = airdate.toISOString();
+  } catch (e) {
+    return;
+  }
+  // Nielsen DCR requires dates to be in format YYYYMMDD HH:MI:SS
+  // Segment formats all timestamp-like strings as ISO date strings, e.g.
+  // 1999-08-26T07:00:00.000Z, so that's the format this function expects
+  var yearMonthDay = date.slice(0, 10).replace(/-/g, '');
+  var hoursMinutesSeconds = date.slice(11, 19);
+  return yearMonthDay + ' ' + hoursMinutesSeconds;
+}
