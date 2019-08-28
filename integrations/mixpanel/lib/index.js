@@ -318,6 +318,26 @@ Mixpanel.prototype.alias = function(alias) {
 };
 
 /**
+ *
+ * @param {Traits} traits
+ */
+
+Mixpanel.prototype.group = function(group) {
+  var groupIdentifierTraits = this.options.groupIdentifierTraits;
+  var groupId = group.groupId();
+  var traits = group.traits();
+  if (groupId) {
+    window.mixpanel.group(groupId, traits);
+    for (var i = 0; i < groupIdentifierTraits.length; i++) {
+      window.mixpanel.set_group(
+        groupIdentifierTraits[i],
+        traits[groupIdentifierTraits[i]]
+      );
+    }
+  }
+};
+
+/**
  * Lowercase the given `arr`.
  *
  * @api private
