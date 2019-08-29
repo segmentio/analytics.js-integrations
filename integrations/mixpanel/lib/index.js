@@ -325,9 +325,12 @@ Mixpanel.prototype.alias = function(alias) {
 Mixpanel.prototype.group = function(group) {
   var groupIdentifierTraits = this.options.groupIdentifierTraits;
   var groupId = group.groupId();
+  var userId = group.userId();
   var traits = group.traits();
-  if (groupId) {
-    window.mixpanel.group(groupId, traits);
+  if (groupId && userId) {
+    if (traits && Object.keys(traits).length) {
+      window.mixpanel.get_group(groupId, 'mixpanel').set_once(traits);
+    }
     for (var i = 0; i < groupIdentifierTraits.length; i++) {
       window.mixpanel.set_group(
         groupIdentifierTraits[i],
