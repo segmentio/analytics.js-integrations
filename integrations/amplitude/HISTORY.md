@@ -1,3 +1,7 @@
+# 3.2.0 / 2019-08-27
+
+- Add support for unsetParamsReferrerOnNewSession setting
+
 # 3.1.0 / 2019-08-09
 
 - Add mapping of non-property fields to event_props.

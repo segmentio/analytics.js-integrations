@@ -241,7 +241,7 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
         });
 
@@ -261,7 +261,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -295,7 +295,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -329,7 +329,7 @@ describe('NielsenDCR', function() {
             length: props.total_content_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -365,7 +365,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0',
             clientid: props.nielsen_client_id,
@@ -402,7 +402,7 @@ describe('NielsenDCR', function() {
             length: 86400,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -438,7 +438,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0',
             segB: 'bend',
@@ -574,7 +574,7 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
@@ -590,7 +590,7 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              airdate: new Date(props.content.airdate),
+              airdate: '19910813 12:00:00',
               adloadtype: '2',
               hasAds: '0'
             }
@@ -630,7 +630,7 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
           nielsenDCR.options.contentAssetIdPropertyName =
             'custom_asset_id_prop';
@@ -648,7 +648,7 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              airdate: new Date(props.content.airdate),
+              airdate: '19910813 12:00:00',
               adloadtype: '2',
               hasAds: '0'
             }
@@ -692,7 +692,7 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
@@ -708,7 +708,7 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              airdate: new Date(props.content.airdate),
+              airdate: '19910813 12:00:00',
               adloadtype: '2',
               hasAds: '0',
               clientid: props.content.nielsen_client_id,

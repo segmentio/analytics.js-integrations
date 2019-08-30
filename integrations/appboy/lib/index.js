@@ -33,6 +33,7 @@ var Appboy = (module.exports = integration('Appboy')
   .option('trackNamedPages', false)
   .option('customEndpoint', '')
   .option('version', 1)
+  .option('logPurchaseWhenRevenuePresent', false)
   .tag(
     'v1',
     '<script src="https://js.appboycdn.com/web-sdk/1.6/appboy.min.js">'
@@ -373,30 +374,35 @@ Appboy.prototype.track = function(track) {
   var properties = track.properties();
   // remove reserved keys from custom event properties
   // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-  var reserved = [
-    'time',
-    'product_id',
-    'quantity',
-    'event_name',
-    'price',
-    'currency'
-  ];
-  each(function(key) {
-    delete properties[key];
-  }, reserved);
-
-  // Remove nested objects as Braze doesn't support objects in tracking calls
-  // https://segment.com/docs/destinations/braze/#track
-  each(function(value, key) {
-    if (value != null && typeof value === 'object') {
-      delete properties[key];
-    }
-  }, properties);
 
   if (userId) {
     window.appboy.changeUser(userId);
   }
-  window.appboy.logCustomEvent(eventName, properties);
+  if (this.options.logPurchaseWhenRevenuePresent && properties.revenue) {
+    // orderCompleted has same functionality of a track event with the property 'revenue'
+    this.orderCompleted(track);
+  } else {
+    var reserved = [
+      'time',
+      'product_id',
+      'quantity',
+      'event_name',
+      'price',
+      'currency'
+    ];
+    each(function(key) {
+      delete properties[key];
+    }, reserved);
+
+    // Remove nested objects as Braze doesn't support objects in tracking calls
+    // https://segment.com/docs/destinations/braze/#track
+    each(function(value, key) {
+      if (value != null && typeof value === 'object') {
+        delete properties[key];
+      }
+    }, properties);
+    window.appboy.logCustomEvent(eventName, properties);
+  }
 };
 
 /**

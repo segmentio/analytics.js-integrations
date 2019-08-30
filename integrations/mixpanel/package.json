@@ -1,12 +1,12 @@
 {
-  "name": "@segment/analytics.js-integration-amplitude",
-  "description": "The Amplitude analytics.js integration.",
-  "version": "3.2.0",
+  "name": "@segment/analytics.js-integration-mixpanel",
+  "description": "The Mixpanel analytics.js integration.",
+  "version": "3.0.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
     "segment",
-    "amplitude"
+    "mixpanel"
   ],
   "main": "lib/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   },
   "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/amplitude#readme",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/mixpanel#readme",
   "bugs": {
     "url": "https://github.com/segmentio/analytics.js-integrations/issues"
   },
@@ -24,18 +24,20 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/each": "^2.0.1",
-    "@segment/analytics.js-integration": "^3.3.0",
-    "@segment/top-domain": "^3.0.0",
-    "component-bind": "^1.0.0",
-    "do-when": "^1.0.0",
-    "is": "^3.2.1",
-    "segmentio-facade": "^3.2.1"
+    "@ndhoule/includes": "^2.0.1",
+    "@ndhoule/pick": "^2.0.0",
+    "@segment/alias": "^1.0.1",
+    "@segment/analytics.js-integration": "^2.1.0",
+    "@segment/convert-dates": "^1.1.0",
+    "@segment/to-iso-string": "^1.0.1",
+    "component-indexof": "0.0.3",
+    "is": "^3.1.0",
+    "obj-case": "^0.2.0"
   },
   "devDependencies": {
-    "@segment/analytics.js-core": "^3.8.2",
-    "@segment/analytics.js-integration-tester": "^3.1.1",
-    "@segment/clear-env": "^2.1.1",
+    "@segment/analytics.js-core": "^3.0.0",
+    "@segment/analytics.js-integration-tester": "^3.1.0",
+    "@segment/clear-env": "^2.0.0",
     "browserify": "^16.2.3",
     "eslint": "^5.16.0",
     "karma": "^4.1.0",
@@ -47,7 +49,6 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
-    "sinon": "^7.3.2",
     "watchify": "^3.11.1"
   }
 }
