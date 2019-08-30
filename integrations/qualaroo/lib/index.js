@@ -13,13 +13,15 @@ var when = require('do-when');
  * Expose `Qualaroo` integration.
  */
 
-var Qualaroo = module.exports = integration('Qualaroo')
+var Qualaroo = (module.exports = integration('Qualaroo')
   .assumesPageview()
   .global('_kiq')
   .option('customerId', '')
   .option('siteToken', '')
   .option('track', false)
-  .tag('<script src="https://cl.qualaroo.com/ki.js/{{ customerId }}/{{ siteToken }}.js">');
+  .tag(
+    '<script src="https://cl.qualaroo.com/ki.js/{{ customerId }}/{{ siteToken }}.js">'
+  ));
 
 /**
  * Initialize.

@@ -30,12 +30,15 @@ describe('Qualaroo', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Qualaroo, integration('Qualaroo')
-      .assumesPageview()
-      .global('_kiq')
-      .option('customerId', '')
-      .option('siteToken', '')
-      .option('track', false));
+    analytics.compare(
+      Qualaroo,
+      integration('Qualaroo')
+        .assumesPageview()
+        .global('_kiq')
+        .option('customerId', '')
+        .option('siteToken', '')
+        .option('track', false)
+    );
   });
 
   describe('before loading', function() {
@@ -112,7 +115,10 @@ describe('Qualaroo', function() {
       it('should set an event trait', function() {
         qualaroo.options.track = true;
         analytics.track('event');
-        analytics.called(window._kiq.push, ['set', { 'Triggered: event': true }]);
+        analytics.called(window._kiq.push, [
+          'set',
+          { 'Triggered: event': true }
+        ]);
       });
     });
   });
