@@ -23,7 +23,7 @@ var NielsenDTVR = (module.exports = integration('Nielsen DTVR')
   )
   .tag(
     'https',
-    '<script src="http:s//cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
+    '<script src="https://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
   ));
 
 /**
