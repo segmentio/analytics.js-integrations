@@ -1,3 +1,8 @@
+1.13.0 / 2019-09-04
+===================
+
+* Stop stripping "reserved" keywords from properties sent to `logCustomEvent`.
+
 1.12.0 / 2019-08-22
 ===================
 
