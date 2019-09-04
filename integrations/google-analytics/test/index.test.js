@@ -5,6 +5,7 @@ var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var plugin = require('../lib/');
+var assert = require('assert');
 // GA saves arrays as argument objects and `assert.deepEquals` fails when comparing
 // argument objects against arrays!
 var toArray = require('to-array');
@@ -1009,6 +1010,59 @@ describe('Google Analytics', function() {
               currency: 'EUR'
             }
           ]);
+        });
+
+        it('should add position for all products if position is not defined', function() {
+          var track = {
+            orderId: '780bc55',
+            total: 99.99,
+            shipping: 13.99,
+            tax: 20.99,
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                sku: 'p-298'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                sku: 'p-299'
+              }
+            ]
+          };
+          for (var i = 0; i < track.products.length; i++) {
+            assert.equal(track.products[i].position === i + 1);
+          }
+        });
+
+        it('should add position for all products if position defined', function() {
+          var position = 10;
+          var track = {
+            orderId: '780bc55',
+            total: 99.99,
+            shipping: 13.99,
+            tax: 20.99,
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                sku: 'p-298'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                sku: 'p-299'
+              }
+            ]
+          };
+          for (var i = 0; i < track.products.length; i++) {
+            assert.equal(track.products[i].position === position + i + 1);
+          }
         });
       });
     });
