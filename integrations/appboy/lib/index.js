@@ -382,18 +382,6 @@ Appboy.prototype.track = function(track) {
     // orderCompleted has same functionality of a track event with the property 'revenue'
     this.orderCompleted(track);
   } else {
-    var reserved = [
-      'time',
-      'product_id',
-      'quantity',
-      'event_name',
-      'price',
-      'currency'
-    ];
-    each(function(key) {
-      delete properties[key];
-    }, reserved);
-
     // Remove nested objects as Braze doesn't support objects in tracking calls
     // https://segment.com/docs/destinations/braze/#track
     each(function(value, key) {
