@@ -521,6 +521,13 @@ function formatAirdate(airdate) {
   return date;
 }
 
+/**
+ * Falls back to check `properties.load_type` if
+ * `integrationsOpts.ad_load_type` is falsy
+ *
+ * @api private
+ */
+
 function formatLoadType(integrationOpts, loadTypeProperty) {
   var loadType = find(integrationOpts, 'ad_load_type') || loadTypeProperty;
   // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
