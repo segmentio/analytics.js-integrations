@@ -41,8 +41,8 @@ Monetate.prototype.initialize = function() {
     this.options.events = {
       orderCompleted: 'addPurchaseRows',
       productViewed: 'addProductDetails',
-      productListViewed: 'addProducts',
-      productAdded: 'addCartRows'
+      productListViewed: 'addProducts'
+      // productAdded: 'addCartRows'
     };
   }
   window.monetateQ = window.monetateQ || [];
@@ -181,6 +181,7 @@ function push() {
   if (push.tid) return;
   push.tid = setTimeout(function() {
     clearTimeout(push.tid);
+    window.monetateQ.push(['deviceId', this.analytics.user().anonymousId()]);
     mq('trackData');
     push.tid = null;
   });
