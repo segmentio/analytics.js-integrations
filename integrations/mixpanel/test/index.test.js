@@ -18,7 +18,7 @@ describe('Mixpanel', function() {
     consolidatedPageCalls: false,
     trackCategorizedPages: true,
     trackNamedPages: true,
-    groupIdentifierTraits: {}
+    groupIdentifierTraits: []
   };
 
   beforeEach(function() {
@@ -54,7 +54,7 @@ describe('Mixpanel', function() {
         .option('consolidatedPageCalls', true)
         .option('setAllTraitsByDefault', true)
         .option('trackCategorizedPages', false)
-        .option('groupIdentifierTraits', {})
+        .option('groupIdentifierTraits', [])
         .option('sourceName', '')
     );
   });
@@ -574,7 +574,7 @@ describe('Mixpanel', function() {
       it('should call set_group', function() {
         mixpanel.options.groupIdentifierTraits = ['company'];
         var groupIdentifierTraits = mixpanel.options.groupIdentifierTraits;
-        var traits = { comapny: 'testCompany' };
+        var traits = { company: 'testCompany' };
         analytics.group('testGroupId', traits);
         for (var i = 0; i < groupIdentifierTraits.length; i++) {
           analytics.called(

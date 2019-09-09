@@ -37,7 +37,7 @@ var Mixpanel = (module.exports = integration('Mixpanel')
   .option('trackAllPages', false)
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
-  .option('groupIdentifierTraits', {})
+  .option('groupIdentifierTraits', [])
   .option('sourceName', '')
   .tag('<script src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">'));
 
@@ -319,7 +319,7 @@ Mixpanel.prototype.alias = function(alias) {
 
 /**
  *
- * @param {Traits} traits
+ * @param {Group} group
  */
 
 Mixpanel.prototype.group = function(group) {
