@@ -5,7 +5,6 @@ var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var plugin = require('../lib/');
-var assert = require('assert');
 // GA saves arrays as argument objects and `assert.deepEquals` fails when comparing
 // argument objects against arrays!
 var toArray = require('to-array');
@@ -1012,57 +1011,49 @@ describe('Google Analytics', function() {
           ]);
         });
 
-        it('should add position for all products if position is not defined', function() {
-          var track = {
-            orderId: '780bc55',
-            total: 99.99,
-            shipping: 13.99,
-            tax: 20.99,
-            products: [
-              {
-                quantity: 1,
-                price: 24.75,
-                name: 'my product',
-                sku: 'p-298'
-              },
-              {
-                quantity: 3,
-                price: 24.75,
-                name: 'other product',
-                sku: 'p-299'
-              }
-            ]
-          };
-          for (var i = 0; i < track.products.length; i++) {
-            assert.equal(track.products[i].position === i + 1);
-          }
-        });
-
         it('should add position for all products if position defined', function() {
           var position = 10;
-          var track = {
-            orderId: '780bc55',
-            total: 99.99,
-            shipping: 13.99,
-            tax: 20.99,
+          analytics.track('Product List Viewed', {
+            category: 'cat 1',
+            list_id: '1234',
             products: [
               {
-                quantity: 1,
-                price: 24.75,
-                name: 'my product',
-                sku: 'p-298'
-              },
-              {
-                quantity: 3,
-                price: 24.75,
-                name: 'other product',
-                sku: 'p-299'
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension',
+                productMetric: 'My Product Metric'
               }
-            ]
-          };
-          for (var i = 0; i < track.products.length; i++) {
-            assert.equal(track.products[i].position === position + i + 1);
-          }
+            ],
+            testDimension: true,
+            testMetric: true
+          });
+          analytics.assert(window.ga.args.length === 4);
+          analytics.deepEqual(toArray(window.ga.args[1]), [
+            'set',
+            '&cu',
+            'USD'
+          ]);
+          analytics.deepEqual(toArray(window.ga.args[2]), [
+            'ec:addImpression',
+            {
+              id: '507f1f77bcf86cd799439011',
+              category: 'cat 1',
+              list: '1234',
+              position: position,
+              dimension2: 'My Product Dimension',
+              metric2: 'My Product Metric'
+            }
+          ]);
+          analytics.deepEqual(toArray(window.ga.args[3]), [
+            'send',
+            'event',
+            'cat 1',
+            'Product List Viewed',
+            {
+              dimension1: 'true',
+              metric1: 'true',
+              nonInteraction: 1
+            }
+          ]);
         });
       });
     });
