@@ -148,27 +148,6 @@ describe('Monetate', function() {
         analytics.called(window.monetateQ.push, expected);
       });
 
-      it('should track product added', function() {
-        analytics.track('product added', {
-          product_id: 'bb161be4',
-          sku: 'fc0b3bb',
-          name: 'sony pulse',
-          price: 299,
-          quantity: 8
-        });
-        analytics.called(window.monetateQ.push, [
-          'addCartRows',
-          [
-            {
-              itemId: 'bb161be4',
-              sku: 'fc0b3bb',
-              quantity: 8,
-              unitPrice: '299.00'
-            }
-          ]
-        ]);
-      });
-
       it('should track order completed', function() {
         analytics.track('order completed', {
           orderId: 'e493a192',
