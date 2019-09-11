@@ -41,7 +41,8 @@ Monetate.prototype.initialize = function() {
     this.options.events = {
       orderCompleted: 'addPurchaseRows',
       productViewed: 'addProductDetails',
-      productListViewed: 'addProducts'
+      productListViewed: 'addProducts',
+      productAdded: 'addCartRows'
     };
   }
   window.monetateQ = window.monetateQ || [];
