@@ -1012,7 +1012,6 @@ describe('Google Analytics', function() {
         });
 
         it('should add position for all products if position defined', function() {
-          var position = 10;
           analytics.track('Product List Viewed', {
             category: 'cat 1',
             list_id: '1234',
@@ -1020,7 +1019,8 @@ describe('Google Analytics', function() {
               {
                 product_id: '507f1f77bcf86cd799439011',
                 productDimension: 'My Product Dimension',
-                productMetric: 'My Product Metric'
+                productMetric: 'My Product Metric',
+                position: 10
               }
             ],
             testDimension: true,
@@ -1038,7 +1038,7 @@ describe('Google Analytics', function() {
               id: '507f1f77bcf86cd799439011',
               category: 'cat 1',
               list: '1234',
-              position: position,
+              position: 10,
               dimension2: 'My Product Dimension',
               metric2: 'My Product Metric'
             }
