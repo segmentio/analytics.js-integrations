@@ -647,7 +647,7 @@ GA.prototype.pushEnhancedEcommerce = function(track, opts, trackerName) {
   var args = reject([
     self._trackerName + 'send',
     'event',
-    track.category() || 'EnhancedEcommerce',
+    'EnhancedEcommerce',
     track.event() || 'Action not defined',
     track.properties().label,
     extend(
