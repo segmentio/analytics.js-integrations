@@ -181,7 +181,9 @@ function push() {
   if (push.tid) return;
   push.tid = setTimeout(function() {
     clearTimeout(push.tid);
-    window.monetateQ.push(['deviceId', this.analytics.user().anonymousId()]);
+    if (window.monetateQ) {
+      window.monetateQ.push(['deviceId', this.analytics.user().anonymousId()]);
+    }
     mq('trackData');
     push.tid = null;
   });
