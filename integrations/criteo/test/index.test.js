@@ -6,7 +6,6 @@ var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var Criteo = require('../lib/');
 var md5 = require('md5');
-var assert = require('assert');
 
 describe('Criteo', function() {
   var analytics;
@@ -118,7 +117,6 @@ describe('Criteo', function() {
         viewBasket: 'cartViewed',
         trackTransaction: 'orderCompleted'
       };
-      var track = {};
 
       beforeEach(function() {
         for (var event in eventTypeMappings) {
@@ -142,28 +140,23 @@ describe('Criteo', function() {
         }
       });
 
-      it('should have item details in track', function() {
-        assert.notEqual(track.item, undefined);
-      });
-
-      it('should have accountId in track', function() {
-        assert.notEqual(track.accountId, undefined);
-      });
-
-      it('should not trigger any event if required details are missing', function() {
-        for (var eventType in eventTypeMappings) {
-          if (
-            !eventTypeMappings.hasOwnProperty(eventType) &&
-            (!track.item || !track.accountId)
-          ) {
-            continue;
-          }
-          var customEventName = 'myCustomEvent';
-          var handler = eventTypeMappings[eventType];
-          criteo.options.eventMappings[customEventName] = eventType;
-          analytics.track(customEventName, {});
-          analytics.called(criteo[handler]);
-        }
+      it('should send accountId and item details in track', function() {
+        analytics.stub(window.criteo_q, 'track');
+        analytics.stub(window.criteo_q, 'push');
+        analytics.user().id('userId');
+        var email = 'chris.nixon@segment.com';
+        analytics.track('event', {
+          item: 'item_details',
+          accountId: 123
+        });
+        analytics.called(window.criteo_q.track, 'event', {
+          item: 'item_details',
+          accountId: 123
+        });
+        analytics.didNotCall(window.criteo_q.push, {
+          event: 'setCustomerId',
+          id: email
+        });
       });
     });
 
