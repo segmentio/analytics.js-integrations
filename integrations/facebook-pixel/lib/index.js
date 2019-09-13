@@ -75,6 +75,14 @@ var defaultPiiProperties = [
 ];
 
 /**
+ * @param {Object} track
+ * @returns {string[]} contentIds
+ */
+function getContentIds(track) {
+  return [track.productId() || track.id() || track.sku() || ''];
+}
+
+/**
  * Initialize Facebook Pixel.
  *
  * @param {Facade} page
@@ -267,7 +275,7 @@ FacebookPixel.prototype.productViewed = function(track) {
     'ViewContent',
     merge(
       {
-        content_ids: [track.productId() || track.id() || track.sku() || ''],
+        content_ids: getContentIds(track),
         content_type: this.getContentType(track, ['product']),
         content_name: track.name() || '',
         content_category: track.category() || '',
@@ -304,7 +312,6 @@ FacebookPixel.prototype.productViewed = function(track) {
  * @api private
  * @param {Track} track
  */
-
 FacebookPixel.prototype.productAdded = function(track) {
   var self = this;
   var useValue = this.options.valueIdentifier === 'value';
@@ -316,7 +323,7 @@ FacebookPixel.prototype.productAdded = function(track) {
     'AddToCart',
     merge(
       {
-        content_ids: [track.productId() || track.id() || track.sku() || ''],
+        content_ids: getContentIds(track),
         content_type: this.getContentType(track, ['product']),
         content_name: track.name() || '',
         content_category: track.category() || '',
