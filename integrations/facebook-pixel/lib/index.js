@@ -78,8 +78,22 @@ var defaultPiiProperties = [
  * @param {Object} track
  * @returns {string[]} contentIds
  */
-function getContentIds(track) {
+function getContentId(track) {
   return [track.productId() || track.id() || track.sku() || ''];
+}
+
+function getContentIds(products) {
+  var contentIds = foldl(
+    function(acc, product) {
+      var item = new Track({ properties: product });
+      var key = item.productId() || item.id() || item.sku();
+      if (key) acc.push(key);
+      return acc;
+    },
+    [],
+    products
+  );
+  return contentIds;
 }
 
 /**
@@ -275,7 +289,7 @@ FacebookPixel.prototype.productViewed = function(track) {
     'ViewContent',
     merge(
       {
-        content_ids: getContentIds(track),
+        content_ids: [getContentId(track)],
         content_type: this.getContentType(track, ['product']),
         content_name: track.name() || '',
         content_category: track.category() || '',
@@ -323,7 +337,7 @@ FacebookPixel.prototype.productAdded = function(track) {
     'AddToCart',
     merge(
       {
-        content_ids: getContentIds(track),
+        content_ids: [getContentId(track)],
         content_type: this.getContentType(track, ['product']),
         content_name: track.name() || '',
         content_category: track.category() || '',
@@ -365,18 +379,6 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   var self = this;
   var products = track.products();
   var customProperties = this.buildPayload(track, true);
-
-  var contentIds = foldl(
-    function(acc, product) {
-      var item = new Track({ properties: product });
-      var key = item.productId() || item.id() || item.sku();
-      if (key) acc.push(key);
-      return acc;
-    },
-    [],
-    products
-  );
-
   var revenue = formatRevenue(track.revenue());
 
   // Order completed doesn't have a top-level category spec'd.
@@ -389,7 +391,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
     'Purchase',
     merge(
       {
-        content_ids: contentIds,
+        content_ids: getContentIds(products),
         content_type: contentType,
         currency: track.currency(),
         value: revenue
