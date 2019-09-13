@@ -92,8 +92,9 @@ function getContentId(track, contentIdPreference) {
   }
   if (!contentId) {
     // Preserve old behavior if no preference or preferred field is not set.
-    return track.productId() || track.id() || track.sku() || '';
+    contentId = track.productId() || track.id() || track.sku() || '';
   }
+  return contentId;
 }
 
 /**
