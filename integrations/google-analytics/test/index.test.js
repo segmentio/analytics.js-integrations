@@ -1011,7 +1011,7 @@ describe('Google Analytics', function() {
           ]);
         });
 
-        it('should add position for all products if position defined', function() {
+        it('should map user-defined position properties for products in products array', function() {
           analytics.track('Product List Viewed', {
             category: 'cat 1',
             list_id: '1234',
