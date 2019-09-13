@@ -86,7 +86,7 @@ function getContentIds(products) {
   var contentIds = foldl(
     function(acc, product) {
       var item = new Track({ properties: product });
-      var key = item.productId() || item.id() || item.sku();
+      var key = getContentId(item);
       if (key) acc.push(key);
       return acc;
     },
