@@ -76,21 +76,36 @@ var defaultPiiProperties = [
 
 /**
  * @param {Object} track
+ * @param {String?} contentIdPreference
  * @returns {string} contentIds
  */
-function getContentId(track) {
-  return track.productId() || track.id() || track.sku() || '';
+function getContentId(track, contentIdPreference) {
+  var contentId;
+  if (contentIdPreference) {
+    if (contentIdPreference === 'productId') {
+      contentId = track.productId();
+    } else if (contentIdPreference === 'id') {
+      contentId = track.id();
+    } else if (contentIdPreference === 'sku') {
+      contentId = track.sku();
+    }
+  }
+  if (!contentId) {
+    // Preserve old behavior if no preference or preferred field is not set.
+    return track.productId() || track.id() || track.sku() || '';
+  }
 }
 
 /**
  * @param {Object[]} products
+ * @param {String?} contentIdPreference
  * @returns {string[]} contentIds
  */
-function getContentIds(products) {
+function getContentIds(products, contentIdPreference) {
   var contentIds = foldl(
     function(acc, product) {
       var item = new Track({ properties: product });
-      var key = getContentId(item);
+      var key = getContentId(item, contentIdPreference);
       if (key) acc.push(key);
       return acc;
     },
@@ -252,6 +267,8 @@ FacebookPixel.prototype.productListViewed = function(track) {
     'ViewContent',
     merge(
       {
+        // Note: `contentIds` here does not go through `getContentIds` since current behavior is
+        // limited to only returning `product.productId || product.product_id`.
         content_ids: contentIds,
         content_type: this.getContentType(track, contentType)
       },
@@ -293,7 +310,7 @@ FacebookPixel.prototype.productViewed = function(track) {
     'ViewContent',
     merge(
       {
-        content_ids: [getContentId(track)],
+        content_ids: [getContentId(track, this.options.contentIdPreference)],
         content_type: this.getContentType(track, ['product']),
         content_name: track.name() || '',
         content_category: track.category() || '',
@@ -341,7 +358,7 @@ FacebookPixel.prototype.productAdded = function(track) {
     'AddToCart',
     merge(
       {
-        content_ids: [getContentId(track)],
+        content_ids: [getContentId(track, this.options.contentIdPreference)],
         content_type: this.getContentType(track, ['product']),
         content_name: track.name() || '',
         content_category: track.category() || '',
@@ -395,7 +412,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
     'Purchase',
     merge(
       {
-        content_ids: getContentIds(products),
+        content_ids: getContentIds(products, this.options.contentIdPreference),
         content_type: contentType,
         currency: track.currency(),
         value: revenue
