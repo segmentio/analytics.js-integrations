@@ -76,12 +76,16 @@ var defaultPiiProperties = [
 
 /**
  * @param {Object} track
- * @returns {string[]} contentIds
+ * @returns {string} contentIds
  */
 function getContentId(track) {
-  return [track.productId() || track.id() || track.sku() || ''];
+  return track.productId() || track.id() || track.sku() || '';
 }
 
+/**
+ * @param {Object[]} products
+ * @returns {string[]} contentIds
+ */
 function getContentIds(products) {
   var contentIds = foldl(
     function(acc, product) {
