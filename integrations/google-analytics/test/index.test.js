@@ -1010,51 +1010,6 @@ describe('Google Analytics', function() {
             }
           ]);
         });
-
-        it('should map user-defined position properties for products in products array', function() {
-          analytics.track('Product List Viewed', {
-            category: 'cat 1',
-            list_id: '1234',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                productDimension: 'My Product Dimension',
-                productMetric: 'My Product Metric',
-                position: 10
-              }
-            ],
-            testDimension: true,
-            testMetric: true
-          });
-          analytics.assert(window.ga.args.length === 4);
-          analytics.deepEqual(toArray(window.ga.args[1]), [
-            'set',
-            '&cu',
-            'USD'
-          ]);
-          analytics.deepEqual(toArray(window.ga.args[2]), [
-            'ec:addImpression',
-            {
-              id: '507f1f77bcf86cd799439011',
-              category: 'cat 1',
-              list: '1234',
-              position: 10,
-              dimension2: 'My Product Dimension',
-              metric2: 'My Product Metric'
-            }
-          ]);
-          analytics.deepEqual(toArray(window.ga.args[3]), [
-            'send',
-            'event',
-            'cat 1',
-            'Product List Viewed',
-            {
-              dimension1: 'true',
-              metric1: 'true',
-              nonInteraction: 1
-            }
-          ]);
-        });
       });
     });
   });
@@ -1384,6 +1339,45 @@ describe('Google Analytics', function() {
             }
           ]);
           analytics.assert(window.ga.args[1][0] === 'set');
+        });
+
+        it('should map user-defined position properties for products in products array', function() {
+          analytics.track('Product List Viewed', {
+            category: 'cat 1',
+            list_id: '1234',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension',
+                productMetric: 'My Product Metric',
+                position: 10
+              }
+            ]
+          });
+          analytics.assert(window.ga.args.length === 4);
+          analytics.deepEqual(toArray(window.ga.args[1]), [
+            'set',
+            '&cu',
+            'USD'
+          ]);
+          analytics.deepEqual(toArray(window.ga.args[2]), [
+            'ec:addImpression',
+            {
+              id: '507f1f77bcf86cd799439011',
+              category: 'cat 1',
+              list: '1234',
+              position: 10
+            }
+          ]);
+          analytics.deepEqual(toArray(window.ga.args[3]), [
+            'send',
+            'event',
+            'cat 1',
+            'Product List Viewed',
+            {
+              nonInteraction: 1
+            }
+          ]);
         });
 
         it('should send product impression data via product list viewed', function() {

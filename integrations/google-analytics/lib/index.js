@@ -989,6 +989,7 @@ GA.prototype.productListViewedEnhanced = function(track) {
       variant: item.properties().variant,
       price: item.price(),
       position:
+        item.properties().position ||
         products
           .map(function(x) {
             return x.product_id;
@@ -1048,6 +1049,7 @@ GA.prototype.productListFilteredEnhanced = function(track) {
       variant: filters + '::' + sorts,
       price: item.price(),
       position:
+        item.properties().position ||
         products
           .map(function(x) {
             return x.product_id;
