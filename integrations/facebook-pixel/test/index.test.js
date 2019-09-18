@@ -1754,6 +1754,40 @@ describe('Facebook Pixel', function() {
         });
         assertEventId(window.fbq);
       });
+
+      it('should send facebook pixel properties for product added', function() {
+        analytics.track('Product Added', {
+          product_id: '507f1f77bcf86cd799439011',
+          currency: 'USD',
+          quantity: 1,
+          price: 44.33,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          value: 24.75,
+          contents: [
+            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+          ],
+        });
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: ['product'],
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+            ],
+          }
+        );
+        assertEventId(window.fbq);
+      });
     });
 
     describe('#orderCompleted', function() {
