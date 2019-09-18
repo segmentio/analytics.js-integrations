@@ -638,7 +638,6 @@ describe('Facebook Pixel', function() {
         });
       });
     });
-
     describe('#productListViewed', function() {
       beforeEach(function() {
         analytics.stub(window, 'fbq');
@@ -1942,6 +1941,51 @@ describe('Facebook Pixel', function() {
         );
         assertEventId(window.fbq);
       });
+
+      it('should send facebook pixel properties for product purchase', function() {
+        analytics.track(
+          'Order Completed',
+          {
+            products: [
+              { product_id: '507f1f77bcf86cd799439011', category: 'Cars' },
+              { product_id: '505bd76785ebb509fc183733', category: 'Cars' }
+            ],
+            currency: 'USD',
+            total: 0.5,
+            content_name: 'my product',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+            ],
+            num_items: 2
+          },
+          {
+            'Facebook Pixel': {
+              contentType: 'myCustomType'
+            }
+          }
+        );
+        analytics.called(
+          window.fbq,
+          'trackSingle',
+          options.pixelId,
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: ['myCustomType'],
+            currency: 'USD',
+            value: '0.50',
+            content_name: 'my product',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+            ],
+            num_items: 2
+          }
+        );
+        assertEventId(window.fbq);
+      });
     });
 
     describe('#productsSearched', function() {
@@ -1993,7 +2037,7 @@ describe('Facebook Pixel', function() {
         analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456');
       });
 
-      it('should send facebook pixel properties', function() {
+      it('should send facebook pixel properties for product search', function() {
         analytics.track('Products Searched', {
           query: 'yo',
           content_category: 'Cars',
