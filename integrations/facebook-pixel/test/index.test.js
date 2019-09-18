@@ -1992,6 +1992,30 @@ describe('Facebook Pixel', function() {
 
         analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456');
       });
+
+      it('should send facebook pixel properties', function() {
+        analytics.track('Products Searched', {
+          query: 'yo',
+          content_category: 'Cars',
+          content_ids: ['507f1f77bcf86cd799439011'],
+          contents: [
+            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+          ],
+          currency: 'USD',
+          value: 30
+        });
+        analytics.called(window.fbq, 'trackSingle', options.pixelId, 'Search', {
+          search_string: 'yo',
+          content_category: 'Cars',
+          content_ids: ['507f1f77bcf86cd799439011'],
+          contents: [
+            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+          ],
+          currency: 'USD',
+          value: 30
+        });
+        assertEventId(window.fbq);
+      });
     });
 
     describe('#checkoutStarted', function() {
