@@ -1346,10 +1346,15 @@ describe('Facebook Pixel', function() {
 
       it('should send facebook pixel properties for product viewed', function() {
         analytics.track('Product Viewed', {
-          product_id: '507f1f77bcf86cd799439011',
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
-          ],
+          currency: 'USD',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1
+            }
+          ]
         });
         analytics.called(
           window.fbq,
@@ -1365,7 +1370,7 @@ describe('Facebook Pixel', function() {
             value: '0.00',
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
-            ],
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1750,10 +1755,15 @@ describe('Facebook Pixel', function() {
 
       it('should send facebook pixel properties for product added', function() {
         analytics.track('Product Added', {
-          product_id: '507f1f77bcf86cd799439011',
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
-          ],
+          currency: 'USD',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1
+            }
+          ]
         });
         analytics.called(
           window.fbq,
@@ -2001,16 +2011,22 @@ describe('Facebook Pixel', function() {
           'Order Completed',
           {
             products: [
-              { product_id: '507f1f77bcf86cd799439011', category: 'Cars' },
-              { product_id: '505bd76785ebb509fc183733', category: 'Cars' }
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2
+              }
             ],
             currency: 'USD',
             total: 0.5,
-            content_name: 'my product',
-            contents: [
-              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
-            ],
-            num_items: 2
+            name: 'my product'
           },
           {
             'Facebook Pixel': {
@@ -2033,7 +2049,8 @@ describe('Facebook Pixel', function() {
             value: '0.50',
             content_name: 'my product',
             contents: [
-              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
+              { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
             ],
             num_items: 2
           }
@@ -2093,22 +2110,17 @@ describe('Facebook Pixel', function() {
 
       it('should send facebook pixel properties for product search', function() {
         analytics.track('Products Searched', {
+          product_id: '507f1f77bcf86cd799439011',
           query: 'yo',
-          content_category: 'Cars',
-          content_ids: ['507f1f77bcf86cd799439011'],
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
-          ],
           currency: 'USD',
-          value: 30
+          category: 'Cars',
+          revenue: 30
         });
         analytics.called(window.fbq, 'trackSingle', options.pixelId, 'Search', {
           search_string: 'yo',
           content_category: 'Cars',
           content_ids: ['507f1f77bcf86cd799439011'],
-          contents: [
-            { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
-          ],
+          contents: [],
           currency: 'USD',
           value: 30
         });
