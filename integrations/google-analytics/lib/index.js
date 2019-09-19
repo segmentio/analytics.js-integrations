@@ -644,10 +644,16 @@ GA.prototype.pushEnhancedEcommerce = function(track, opts, trackerName) {
   var self = this;
   // Send a custom non-interaction event to ensure all EE data is pushed.
   // Without doing this we'd need to require page display after setting EE data.
+
+  var enhancedEcommerce = 'EnhancedEcommerce';
+  var category = opts.useEnhancedEcommerceCategory
+    ? enhancedEcommerce
+    : track.category() || enhancedEcommerce;
+
   var args = reject([
     self._trackerName + 'send',
     'event',
-    'EnhancedEcommerce',
+    category,
     track.event() || 'Action not defined',
     track.properties().label,
     extend(
