@@ -645,10 +645,16 @@ GA.prototype.pushEnhancedEcommerce = function(track, opts, trackerName) {
   // Send a custom non-interaction event to ensure all EE data is pushed.
   // Without doing this we'd need to require page display after setting EE data.
 
-  var enhancedEcommerce = 'EnhancedEcommerce';
+  console.log('opts.useEnhancedEcommerceCategory', opts.useEnhancedEcommerceCategory)
+
+  const enhancedEcommerce = 'EnhancedEcommerce'
   var category = opts.useEnhancedEcommerceCategory
     ? enhancedEcommerce
     : track.category() || enhancedEcommerce;
+
+  if (opts.useEnhancedEcommerceCategory) {
+    console.log('CATEGORY MARCUS', category)
+  }
 
   var args = reject([
     self._trackerName + 'send',
@@ -1083,16 +1089,29 @@ GA.prototype.productListFilteredEnhanced = function(track) {
 
 function enhancedEcommerceTrackProduct(track, trackerName, opts) {
   var props = track.properties();
+
+  console.log('opts', opts)
+
+  var category = opts.useEnhancedEcommerceCategory
+    ? 'EnhancedEcommerce'
+    : track.category()
+
+  if (opts.useEnhancedEcommerceCategory) {
+    console.log('CATEOGROY MARCUS2', category)
+  }
+
   var product = {
     id: track.productId() || track.id() || track.sku(),
     name: track.name(),
-    category: track.category(),
+    category,
     quantity: track.quantity(),
     price: track.price(),
     brand: props.brand,
     variant: props.variant,
     currency: track.currency()
   };
+
+  console.log('enhancedEcommerceTrackProduct product', product)
 
   // https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#product-data
   // GA requires an integer but our specs says "Number", so it could be a float.
