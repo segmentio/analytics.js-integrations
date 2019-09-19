@@ -29,6 +29,7 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('whitelistPiiProperties', [])
   .option('blacklistPiiProperties', [])
   .option('standardEventsCustomProperties', [])
+  .option('keyForExternalId', '')
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -582,6 +583,10 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
       .toLowerCase();
   var state = address.state && address.state.toLowerCase();
   var postalCode = address.postalCode;
+  var external_id;
+  if (this.options.keyForExternalId.length) {
+    external_id = traits[this.options.keyForExternalId];
+  }
   return reject({
     em: traits.email,
     fn: firstName,
@@ -591,7 +596,8 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
     db: birthday,
     ct: city,
     st: state,
-    zp: postalCode
+    zp: postalCode,
+    external_id: external_id
   });
 };
 
