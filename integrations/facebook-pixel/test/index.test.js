@@ -2560,7 +2560,7 @@ describe('Facebook Pixel', function() {
       analytics.identify('123', {
         firstName: 'brie',
         lastName: 'test',
-        test_external_id: '123456789',
+        test_external_id: '123456789', // eslint-disable-line
         address: null
       });
       var expected = {
@@ -2568,7 +2568,7 @@ describe('Facebook Pixel', function() {
         ln: 'test',
         ge: 'm',
         db: '19910113',
-        external_id: '123456789'
+        external_id: '123456789' // eslint-disable-line
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2580,7 +2580,7 @@ describe('Facebook Pixel', function() {
       analytics.identify('123', {
         firstName: 'brie',
         lastName: 'test',
-        test_external_id: '123456789',
+        test_external_id: '123456789', // eslint-disable-line
         address: null
       });
       var expected = {
