@@ -583,9 +583,9 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
       .toLowerCase();
   var state = address.state && address.state.toLowerCase();
   var postalCode = address.postalCode;
-  var external_id;
+  var external_id; // eslint-disable-line
   if (this.options.keyForExternalId.length) {
-    external_id = traits[this.options.keyForExternalId];
+    external_id = traits[this.options.keyForExternalId]; // eslint-disable-line
   }
   return reject({
     em: traits.email,
@@ -597,7 +597,7 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
     ct: city,
     st: state,
     zp: postalCode,
-    external_id: external_id
+    external_id: external_id  // eslint-disable-line
   });
 };
 
