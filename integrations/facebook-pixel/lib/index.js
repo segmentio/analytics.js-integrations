@@ -584,7 +584,7 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
   var state = address.state && address.state.toLowerCase();
   var postalCode = address.postalCode;
   var external_id; // eslint-disable-line
-  if (this.options.keyForExternalId.length) {
+  if (this.options.keyForExternalId) {
     external_id = traits[this.options.keyForExternalId]; // eslint-disable-line
   }
   return reject({
