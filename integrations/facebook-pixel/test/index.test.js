@@ -1347,14 +1347,10 @@ describe('Facebook Pixel', function() {
       it('should send facebook pixel properties for product viewed', function() {
         analytics.track('Product Viewed', {
           currency: 'USD',
-          products: [
-            {
-              product_id: '507f1f77bcf86cd799439011',
-              name: 'Monopoly: 3rd Edition',
-              price: 19,
-              quantity: 1
-            }
-          ]
+          product_id: '507f1f77bcf86cd799439011',
+          name: 'Monopoly: 3rd Edition',
+          quantity: 1,
+          price: 19
         });
         analytics.called(
           window.fbq,
@@ -1364,10 +1360,10 @@ describe('Facebook Pixel', function() {
           {
             content_ids: ['507f1f77bcf86cd799439011'],
             content_type: ['product'],
-            content_name: '',
+            content_name: 'Monopoly: 3rd Edition',
             content_category: '',
             currency: 'USD',
-            value: '0.00',
+            value: '19.00',
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
             ]
@@ -1755,15 +1751,11 @@ describe('Facebook Pixel', function() {
 
       it('should send facebook pixel properties for product added', function() {
         analytics.track('Product Added', {
-          currency: 'USD',
-          products: [
-            {
-              product_id: '507f1f77bcf86cd799439011',
-              name: 'Monopoly: 3rd Edition',
-              price: 19,
-              quantity: 1
-            }
-          ]
+          currency: 'USD', // property missing in specs but mapped in integration
+          product_id: '507f1f77bcf86cd799439011',
+          name: 'Monopoly: 3rd Edition',
+          price: 19,
+          quantity: 1
         });
         analytics.called(
           window.fbq,
@@ -1776,10 +1768,10 @@ describe('Facebook Pixel', function() {
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
             ],
-            content_name: '',
+            content_name: 'Monopoly: 3rd Edition',
             content_category: '',
             currency: 'USD',
-            value: '0.00'
+            value: '19.00'
           }
         );
         assertEventId(window.fbq);
@@ -2025,8 +2017,7 @@ describe('Facebook Pixel', function() {
               }
             ],
             currency: 'USD',
-            total: 0.5,
-            name: 'my product'
+            revenue: 0.5
           },
           {
             'Facebook Pixel': {
@@ -2047,7 +2038,6 @@ describe('Facebook Pixel', function() {
             content_type: ['myCustomType'],
             currency: 'USD',
             value: '0.50',
-            content_name: 'my product',
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 },
               { id: '505bd76785ebb509fc183733', quantity: 2, item_price: 3 }
@@ -2106,25 +2096,6 @@ describe('Facebook Pixel', function() {
         assertEventId(window.fbq);
 
         analytics.called(window.fbq, 'trackSingle', options.pixelId, '123456');
-      });
-
-      it('should send facebook pixel properties for product search', function() {
-        analytics.track('Products Searched', {
-          product_id: '507f1f77bcf86cd799439011',
-          query: 'yo',
-          currency: 'USD',
-          category: 'Cars',
-          revenue: 30
-        });
-        analytics.called(window.fbq, 'trackSingle', options.pixelId, 'Search', {
-          search_string: 'yo',
-          content_category: 'Cars',
-          content_ids: ['507f1f77bcf86cd799439011'],
-          contents: [],
-          currency: 'USD',
-          value: 30
-        });
-        assertEventId(window.fbq);
       });
     });
 
