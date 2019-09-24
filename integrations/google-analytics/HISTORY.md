@@ -1,3 +1,8 @@
+2.17.0 / 2019-09-25
+===================
+
+  * Add support for user defined position for product in product list.
+
 2.16.0 / 2019-03-05
 ===================
 

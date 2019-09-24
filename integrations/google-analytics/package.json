@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-google-analytics",
   "description": "The Google Analytics analytics.js integration.",
-  "version": "2.16.0",
+  "version": "2.17.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
