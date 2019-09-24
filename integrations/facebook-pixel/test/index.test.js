@@ -684,7 +684,11 @@ describe('Facebook Pixel', function() {
               '507f1f77bcf86cd799439011',
               '505bd76785ebb509fc183733'
             ],
-            content_type: ['myCustomType']
+            content_type: ['myCustomType'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1 },
+              { id: '505bd76785ebb509fc183733', quantity: 1 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -742,6 +746,10 @@ describe('Facebook Pixel', function() {
               '505bd76785ebb509fc183733'
             ],
             content_type: ['myCustomType'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1 },
+              { id: '505bd76785ebb509fc183733', quantity: 1 }
+            ],
             color: 'blue',
             piiSecret:
               '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
@@ -784,7 +792,11 @@ describe('Facebook Pixel', function() {
               '507f1f77bcf86cd799439011',
               '505bd76785ebb509fc183733'
             ],
-            content_type: ['product']
+            content_type: ['product'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1 },
+              { id: '505bd76785ebb509fc183733', quantity: 1 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -799,7 +811,8 @@ describe('Facebook Pixel', function() {
           'ViewContent',
           {
             content_ids: ['Games'],
-            content_type: ['product_group']
+            content_type: ['product_group'],
+            contents: [{ id: 'Games', quantity: 1 }]
           }
         );
         assertEventId(window.fbq);
@@ -839,7 +852,11 @@ describe('Facebook Pixel', function() {
               '507f1f77bcf86cd799439011',
               '505bd76785ebb509fc183733'
             ],
-            content_type: ['vehicle']
+            content_type: ['vehicle'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1 },
+              { id: '505bd76785ebb509fc183733', quantity: 1 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -887,7 +904,11 @@ describe('Facebook Pixel', function() {
               '507f1f77bcf86cd799439011',
               '505bd76785ebb509fc183733'
             ],
-            content_type: ['myCustomType']
+            content_type: ['myCustomType'],
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1 },
+              { id: '505bd76785ebb509fc183733', quantity: 1 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -905,7 +926,8 @@ describe('Facebook Pixel', function() {
           'ViewContent',
           {
             content_ids: ['Games'],
-            content_type: ['product_group']
+            content_type: ['product_group'],
+            contents: [{ id: 'Games', quantity: 1 }]
           }
         );
         assertEventId(window.fbq);
@@ -925,7 +947,8 @@ describe('Facebook Pixel', function() {
           'ViewContent',
           {
             content_ids: [''],
-            content_type: ['product_group']
+            content_type: ['product_group'],
+            contents: [{ id: '', quantity: 1 }]
           }
         );
         assertEventId(window.fbq);
@@ -948,7 +971,8 @@ describe('Facebook Pixel', function() {
           'ViewContent',
           {
             content_ids: [''],
-            content_type: ['myCustomType']
+            content_type: ['myCustomType'],
+            contents: [{ id: '', quantity: 1 }]
           }
         );
         assertEventId(window.fbq);
@@ -981,7 +1005,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1019,6 +1046,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ],
             color: 'blue',
             piiSecret:
               '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
@@ -1051,7 +1081,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1085,7 +1118,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '44.33'
+            value: '44.33',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1113,7 +1149,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1149,7 +1188,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1177,7 +1219,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1204,7 +1249,8 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [{ id: 'p-298', quantity: 1, item_price: 44.33 }]
           }
         );
         assertEventId(window.fbq);
@@ -1230,7 +1276,8 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [{ id: '', quantity: 1, item_price: 44.33 }]
           }
         );
         assertEventId(window.fbq);
@@ -1257,7 +1304,10 @@ describe('Facebook Pixel', function() {
             content_name: '',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1284,7 +1334,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: '',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1315,7 +1368,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '44.33'
+            value: '44.33',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1338,7 +1394,8 @@ describe('Facebook Pixel', function() {
           'ViewContent',
           {
             content_ids: ['Games'],
-            content_type: ['product_group']
+            content_type: ['product_group'],
+            contents: [{ id: 'Games', quantity: 1 }]
           }
         );
         assertEventId(window.fbq);
@@ -1363,7 +1420,7 @@ describe('Facebook Pixel', function() {
             content_name: 'Monopoly: 3rd Edition',
             content_category: '',
             currency: 'USD',
-            value: '19.00',
+            value: '0.00',
             contents: [
               { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
             ]
@@ -1400,7 +1457,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1438,6 +1498,9 @@ describe('Facebook Pixel', function() {
             content_category: 'cat 1',
             currency: 'USD',
             value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ],
             color: 'blue',
             piiSecret:
               '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
@@ -1471,7 +1534,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1506,7 +1572,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '44.33'
+            value: '44.33',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1535,7 +1604,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1572,7 +1644,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'Cars',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1600,7 +1675,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1627,7 +1705,8 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [{ id: 'p-298', quantity: 1, item_price: 44.33 }]
           }
         );
         assertEventId(window.fbq);
@@ -1653,7 +1732,8 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [{ id: '', quantity: 1, item_price: 44.33 }]
           }
         );
         assertEventId(window.fbq);
@@ -1680,7 +1760,10 @@ describe('Facebook Pixel', function() {
             content_name: '',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1707,7 +1790,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: '',
             currency: 'USD',
-            value: '24.75'
+            value: '24.75',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1738,7 +1824,10 @@ describe('Facebook Pixel', function() {
             content_name: 'my product',
             content_category: 'cat 1',
             currency: 'USD',
-            value: '44.33'
+            value: '44.33',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 44.33 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1765,13 +1854,13 @@ describe('Facebook Pixel', function() {
           {
             content_ids: ['507f1f77bcf86cd799439011'],
             content_type: ['product'],
-            contents: [
-              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
-            ],
             content_name: 'Monopoly: 3rd Edition',
             content_category: '',
             currency: 'USD',
-            value: '19.00'
+            value: '0.00',
+            contents: [
+              { id: '507f1f77bcf86cd799439011', quantity: 1, item_price: 19 }
+            ]
           }
         );
         assertEventId(window.fbq);
@@ -1804,7 +1893,18 @@ describe('Facebook Pixel', function() {
             ],
             content_type: ['product'],
             currency: 'USD',
-            value: '0.50'
+            value: '0.50',
+            contents: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                quantity: 1
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                quantity: 1
+              }
+            ],
+            num_items: 2
           }
         );
         assertEventId(window.fbq);
@@ -1841,6 +1941,17 @@ describe('Facebook Pixel', function() {
             content_type: ['product'],
             currency: 'USD',
             value: '0.50',
+            contents: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                quantity: 1
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                quantity: 1
+              }
+            ],
+            num_items: 2,
             color: 'blue',
             piiSecret:
               '74c8513188dfb502e9a27efc0f3515d6b8491a3b66dff861350de168be870ce9'
@@ -1871,7 +1982,18 @@ describe('Facebook Pixel', function() {
             ],
             content_type: ['product'],
             currency: 'USD',
-            value: '0.50'
+            value: '0.50',
+            contents: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                quantity: 1
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                quantity: 1
+              }
+            ],
+            num_items: 2
           }
         );
         assertEventId(window.fbq);
@@ -1903,7 +2025,18 @@ describe('Facebook Pixel', function() {
             ],
             content_type: ['product'],
             currency: 'USD',
-            value: '0.50'
+            value: '0.50',
+            contents: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                quantity: 1
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                quantity: 1
+              }
+            ],
+            num_items: 2
           }
         );
         assertEventId(window.fbq);
@@ -1930,7 +2063,18 @@ describe('Facebook Pixel', function() {
             ],
             content_type: ['product'],
             currency: 'USD',
-            value: '0.50'
+            value: '0.50',
+            contents: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                quantity: 1
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                quantity: 1
+              }
+            ],
+            num_items: 2
           }
         );
         assertEventId(window.fbq);
@@ -1957,7 +2101,18 @@ describe('Facebook Pixel', function() {
             ],
             content_type: ['vehicle'],
             currency: 'USD',
-            value: '0.50'
+            value: '0.50',
+            contents: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                quantity: 1
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                quantity: 1
+              }
+            ],
+            num_items: 2
           }
         );
         assertEventId(window.fbq);
@@ -1992,7 +2147,18 @@ describe('Facebook Pixel', function() {
             ],
             content_type: ['myCustomType'],
             currency: 'USD',
-            value: '0.50'
+            value: '0.50',
+            contents: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                quantity: 1
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                quantity: 1
+              }
+            ],
+            num_items: 2
           }
         );
         assertEventId(window.fbq);
