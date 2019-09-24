@@ -198,15 +198,22 @@ FacebookPixel.prototype.productListViewed = function(track) {
   var self = this;
   var contentType;
   var contentIds = [];
+  var contents = [];
   var products = track.products();
   var customProperties = this.buildPayload(track, true);
 
   // First, check to see if a products array with productIds has been defined.
   if (Array.isArray(products)) {
     products.forEach(function(product) {
-      var productId = product.productId || product.product_id;
+      var track = new Track({ properties: product });
+      var productId = track.productId() || track.id();
+
       if (productId) {
         contentIds.push(productId);
+        contents.push({
+          id: productId,
+          quantity: track.quantity()
+        });
       }
     });
   }
@@ -217,6 +224,10 @@ FacebookPixel.prototype.productListViewed = function(track) {
     contentType = ['product'];
   } else {
     contentIds.push(track.category() || '');
+    contents.push({
+      id: track.category() || '',
+      quantity: 1
+    });
     contentType = ['product_group'];
   }
 
@@ -227,7 +238,8 @@ FacebookPixel.prototype.productListViewed = function(track) {
     merge(
       {
         content_ids: contentIds,
-        content_type: this.getContentType(track, contentType)
+        content_type: this.getContentType(track, contentType),
+        contents: contents
       },
       customProperties
     ),
@@ -274,7 +286,14 @@ FacebookPixel.prototype.productViewed = function(track) {
         currency: track.currency(),
         value: useValue
           ? formatRevenue(track.value())
-          : formatRevenue(track.price())
+          : formatRevenue(track.price()),
+        contents: [
+          {
+            id: track.productId() || track.id() || track.sku() || '',
+            quantity: track.quantity(),
+            item_price: track.price()
+          }
+        ]
       },
       customProperties
     ),
@@ -323,7 +342,14 @@ FacebookPixel.prototype.productAdded = function(track) {
         currency: track.currency(),
         value: useValue
           ? formatRevenue(track.value())
-          : formatRevenue(track.price())
+          : formatRevenue(track.price()),
+        contents: [
+          {
+            id: track.productId() || track.id() || track.sku() || '',
+            quantity: track.quantity(),
+            item_price: track.price()
+          }
+        ]
       },
       customProperties
     ),
@@ -359,22 +385,25 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   var products = track.products();
   var customProperties = this.buildPayload(track, true);
 
-  var contentIds = foldl(
-    function(acc, product) {
-      var item = new Track({ properties: product });
-      var key = item.productId() || item.id() || item.sku();
-      if (key) acc.push(key);
-      return acc;
-    },
-    [],
-    products
-  );
-
   var revenue = formatRevenue(track.revenue());
 
   // Order completed doesn't have a top-level category spec'd.
   // Let's default to the category of the first product. - @gabriel
   var contentType = this.getContentType(track, ['product']);
+  var contentIds = [];
+  var contents = [];
+  each(function(product) {
+    var track = new Track({ properties: product });
+    contentIds.push(track.productId() || track.id() || track.sku());
+    var content = {
+      id: track.productId() || track.id() || track.sku(),
+      quantity: track.quantity()
+    };
+    if (track.price()) {
+      content.item_price = track.price();
+    }
+    contents.push(content);
+  }, products);
 
   window.fbq(
     'trackSingle',
@@ -385,7 +414,9 @@ FacebookPixel.prototype.orderCompleted = function(track) {
         content_ids: contentIds,
         content_type: contentType,
         currency: track.currency(),
-        value: revenue
+        value: revenue,
+        contents: contents,
+        num_items: contentIds.length
       },
       customProperties
     ),
