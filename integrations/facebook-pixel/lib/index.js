@@ -389,21 +389,24 @@ FacebookPixel.prototype.orderCompleted = function(track) {
 
   // Order completed doesn't have a top-level category spec'd.
   // Let's default to the category of the first product. - @gabriel
+
   var contentType = this.getContentType(track, ['product']);
   var contentIds = [];
   var contents = [];
-  each(function(product) {
-    var track = new Track({ properties: product });
-    contentIds.push(track.productId() || track.id() || track.sku());
+
+  for(var i=0; i < products.length; i++) {
+    var trackItem = new Track({ properties: products[i] });
+    var pId = trackItem.productId() || trackItem.id() || trackItem.sku();
+    contentIds.push(pId);
     var content = {
-      id: track.productId() || track.id() || track.sku(),
-      quantity: track.quantity()
+      id: pId,
+      quantity: trackItem.quantity()
     };
-    if (track.price()) {
-      content.item_price = track.price();
+    if (trackItem.price()) {
+      content.item_price = trackItem.price();
     }
     contents.push(content);
-  }, products);
+  }
 
   window.fbq(
     'trackSingle',
@@ -478,15 +481,20 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
   var contentCategory = track.category();
   var customProperties = this.buildPayload(track, true);
 
-  each(function(product) {
-    var track = new Track({ properties: product });
-    contentIds.push(track.productId() || track.id() || track.sku());
-    contents.push({
-      id: track.productId() || track.id() || track.sku(),
-      quantity: track.quantity(),
+  for(var i=0; i < products.length; i++) {
+    var trackItem = new Track({ properties: products[i] });
+    var pId = trackItem.productId() || trackItem.id() || trackItem.sku();
+    contentIds.push(pId);
+    var content = {
+      id: pId,
+      quantity: trackItem.quantity(),
       item_price: track.price()
-    });
-  }, products);
+    };
+    if (trackItem.price()) {
+      content.item_price = trackItem.price();
+    }
+    contents.push(content);
+  }
 
   // If no top-level category was defined use that of the first product. @gabriel
   if (!contentCategory && products[0] && products[0].category) {
