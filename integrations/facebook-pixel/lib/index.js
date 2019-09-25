@@ -394,7 +394,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   var contentIds = [];
   var contents = [];
 
-  for(var i=0; i < products.length; i++) {
+  for (var i = 0; i < products.length; i++) {
     var trackItem = new Track({ properties: products[i] });
     var pId = trackItem.productId() || trackItem.id() || trackItem.sku();
     contentIds.push(pId);
@@ -481,7 +481,7 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
   var contentCategory = track.category();
   var customProperties = this.buildPayload(track, true);
 
-  for(var i=0; i < products.length; i++) {
+  for (var i = 0; i < products.length; i++) {
     var trackItem = new Track({ properties: products[i] });
     var pId = trackItem.productId() || trackItem.id() || trackItem.sku();
     contentIds.push(pId);
