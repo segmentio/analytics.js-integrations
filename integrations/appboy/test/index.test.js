@@ -432,21 +432,6 @@ describe('Appboy', function() {
         );
       });
 
-      it('should remove reserved keys from custom event properties', function() {
-        analytics.track('event with properties', {
-          product_id: 'noonz',
-          event_name: 'rihanna',
-          time: 'han',
-          currency: 'usd',
-          quantity: '123'
-        });
-        analytics.called(
-          window.appboy.logCustomEvent,
-          'event with properties',
-          {}
-        );
-      });
-
       it('should call logPurchase if revenue propery is present in a Completed Order event', function(done) {
         var today = new Date();
         var orderCompleted = sinon.spy(appboy, 'orderCompleted');
