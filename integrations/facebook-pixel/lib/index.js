@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var foldl = require('@ndhoule/foldl');
 var each = require('@ndhoule/each');
 var reject = require('reject');
 var camel = require('to-camel-case');
