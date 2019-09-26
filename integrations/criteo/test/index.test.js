@@ -312,18 +312,6 @@ describe('Criteo', function() {
         );
       });
 
-      it('should detect an email trait, trim it, lowercase it, hash it, and fire the `setHashedEmail` tag', function() {
-        var inputEmail = ' CHRIS.NIXON@segment.com  ';
-        var email = 'chris.nixon@segment.com';
-        analytics.user().traits({ email: inputEmail });
-        analytics.track('Product Viewed', { productId: '12345' });
-        analytics.called(
-          window.criteo_q.push,
-          { event: 'viewItem', item: '12345' },
-          { event: 'setHashedEmail', email: md5(email) }
-        );
-      });
-
       it('should not fire the `setHashedEmail` tag if email missing in trait ', function() {
         analytics.user().traits({ email: '' });
         analytics.track('Product Viewed', { productId: '12345' });
@@ -331,18 +319,6 @@ describe('Criteo', function() {
           event: 'viewItem',
           item: '12345'
         });
-      });
-
-      it('should not fire the `setEmail` tag for invalid type value for email', function() {
-        var email = 1234;
-
-        analytics.user().traits({ email: email });
-        analytics.track('Product Viewed', { productId: '12345' });
-        analytics.didNotCall(
-          window.criteo_q.push,
-          { event: 'viewItem', item: '12345' },
-          { event: 'setHashedEmail', email: md5(email) }
-        );
       });
 
       it('should not send email as an unencoded extraData parameter', function() {
@@ -357,6 +333,26 @@ describe('Criteo', function() {
           { event: 'viewItem', item: id },
           { event: 'setData', email: email }
         );
+      });
+
+      it('should fire setCustomerId tag if userId is defined', function() {
+        analytics.user().id('userId');
+        analytics.track('Product Viewed', { productId: '12345' });
+        analytics.called(
+          window.criteo_q.push,
+          { event: 'viewItem', item: '12345' },
+          { event: 'setCustomerId', id: 'userId' }
+        );
+      });
+
+      it('should not set customer_id if userId is an email', function() {
+        var email = 'chris.nixon@segment.com';
+        analytics.user().id('userId');
+        analytics.track('Product Viewed', { productId: '12345' });
+        analytics.didNotCall(window.criteo_q.push, {
+          event: 'setCustomerId',
+          id: email
+        });
       });
     });
   });

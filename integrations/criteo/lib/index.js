@@ -6,6 +6,7 @@ var values = require('@ndhoule/values');
 var pick = require('@ndhoule/pick');
 var each = require('@ndhoule/each');
 var md5 = require('md5');
+var isEmail = require('is-email');
 var useHttps = require('use-https');
 var is = require('is');
 
@@ -107,6 +108,12 @@ Criteo.prototype.track = function(track) {
 
 Criteo.prototype.productViewed = function(track) {
   var productId = track.productId() || '';
+
+  // handling this separately so that it will not break for non-string productId
+  if (productId && typeof productId === 'string') {
+    productId = productId.trim();
+  }
+
   var event = [{ event: 'viewItem', item: productId }];
   var payload = [];
 
@@ -122,10 +129,6 @@ Criteo.prototype.productViewed = function(track) {
     );
   */
 
-  // handling this separately so that it will not break for non-string productId
-  if (productId && typeof productId === 'string') {
-    productId = productId.trim();
-  }
   if (productId) {
     // productId is madatory
     window.criteo_q.push.apply(window.criteo_q, payload);
@@ -204,14 +207,21 @@ Criteo.prototype.setExtraData = function() {
   var ret = [];
   var extraData = {};
 
+  // Add userId if available as customer_id
+  var userId = this.analytics.user().id();
+
+  // Criteo does NOT want emails passed as customer_id.
+  if (userId && !isEmail(userId)) {
+    ret.push({ event: 'setCustomerId', id: userId });
+  }
+
   // Check cached traits for any that have been defined as extraData params.
   var traits = this.analytics.user().traits();
 
   // Criteo has a special tag for emails.
   // They also require all emails get passed as md5 hashes.
-  if (traits.email && typeof traits.email === 'string') {
-    var userEmail = traits.email.trim().toLowerCase();
-    ret.push({ event: 'setHashedEmail', email: md5(userEmail) });
+  if (traits.email) {
+    ret.push({ event: 'setHashedEmail', email: md5(traits.email) });
     delete traits.email;
   }
 
