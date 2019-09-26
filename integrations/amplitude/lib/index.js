@@ -50,6 +50,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('traitsToSetOnce', [])
   .option('traitsToIncrement', [])
   .option('appendFieldsToEventProps', {})
+  .option('unsetParamsReferrerOnNewSession', false)
   .tag('<script src="' + src + '">'));
 
 /**
@@ -79,6 +80,8 @@ Amplitude.prototype.initialize = function() {
     saveParamsReferrerOncePerSession: this.options
       .saveParamsReferrerOncePerSession,
     deviceIdFromUrlParam: this.options.deviceIdFromUrlParam,
+    unsetParamsReferrerOnNewSession: this.options
+      .unsetParamsReferrerOnNewSession,
     deviceId:
       this.options.preferAnonymousIdForDeviceId &&
       this.analytics &&
