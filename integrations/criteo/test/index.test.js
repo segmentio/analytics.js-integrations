@@ -354,6 +354,22 @@ describe('Criteo', function() {
           id: email
         });
       });
+
+      it('should not set customer_id, should set setHashedEmail, if userId and email both specified', function() {
+        var email = 'chris.nixon@segment.com';
+        analytics.user().id('userId');
+        analytics.user().traits({ email: email });
+        analytics.track('Product Viewed', { productId: '12345' });
+        analytics.didNotCall(window.criteo_q.push, {
+          event: 'setCustomerId',
+          id: 'userId'
+        });
+        analytics.called(
+          window.criteo_q.push,
+          { event: 'viewItem', item: '12345' },
+          { event: 'setHashedEmail', email: md5(email) }
+        );
+      });
     });
   });
 });

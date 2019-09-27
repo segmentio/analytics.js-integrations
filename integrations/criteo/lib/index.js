@@ -109,9 +109,15 @@ Criteo.prototype.track = function(track) {
 Criteo.prototype.productViewed = function(track) {
   var productId = track.productId() || '';
 
-  // handling this separately so that it will not break for non-string productId
-  if (productId && typeof productId === 'string') {
+  // Handling this separately so that it will not break for non-string productId
+  // This will also get rid of string productId with only space(s) in it.
+  if (typeof productId === 'string') {
     productId = productId.trim();
+  }
+
+  if (!productId) {
+    // productId is madatory
+    return;
   }
 
   var event = [{ event: 'viewItem', item: productId }];
@@ -119,20 +125,7 @@ Criteo.prototype.productViewed = function(track) {
 
   payload = event.concat(this.setExtraData());
 
-  /**
-    window.criteo_q.push(
-      { event: "setAccount", account: 12345 },
-      { event: "setEmail", email: "MD5(e-mail)" },
-      { event: "setData", foo: "bar" },
-      { event: "setCustomerId", id: "Customer ID" },
-      { event: "viewItem", item: "Your item id" }
-    );
-  */
-
-  if (productId) {
-    // productId is madatory
-    window.criteo_q.push.apply(window.criteo_q, payload);
-  }
+  window.criteo_q.push.apply(window.criteo_q, payload);
 };
 
 /**
@@ -207,13 +200,8 @@ Criteo.prototype.setExtraData = function() {
   var ret = [];
   var extraData = {};
 
-  // Add userId if available as customer_id
+  // Add userId if available as customer_id while email is not passed in traits.
   var userId = this.analytics.user().id();
-
-  // Criteo does NOT want emails passed as customer_id.
-  if (userId && !isEmail(userId)) {
-    ret.push({ event: 'setCustomerId', id: userId });
-  }
 
   // Check cached traits for any that have been defined as extraData params.
   var traits = this.analytics.user().traits();
@@ -223,6 +211,10 @@ Criteo.prototype.setExtraData = function() {
   if (traits.email) {
     ret.push({ event: 'setHashedEmail', email: md5(traits.email) });
     delete traits.email;
+  } else if (userId && !isEmail(userId)) {
+    // Criteo does NOT want emails passed as customer_id.
+    // Also if email is specified this shouldn't be tracked
+    ret.push({ event: 'setCustomerId', id: userId });
   }
 
   // Add supporting user data.
