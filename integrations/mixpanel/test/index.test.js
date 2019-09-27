@@ -561,33 +561,61 @@ describe('Mixpanel', function() {
 
     describe('#group', function() {
       beforeEach(function() {
-        analytics.stub(window.mixpanel, 'group');
         analytics.stub(window.mixpanel, 'set_group');
+        analytics.stub(window.mixpanel, 'get_group');
       });
 
-      it('should not call set_group if groupId is passed or null/undefined/empty', function() {
+      it('should not call set_group, get_group if groupId is passed or null/undefined/empty', function() {
         analytics.group('');
         analytics.didNotCall(window.mixpanel.set_group);
-        analytics.didNotCall(window.mixpanel.group);
+        analytics.didNotCall(window.mixpanel.get_group);
+      });
+
+      it('should not call set_group, get_group if userId missing', function() {
+        analytics.group('testGroupId');
+        analytics.didNotCall(window.mixpanel.set_group);
+        analytics.didNotCall(window.mixpanel.get_group);
+      });
+
+      it('should not call set_group, get_group if groupIdentifierTraits option missing', function() {
+        analytics.user().id(1234);
+        analytics.group('testGroupId');
+        analytics.didNotCall(window.mixpanel.set_group);
+        analytics.didNotCall(window.mixpanel.get_group);
       });
 
       it('should call set_group', function() {
-        mixpanel.options.groupIdentifierTraits = ['company'];
-        var groupIdentifierTraits = mixpanel.options.groupIdentifierTraits;
-        var traits = { company: 'testCompany' };
-        analytics.group('testGroupId', traits);
+        analytics.user().id(1234);
+        var groupIdentifierTraits = ['groupKey1'];
+        mixpanel.options.groupIdentifierTraits = groupIdentifierTraits;
+        // traits not needed for set_group
+        analytics.group('testGroupId');
         for (var i = 0; i < groupIdentifierTraits.length; i++) {
-          analytics.called(
-            window.mixpanel.set_group,
-            groupIdentifierTraits[i],
-            traits[groupIdentifierTraits[i]]
-          );
+          analytics.called(window.mixpanel.set_group, 'groupKey1', [
+            'testGroupId'
+          ]);
         }
       });
 
-      it('should call set_group if traits are not passed', function() {
-        analytics.group('testGroupId');
-        analytics.called(window.mixpanel.set_group, 'testGroupId');
+      it('should call get_group if traits are passed', function() {
+        var groupIdentifierTraits = ['groupKey1'];
+        analytics.user().id(1234);
+        mixpanel.options.groupIdentifierTraits = groupIdentifierTraits;
+        var traits = {
+          name: 'Initech',
+          industry: 'Technology',
+          employees: 329,
+          plan: 'enterprise',
+          'total billed': 830
+        };
+        analytics.group('testGroupId', traits);
+        for (var i = 0; i < groupIdentifierTraits.length; i++) {
+          analytics.called(
+            window.mixpanel.get_group,
+            groupIdentifierTraits[i],
+            'testGroupId'
+          );
+        }
       });
     });
   });

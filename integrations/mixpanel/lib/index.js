@@ -325,18 +325,21 @@ Mixpanel.prototype.alias = function(alias) {
 Mixpanel.prototype.group = function(group) {
   var groupIdentifierTraits = this.options.groupIdentifierTraits;
   var groupId = group.groupId();
-  var userId = group.userId();
-  var traits = group.traits();
-  if (groupId && userId) {
-    if (traits && Object.keys(traits).length) {
-      window.mixpanel.get_group(groupId, 'mixpanel').set_once(traits);
+  var userId = this.analytics.user().id();
+  var traits = group.properties();
+  if (!groupId || !userId || !groupIdentifierTraits.length) {
+    return;
+  }
+
+  if (traits && Object.keys(traits).length) {
+    for (var ind = 0; ind < groupIdentifierTraits.length; ind++) {
+      window.mixpanel
+        .get_group(groupIdentifierTraits[ind], groupId)
+        .set_once(traits);
     }
-    for (var i = 0; i < groupIdentifierTraits.length; i++) {
-      window.mixpanel.set_group(
-        groupIdentifierTraits[i],
-        traits[groupIdentifierTraits[i]]
-      );
-    }
+  }
+  for (var i = 0; i < groupIdentifierTraits.length; i++) {
+    window.mixpanel.set_group(groupIdentifierTraits[i], [groupId]);
   }
 };
 
