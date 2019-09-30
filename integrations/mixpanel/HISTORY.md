@@ -1,3 +1,7 @@
+3.1.0 / 2019-09-27
+==================
+  * Added support for groups.
+
 3.0.1 / 2018-07-18
 ==================
   * Supports mapping to settings.sourceName on `track` and `page` calls (#32)
