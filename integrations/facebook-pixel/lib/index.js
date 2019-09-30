@@ -205,7 +205,8 @@ FacebookPixel.prototype.productListViewed = function(track) {
   if (Array.isArray(products)) {
     products.forEach(function(product) {
       var track = new Track({ properties: product });
-      var productId = track.product_id || track.productId || track.id();
+      var productId =
+        track.proxy('properties.product_id') || track.productId() || track.id();
 
       if (productId) {
         contentIds.push(productId);
