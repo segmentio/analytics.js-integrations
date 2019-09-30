@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-facebook-pixel",
   "description": "The Facebook Pixel analytics.js integration.",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@ndhoule/each": "^2.0.1",
-    "@ndhoule/foldl": "^2.0.1",
     "@segment/analytics.js-integration": "^3.1.0",
     "dateformat": "^1.0.12",
     "is": "^3.2.1",
