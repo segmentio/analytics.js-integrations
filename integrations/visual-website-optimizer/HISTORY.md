@@ -1,3 +1,9 @@
+2.4.0 / 2019-10-03
+==================
+
+  * Track experiment if type one of 'VISUAL_AB','VISUAL','SPLIT_URL','SURVEY'.
+
+
 2.3.0 / 2018-07-05
 ==================
 

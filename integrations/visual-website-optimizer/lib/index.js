@@ -183,6 +183,19 @@ function enqueue(fn) {
 }
 
 /**
+ * Check whether the experiment type is one of allowed types.
+ *
+ * @param {Object} experiment
+ * @return {Boolean}
+ */
+function isValidExperimentType(experiment) {
+  var allowedExperimentTypes = ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'];
+  var experimentType = (experiment && experiment.type) || '';
+  experimentType = experimentType.toUpperCase();
+  return allowedExperimentTypes.indexOf(experimentType) !== -1;
+}
+
+/**
  * Get the chosen variation's name from an experiment `id`.
  *
  * http://visualwebsiteoptimizer.com/knowledge/integration-of-vwo-with-kissmetrics/
@@ -195,6 +208,17 @@ function variation(id) {
   var experiments = window._vwo_exp;
   if (!experiments) return null;
   var experiment = experiments[id];
+
+  if (!experiment || !Object.keys(experiment).length) {
+    // if falsey value or empty object
+    // This will avoid further errors.
+    return null;
+  }
+
+  if (!isValidExperimentType(experiment)) {
+    return null;
+  }
+
   var variationId = experiment.combination_chosen;
 
   // Send data only if experiment is marked ready by VWO and User is not previewing the VWO campaign
