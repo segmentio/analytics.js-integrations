@@ -1,3 +1,8 @@
+2.5.0 / 2019-10-03
+==================
+
+  * Option to specify is single page application.
+
 2.4.0 / 2019-10-03
 ==================
 
