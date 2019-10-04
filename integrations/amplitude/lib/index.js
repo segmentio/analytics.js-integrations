@@ -287,8 +287,28 @@ Amplitude.prototype.orderCompleted = function(track) {
   var trackRevenuePerProduct = this.options.trackRevenuePerProduct;
   var revenueType = track.proxy('properties.revenueType');
   var revenue = track.revenue();
+  var trackProductsOnce = this.options.trackProductsOnce;
 
-  // Amplitude does not allow arrays of objects to as properties of events.
+  if (trackProductsOnce) {
+    var allProducts = [];
+    // products is object
+    var productKeys = Object.keys(products);
+    for (var index = 0; index < productKeys.length; index++) {
+      var eachProduct = new Track({ properties: products[index] });
+
+      allProducts.push({
+        productId: eachProduct.productId(),
+        sku: eachProduct.sku(),
+        name: eachProduct.name(),
+        price: eachProduct.price(),
+        quantity: eachProduct.quantity(),
+        category: eachProduct.category()
+      });
+    }
+    clonedTrack.properties.products = allProducts;
+    logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
+    return;
+  }
   // Our Order Completed event however uses a products array for product level tracking.
   // We need to remove this before logging the event and then use it to track revenue.
   delete clonedTrack.properties.products;

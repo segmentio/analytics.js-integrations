@@ -1,3 +1,7 @@
+# 3.3.0 / 2019-10-04
+
+- Add support for trackProductsOnce setting, this will track all products at once.
+
 # 3.2.0 / 2019-08-27
 
 - Add support for unsetParamsReferrerOnNewSession setting
