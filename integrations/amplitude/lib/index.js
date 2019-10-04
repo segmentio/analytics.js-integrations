@@ -51,6 +51,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('traitsToIncrement', [])
   .option('appendFieldsToEventProps', {})
   .option('unsetParamsReferrerOnNewSession', false)
+  .option('trackProductsOnce', false)
   .tag('<script src="' + src + '">'));
 
 /**
