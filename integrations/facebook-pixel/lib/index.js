@@ -28,7 +28,6 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('whitelistPiiProperties', [])
   .option('blacklistPiiProperties', [])
   .option('standardEventsCustomProperties', [])
-  .option('keyForExternalId', '')
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -622,10 +621,6 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
       .toLowerCase();
   var state = address.state && address.state.toLowerCase();
   var postalCode = address.postalCode;
-  var external_id; // eslint-disable-line
-  if (this.options.keyForExternalId) {
-    external_id = traits[this.options.keyForExternalId]; // eslint-disable-line
-  }
   return reject({
     em: traits.email,
     fn: firstName,
@@ -635,8 +630,7 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
     db: birthday,
     ct: city,
     st: state,
-    zp: postalCode,
-    external_id: external_id  // eslint-disable-line
+    zp: postalCode
   });
 };
 
