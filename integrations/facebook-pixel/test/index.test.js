@@ -2825,64 +2825,6 @@ describe('Facebook Pixel', function() {
 
       analytics.deepEqual(expected, actual);
     });
-
-    it('should add an external_id if defined in settings', function() {
-      facebookPixel.options.keyForExternalId = 'test_external_id';
-      analytics.identify('123', {
-        firstName: 'brie',
-        lastName: 'test',
-        test_external_id: '123456789', // eslint-disable-line
-        address: null
-      });
-      var expected = {
-        fn: 'brie',
-        ln: 'test',
-        ge: 'm',
-        db: '19910113',
-        external_id: '123456789' // eslint-disable-line
-      };
-      var actual = facebookPixel.formatTraits(analytics);
-
-      analytics.deepEqual(expected, actual);
-    });
-
-    it('should reject an external_id if NOT defined in settings', function() {
-      facebookPixel.options.keyForExternalId = '';
-      analytics.identify('123', {
-        firstName: 'brie',
-        lastName: 'test',
-        test_external_id: '123456789', // eslint-disable-line
-        address: null
-      });
-      var expected = {
-        fn: 'brie',
-        ln: 'test',
-        ge: 'm',
-        db: '19910113'
-      };
-      var actual = facebookPixel.formatTraits(analytics);
-
-      analytics.deepEqual(expected, actual);
-    });
-
-    it('should reject an external_id settings are all undefined', function() {
-      facebookPixel.options = {};
-      analytics.identify('123', {
-        firstName: 'brie',
-        lastName: 'test',
-        test_external_id: '123456789', // eslint-disable-line
-        address: null
-      });
-      var expected = {
-        fn: 'brie',
-        ln: 'test',
-        ge: 'm',
-        db: '19910113'
-      };
-      var actual = facebookPixel.formatTraits(analytics);
-
-      analytics.deepEqual(expected, actual);
-    });
   });
 
   describe('#merge', function() {
