@@ -50,14 +50,14 @@ AdobeAnalytics.sOption = function(field, value) {
   var s = window.s;
   var isValid = s && has.call(s, field) && !isEmptyString(field);
 
-  value = isValid ? s[field] : value;
+  var newValue = isValid ? s[field] : value;
 
   // TODO: Consider removing this. Not sure why we are doing this since it has no future reference
   this.prototype.sOptions = this.prototype.sOptions || {};
-  this.prototype.sOptions[field] = value;
+  this.prototype.sOptions[field] = newValue;
 
   // Set field and value to this.options
-  return this.option(field, value);
+  return this.option(field, newValue);
 };
 
 /**
@@ -131,7 +131,7 @@ AdobeAnalytics.prototype.initialize = function() {
 
   // Lowercase all keys of events and merchEvents maps for easy matching later
   if (!Array.isArray(options.events)) lowercaseKeys(options.events);
-  if (!Array.isArray(options.events)) lowercaseKeys(options.events);
+  if (!Array.isArray(options.merchEvents)) lowercaseKeys(options.events);
 
   // In case this has been defined already
   window.s_account = window.s_account || options.reportSuiteId;
@@ -323,10 +323,6 @@ AdobeAnalytics.prototype.track = function(track) {
 
 AdobeAnalytics.prototype.productViewed = function(track) {
   clearKeys(dynamicKeys);
-
-  var productVariables = formatProduct(track, this.options.productIdentifier);
-  update(productVariables, 'products');
-
   this.processEvent(track, 'prodView');
 };
 
@@ -345,10 +341,6 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
 
 AdobeAnalytics.prototype.productAdded = function(track) {
   clearKeys(dynamicKeys);
-
-  var productVariables = formatProduct(track, this.options.productIdentifier);
-  update(productVariables, 'products');
-
   this.processEvent(track, 'scAdd');
 };
 
@@ -362,10 +354,6 @@ AdobeAnalytics.prototype.productAdded = function(track) {
 
 AdobeAnalytics.prototype.productRemoved = function(track) {
   clearKeys(dynamicKeys);
-
-  var productVariables = formatProduct(track, this.options.productIdentifier);
-  update(productVariables, 'products');
-
   this.processEvent(track, 'scRemove');
 };
 
@@ -424,34 +412,34 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var merchEvents = getMerchConfig(msg, this.options);
+  var properties = msg.properties();
 
-  var products = msg.products();
-  if (Array.isArray(products) && !window.s.products) {
-    // check window because products key could already have been filled upstream
-    var productVariables = formatProducts(
-      products,
-      this.options.productIdentifier
-    );
-  }
+  setProductsString(
+    properties,
+    adobeEvent,
+    this.options.productIdentifier,
+    merchEvents.config.productMerchEvent,
+    merchEvents.config.productEvars
+  );
 
   updateContextData(msg, this.options);
 
   var eVarEvent = dot(this.options.eVars, msg.event());
   update(msg.event(), eVarEvent);
 
-  if (productVariables) update(productVariables, 'products');
+  setEventsString(
+    msg.event(),
+    properties,
+    this.options.events,
+    merchEvents.configMerchEvents,
+    adobeEvent
+  );
 
-  // if product-scoped merchandising variables exist,
-  // the appropriate event must be associated with s.events, for example
-  // s.events event1
-  // s.products event1=9.95
-
-  aliasEvent(msg.event(), msg.properties(), this.options.events, merchEvents.configMerchEvents, adobeEvent);
   updateCommonVariables(msg, this.options);
 
   calculateTimestamp(msg, this.options);
 
-  var mappedProps = extractProperties(props, this.options);
+  var mappedProps = extractProperties(properties, this.options);
   each(update, mappedProps);
 
   if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
@@ -547,27 +535,38 @@ function calculateTimestamp(msg, options) {
  * @param  {String} base                  An Adobe-specific stanard event
  */
 
-function aliasEvent(event, properties, eventsMap, merchEventsMap, base) {
-  var event = event.toLowerCase();
+function setEventsString(
+  eventName,
+  properties,
+  eventsMap,
+  merchEventsMap,
+  base
+) {
+  var event = eventName.toLowerCase();
 
   var adobeEvents = base ? [base] : [];
   // iterate through event map and pull adobe events corresponding to the incoming segment event
   if (eventsMap.length > 0) {
-    for (var i = 0; i < eventMapping.length; i++) {
-      var mapping = eventsMap[i]
-      if (mapping.segmentEvent === event) {
-        // expand adobeEvents array with any new adobe events derived from the current mapping, using set to for de-duping
-        adobeEvents = [...new Set([...adobeEvents, ...mapping.adobeEvents])]
+    for (var i = 0; i < eventsMap.length; i++) {
+      var eventsMapping = eventsMap[i];
+      if (eventsMapping.segmentEvent === event) {
+        if (adobeEvents.indexOf(eventsMapping.adobeEvent <= 0)) {
+          adobeEvents.push(eventsMapping.adobeEvent);
+        }
       }
     }
   }
 
   // append adobeEvents with merchMap (currency and counter events)
-  for (var i = 0; i < merchEventsMap.length; i++) {
-    var mapping = merchEventsMap[i]
-    if (mapping) {
-      var merchMap = mapMerchEvents(mapping, properties)
-      adobeEvents = [...new Set([...adobeEvents, ...merchMap])]
+  for (var j = 0; j < merchEventsMap.length; j++) {
+    var merchMapping = merchEventsMap[j];
+    if (merchMapping) {
+      var merchMap = mapMerchEvents(merchMapping, properties);
+      for (var k = 0; k < merchMap.length; k++) {
+        if (adobeEvents.indexOf(merchMap[k] <= 0)) {
+          adobeEvents.push(merchMap[k]);
+        }
+      }
     }
   }
 
@@ -632,26 +631,6 @@ function addContextDatum(key, value) {
 }
 
 /**
- * Format semantic ecommerce product properties to Adobe Analytics variable strings.
- *
- * @api private
- * @param {Object} props
- * @return {string}
- */
-
-function formatProduct(props, identifier) {
-  var quantity = props.quantity() || 1;
-  var total = ((props.price() || 0) * quantity).toFixed(2);
-  var productIdentifier = props[identifier]();
-  // add ecom spec v2 support if identifier is `id`, which only supports ecom spec v1
-  if (identifier === 'id') {
-    productIdentifier = props.productId() || props.id();
-  }
-
-  return [props.category(), productIdentifier, quantity, total].join(';');
-}
-
-/**
  * Map event level (order wide) currency & incrementor events.
  * https://marketing.adobe.com/resources/help/en_US/sc/implement/products.html
  *
@@ -681,25 +660,28 @@ function formatProduct(props, identifier) {
  * @api private
  */
 
-function mapMerchEvents (merchEvent, props) {
+function mapMerchEvents(merchEvent, props) {
   var merchMap = [];
   if (!merchEvent) {
     return merchMap;
   }
   if (merchEvent.valueScope === 'event') {
     if (merchEvent.segmentProperty in props) {
-      var eventString = merchEvent.adobeEvent + '=' + props[merchEvent.segmentProperty].toString();
+      var eventString =
+        merchEvent.adobeEvent +
+        '=' +
+        props[merchEvent.segmentProperty].toString();
       merchMap.push(eventString);
     } else if (!merchEvent.segmentProperty) {
       // To account for event with no value
-      merchMap.push(merchEvent.adobeEvent)
+      merchMap.push(merchEvent.adobeEvent);
     }
   } else {
     // If the valueScope is products, the Adobe event must
     // also be passed in on s.events as well, but without a value
-    merchMap.push(merchEvent.adobeEvent)
+    merchMap.push(merchEvent.adobeEvent);
   }
-  return merchMap
+  return merchMap;
 }
 
 /**
@@ -722,21 +704,27 @@ function mapMerchEvents (merchEvent, props) {
   * @return {Array}
  */
 
-function dedupeMerchEventSettings (configMerchEvents) {
-  var dedupeSettings = {}
+function dedupeMerchEventSettings(configMerchEvents) {
+  var dedupeSettings = {};
   for (var i = 0; i < configMerchEvents.length; i++) {
-    var eventObject = configMerchEvents[i]
-    var existingEventObject = dedupeSettings[eventObject.adobeEvent]
+    var eventObject = configMerchEvents[i];
+    var existingEventObject = dedupeSettings[eventObject.adobeEvent];
 
-    if (!existingEventObject || (existingEventObject.valueScope === 'product' && eventObject.valueScope === 'event')) {
-      dedupeSettings[eventObject.adobeEvent] = eventObject
+    if (
+      !existingEventObject ||
+      (existingEventObject.valueScope === 'product' &&
+        eventObject.valueScope === 'event')
+    ) {
+      dedupeSettings[eventObject.adobeEvent] = eventObject;
     }
   }
-  var res = []
-  for (let adobeEvent in dedupeSettings) {
-    res.push(dedupeSettings[adobeEvent])
+  var res = [];
+  for (var adobeEvent in dedupeSettings) {
+    if (dedupeSettings[adobeEvent]) {
+      res.push(dedupeSettings[adobeEvent]);
+    }
   }
-  return res
+  return res;
 }
 
 /**
@@ -765,22 +753,26 @@ function dedupeMerchEventSettings (configMerchEvents) {
   * @param {Object} settings
   * @return {Object}
  */
-function getMerchConfig (msg, settings) {
+function getMerchConfig(msg, settings) {
   var eventName = msg.event().toLowerCase();
-  var mapping = (settings.merchEvents || []).find(setting => setting.segmentEvent === eventName);
+  var mapping = (settings.merchEvents || []).find(function(setting) {
+    return setting.segmentEvent === eventName;
+  });
   var config = {
     configProductMerchEvent: [],
     configMerchEvents: [],
     productEVars: []
-  }
+  };
 
   if (mapping) {
-    config.configProductMerchEvent = mapping.merchEvents
-    config.configMerchEvents = dedupeMerchEventSettings(mapping.merchEvents || [])
-    config.productEVars = mapping.productEVars
+    config.configProductMerchEvent = mapping.merchEvents;
+    config.configMerchEvents = dedupeMerchEventSettings(
+      mapping.merchEvents || []
+    );
+    config.productEVars = mapping.productEVars;
   }
 
-  return config
+  return config;
 }
 
 /**
@@ -795,7 +787,7 @@ function clearKeys(keys) {
     delete window.s[linkVar];
   }, keys);
   // Clears the array passed in
-  keys.length = 0;
+  keys.length = 0; // eslint-disable-line
 }
 
 /**
@@ -840,21 +832,254 @@ function extractProperties(props, options) {
   return result;
 }
 
-function formatProducts(products, identifier) {
-  var productVariables = '';
-  var productDescription;
+function setProductsString(
+  properties,
+  adobeEvent,
+  identifier,
+  productMerchEvents,
+  productEVars
+) {
+  var singleProductEvent =
+    adobeEvent === 'scAdd' ||
+    adobeEvent === 'scRemove' ||
+    adobeEvent === 'prodView';
 
-  // Adobe Analytics wants product description in semi-colon delimited string separated by commas
-  for (var x = 0; x < products.length; x++) {
-    var product = new Track({ properties: products[x] }); // convert product obj to Facade so formatProduct can query props using Facade methods
-    productDescription = formatProduct(product, identifier);
-    productVariables += productDescription;
-    // if there are more products, delimit using comma
-    if (products[x + 1]) productVariables += ',';
-  }
-
-  return productVariables;
+  // Map to Adobe non-predefined single product event when merchEvents or productEVars is configured.
+  var isSingleProductEvent =
+    (productMerchEvents.length || productEVars.length) &&
+    !Array.isArray(properties.products);
+  var productFields =
+    singleProductEvent || isSingleProductEvent
+      ? [properties]
+      : properties.products;
+  mapProducts(
+    productFields,
+    identifier,
+    productEVars,
+    productMerchEvents,
+    properties
+  );
 }
+
+/**
+ * Map products.
+ *
+ * @param {Array} products
+ * @param {String} identifier
+ * @param {Array} productEVars Array of objects
+ * @param {Array} merchEvents Array of objects
+ * @param {Object} properties
+ * @return {String}
+ * @api private
+ */
+
+function mapProducts(
+  products,
+  identifier,
+  productEVars,
+  merchEvents,
+  properties
+) {
+  if (!Array.isArray(products)) return products;
+
+  var productString = products.map(function(productProperties) {
+    var product = new Track({ properties: productProperties });
+    var category = product.category() || '';
+    var quantity = product.quantity() != null ? product.quantity() : 1;
+    // This logic produces NaN results when price is not passed in.
+    // This functionality has been in place for too long to simply correct
+    // without risking introducing a regression.
+    var total = (product.price() * quantity).toFixed(2);
+
+    var item = product[identifier]();
+
+    // support ecom spec v2 when identifier setting == 'id'
+    // ecom spec v2 supports object_id convention
+    if (identifier === 'id') {
+      item = product.productId() || product.id();
+    }
+
+    var eventString = '';
+    if (merchEvents && merchEvents.length) {
+      // to account for top level properties and nested products,
+      // we pass in properties and props, a product within products.
+      eventString = mapProductEvents(
+        merchEvents,
+        properties,
+        productProperties
+      );
+    }
+
+    var productEVarstring = '';
+    if (productEVars && productEVars.length) {
+      // We send the entire properties object, because the setting
+      // respects the input of products.price, or price for the
+      // top level property.
+      productEVarstring = mapProductEVars(
+        productEVars,
+        properties,
+        productProperties
+      );
+    }
+
+    // Note that product level currency and counter events preceed product eVars.
+    // Ex: s.products="Category;ABC123;1;10;event1=1.99|event2=25;evar1=2 Day Shipping|evar2=3 Stars"
+    if (eventString !== '' || productEVarstring !== '') {
+      return [category, item, quantity, total, eventString, productEVarstring]
+        .map(function(value) {
+          if (value == null) {
+            return String(value);
+          }
+          return value;
+        })
+        .join(';');
+    }
+    return [category, item, quantity, total]
+      .map(function(value) {
+        if (value == null) {
+          return String(value);
+        }
+        return value;
+      })
+      .join(';');
+  });
+
+  update(productString, 'products');
+}
+
+/**
+ * Map product level currency * counter events.
+ * https://marketing.adobe.com/resources/help/en_US/sc/implement/products.html
+ *
+ * Example input:
+    "merchEvents": [
+      {
+        "adobeEvent": "event1",
+        "valueScope": "product",
+        "segmentProperty": "products.foo"
+      },
+      {
+        "adobeEvent": "event2",
+        "valueScope": "product",
+        "segmentProperty": "priceStatus"
+      },
+      {
+        "adobeEvent": "event34",
+        "valueScope": "event",
+        "segmentProperty": "products.price"
+      },
+      {
+        "adobeEvent": "event2",
+        "valueScope": "event",
+        "segmentProperty": ""
+      }
+    ]
+ * @param {Array} merchEvents
+ * @param {Object} props
+ * @param {Object} product
+ * @return {String}
+ * @api private
+ */
+
+function mapProductEvents(merchEvents, props, product) {
+  var merchMap = [];
+  var eventString;
+
+  for (var i = 0; i < merchEvents.length; i++) {
+    var event = merchEvents[i];
+    if (event.valueScope === 'product') {
+      // Respect what the customer configures in the setting.
+      // ex. products.cart_id
+      // Only check products if "products." configured in settings.
+      if (event.segmentProperty.startsWith('products.')) {
+        var value = getProductField(event.segmentProperty, product);
+        if (value && value !== 'undefined') {
+          eventString = event.adobeEvent + '=' + value;
+          merchMap.push(eventString);
+        }
+      } else if (event.segmentProperty in props) {
+        eventString =
+          event.adobeEvent + '=' + String(props[event.segmentProperty]);
+        merchMap.push(eventString);
+      }
+    }
+  }
+  return merchMap.join('|');
+}
+
+/**
+* Map product merchandising eVars using product syntax
+* https://marketing.adobe.com/resources/help/en_US/sc/implement/var_merchandising_impl.html
+* Example input:
+   "productEVars": [
+     {
+       "key": "priceStatus",
+       "value": "eVar32"
+     },
+     {
+       "key": "discount",
+       "value": "eVar17"
+     },
+   ]
+  * @param {Array} productEVars
+  * @param {Object} props
+  * @param {Object} product
+  * @return {String}
+ */
+
+/* eslint-disable */
+function mapProductEVars(productEVars, props, product) {
+  var eVars = [];
+  for (var eVar in productEVars) {
+    var value = Object.values(productEVars[eVar]);
+    // Respect what the customer configures in the setting. ex. products.cart_id
+    // Only check products if "products." configured in settings.
+    if (value[0].startsWith('products.')) {
+      var productValue = getProductField(value[0], product);
+      if (productValue && productValue !== 'undefined') {
+        eVars.push(value[1] + '=' + productValue);
+      }
+    } else if (value[0] in props) {
+      eVars.push(value[1] + '=' + props[value[0]]);
+    }
+  }
+  return eVars.join('|');
+}
+/* eslint-enable */
+
+/**
+ * Get product key after string
+ *
+ * Example input: products.isMembershipExclusive or products.$.price
+ * Example output: isMembershipExclusive or price
+ * @param {String} productString
+ * @param {Object} product
+ * @return {String}
+ */
+function getProductField(productString, product) {
+  var fields = productString.split('.');
+  return product[fields[fields.length - 1]].toString();
+}
+
+/**
+ * Check if event is mapped in `events` or `merchEvents` settings.
+ * If not, the destination will noop.
+ *
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api private
+ */
+
+AdobeAnalytics.prototype.isMapped = function(event) {
+  (this.options.events || []).find(function(setting) {
+    return setting.segmentEvent.toLowerCase() === event;
+  });
+
+  (this.options.merchEvents || []).find(function(setting) {
+    return setting.segmentEvent.toLowerCase() === event;
+  });
+};
 
 /**
  * Check if function is a function
@@ -876,6 +1101,7 @@ function isFunction(fn) {
  * @return {Object}
  */
 
+/* eslint-disable */
 function lowercaseKeys(obj) {
   obj = obj || {};
   each(function(value, key) {
@@ -884,6 +1110,7 @@ function lowercaseKeys(obj) {
   }, obj);
   return obj;
 }
+ /* eslint-enable */
 
 /**
  * Return whether `str` is an empty string.
@@ -1068,9 +1295,11 @@ function heartbeatAdStarted(track) {
   var props = track.properties();
   var adSessionCount = this.adBreakCounts[props.session_id || 'default'];
 
+  /* eslint-disable */
   adSessionCount
     ? (adSessionCount = ++this.adBreakCounts[props.session_id || 'default'])
     : (adSessionCount = this.adBreakCounts[props.session_id || 'default'] = 1);
+  /* eslint-enable */
 
   var adBreakObj = videoAnalytics.MediaHeartbeat.createAdBreakObject(
     props.type || 'unknown',
@@ -1247,31 +1476,4 @@ function createQosObject(track) {
     props.fps || 0,
     props.droppedFrames || 0
   );
-}
-
-/**
- * Check if event is mapped in `events` or `merchEvents` settings
- * If not, the destination will noop
- * 
- *
- * @param {String} event
- * @return {Boolean}
- * @api private
- */
-
-AdobeAnalytics.prototype.isMapped = function(event) {
-  var mappedInEvents = (this.options.events || [] ).find(function(setting) {
-    setting.segmentEvent.toLowerCase() === event
-  })
-
-  // return if `mappedInEvents` truthy, as there's no reason to check merchEvents array
-  if (mappedInEvents) {
-    return mappedInEvents;
-  }
-
-  var mappedInMerchEvents = (this.options.merchEvents || [] ).find(function(setting) {
-    setting.segmentEvent.toLowerCase() === event
-  })
-
-  return mappedInMerchEvents;
 }
