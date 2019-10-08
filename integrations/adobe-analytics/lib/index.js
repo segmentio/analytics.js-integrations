@@ -71,7 +71,7 @@ AdobeAnalytics.global('s')
   .option('props', {})
   .option('hVars', {})
   .option('lVars', {})
-  .option('merchEvents', {})
+  .option('merchEvents', [])
   .option('contextValues', {})
   .option('customDataPrefix', '')
   .option('reportSuiteId', window.s_account)
@@ -129,7 +129,8 @@ AdobeAnalytics.prototype.initialize = function() {
   var options = this.options;
   var self = this;
 
-  // Lowercase all keys of event map for easy matching later
+  // Lowercase all keys of events and merchEvents maps for easy matching later
+  if (!Array.isArray(options.events)) lowercaseKeys(options.events);
   if (!Array.isArray(options.events)) lowercaseKeys(options.events);
 
   // In case this has been defined already
@@ -302,10 +303,12 @@ AdobeAnalytics.prototype.track = function(track) {
     }
   }
 
-  // Find AA event name from setting's event map
-  // otherwise abort
-  var adobeEvent = aliasEvent(track.event(), this.options.events);
-  if (!adobeEvent) return;
+  // Check if Segment event is mapped in settings; if not, noop
+  var event = track.event().toLowerCase();
+  var isMapped = isMapped(event);
+  if (!isMapped) {
+    return;
+  }
 
   this.processEvent(track);
 };
@@ -420,7 +423,7 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
-  var props = msg.properties();
+  var merchEvents = getMerchConfig(msg, this.options);
 
   var products = msg.products();
   if (Array.isArray(products) && !window.s.products) {
@@ -438,7 +441,12 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
 
   if (productVariables) update(productVariables, 'products');
 
-  updateEvents(msg.event(), this.options.events, adobeEvent);
+  // if product-scoped merchandising variables exist,
+  // the appropriate event must be associated with s.events, for example
+  // s.events event1
+  // s.products event1=9.95
+
+  aliasEvent(msg.event(), msg.properties(), this.options.events, merchEvents.configMerchEvents, adobeEvent);
   updateCommonVariables(msg, this.options);
 
   calculateTimestamp(msg, this.options);
@@ -533,13 +541,37 @@ function calculateTimestamp(msg, options) {
  * their configuration.
  *
  * @api private
- * @param  {String} event         The Segment event
- * @param  {Object|Array} mapping The configured events mapping
- * @param  {String} base          An Adobe-specific event
+ * @param  {String} event                 The Segment event
+ * @param  {Object|Array} eventsMap       The configured events mapping
+ * @param  {Object|Array} merchEventsMap  The configured merchEvents mapping
+ * @param  {String} base                  An Adobe-specific stanard event
  */
 
-function updateEvents(event, mapping, base) {
-  var value = [base, aliasEvent(event, mapping)].filter(Boolean).join(',');
+function aliasEvent(event, properties, eventsMap, merchEventsMap, base) {
+  var event = event.toLowerCase();
+
+  var adobeEvents = base ? [base] : [];
+  // iterate through event map and pull adobe events corresponding to the incoming segment event
+  if (eventsMap.length > 0) {
+    for (var i = 0; i < eventMapping.length; i++) {
+      var mapping = eventsMap[i]
+      if (mapping.segmentEvent === event) {
+        // expand adobeEvents array with any new adobe events derived from the current mapping, using set to for de-duping
+        adobeEvents = [...new Set([...adobeEvents, ...mapping.adobeEvents])]
+      }
+    }
+  }
+
+  // append adobeEvents with merchMap (currency and counter events)
+  for (var i = 0; i < merchEventsMap.length; i++) {
+    var mapping = merchEventsMap[i]
+    if (mapping) {
+      var merchMap = mapMerchEvents(mapping, properties)
+      adobeEvents = [...new Set([...adobeEvents, ...merchMap])]
+    }
+  }
+
+  var value = adobeEvents.join(',');
   update(value, 'events');
   window.s.linkTrackEvents = value;
 }
@@ -600,30 +632,6 @@ function addContextDatum(key, value) {
 }
 
 /**
- * Alias a regular event `name` to an AA event, using a dictionary of
- * `events`.
- *
- * @api private
- * @param {string} name
- * @param {Object} options
- * @return {string|null}
- */
-
-function aliasEvent(name, mapping) {
-  var events = [];
-  var key = name.toLowerCase();
-
-  if (mapping) {
-    each(function(m) {
-      if (m.segmentEvent.toLowerCase() !== key) return;
-      events.push.apply(events, m.adobeEvents);
-    }, mapping);
-  }
-
-  return events.join(',');
-}
-
-/**
  * Format semantic ecommerce product properties to Adobe Analytics variable strings.
  *
  * @api private
@@ -641,6 +649,138 @@ function formatProduct(props, identifier) {
   }
 
   return [props.category(), productIdentifier, quantity, total].join(';');
+}
+
+/**
+ * Map event level (order wide) currency & incrementor events.
+ * https://marketing.adobe.com/resources/help/en_US/sc/implement/products.html
+ *
+ * Example input:
+    "merchEvents": [
+      {
+        "adobeEvent": "event1",
+        "valueScope": "event",
+        "segmentProperty": ""
+      },
+      {
+        "adobeEvent": "event34",
+        "valueScope": "event",
+        "segmentProperty": "total"
+      },
+      {
+        "adobeEvent": "event2",
+        "valueScope": "product",
+        "segmentProperty": "products.price"
+      }
+    ]
+ * Example output: [event1, event34=20, event2]
+ *
+ * @param {Array} merchEvents
+ * @param {Object} props
+ * @return {Array} An array of Adobe events, some may have values.
+ * @api private
+ */
+
+function mapMerchEvents (merchEvent, props) {
+  var merchMap = [];
+  if (!merchEvent) {
+    return merchMap;
+  }
+  if (merchEvent.valueScope === 'event') {
+    if (merchEvent.segmentProperty in props) {
+      var eventString = merchEvent.adobeEvent + '=' + props[merchEvent.segmentProperty].toString();
+      merchMap.push(eventString);
+    } else if (!merchEvent.segmentProperty) {
+      // To account for event with no value
+      merchMap.push(merchEvent.adobeEvent)
+    }
+  } else {
+    // If the valueScope is products, the Adobe event must
+    // also be passed in on s.events as well, but without a value
+    merchMap.push(merchEvent.adobeEvent)
+  }
+  return merchMap
+}
+
+/**
+* Dedupe Merch Event Setting
+*
+* Example input:
+  "merchEvents": [
+      {
+        "adobeEvent": "event1",
+        "valueScope": "product",
+        "segmentProperty": "products.sku"
+      },
+      {
+        "adobeEvent": "event1",
+        "valueScope": "event",
+        "segmentProperty": "total"
+      }
+    ]
+  * @param {Array} configMerchEvents
+  * @return {Array}
+ */
+
+function dedupeMerchEventSettings (configMerchEvents) {
+  var dedupeSettings = {}
+  for (var i = 0; i < configMerchEvents.length; i++) {
+    var eventObject = configMerchEvents[i]
+    var existingEventObject = dedupeSettings[eventObject.adobeEvent]
+
+    if (!existingEventObject || (existingEventObject.valueScope === 'product' && eventObject.valueScope === 'event')) {
+      dedupeSettings[eventObject.adobeEvent] = eventObject
+    }
+  }
+  var res = []
+  for (let adobeEvent in dedupeSettings) {
+    res.push(dedupeSettings[adobeEvent])
+  }
+  return res
+}
+
+/**
+* Extract values from settings.merchEvents
+*
+* Example input:
+  settings.merchEvents = [
+        {
+          'segmentEvent': 'Order Completed',
+          'merchEvents': [
+            {
+              'adobeEvent': 'event3',
+              'valueScope': 'event',
+              'segmentProperty': 'total'
+            }
+          ],
+          'productEVars': [
+            {
+              'key': 'products.price',
+              'value': 'eVar32'
+            }
+          ]
+        }
+      ]
+  * @param {Object} msg
+  * @param {Object} settings
+  * @return {Object}
+ */
+function getMerchConfig (msg, settings) {
+  var eventName = msg.event().toLowerCase();
+  var mapping = (settings.merchEvents || []).find(setting => setting.segmentEvent === eventName);
+  var config = {
+    configProductMerchEvent: [],
+    configMerchEvents: [],
+    productEVars: []
+  }
+
+  if (mapping) {
+    config.configProductMerchEvent = mapping.merchEvents
+    config.configMerchEvents = dedupeMerchEventSettings(mapping.merchEvents || [])
+    config.productEVars = mapping.productEVars
+  }
+
+  return config
 }
 
 /**
@@ -1107,4 +1247,31 @@ function createQosObject(track) {
     props.fps || 0,
     props.droppedFrames || 0
   );
+}
+
+/**
+ * Check if event is mapped in `events` or `merchEvents` settings
+ * If not, the destination will noop
+ * 
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api private
+ */
+
+AdobeAnalytics.prototype.isMapped = function(event) {
+  var mappedInEvents = (this.options.events || [] ).find(function(setting) {
+    setting.segmentEvent.toLowerCase() === event
+  })
+
+  // return if `mappedInEvents` truthy, as there's no reason to check merchEvents array
+  if (mappedInEvents) {
+    return mappedInEvents;
+  }
+
+  var mappedInMerchEvents = (this.options.merchEvents || [] ).find(function(setting) {
+    setting.segmentEvent.toLowerCase() === event
+  })
+
+  return mappedInMerchEvents;
 }
