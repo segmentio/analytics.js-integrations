@@ -8,6 +8,8 @@ var each = require('component-each');
 var integration = require('@segment/analytics.js-integration');
 var tick = require('next-tick');
 
+var allowedExperimentTypes = ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'];
+
 /**
  * Expose `VWO` integration.
  */
@@ -25,7 +27,8 @@ var VWO = (module.exports = integration('Visual Website Optimizer')
   .option('replay', true)
   .option('listen', false)
   .option('experimentNonInteraction', false)
-  .option('isSPA', false));
+  .option('isSPA', false)
+  .option('trackOnlyABExperiments', false));
 
 /**
  * The context for this integration.
@@ -125,7 +128,7 @@ VWO.prototype.roots = function() {
         context: { integration: integrationContext }
       });
     });
-  });
+  }, this.options.trackOnlyABExperiments);
 };
 
 /**
@@ -137,13 +140,13 @@ VWO.prototype.roots = function() {
  * @return {Object}
  */
 
-function rootExperiments(fn) {
+function rootExperiments(fn, trackOnlyABExperiments) {
   enqueue(function() {
     var data = {};
     var experimentIds = window._vwo_exp_ids;
     if (!experimentIds) return fn();
     each(experimentIds, function(experimentId) {
-      var variationName = variation(experimentId);
+      var variationName = variation(experimentId, trackOnlyABExperiments);
       if (variationName) data[experimentId] = variationName;
     });
     fn(null, data);
@@ -190,10 +193,10 @@ function enqueue(fn) {
  * @return {Boolean}
  */
 function isValidExperimentType(experiment) {
-  var allowedExperimentTypes = ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'];
-  var experimentType = (experiment && experiment.type) || '';
-  experimentType = experimentType.toUpperCase();
-  return allowedExperimentTypes.indexOf(experimentType) !== -1;
+  if (!experiment || !experiment.type) {
+    return false;
+  }
+  return allowedExperimentTypes.indexOf(experiment.type.toUpperCase()) !== -1;
 }
 
 /**
@@ -205,7 +208,7 @@ function isValidExperimentType(experiment) {
  * @return {String}
  */
 
-function variation(id) {
+function variation(id, trackOnlyABExperiments) {
   var experiments = window._vwo_exp;
   if (!experiments) return null;
   var experiment = experiments[id];
@@ -216,7 +219,10 @@ function variation(id) {
     return null;
   }
 
-  if (!isValidExperimentType(experiment)) {
+  if (
+    trackOnlyABExperiments &&
+    !isValidExperimentType(experiment, trackOnlyABExperiments)
+  ) {
     return null;
   }
 
