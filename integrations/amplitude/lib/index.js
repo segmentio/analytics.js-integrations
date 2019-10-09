@@ -91,7 +91,8 @@ Amplitude.prototype.initialize = function() {
       this.analytics.user().anonymousId()
   });
 
-  // Initialize the amplitute with user specified version if any.
+  // Initialize the amplitute with user specified site version if any.
+  // https://help.amplitude.com/hc/en-us/articles/115001361248-JavaScript-SDK-Installation#setting-version-name
   var versionName = this.options.versionName;
   if (versionName) {
     window.amplitude.getInstance().setVersionName(versionName);
@@ -302,15 +303,7 @@ Amplitude.prototype.orderCompleted = function(track) {
     var productKeys = Object.keys(products);
     for (var index = 0; index < productKeys.length; index++) {
       var eachProduct = new Track({ properties: products[index] });
-
-      allProducts.push({
-        productId: eachProduct.productId(),
-        sku: eachProduct.sku(),
-        name: eachProduct.name(),
-        price: eachProduct.price(),
-        quantity: eachProduct.quantity(),
-        category: eachProduct.category()
-      });
+      allProducts.push(mapProductAttributes(eachProduct));
     }
     clonedTrack.properties.products = allProducts;
     logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
@@ -490,5 +483,18 @@ function mapRevenueAttributes(track) {
     quantity: track.quantity(),
     eventProps: track.properties(),
     revenue: track.revenue()
+  };
+}
+
+// map product for Order Completed event
+// REF: https://segment.com/docs/destinations/amplitude/#order-completed
+function mapProductAttributes(product) {
+  return {
+    productId: product.productId(),
+    sku: product.sku(),
+    name: product.name(),
+    price: product.price(),
+    quantity: product.quantity(),
+    category: product.category()
   };
 }

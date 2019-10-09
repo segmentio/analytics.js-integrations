@@ -1,9 +1,6 @@
-# 3.4.0 / 2019-10-09
+# 3.3.0 / 2019-10-09
 
 - Add support for versionName setting, this will allow user to specify version.
-
-# 3.3.0 / 2019-10-04
-
 - Add support for trackProductsOnce setting, this will track all products at once.
 
 # 3.2.0 / 2019-08-27

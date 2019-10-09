@@ -149,6 +149,21 @@ describe('Amplitude', function() {
       );
     });
 
+    describe('Initialize amplitude without versionName', function() {
+      before(function() {
+        delete options.versionName;
+      });
+
+      it('should init without versionName', function() {
+        var config = window.amplitude.getInstance().options;
+        analytics.assert(config.versionName === undefined);
+      });
+
+      after(function() {
+        options.versionName = '4.6.0';
+      });
+    });
+
     describe('preferAnonymousIdForDeviceId disabled', function() {
       before(function() {
         options.preferAnonymousIdForDeviceId = false;
