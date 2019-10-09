@@ -129,7 +129,7 @@ AdobeAnalytics.prototype.initialize = function() {
   var options = this.options;
   var self = this;
 
-  // Lowercase all keys of events and merchEvents maps for easy matching later
+  // Lowercase all keys of event map for easy matching later
   if (!Array.isArray(options.events)) lowercaseKeys(options.events);
 
   // In case this has been defined already
@@ -293,9 +293,11 @@ AdobeAnalytics.prototype.track = function(track) {
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
+  var eventName = track.event().toLowerCase();
+
   // Map to Heartbeat events if enabled.
   if (this.options.heartbeatTrackingServerUrl) {
-    var heartbeatFunc = this.heartbeatEventMap[track.event().toLowerCase()];
+    var heartbeatFunc = this.heartbeatEventMap[eventName];
     if (heartbeatFunc) {
       heartbeatFunc.call(this, track);
       return; // Heartbeat calls AA itself, so returning here likely prevents dupe data.
@@ -303,8 +305,7 @@ AdobeAnalytics.prototype.track = function(track) {
   }
 
   // Check if Segment event is mapped in settings; if not, noop
-  var event = track.event().toLowerCase();
-  var isMapped = this.isMapped(event);
+  var isMapped = this.isMapped(eventName);
   if (!isMapped) {
     return;
   }
@@ -405,14 +406,15 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 /**
  * Update window variables and then fire Adobe track call
  *
- * @param {*} msg
- * @param {*} adobeEvent
+ * @param {*} msg              Segment Page or Track payload.
+ * @param {string} adobeEvent  Adobe standard event.
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var merchEvents = getMerchConfig(msg, this.options);
   var properties = msg.properties();
 
+  // sets `window.s.products`
   setProductsString(
     msg.event(),
     properties,
@@ -427,6 +429,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var eVarEvent = dot(this.options.eVars, msg.event());
   update(msg.event(), eVarEvent);
 
+  // sets `window.s.events`
   setEventsString(
     msg.event(),
     properties,
@@ -727,7 +730,7 @@ function dedupeMerchEventSettings(configMerchEvents) {
 }
 
 /**
-* Extract values from settings.merchEvents
+* Extract values from `settings.merchEvents`.
 *
 * Example input:
   settings.merchEvents = [
@@ -925,6 +928,8 @@ function mapProducts(
       );
     }
 
+    // Format merchandizing eVars:
+    // https://docs.adobe.com/content/help/en/analytics/components/variables/merchandising-variables/var-merchandising-impl.html
     var productEVarstring = '';
     if (productEVars && productEVars.length) {
       // We send the entire properties object, because the setting
@@ -961,8 +966,8 @@ function mapProducts(
 }
 
 /**
- * Map product level currency * counter events.
- * https://marketing.adobe.com/resources/help/en_US/sc/implement/products.html
+ * Map product-level currency * counter events.
+ * https://docs.adobe.com/content/help/en/analytics/implementation/javascript-implementation/variables-analytics-reporting/page-variables.html
  *
  * Example input:
     "merchEvents": [
@@ -1022,7 +1027,7 @@ function mapProductEvents(merchEvents, props, product) {
 
 /**
 * Map product merchandising eVars using product syntax
-* https://marketing.adobe.com/resources/help/en_US/sc/implement/var_merchandising_impl.html
+* https://docs.adobe.com/content/help/en/analytics/implementation/javascript-implementation/variables-analytics-reporting/page-variables.html
 * Example input:
    "productEVars": [
      {
@@ -1040,25 +1045,24 @@ function mapProductEvents(merchEvents, props, product) {
   * @return {String}
  */
 
-/* eslint-disable */
 function mapProductEVars(productEVars, props, product) {
   var eVars = [];
-  for (var eVar in productEVars) {
-    var value = Object.values(productEVars[eVar]);
+
+  each(function(eVar) {
     // Respect what the customer configures in the setting. ex. products.cart_id
     // Only check products if "products." configured in settings.
-    if (value[0].startsWith('products.')) {
-      var productValue = getProductField(value[0], product);
+    if (eVar.key.startsWith('products.')) {
+      var productValue = getProductField(eVar.key, product);
       if (productValue && productValue !== 'undefined') {
-        eVars.push(value[1] + '=' + productValue);
+        eVars.push(eVar.value + '=' + productValue);
       }
-    } else if (value[0] in props) {
-      eVars.push(value[1] + '=' + props[value[0]]);
+    } else if (eVar.key in props) {
+      eVars.push(eVar.value + '=' + props[eVar.key]);
     }
-  }
+  }, productEVars);
+
   return eVars.join('|');
 }
-/* eslint-enable */
 
 /**
  * Get product key after string
@@ -1075,27 +1079,24 @@ function getProductField(productString, product) {
 }
 
 /**
- * Check if event is mapped in `events` or `merchEvents` settings.
+ * Check if event is mapped in either `events` or `merchEvents` settings.
  * If not, the destination will noop.
  *
  *
- * @param {String} event
+ * @param {String} Track payload `event` field.
  * @return {Boolean}
  * @api private
  */
 
 AdobeAnalytics.prototype.isMapped = function(event) {
-  var isMapped = (this.options.events || []).find(function(setting) {
-    return setting.segmentEvent.toLowerCase() === event;
-  });
-
-  if (isMapped) {
-    return isMapped;
-  }
-
-  return (this.options.merchEvents || []).find(function(setting) {
-    return setting.segmentEvent.toLowerCase() === event;
-  });
+  return (
+    (this.options.events || []).find(function(setting) {
+      return setting.segmentEvent.toLowerCase() === event;
+    }) ||
+    (this.options.merchEvents || []).find(function(setting) {
+      return setting.segmentEvent.toLowerCase() === event;
+    })
+  );
 };
 
 /**
