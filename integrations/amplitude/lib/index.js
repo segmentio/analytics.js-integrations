@@ -52,6 +52,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('appendFieldsToEventProps', {})
   .option('unsetParamsReferrerOnNewSession', false)
   .option('trackProductsOnce', false)
+  .option('versionName', '')
   .tag('<script src="' + src + '">'));
 
 /**
@@ -89,6 +90,12 @@ Amplitude.prototype.initialize = function() {
       this.analytics.user() &&
       this.analytics.user().anonymousId()
   });
+
+  // Initialize the amplitute with user specified version if any.
+  var versionName = this.options.versionName;
+  if (versionName) {
+    window.amplitude.getInstance().setVersionName(versionName);
+  }
 
   var loaded = bind(this, this.loaded);
   var ready = this.ready;
