@@ -27,7 +27,8 @@ describe('Amplitude', function() {
     traitsToIncrement: [],
     traitsToSetOnce: [],
     preferAnonymousIdForDeviceId: true,
-    unsetParamsReferrerOnNewSession: false
+    unsetParamsReferrerOnNewSession: false,
+    versionName: '4.6.0'
   };
 
   beforeEach(function() {
@@ -115,6 +116,7 @@ describe('Amplitude', function() {
 
     it('should init with right options', function() {
       var config = window.amplitude.getInstance().options;
+
       analytics.assert(config.includeUtm === options.trackUtmProperties);
       analytics.assert(config.includeReferrer === options.trackReferrer);
       analytics.assert(config.batchEvents === options.batchEvents);
@@ -138,6 +140,7 @@ describe('Amplitude', function() {
         config.unsetParamsReferrerOnNewSession ===
           options.unsetParamsReferrerOnNewSession
       );
+      analytics.assert(config.versionName === options.versionName);
     });
 
     it('should set api key', function() {
