@@ -131,7 +131,6 @@ AdobeAnalytics.prototype.initialize = function() {
 
   // Lowercase all keys of events and merchEvents maps for easy matching later
   if (!Array.isArray(options.events)) lowercaseKeys(options.events);
-  if (!Array.isArray(options.merchEvents)) lowercaseKeys(options.events);
 
   // In case this has been defined already
   window.s_account = window.s_account || options.reportSuiteId;
@@ -305,7 +304,7 @@ AdobeAnalytics.prototype.track = function(track) {
 
   // Check if Segment event is mapped in settings; if not, noop
   var event = track.event().toLowerCase();
-  var isMapped = isMapped(event);
+  var isMapped = this.isMapped(event);
   if (!isMapped) {
     return;
   }
@@ -415,11 +414,12 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var properties = msg.properties();
 
   setProductsString(
+    msg.event(),
     properties,
     adobeEvent,
     this.options.productIdentifier,
-    merchEvents.config.productMerchEvent,
-    merchEvents.config.productEvars
+    merchEvents.configProductMerchEvent,
+    merchEvents.productEVars
   );
 
   updateContextData(msg, this.options);
@@ -529,10 +529,11 @@ function calculateTimestamp(msg, options) {
  * their configuration.
  *
  * @api private
- * @param  {String} event                 The Segment event
- * @param  {Object|Array} eventsMap       The configured events mapping
- * @param  {Object|Array} merchEventsMap  The configured merchEvents mapping
- * @param  {String} base                  An Adobe-specific stanard event
+ * @param  {String} eventName             The Segment event name
+ * @param  {Object} properties            The event payloads properties
+ * @param  {Object|Array} eventsMap       The configured events settings mapping
+ * @param  {Object|Array} merchEventsMap  The configured merchEvents settings mapping
+ * @param  {String} base                  The Adobe-specific stanard event (if applicable)
  */
 
 function setEventsString(
@@ -543,31 +544,31 @@ function setEventsString(
   base
 ) {
   var event = eventName.toLowerCase();
-
   var adobeEvents = base ? [base] : [];
-  // iterate through event map and pull adobe events corresponding to the incoming segment event
+
   if (eventsMap.length > 0) {
-    for (var i = 0; i < eventsMap.length; i++) {
-      var eventsMapping = eventsMap[i];
-      if (eventsMapping.segmentEvent === event) {
-        if (adobeEvents.indexOf(eventsMapping.adobeEvent <= 0)) {
-          adobeEvents.push(eventsMapping.adobeEvent);
-        }
+    // iterate through event map and pull adobe events corresponding to the incoming segment event
+    each(function(eventMapping) {
+      if (eventMapping.segmentEvent.toLowerCase() === event) {
+        each(function(event) {
+          if (adobeEvents.indexOf(event) <= 0) {
+            adobeEvents.push(event);
+          }
+        }, eventMapping.adobeEvents);
       }
-    }
+    }, eventsMap);
   }
 
-  // append adobeEvents with merchMap (currency and counter events)
-  for (var j = 0; j < merchEventsMap.length; j++) {
-    var merchMapping = merchEventsMap[j];
-    if (merchMapping) {
+  if (merchEventsMap.length > 0) {
+    // append adobeEvents with merchMap (currency and counter events)
+    each(function(merchMapping) {
       var merchMap = mapMerchEvents(merchMapping, properties);
-      for (var k = 0; k < merchMap.length; k++) {
-        if (adobeEvents.indexOf(merchMap[k] <= 0)) {
-          adobeEvents.push(merchMap[k]);
+      each(function(merchEvent) {
+        if (adobeEvents.indexOf(merchEvent) <= 0) {
+          adobeEvents.push(merchEvent);
         }
-      }
-    }
+      }, merchMap);
+    }, merchEventsMap);
   }
 
   var value = adobeEvents.join(',');
@@ -632,7 +633,7 @@ function addContextDatum(key, value) {
 
 /**
  * Map event level (order wide) currency & incrementor events.
- * https://marketing.adobe.com/resources/help/en_US/sc/implement/products.html
+ * https://docs.adobe.com/content/help/en/analytics/implementation/javascript-implementation/variables-analytics-reporting/page-variables.html
  *
  * Example input:
     "merchEvents": [
@@ -652,11 +653,11 @@ function addContextDatum(key, value) {
         "segmentProperty": "products.price"
       }
     ]
- * Example output: [event1, event34=20, event2]
+ * Example output: [event1,event34=20,event2]
  *
- * @param {Array} merchEvents
- * @param {Object} props
- * @return {Array} An array of Adobe events, some may have values.
+ * @param {Object|Array} merchEvents
+ * @param {Properties} props
+ * @return {Object|Array} An array of Adobe events, some may have values.
  * @api private
  */
 
@@ -668,9 +669,7 @@ function mapMerchEvents(merchEvent, props) {
   if (merchEvent.valueScope === 'event') {
     if (merchEvent.segmentProperty in props) {
       var eventString =
-        merchEvent.adobeEvent +
-        '=' +
-        props[merchEvent.segmentProperty].toString();
+        merchEvent.adobeEvent + '=' + String(props[merchEvent.segmentProperty]);
       merchMap.push(eventString);
     } else if (!merchEvent.segmentProperty) {
       // To account for event with no value
@@ -706,8 +705,7 @@ function mapMerchEvents(merchEvent, props) {
 
 function dedupeMerchEventSettings(configMerchEvents) {
   var dedupeSettings = {};
-  for (var i = 0; i < configMerchEvents.length; i++) {
-    var eventObject = configMerchEvents[i];
+  each(function(eventObject) {
     var existingEventObject = dedupeSettings[eventObject.adobeEvent];
 
     if (
@@ -717,7 +715,8 @@ function dedupeMerchEventSettings(configMerchEvents) {
     ) {
       dedupeSettings[eventObject.adobeEvent] = eventObject;
     }
-  }
+  }, configMerchEvents);
+
   var res = [];
   for (var adobeEvent in dedupeSettings) {
     if (dedupeSettings[adobeEvent]) {
@@ -756,8 +755,9 @@ function dedupeMerchEventSettings(configMerchEvents) {
 function getMerchConfig(msg, settings) {
   var eventName = msg.event().toLowerCase();
   var mapping = (settings.merchEvents || []).find(function(setting) {
-    return setting.segmentEvent === eventName;
+    return setting.segmentEvent.toLowerCase() === eventName;
   });
+
   var config = {
     configProductMerchEvent: [],
     configMerchEvents: [],
@@ -832,7 +832,20 @@ function extractProperties(props, options) {
   return result;
 }
 
+/**
+ * Prepare to set `window.s.products`.
+ *
+ * @api private
+ * @param {string} eventName
+ * @param {Prooperties} properties
+ * @param {string} adobeEvent
+ * @param {string} identifier
+ * @param {Object|Array} productMerchEvents
+ * @param {Object|Array} productEVars
+ */
+
 function setProductsString(
+  eventName,
   properties,
   adobeEvent,
   identifier,
@@ -842,16 +855,18 @@ function setProductsString(
   var singleProductEvent =
     adobeEvent === 'scAdd' ||
     adobeEvent === 'scRemove' ||
-    adobeEvent === 'prodView';
+    (adobeEvent === 'prodView' && eventName !== 'Product List Viewed');
 
   // Map to Adobe non-predefined single product event when merchEvents or productEVars is configured.
   var isSingleProductEvent =
     (productMerchEvents.length || productEVars.length) &&
     !Array.isArray(properties.products);
+
   var productFields =
     singleProductEvent || isSingleProductEvent
       ? [properties]
       : properties.products;
+
   mapProducts(
     productFields,
     identifier,
@@ -862,14 +877,14 @@ function setProductsString(
 }
 
 /**
- * Map products.
+ * Format products string and set formatted string as value of `window.s.products`.
  *
  * @param {Array} products
- * @param {String} identifier
- * @param {Array} productEVars Array of objects
- * @param {Array} merchEvents Array of objects
- * @param {Object} properties
- * @return {String}
+ * @param {string} identifier
+ * @param {Object|Array} productEVars Array of objects
+ * @param {Object|Array} merchEvents Array of objects
+ * @param {Properties} properties
+ * @return {string}
  * @api private
  */
 
@@ -922,19 +937,17 @@ function mapProducts(
       );
     }
 
-    // Note that product level currency and counter events preceed product eVars.
-    // Ex: s.products="Category;ABC123;1;10;event1=1.99|event2=25;evar1=2 Day Shipping|evar2=3 Stars"
-    if (eventString !== '' || productEVarstring !== '') {
-      return [category, item, quantity, total, eventString, productEVarstring]
-        .map(function(value) {
-          if (value == null) {
-            return String(value);
-          }
-          return value;
-        })
-        .join(';');
+    var productVariablesArray = [category, item, quantity, total];
+    if (eventString !== '') {
+      productVariablesArray.push(eventString);
     }
-    return [category, item, quantity, total]
+    if (productEVarstring !== '') {
+      productVariablesArray.push(productEVarstring);
+    }
+
+    // Product-level currency and counter events preceed product eVars.
+    // Ex: s.products="Category;ABC123;1;10;event1=1.99|event2=25;evar1=2 Day Shipping|evar2=3 Stars"
+    return productVariablesArray
       .map(function(value) {
         if (value == null) {
           return String(value);
@@ -985,8 +998,7 @@ function mapProductEvents(merchEvents, props, product) {
   var merchMap = [];
   var eventString;
 
-  for (var i = 0; i < merchEvents.length; i++) {
-    var event = merchEvents[i];
+  each(function(event) {
     if (event.valueScope === 'product') {
       // Respect what the customer configures in the setting.
       // ex. products.cart_id
@@ -1003,7 +1015,8 @@ function mapProductEvents(merchEvents, props, product) {
         merchMap.push(eventString);
       }
     }
-  }
+  }, merchEvents);
+
   return merchMap.join('|');
 }
 
@@ -1072,11 +1085,15 @@ function getProductField(productString, product) {
  */
 
 AdobeAnalytics.prototype.isMapped = function(event) {
-  (this.options.events || []).find(function(setting) {
+  var isMapped = (this.options.events || []).find(function(setting) {
     return setting.segmentEvent.toLowerCase() === event;
   });
 
-  (this.options.merchEvents || []).find(function(setting) {
+  if (isMapped) {
+    return isMapped;
+  }
+
+  return (this.options.merchEvents || []).find(function(setting) {
     return setting.segmentEvent.toLowerCase() === event;
   });
 };
