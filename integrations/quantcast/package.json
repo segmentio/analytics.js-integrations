@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-quantcast",
   "description": "The Quantcast analytics.js integration.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
