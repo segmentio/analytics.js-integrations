@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-quantcast",
   "description": "The Quantcast analytics.js integration.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -13,7 +13,7 @@
     "test": "karma start",
     "test:ci": "karma start karma.conf-ci.js"
   },
-  "author": "Segment \u003cfriends@segment.com\u003e",
+  "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/quantcast#readme",
   "bugs": {
