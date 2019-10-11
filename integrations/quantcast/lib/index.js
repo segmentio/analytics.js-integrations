@@ -14,14 +14,14 @@ var objCase = require('obj-case');
  * Expose `Quantcast` integration.
  */
 
-var Quantcast = module.exports = integration('Quantcast')
+var Quantcast = (module.exports = integration('Quantcast')
   .assumesPageview()
   .global('_qevents')
   .global('__qc')
   .option('pCode', null)
   .option('advertise', false)
   .tag('http', '<script src="http://edge.quantserve.com/quant.js">')
-  .tag('https', '<script src="https://secure.quantserve.com/quant.js">');
+  .tag('https', '<script src="https://secure.quantserve.com/quant.js">'));
 
 /**
  * Initialize.
@@ -80,7 +80,8 @@ Quantcast.prototype.page = function(page) {
   var user = this.analytics.user();
 
   // For non-advertisers, blank labels are okay if no name/category is passed
-  if (!this.options.advertise && !page.name() && !page.category()) delete settings.labels;
+  if (!this.options.advertise && !page.name() && !page.category())
+    delete settings.labels;
   if (user.id()) settings.uid = user.id().toString();
   push(settings);
 };
@@ -166,7 +167,8 @@ Quantcast.prototype.orderCompleted = function(track) {
     if (category) labels += ',_fp.pcat.' + category;
 
     var repeat = track.proxy('properties.repeat');
-    if (typeof repeat === 'boolean') labels += ',_fp.customer.' + (repeat ? 'repeat' : 'new');
+    if (typeof repeat === 'boolean')
+      labels += ',_fp.customer.' + (repeat ? 'repeat' : 'new');
 
     if (this.options.advertiseProducts) {
       var products = track.products();

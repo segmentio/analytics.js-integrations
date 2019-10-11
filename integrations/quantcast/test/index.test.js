@@ -29,12 +29,15 @@ describe('Quantcast', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Quantcast, integration('Quantcast')
-      .assumesPageview()
-      .global('_qevents')
-      .global('__qc')
-      .option('pCode', null)
-      .option('advertise', false));
+    analytics.compare(
+      Quantcast,
+      integration('Quantcast')
+        .assumesPageview()
+        .global('_qevents')
+        .global('__qc')
+        .option('pCode', null)
+        .option('advertise', false)
+    );
   });
 
   describe('before loading', function() {
@@ -131,7 +134,12 @@ describe('Quantcast', function() {
         });
 
         it('should add the explicit QC labels to the custom label string', function() {
-          analytics.page('Category', 'Page', {}, { Quantcast: { labels: ['TestLabel', 'TestLabel2'] } });
+          analytics.page(
+            'Category',
+            'Page',
+            {},
+            { Quantcast: { labels: ['TestLabel', 'TestLabel2'] } }
+          );
           analytics.called(window._qevents.push, {
             event: 'refresh',
             labels: 'Category.Page,TestLabel,TestLabel2',
@@ -140,7 +148,12 @@ describe('Quantcast', function() {
         });
 
         it('should add properties labels and the explicit QC labels to the custom label string', function() {
-          analytics.page('Category', 'Page', { label: 'TestLabel' }, { Quantcast: { labels: ['TestLabel1', 'TestLabel2'] } });
+          analytics.page(
+            'Category',
+            'Page',
+            { label: 'TestLabel' },
+            { Quantcast: { labels: ['TestLabel1', 'TestLabel2'] } }
+          );
           analytics.called(window._qevents.push, {
             event: 'refresh',
             labels: 'Category.Page,TestLabel,TestLabel1,TestLabel2',
@@ -266,7 +279,11 @@ describe('Quantcast', function() {
         });
 
         it('should strip special characters from labels', function() {
-          analytics.track('event', { label: 'new-Label?' }, { Quantcast: { labels: ['other!', 'labels_test()'] } });
+          analytics.track(
+            'event',
+            { label: 'new-Label?' },
+            { Quantcast: { labels: ['other!', 'labels_test()'] } }
+          );
           analytics.called(window._qevents.push, {
             event: 'click',
             labels: 'event,newLabel,other,labelstest',
@@ -275,7 +292,11 @@ describe('Quantcast', function() {
         });
 
         it('should push custom labels from QC labels for the event', function() {
-          analytics.track('event', { label: 'newLabel' }, { Quantcast: { labels: ['other', 'labels'] } });
+          analytics.track(
+            'event',
+            { label: 'newLabel' },
+            { Quantcast: { labels: ['other', 'labels'] } }
+          );
           analytics.called(window._qevents.push, {
             event: 'click',
             labels: 'event,newLabel,other,labels',
@@ -419,7 +440,8 @@ describe('Quantcast', function() {
           });
           analytics.called(window._qevents.push, {
             event: 'refresh',
-            labels: '_fp.event.order completed,_fp.pcat.tech,_fp.customer.repeat',
+            labels:
+              '_fp.event.order completed,_fp.pcat.tech,_fp.customer.repeat',
             orderid: '780bc55',
             qacct: options.pCode,
             revenue: '99.99'
@@ -489,7 +511,8 @@ describe('Quantcast', function() {
             });
             analytics.called(window._qevents.push, {
               event: 'refresh',
-              labels: '_fp.event.order completed,_fp.pcat.tech,_fp.pcat.Name.my product,_fp.pcat.ProductID.product_1,_fp.pcat.SKU.p-298,_fp.pcat.Name.other product,_fp.pcat.ProductID.product_2,_fp.pcat.SKU.p-299,_fp.pcat.Quantity.4',
+              labels:
+                '_fp.event.order completed,_fp.pcat.tech,_fp.pcat.Name.my product,_fp.pcat.ProductID.product_1,_fp.pcat.SKU.p-298,_fp.pcat.Name.other product,_fp.pcat.ProductID.product_2,_fp.pcat.SKU.p-299,_fp.pcat.Quantity.4',
               orderid: '780bc55',
               qacct: options.pCode,
               revenue: '99.99'
