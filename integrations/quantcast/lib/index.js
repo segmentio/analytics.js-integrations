@@ -266,6 +266,13 @@ Quantcast.prototype._labels = function(facade) {
   });
 
   if (is.string(label)) customLabels.unshift(label);
+  if (this.options.advertise && customLabels) {
+    // Prepend custom labels with `_fp.event.`.
+    customLabels = customLabels.map(function(label) {
+      return '_fp.event.' + label;
+    });
+  }
+
   // Multiple labels need to be delimited by commas
   customLabels = customLabels.join(',');
 
