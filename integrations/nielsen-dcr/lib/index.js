@@ -328,7 +328,6 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   var adAssetId = this.options.adAssetIdPropertyName
     ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
     : track.proxy('properties.asset_id');
-
   var position = track.proxy('properties.position');
   var type = track.proxy('properties.type');
 
@@ -497,7 +496,8 @@ function formatAirdate(airdate) {
 
 function formatLoadType(integrationOpts, loadTypeProperty) {
   var loadType = find(integrationOpts, 'ad_load_type') || loadTypeProperty;
-  // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
+  // linear or dynamic
+  // linear means original ads that were broadcasted with tv airing. much less common use case
   loadType = loadType === 'dynamic' ? '2' : '1';
   return loadType;
 }

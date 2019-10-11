@@ -691,7 +691,6 @@ describe('NielsenDCR', function() {
         it('video ad started — preroll with custom asset id', function() {
           nielsenDCR.options.contentAssetIdPropertyName =
             'custom_asset_id_prop';
-
           props.type = 'pre-roll';
           props.content = {
             session_id: '12345',
@@ -750,7 +749,6 @@ describe('NielsenDCR', function() {
         it('video ad started — preroll with cid/vcid override', function() {
           nielsenDCR.options.clientIdPropertyName = 'nielsen_client_id';
           nielsenDCR.options.subbrandPropertyName = 'nielsen_subbrand';
-
           props.type = 'pre-roll';
           props.content = {
             session_id: '12345',
