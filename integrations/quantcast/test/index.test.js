@@ -204,6 +204,15 @@ describe('Quantcast', function() {
           });
         });
 
+        it('should prefix with _fp.event for empty label array', function() {
+          analytics.page('Page Name', {}, { Quantcast: { labels: [] } });
+          analytics.called(window._qevents.push, {
+            event: 'refresh',
+            labels: '_fp.event.Page Name',
+            qacct: options.pCode
+          });
+        });
+
         it('should send category and name', function() {
           analytics.page('Category Name', 'Page Name');
           analytics.called(window._qevents.push, {
