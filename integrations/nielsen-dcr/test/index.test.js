@@ -130,9 +130,39 @@ describe('NielsenDCR', function() {
           };
         });
 
+        it('video playback seek started', function() {
+          analytics.track('Video Playback Seek Started', props);
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+        });
+
         it('video playback seek completed', function() {
           var timestamp = new Date();
           analytics.track('Video Playback Seek Completed', props, {
+            timestamp: timestamp
+          });
+          analytics.called(window.clearInterval);
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.content_asset_id,
+            props.position,
+            {
+              type: 'content',
+              livestream: props.livestream,
+              timestamp: timestamp
+            }
+          );
+        });
+
+        it('video playback buffer started', function() {
+          analytics.track('Video Playback Buffer Started', props);
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+        });
+
+        it('video playback buffer completed', function() {
+          var timestamp = new Date();
+          analytics.track('Video Playback Buffer Completed', props, {
             timestamp: timestamp
           });
           analytics.called(window.clearInterval);
@@ -155,23 +185,33 @@ describe('NielsenDCR', function() {
         });
 
         it('video playback resumed', function() {
-          analytics.track('Video Playback Resumed', props);
-          analytics.called(nielsenDCR.heartbeat, props.content_asset_id, 21, {
-            type: 'content'
+          var timestamp = new Date();
+          analytics.track('Video Playback Resumed', props, {
+            timestamp: timestamp
           });
+          analytics.called(window.clearInterval);
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.content_asset_id,
+            props.position,
+            {
+              type: 'content',
+              livestream: props.livestream,
+              timestamp: timestamp
+            }
+          );
         });
 
         it('video playback interrupted during content', function() {
           analytics.track('Video Playback Interrupted', props);
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
-          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
         });
 
         it('video playback interrupted during ad', function() {
           analytics.track('Video Playback Interrupted', props);
           analytics.called(window.clearInterval);
-          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
         });
 
         it('video playback completed', function() {
@@ -182,7 +222,7 @@ describe('NielsenDCR', function() {
             'setPlayheadPosition',
             props.position
           );
-          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
         });
 
         it('video playback completed w livestream', function() {
@@ -215,7 +255,7 @@ describe('NielsenDCR', function() {
             'setPlayheadPosition',
             currentUTC
           );
-          analytics.called(nielsenDCR._client.ggPM, 'stop', currentUTC);
+          analytics.called(nielsenDCR._client.ggPM, 'end', currentUTC);
           sandbox.restore();
         });
       });
@@ -521,7 +561,7 @@ describe('NielsenDCR', function() {
             'setPlayheadPosition',
             props.position
           );
-          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
         });
 
         it('video content completed — livestream', function() {
@@ -539,7 +579,7 @@ describe('NielsenDCR', function() {
             'setPlayheadPosition',
             currentUTC
           );
-          analytics.called(nielsenDCR._client.ggPM, 'end', currentUTC);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', currentUTC);
           sandbox.restore();
         });
       });
@@ -649,6 +689,9 @@ describe('NielsenDCR', function() {
         });
 
         it('video ad started — preroll with custom asset id', function() {
+          nielsenDCR.options.contentAssetIdPropertyName =
+            'custom_asset_id_prop';
+
           props.type = 'pre-roll';
           props.content = {
             session_id: '12345',
@@ -670,8 +713,6 @@ describe('NielsenDCR', function() {
             livestream: false,
             airdate: new Date('1991-08-13')
           };
-          nielsenDCR.options.contentAssetIdPropertyName =
-            'custom_asset_id_prop';
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
           });
@@ -709,6 +750,7 @@ describe('NielsenDCR', function() {
         it('video ad started — preroll with cid/vcid override', function() {
           nielsenDCR.options.clientIdPropertyName = 'nielsen_client_id';
           nielsenDCR.options.subbrandPropertyName = 'nielsen_subbrand';
+
           props.type = 'pre-roll';
           props.content = {
             session_id: '12345',
