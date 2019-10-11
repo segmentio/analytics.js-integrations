@@ -204,6 +204,34 @@ describe('Quantcast', function() {
           });
         });
 
+        it('should prefix with _fp.event for multiple labels', function() {
+          analytics.page(
+            'Page Name',
+            {},
+            { Quantcast: { labels: ['customLabel1', 'customLabel2'] } }
+          );
+          analytics.called(window._qevents.push, {
+            event: 'refresh',
+            labels:
+              '_fp.event.Page Name,_fp.event.customLabel1,_fp.event.customLabel2',
+            qacct: options.pCode
+          });
+        });
+
+        it('should prefix with _fp.event for multiple labels that have commas in them', function() {
+          analytics.page(
+            'Page Name',
+            {},
+            { Quantcast: { labels: ['customLabel1', 'custom,Label2'] } }
+          );
+          analytics.called(window._qevents.push, {
+            event: 'refresh',
+            labels:
+              '_fp.event.Page Name,_fp.event.customLabel1,_fp.event.customLabel2',
+            qacct: options.pCode
+          });
+        });
+
         it('should prefix with _fp.event for empty label array', function() {
           analytics.page('Page Name', {}, { Quantcast: { labels: [] } });
           analytics.called(window._qevents.push, {
