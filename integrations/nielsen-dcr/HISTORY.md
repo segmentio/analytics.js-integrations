@@ -1,3 +1,8 @@
+1.3.3 / 2019-10-11
+==================
+
+  * Add support for `Video Playback Seek Started`, `Video Playback Buffer Started` and `Video Playback Buffer Completed` events.
+
 1.0.1 / 2017-09-07
 ==================
 
