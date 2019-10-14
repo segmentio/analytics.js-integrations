@@ -14,10 +14,10 @@ describe('Sentry', function() {
     logger: 'development',
     release: '721e41770371db95eee98ca2707686226b993eda',
     serverName: 'B5372DB0-C21E-11E4-8DFC-AA07A5B093DB',
-    whitelistUrls: ['/getsentry\.com/', 'segment.com'],
+    whitelistUrls: ['/getsentry.com/', 'segment.com'],
     ignoreErrors: ['fb_xd_fragment'],
-    ignoreUrls: ['/graph\.facebook\.com/', 'http://example.com/script2.js'],
-    includePaths: ['/https?:\/\/getsentry\.com/', '/https?:\/\/cdn\.getsentry\.com/'],
+    ignoreUrls: ['/graph.facebook.com/', 'http://example.com/script2.js'],
+    includePaths: ['/https?://getsentry.com/', '/https?://cdn.getsentry.com/'],
     maxMessageLength: 50,
     customVersionProperty: null
   };
@@ -38,19 +38,22 @@ describe('Sentry', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Sentry, integration('Sentry')
-      .global('Raven')
-      .global('RavenConfig')
-      .option('config', '')
-      .option('serverName', null)
-      .option('release', null)
-      .option('ignoreErrors', [])
-      .option('ignoreUrls', [])
-      .option('whitelistUrls', [])
-      .option('includePaths', [])
-      .option('maxMessageLength', null)
-      .option('logger', null)
-      .option('customVersionProperty', null));
+    analytics.compare(
+      Sentry,
+      integration('Sentry')
+        .global('Raven')
+        .global('RavenConfig')
+        .option('config', '')
+        .option('serverName', null)
+        .option('release', null)
+        .option('ignoreErrors', [])
+        .option('ignoreUrls', [])
+        .option('whitelistUrls', [])
+        .option('includePaths', [])
+        .option('maxMessageLength', null)
+        .option('logger', null)
+        .option('customVersionProperty', null)
+    );
   });
 
   describe('before loading', function() {
@@ -169,7 +172,10 @@ describe('Sentry', function() {
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.called(window.Raven.setUserContext, { id: 'id', trait: true });
+        analytics.called(window.Raven.setUserContext, {
+          id: 'id',
+          trait: true
+        });
       });
     });
   });
