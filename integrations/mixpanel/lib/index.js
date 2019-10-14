@@ -37,6 +37,7 @@ var Mixpanel = (module.exports = integration('Mixpanel')
   .option('trackAllPages', false)
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
+  .option('groupIdentifierTraits', [])
   .option('sourceName', '')
   .tag('<script src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">'));
 
@@ -314,6 +315,32 @@ Mixpanel.prototype.alias = function(alias) {
   if (mp.get_property && mp.get_property('$people_distinct_id') === to) return;
   // although undocumented, mixpanel takes an optional original id
   mp.alias(to, alias.from());
+};
+
+/**
+ *
+ * @param {Group} group
+ */
+
+Mixpanel.prototype.group = function(group) {
+  var groupIdentifierTraits = this.options.groupIdentifierTraits;
+  var groupId = group.groupId();
+  var userId = this.analytics.user().id();
+  var traits = group.properties();
+  if (!groupId || !userId || !groupIdentifierTraits.length) {
+    return;
+  }
+
+  if (traits && Object.keys(traits).length) {
+    for (var ind = 0; ind < groupIdentifierTraits.length; ind++) {
+      window.mixpanel
+        .get_group(groupIdentifierTraits[ind], groupId)
+        .set_once(traits);
+    }
+  }
+  for (var i = 0; i < groupIdentifierTraits.length; i++) {
+    window.mixpanel.set_group(groupIdentifierTraits[i], [groupId]);
+  }
 };
 
 /**

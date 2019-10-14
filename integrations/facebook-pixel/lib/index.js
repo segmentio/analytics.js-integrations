@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var foldl = require('@ndhoule/foldl');
 var each = require('@ndhoule/each');
 var reject = require('reject');
 var camel = require('to-camel-case');
@@ -29,6 +28,7 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('whitelistPiiProperties', [])
   .option('blacklistPiiProperties', [])
   .option('standardEventsCustomProperties', [])
+  .option('keyForExternalId', '')
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -198,15 +198,23 @@ FacebookPixel.prototype.productListViewed = function(track) {
   var self = this;
   var contentType;
   var contentIds = [];
+  var contents = [];
   var products = track.products();
   var customProperties = this.buildPayload(track, true);
 
   // First, check to see if a products array with productIds has been defined.
   if (Array.isArray(products)) {
     products.forEach(function(product) {
-      var productId = product.productId || product.product_id;
+      var track = new Track({ properties: product });
+      var productId =
+        track.proxy('properties.product_id') || track.productId() || track.id();
+
       if (productId) {
         contentIds.push(productId);
+        contents.push({
+          id: productId,
+          quantity: track.quantity()
+        });
       }
     });
   }
@@ -217,6 +225,10 @@ FacebookPixel.prototype.productListViewed = function(track) {
     contentType = ['product'];
   } else {
     contentIds.push(track.category() || '');
+    contents.push({
+      id: track.category() || '',
+      quantity: 1
+    });
     contentType = ['product_group'];
   }
 
@@ -227,7 +239,8 @@ FacebookPixel.prototype.productListViewed = function(track) {
     merge(
       {
         content_ids: contentIds,
-        content_type: this.getContentType(track, contentType)
+        content_type: this.getContentType(track, contentType),
+        contents: contents
       },
       customProperties
     ),
@@ -274,7 +287,14 @@ FacebookPixel.prototype.productViewed = function(track) {
         currency: track.currency(),
         value: useValue
           ? formatRevenue(track.value())
-          : formatRevenue(track.price())
+          : formatRevenue(track.price()),
+        contents: [
+          {
+            id: track.productId() || track.id() || track.sku() || '',
+            quantity: track.quantity(),
+            item_price: track.price()
+          }
+        ]
       },
       customProperties
     ),
@@ -323,7 +343,14 @@ FacebookPixel.prototype.productAdded = function(track) {
         currency: track.currency(),
         value: useValue
           ? formatRevenue(track.value())
-          : formatRevenue(track.price())
+          : formatRevenue(track.price()),
+        contents: [
+          {
+            id: track.productId() || track.id() || track.sku() || '',
+            quantity: track.quantity(),
+            item_price: track.price()
+          }
+        ]
       },
       customProperties
     ),
@@ -359,22 +386,28 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   var products = track.products();
   var customProperties = this.buildPayload(track, true);
 
-  var contentIds = foldl(
-    function(acc, product) {
-      var item = new Track({ properties: product });
-      var key = item.productId() || item.id() || item.sku();
-      if (key) acc.push(key);
-      return acc;
-    },
-    [],
-    products
-  );
-
   var revenue = formatRevenue(track.revenue());
 
   // Order completed doesn't have a top-level category spec'd.
   // Let's default to the category of the first product. - @gabriel
+
   var contentType = this.getContentType(track, ['product']);
+  var contentIds = [];
+  var contents = [];
+
+  for (var i = 0; i < products.length; i++) {
+    var trackItem = new Track({ properties: products[i] });
+    var pId = trackItem.productId() || trackItem.id() || trackItem.sku();
+    contentIds.push(pId);
+    var content = {
+      id: pId,
+      quantity: trackItem.quantity()
+    };
+    if (trackItem.price()) {
+      content.item_price = trackItem.price();
+    }
+    contents.push(content);
+  }
 
   window.fbq(
     'trackSingle',
@@ -385,7 +418,9 @@ FacebookPixel.prototype.orderCompleted = function(track) {
         content_ids: contentIds,
         content_type: contentType,
         currency: track.currency(),
-        value: revenue
+        value: revenue,
+        contents: contents,
+        num_items: contentIds.length
       },
       customProperties
     ),
@@ -447,15 +482,20 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
   var contentCategory = track.category();
   var customProperties = this.buildPayload(track, true);
 
-  each(function(product) {
-    var track = new Track({ properties: product });
-    contentIds.push(track.productId() || track.id() || track.sku());
-    contents.push({
-      id: track.productId() || track.id() || track.sku(),
-      quantity: track.quantity(),
+  for (var i = 0; i < products.length; i++) {
+    var trackItem = new Track({ properties: products[i] });
+    var pId = trackItem.productId() || trackItem.id() || trackItem.sku();
+    contentIds.push(pId);
+    var content = {
+      id: pId,
+      quantity: trackItem.quantity(),
       item_price: track.price()
-    });
-  }, products);
+    };
+    if (trackItem.price()) {
+      content.item_price = trackItem.price();
+    }
+    contents.push(content);
+  }
 
   // If no top-level category was defined use that of the first product. @gabriel
   if (!contentCategory && products[0] && products[0].category) {
@@ -582,6 +622,10 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
       .toLowerCase();
   var state = address.state && address.state.toLowerCase();
   var postalCode = address.postalCode;
+  var external_id; // eslint-disable-line
+  if (this.options.keyForExternalId) {
+    external_id = traits[this.options.keyForExternalId]; // eslint-disable-line
+  }
   return reject({
     em: traits.email,
     fn: firstName,
@@ -591,7 +635,8 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
     db: birthday,
     ct: city,
     st: state,
-    zp: postalCode
+    zp: postalCode,
+    external_id: external_id  // eslint-disable-line
   });
 };
 

@@ -1,3 +1,8 @@
+2.8.1/ 2019-09-25
+==================
+
+  * Add missing properties for facebook pixel standard events.
+
 2.7.0/ 2019-06-10
 ==================
 
