@@ -164,29 +164,32 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
  */
 
 NielsenDCR.prototype.getContentMetadata = function(track, type) {
-  var properties = 'properties.';
-  if (type && type === 'preroll') properties = 'properties.content.';
+  var propertiesPath = 'properties.';
+  if (type && type === 'preroll') propertiesPath = 'properties.content.';
 
-  var customAssetId = this.options.contentAssetIdPropertyName
-    ? track.proxy(properties + this.options.contentAssetIdPropertyName)
-    : undefined;
+  var customAssetId;
+  if (this.options.contentAssetIdPropertyName) {
+    customAssetId = track.proxy(
+      propertiesPath + this.options.contentAssetIdPropertyName
+    );
+  }
   var assetIdProp =
-    track.proxy(properties + 'content_asset_id') ||
-    track.proxy(properties + 'asset_id');
+    track.proxy(propertiesPath + 'content_asset_id') ||
+    track.proxy(propertiesPath + 'asset_id');
   var assetId = customAssetId || assetIdProp;
   var integrationOpts = track.options(this.name);
   var contentMetadata = {
     type: 'content',
     assetid: assetId,
-    program: track.proxy(properties + 'program'),
-    title: track.proxy(properties + 'title'),
-    isfullepisode: track.proxy(properties + 'full_episode') ? 'y' : 'n',
+    program: track.proxy(propertiesPath + 'program'),
+    title: track.proxy(propertiesPath + 'title'),
+    isfullepisode: track.proxy(propertiesPath + 'full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
-    airdate: formatAirdate(track.proxy(properties + 'airdate')),
+    airdate: formatAirdate(track.proxy(propertiesPath + 'airdate')),
     // `adLoadType` may be set in int opts, falling back to `load_type` property per our video spec
     adloadtype: formatLoadType(
       integrationOpts,
-      track.proxy(properties + 'load_type')
+      track.proxy(propertiesPath + 'load_type')
     ),
     // below metadata fields must all be set in event's integrations opts object
     crossId1: find(integrationOpts, 'crossId1'),
@@ -194,24 +197,24 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
 
-  if (track.proxy(properties + 'livestream')) {
+  if (track.proxy(propertiesPath + 'livestream')) {
     // hardcode 86400 if livestream ¯\_(ツ)_/¯
     contentMetadata.length = 86400;
   } else if (this.options.contentLengthPropertyName !== 'total_length') {
     var contentLengthKey = this.options.contentLengthPropertyName;
-    contentMetadata.length = track.proxy(properties + contentLengthKey);
+    contentMetadata.length = track.proxy(propertiesPath + contentLengthKey);
   } else {
-    contentMetadata.length = track.proxy(properties + 'total_length');
+    contentMetadata.length = track.proxy(propertiesPath + 'total_length');
   }
 
   if (this.options.subbrandPropertyName) {
     var subbrandProp = this.options.subbrandPropertyName;
-    contentMetadata.subbrand = track.proxy(properties + subbrandProp);
+    contentMetadata.subbrand = track.proxy(propertiesPath + subbrandProp);
   }
 
   if (this.options.clientIdPropertyName) {
     var clientIdProp = this.options.clientIdPropertyName;
-    contentMetadata.clientid = track.proxy(properties + clientIdProp);
+    contentMetadata.clientid = track.proxy(propertiesPath + clientIdProp);
   }
 
   // optional: used for grouping data into different buckets
@@ -234,9 +237,12 @@ NielsenDCR.prototype.getAdMetadata = function(track) {
 
   if (typeof type === 'string') type = type.replace('-', '');
 
-  var customAssetId = track.proxy(
-    'properties.' + this.options.adAssetIdPropertyName
-  );
+  var customAssetId;
+  if (this.options.adAssetIdPropertyName) {
+    customAssetId = track.proxy(
+      'properties.' + this.options.adAssetIdPropertyName
+    );
+  }
   var assetIdProp =
     track.proxy('properties.ad_asset_id') || track.proxy('properties.asset_id');
   var assetId = customAssetId || assetIdProp;
