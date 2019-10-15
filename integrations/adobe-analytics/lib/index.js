@@ -10,6 +10,8 @@ var each = require('@ndhoule/each');
 var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
+var utils = require('./utils');
+var extend = require('@ndhoule/extend');
 
 /**
  * hasOwnProperty reference.
@@ -261,7 +263,14 @@ AdobeAnalytics.prototype.page = function(page) {
   }
 
   // Attach some variables on the `window.s` to be sent with the call
-  update(pageName, 'events');
+  updateEvents(page, this.options, pageName);
+
+  // Only map products if the user has defined a merch event mapping.
+  // This is to ensure backwards compatibility.
+  if (utils.getMerchEventMapping(page, this.options)) {
+    updateProducts(page, this.options);
+  }
+
   updateCommonVariables(page, this.options);
 
   calculateTimestamp(page, this.options);
@@ -303,7 +312,7 @@ AdobeAnalytics.prototype.track = function(track) {
 
   // Find AA event name from setting's event map
   // otherwise abort
-  var adobeEvent = aliasEvent(track.event(), this.options.events);
+  var adobeEvent = aliasEvent(track, this.options);
   if (!adobeEvent) return;
 
   this.processEvent(track);
@@ -320,7 +329,7 @@ AdobeAnalytics.prototype.track = function(track) {
 AdobeAnalytics.prototype.productViewed = function(track) {
   clearKeys(dynamicKeys);
 
-  var productVariables = formatProduct(track, this.options.productIdentifier);
+  var productVariables = formatProduct(track, this.options);
   update(productVariables, 'products');
 
   this.processEvent(track, 'prodView');
@@ -342,7 +351,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
 AdobeAnalytics.prototype.productAdded = function(track) {
   clearKeys(dynamicKeys);
 
-  var productVariables = formatProduct(track, this.options.productIdentifier);
+  var productVariables = formatProduct(track, this.options);
   update(productVariables, 'products');
 
   this.processEvent(track, 'scAdd');
@@ -359,7 +368,7 @@ AdobeAnalytics.prototype.productAdded = function(track) {
 AdobeAnalytics.prototype.productRemoved = function(track) {
   clearKeys(dynamicKeys);
 
-  var productVariables = formatProduct(track, this.options.productIdentifier);
+  var productVariables = formatProduct(track, this.options);
   update(productVariables, 'products');
 
   this.processEvent(track, 'scRemove');
@@ -414,30 +423,21 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 /**
  * Update window variables and then fire Adobe track call
  *
- * @param {*} msg
- * @param {*} adobeEvent
+ * @param {object} msg
+ * @param {string} adobeEvent
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var props = msg.properties();
 
-  var products = msg.products();
-  if (Array.isArray(products) && !window.s.products) {
-    // check window because products key could already have been filled upstream
-    var productVariables = formatProducts(
-      products,
-      this.options.productIdentifier
-    );
-  }
+  updateProducts(msg, this.options);
 
   updateContextData(msg, this.options);
 
   var eVarEvent = dot(this.options.eVars, msg.event());
   update(msg.event(), eVarEvent);
 
-  if (productVariables) update(productVariables, 'products');
-
-  updateEvents(msg.event(), this.options.events, adobeEvent);
+  updateEvents(msg, this.options, adobeEvent);
   updateCommonVariables(msg, this.options);
 
   calculateTimestamp(msg, this.options);
@@ -455,6 +455,27 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   // 3rd param: link name you will see in reports
   window.s.tl(true, 'o', msg.event());
 };
+
+/**
+ * Get the products properties for a given event.
+ * This function allows support for single product events.
+ * To determine if the top level event properties should be treated as the product properties
+ * it checks if the event is mapped as a merch event. If so, this is a single product event and
+ * properties are returned as an array to be used in formatProducts.
+ * @param {object} facade
+ * @param {object} options
+ * @returns {Object[] | undefined}
+ */
+function getProducts(facade, options) {
+  var properties = facade.properties();
+  if (Array.isArray(properties.products)) {
+    return properties.products;
+  }
+  var merchEvent = utils.getMerchEventMapping(facade, options);
+  if (merchEvent) {
+    return [properties];
+  }
+}
 
 /**
  * Update a number of Adobe Analytics common variables on window.s to be
@@ -532,15 +553,22 @@ function calculateTimestamp(msg, options) {
  * their configuration.
  *
  * @api private
- * @param  {String} event         The Segment event
- * @param  {Object|Array} mapping The configured events mapping
- * @param  {String} base          An Adobe-specific event
+ * @param  {Object} facade
+ * @param  {Object} options
+ * @param  {string} base - An Adobe-specific event or other event name to prefix the event string with.
  */
 
-function updateEvents(event, mapping, base) {
-  var value = [base, aliasEvent(event, mapping)].filter(Boolean).join(',');
+function updateEvents(facade, options, base) {
+  var value = [base, aliasEvent(facade, options)].filter(Boolean).join(',');
   update(value, 'events');
-  window.s.linkTrackEvents = value;
+  if (facade.type() === 'track') {
+    // The s.linkTrackEvents paramter can only contain event names.
+    // If it contains numeric events with the counter, the s.events paramter fails to get sent :(
+    // Here we strip out any equals signs as well as any proceeding digits.
+    // For example, given the string `event1=2,event2=11,event3,
+    // the resulting string should look like `event1,event2,event3
+    window.s.linkTrackEvents = value.replace(/(=\d*)?/gm, '');
+  }
 }
 
 /**
@@ -551,7 +579,8 @@ function updateEvents(event, mapping, base) {
  * with the "Context Data Property Prefix" setting.
  *
  * @api private
- * @param {Object} context
+ * @param {Object} facade
+ * @param {Object} options
  */
 
 function updateContextData(facade, options) {
@@ -600,46 +629,79 @@ function addContextDatum(key, value) {
 
 /**
  * Alias a regular event `name` to an AA event, using a dictionary of
- * `events`.
+ * `events` and `merchEvents` from options. The resulting string should look like:
+ * `event1|event1={number}[...eventN|eventN={number}]`
  *
  * @api private
- * @param {string} name
+ * @param {Object} facade
  * @param {Object} options
- * @return {string|null}
+ * @param {{segmentEvent: string, adobeEvents: string[]}[]} options.events
+ * @param {MerchEventSetting[]} options.merchEvents
+ * @return {string}
  */
 
-function aliasEvent(name, mapping) {
-  var events = [];
-  var key = name.toLowerCase();
-
-  if (mapping) {
-    each(function(m) {
-      if (m.segmentEvent.toLowerCase() !== key) return;
-      events.push.apply(events, m.adobeEvents);
-    }, mapping);
+function aliasEvent(facade, options) {
+  // Combine any events mapped in the options.events setting any mapped in options.merchEvents.
+  // In the case of a conflict, merchEvent mappings get priority.
+  // The `events` object will contain key/value pairs mapping event names to incrementer values or an empty string.
+  var events = extend(
+    getCounterEventsMap(facade, options),
+    getMerchEventsMap(facade, options)
+  );
+  var eventStringBuilder = [];
+  for (var event in events) {
+    if (!Object.prototype.hasOwnProperty.call(events, event)) return;
+    var value = events[event];
+    // An empty string indicates that the event was not mapped as a numeric/currency event or
+    // we could not find a value to map it to.
+    if (value !== '') {
+      eventStringBuilder.push(event + '=' + value);
+    } else {
+      eventStringBuilder.push(event);
+    }
   }
 
-  return events.join(',');
+  return eventStringBuilder.join(',');
 }
 
 /**
  * Format semantic ecommerce product properties to Adobe Analytics variable strings.
+ * Adobe documents that the s.products string should follow this pattern:
+ * s.products="category;product;quantity;price;event_incrementer;eVarN=merch_category|eVarM=merch_category2"
  *
  * @api private
- * @param {Object} props
- * @return {string}
+ * @param {Object} facade
+ * @param {Object} options
+ * @param {Object} [product] - optional product object that has been converted into a facade. If excluded, the top level facade will be used to access properties.
+ * @return {string} - An Adobe products string. Will look like this: category;product;quantity;price;event_incrementer;eVarN=merch_category|eVarM=merch_category2
  */
 
-function formatProduct(props, identifier) {
-  var quantity = props.quantity() || 1;
-  var total = ((props.price() || 0) * quantity).toFixed(2);
-  var productIdentifier = props[identifier]();
+function formatProduct(facade, options, product) {
+  // If `product` is not defined, we look for properties from the top level event.
+  if (!product) product = facade;
+  var identifier = options.productIdentifier;
+  var quantity = product.quantity() || 1;
+  var total = ((product.price() || 0) * quantity).toFixed(2);
+  var productIdentifier = product[identifier]();
   // add ecom spec v2 support if identifier is `id`, which only supports ecom spec v1
   if (identifier === 'id') {
-    productIdentifier = props.productId() || props.id();
+    productIdentifier = product.productId() || product.id();
   }
 
-  return [props.category(), productIdentifier, quantity, total].join(';');
+  var productData = [product.category(), productIdentifier, quantity, total];
+
+  var eventsAndEvars = utils.buildEventAndEvarString(
+    facade,
+    options,
+    product.properties()
+  );
+
+  // Append the base products string with numeric/currency events and/or merchandising evars.
+  if (eventsAndEvars) {
+    productData.push(eventsAndEvars);
+  }
+
+  return productData.join(';');
 }
 
 /**
@@ -699,20 +761,25 @@ function extractProperties(props, options) {
   return result;
 }
 
-function formatProducts(products, identifier) {
-  var productVariables = '';
-  var productDescription;
+/**
+ * Format an array of products.
+ * @param {Object} facade
+ * @param {Object} options
+ * @param {Object[]} products
+ * @returns {string}
+ */
+function formatProducts(facade, options, products) {
+  var productString = [];
 
   // Adobe Analytics wants product description in semi-colon delimited string separated by commas
   for (var x = 0; x < products.length; x++) {
     var product = new Track({ properties: products[x] }); // convert product obj to Facade so formatProduct can query props using Facade methods
-    productDescription = formatProduct(product, identifier);
-    productVariables += productDescription;
-    // if there are more products, delimit using comma
-    if (products[x + 1]) productVariables += ',';
+    productString.push(
+      formatProduct(facade, options, product, options.productIdentifier)
+    );
   }
 
-  return productVariables;
+  return productString.join(',');
 }
 
 /**
@@ -1106,4 +1173,97 @@ function createQosObject(track) {
     props.fps || 0,
     props.droppedFrames || 0
   );
+}
+
+/**
+ * Merch event mappings are stored in options.merchEvents.
+ * Merch events are assoicated with some kind of numeric value.
+ * That value is pulled using the getEventValue function.
+ * @param {Object} facade
+ * @param {Object} options
+ * @returns {Object}
+ */
+function getMerchEventsMap(facade, options) {
+  var eventMap = {};
+  var properties = facade.properties();
+  var merchEvent = utils.getMerchEventMapping(facade, options);
+  if (merchEvent) {
+    var key = utils.getEventName(facade);
+    merchEvent.adobeEvent.forEach(function(mapping) {
+      var segmentEvent = merchEvent.segmentEvent.toLowerCase();
+      if (segmentEvent === key) {
+        eventMap[mapping.adobeEvent] = utils.getEventValue(mapping, properties);
+      }
+    });
+  }
+  return eventMap;
+}
+
+/**
+ * Counter events are just the standard event mappings defined in options.events.
+ * Counter events do not support any sort of increment value so the map returns each value as an empty string.
+ * @param {Object} facade
+ * @param {Object} options
+ * @returns {Object}
+ */
+function getCounterEventsMap(facade, options) {
+  // Page events support defining adobe events as integration specific options.
+  // They must be defined using a key called events and a value of an array of strings.
+  // ie. ['events1', 'events2']
+  var eventMap = {};
+  if (facade.type() === 'page') {
+    var pageEventNames = facade.options('Adobe Analytics').events || [];
+    if (Array.isArray(pageEventNames)) {
+      pageEventNames.forEach(function(event) {
+        // Ensure event is a string.
+        if (typeof event === 'string') {
+          // Check to see if the user has hard-coded a numeric/currency event.
+          // If so, split the event string on the equals sign and set the proper event/value mapping.
+          if (event.indexOf('=') >= 0) {
+            event = event.split('=');
+            eventMap[event[0]] = event.pop();
+          } else {
+            eventMap[event] = '';
+          }
+        }
+      });
+    }
+  }
+
+  if (facade.type() === 'track') {
+    var key = facade.event().toLowerCase();
+    var standardEvents = options.events || [];
+    standardEvents.forEach(function(mapping) {
+      var segmentEvent = mapping.segmentEvent.toLowerCase();
+      if (segmentEvent === key) {
+        mapping.adobeEvents.forEach(function(event) {
+          eventMap[event] = '';
+        });
+      }
+    });
+  }
+  return eventMap;
+}
+
+/**
+ * Create a string to be used as the value of Adobe's s.products parameter.
+ * @param {Object} facade
+ * @param {Object} options
+ * @return {string | undefined}
+ */
+function updateProducts(facade, options) {
+  var products = getProducts(facade, options);
+  // check window because products key could already have been filled upstream
+  if (products && !window.s.products) {
+    var productString = formatProducts(
+      facade,
+      options,
+      products,
+      options.productIdentifier
+    );
+
+    if (productString) {
+      update(productString, 'products');
+    }
+  }
 }
