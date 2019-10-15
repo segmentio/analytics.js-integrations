@@ -16,7 +16,8 @@ describe('Pinterest', function() {
       'Lead Generated': 'Lead',
       'User Signed Up': 'Signup'
     },
-    pinterestCustomProperties: ['custom_prop']
+    pinterestCustomProperties: ['custom_prop'],
+    useEnhancedMatchLoad: false
   };
 
   beforeEach(function() {
@@ -42,6 +43,7 @@ describe('Pinterest', function() {
         .mapping('pinterestEventMapping')
         .option('pinterestCustomProperties', [])
         .option('tid', '')
+        .option('useEnhancedMatchLoad', false)
     );
   });
 
@@ -81,9 +83,11 @@ describe('Pinterest', function() {
         analytics.identify();
         analytics.didNotCall(window.pintrk);
       });
-      it('should push Segment email to Pinterest Enhanced Match', function() {
+
+      it('should set Segment email to Pinterest Enhanced Match', function() {
         analytics.identify('123', { email: 'prakash@segment.com' });
-        analytics.called(window.pintrk, 'load', '2620795819800', {
+        analytics.called(window.pintrk, 'set', {
+          np: 'segment',
           em: 'prakash@segment.com'
         });
       });
