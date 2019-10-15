@@ -580,6 +580,25 @@ function formatValue(value) {
   return Math.round(value);
 }
 
+function getProductPosition(item, products) {
+  var position = item.properties().position;
+  if (
+    typeof position !== 'undefined' &&
+    !Number.isNaN(Number(position)) &&
+    Number(position) > -1
+  ) {
+    // If position passed and is valid positive number.
+    return position;
+  }
+  return (
+    products
+      .map(function(x) {
+        return x.product_id;
+      })
+      .indexOf(item.productId()) + 1
+  );
+}
+
 /**
  * Map google's custom dimensions, metrics & content groupings with `obj`.
  *
@@ -988,12 +1007,7 @@ GA.prototype.productListViewedEnhanced = function(track) {
       brand: item.properties().brand,
       variant: item.properties().variant,
       price: item.price(),
-      position:
-        products
-          .map(function(x) {
-            return x.product_id;
-          })
-          .indexOf(item.productId()) + 1
+      position: getProductPosition(item, products)
     };
 
     impressionObj = extend(impressionObj, metrics(item.properties(), opts));
@@ -1047,12 +1061,7 @@ GA.prototype.productListFilteredEnhanced = function(track) {
       brand: item.properties().brand,
       variant: filters + '::' + sorts,
       price: item.price(),
-      position:
-        products
-          .map(function(x) {
-            return x.product_id;
-          })
-          .indexOf(item.productId()) + 1
+      position: getProductPosition(item, products)
     };
 
     impressionObj = extend(impressionObj, metrics(item.properties(), opts));
