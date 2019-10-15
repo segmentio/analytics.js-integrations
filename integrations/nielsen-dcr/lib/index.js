@@ -146,15 +146,33 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
       var currentTime = self.currentPosition;
       // for livestream, properties.position is a negative integer representing offset in seconds from current time
       currentTime.setSeconds(currentTime.getSeconds() + newPosition);
-      self._client.ggPM('setPlayheadPosition', +Date.now(currentTime)); // UTC
+      self._client.ggPM('setPlayheadPosition', getUnixTime(currentTime)); // UTC
       // increment timestamp by 1 second
       currentTime.setSeconds(currentTime.getSeconds() + 1);
     } else if (newPosition < limit) {
-      self._client.ggPM('setPlayheadPosition', self.currentPosition);
+      self._client.ggPM(
+        'setPlayheadPosition',
+        getUnixTime(self.currentPosition)
+      );
       // increment playhead by 1 second
       self.currentPosition++;
     }
   }, 1000);
+};
+
+/**
+ * Calculates offset for live streams only. * This situation may occur where
+ * a live stream on a user's device is running slightly behind the actual stream.
+ *
+ * @api private
+ */
+
+NielsenDCR.prototype.calculateOffset = function(position, timestamp) {
+  this.currentPosition = new Date(timestamp);
+  var currentTime = this.currentPosition;
+  // for livestream, properties.position is a negative integer representing offset in seconds from current time
+  currentTime.setSeconds(currentTime.getSeconds() + position);
+  return getUnixTime(currentTime);
 };
 
 /**
@@ -311,11 +329,10 @@ NielsenDCR.prototype.videoContentPlaying = function(track) {
 NielsenDCR.prototype.videoContentCompleted = function(track) {
   clearInterval(this.heartbeatId);
 
-  // for livestream just send the current utc timestamp
   var timestamp = track.timestamp();
   var livestream = track.proxy('properties.livestream');
   var position = livestream
-    ? +Date.now(timestamp)
+    ? getUnixTime(timestamp)
     : track.proxy('properties.position');
 
   this._client.ggPM('setPlayheadPosition', position);
@@ -401,7 +418,7 @@ NielsenDCR.prototype.videoPlaybackPaused = NielsenDCR.prototype.videoPlaybackSee
   var timestamp = track.timestamp();
   var livestream = track.proxy('properties.livestream');
   var position = livestream
-    ? +Date.now(timestamp)
+    ? getUnixTime(timestamp)
     : track.proxy('properties.position');
 
   this._client.ggPM('stop', position);
@@ -428,7 +445,6 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
     : track.proxy('properties.ad_asset_id');
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
-  var timestamp = track.timestamp();
   // if properly implemented, the point in which the playback is resumed
   // you should _only_ be sending the asset_id of whatever you are resuming in: content or ad
   var type = contentAssetId ? 'content' : 'ad';
@@ -445,7 +461,7 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
   this.heartbeat(assetId, position, {
     type: type,
     livestream: livestream,
-    timestamp: timestamp
+    timestamp: track.timestamp()
   });
 };
 
@@ -464,7 +480,7 @@ NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlayback
   var timestamp = track.timestamp();
   var livestream = track.proxy('properties.livestream');
   var position = livestream
-    ? +Date.now(timestamp)
+    ? getUnixTime(timestamp)
     : track.proxy('properties.position');
 
   this._client.ggPM('setPlayheadPosition', position);
@@ -506,4 +522,15 @@ function formatLoadType(integrationOpts, loadTypeProperty) {
   // linear means original ads that were broadcasted with tv airing. much less common use case
   loadType = loadType === 'dynamic' ? '2' : '1';
   return loadType;
+}
+
+/**
+ * Transforms Segment timestamp into unix date string in UTC.
+ *
+ * @api private
+ */
+
+function getUnixTime(timestamp) {
+  var date = new Date(timestamp);
+  return Math.floor(date.getTime() / 1000);
 }
