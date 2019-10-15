@@ -898,7 +898,7 @@ function mapProducts(
   merchEvents,
   properties
 ) {
-  if (!Array.isArray(products)) return products;
+  if (!Array.isArray(products)) return;
 
   var productString = products.map(function(productProperties) {
     var product = new Track({ properties: productProperties });
