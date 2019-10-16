@@ -6,6 +6,9 @@
   "author": "Segment",
   "license": "See LICENSE",
   "private": true,
+  "engines": {
+    "node": "^10"
+  },
   "workspaces": [
     "integrations/*"
   ],
