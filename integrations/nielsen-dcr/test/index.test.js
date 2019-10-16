@@ -5,7 +5,6 @@ var integrationTester = require('@segment/analytics.js-integration-tester');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var NielsenDCR = require('../lib/');
-var sinon = require('sinon');
 
 describe('NielsenDCR', function() {
   var analytics;
@@ -227,9 +226,7 @@ describe('NielsenDCR', function() {
 
         it('video playback completed w livestream', function() {
           var timestamp = new Date();
-          var sandbox = sinon.sandbox.create();
-          var currentUTC = +Date.now(timestamp);
-          sandbox.stub(Date, 'now').returns(currentUTC);
+          var unixTimestamp = Math.floor(timestamp.getTime() / 1000);
           var props = {
             session_id: '12345',
             content_asset_id: null,
@@ -253,10 +250,9 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR._client.ggPM,
             'setPlayheadPosition',
-            currentUTC
+            unixTimestamp
           );
-          analytics.called(nielsenDCR._client.ggPM, 'end', currentUTC);
-          sandbox.restore();
+          analytics.called(nielsenDCR._client.ggPM, 'end', unixTimestamp);
         });
       });
 
@@ -566,9 +562,7 @@ describe('NielsenDCR', function() {
 
         it('video content completed — livestream', function() {
           var timestamp = new Date();
-          var sandbox = sinon.sandbox.create();
-          var currentUTC = +Date.now(timestamp);
-          sandbox.stub(Date, 'now').returns(currentUTC);
+          var unixTimestamp = Math.floor(timestamp.getTime() / 1000);
           props.livestream = true;
           analytics.track('Video Content Completed', props, {
             timestamp: timestamp
@@ -577,10 +571,9 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR._client.ggPM,
             'setPlayheadPosition',
-            currentUTC
+            unixTimestamp
           );
-          analytics.called(nielsenDCR._client.ggPM, 'stop', currentUTC);
-          sandbox.restore();
+          analytics.called(nielsenDCR._client.ggPM, 'stop', unixTimestamp);
         });
       });
 
