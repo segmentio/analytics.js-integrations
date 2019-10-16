@@ -1,3 +1,8 @@
+# 3.3.0 / 2019-10-09
+
+- Add support for versionName setting, this will allow user to specify version.
+- Add support for trackProductsOnce setting, this will track all products at once.
+
 # 3.2.0 / 2019-08-27
 
 - Add support for unsetParamsReferrerOnNewSession setting
