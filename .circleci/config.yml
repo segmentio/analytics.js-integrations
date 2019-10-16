@@ -4,9 +4,7 @@ jobs:
     docker:
       - image: circleci/node:10-browsers
     steps:
-      - run:
-          name: Checkout code
-          command: checkout
+      - checkout
       - restore_cache:
           key: deps-{{ checksum "yarn.lock" }}
       - run:
