@@ -2,7 +2,7 @@ version: 2
 jobs:
   setup:
     docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+      - image: circleci/node:10-browsers
     steps:
       - run:
           name: Checkout code
@@ -25,7 +25,7 @@ jobs:
 
   lint:
     docker:
-        - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        - image: circleci/node:10-browsers
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -36,7 +36,7 @@ jobs:
 
   test:
     docker:
-        - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        - image: circleci/node:10-browsers
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -47,7 +47,7 @@ jobs:
 
   test_saucelabs:
     docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+      - image: circleci/node:10-browsers
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -58,7 +58,7 @@ jobs:
 
   test_snyk:
     docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+      - image: circleci/node:10-browsers
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
@@ -69,7 +69,7 @@ jobs:
 
   publish:
     docker:
-      - image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+      - image: circleci/node:10-browsers
     steps:
       - attach_workspace: { at: . }
       - restore_cache:
