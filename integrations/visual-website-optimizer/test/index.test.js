@@ -22,7 +22,12 @@ describe('Visual Website Optimizer', function() {
     // set up fake VWO data to simulate the replay
     window._vwo_exp_ids = [1];
     window._vwo_exp = {
-      1: { comb_n: { 1: 'Variation' }, combination_chosen: 1, ready: true }
+      1: {
+        comb_n: { 1: 'Variation' },
+        combination_chosen: 1,
+        ready: true,
+        type: 'VISUAL_AB'
+      }
     };
     window._vis_opt_queue = [];
   });
@@ -196,6 +201,65 @@ describe('Visual Website Optimizer', function() {
             experimentId: '1',
             variationName: 'Variation',
             nonInteraction: 1
+          },
+          {
+            context: {
+              integration: {
+                name: 'visual-website-optimizer',
+                version: '1.0.0'
+              }
+            }
+          }
+        );
+        done();
+      });
+    });
+
+    it('should not send experiments if experiment type is not of type A/B with trackOnlyABExperiments enabled', function(done) {
+      vwo.options.listen = true;
+      vwo.options.trackOnlyABExperiments = true;
+      window._vwo_exp[1].type = 'testType';
+      analytics.initialize();
+      analytics.page();
+
+      tick(function() {
+        window._vis_opt_queue[1]();
+
+        analytics.didNotCall(
+          analytics.track,
+          'Experiment Viewed',
+          {
+            experimentId: '1',
+            variationName: 'Variation'
+          },
+          {
+            context: {
+              integration: {
+                name: 'visual-website-optimizer',
+                version: '1.0.0'
+              }
+            }
+          }
+        );
+        done();
+      });
+    });
+
+    it('should send experiments if experiment type is not of type A/B with trackOnlyABExperiments disabled', function(done) {
+      vwo.options.listen = true;
+      window._vwo_exp[1].type = 'testType';
+      analytics.initialize();
+      analytics.page();
+
+      tick(function() {
+        window._vis_opt_queue[1]();
+
+        analytics.called(
+          analytics.track,
+          'Experiment Viewed',
+          {
+            experimentId: '1',
+            variationName: 'Variation'
           },
           {
             context: {
