@@ -227,6 +227,7 @@ describe('NielsenDCR', function() {
         it('video playback completed w livestream', function() {
           var timestamp = new Date();
           var unixTimestamp = Math.floor(timestamp.getTime() / 1000);
+          var offsetTime;
           var props = {
             session_id: '12345',
             content_asset_id: null,
@@ -234,7 +235,7 @@ describe('NielsenDCR', function() {
             ad_asset_id: 'ad907',
             ad_pod_id: 'adSegB',
             ad_type: null,
-            position: 392,
+            position: -100,
             total_length: 392,
             sound: 88,
             bitrate: 100,
@@ -245,14 +246,15 @@ describe('NielsenDCR', function() {
             livestream: true,
             timestamp: timestamp
           };
+          offsetTime = unixTimestamp + props.position;
           analytics.track('video playback completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR._client.ggPM,
             'setPlayheadPosition',
-            unixTimestamp
+            offsetTime
           );
-          analytics.called(nielsenDCR._client.ggPM, 'end', unixTimestamp);
+          analytics.called(nielsenDCR._client.ggPM, 'end', offsetTime);
         });
       });
 
