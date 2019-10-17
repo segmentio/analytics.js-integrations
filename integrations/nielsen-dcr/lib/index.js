@@ -494,7 +494,7 @@ function formatLoadType(integrationOpts, loadTypeProperty) {
  */
 
 function getOffsetTime(position) {
-  var date = Date.now();
+  var date = Math.floor(Date.now() / 1000);
   if (!position) return date;
 
   try {
@@ -507,5 +507,5 @@ function getOffsetTime(position) {
     return;
   }
 
-  return Math.floor(date / 1000) + position;
+  return date + position;
 }

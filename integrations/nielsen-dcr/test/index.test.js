@@ -490,7 +490,7 @@ describe('NielsenDCR', function() {
         });
 
         it('video content completed — livestream', function() {
-          var timestamp = Math.floor(Date.now / 1000) + props.position;
+          var timestamp = Math.floor(Date.now() / 1000) + props.position;
           props.livestream = true;
           analytics.track('Video Content Completed', props);
           analytics.called(window.clearInterval);
