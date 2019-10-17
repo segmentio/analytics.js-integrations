@@ -7,6 +7,7 @@
 var integration = require('@segment/analytics.js-integration');
 var find = require('obj-case').find;
 var reject = require('reject');
+var dateformat = require('dateformat');
 
 /**
  * Expose `NielsenDCR` integration.
@@ -180,9 +181,13 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     title: track.proxy(properties + 'title'),
     isfullepisode: track.proxy(properties + 'full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
-    airdate: track.proxy(properties + 'airdate'),
+    airdate: formatAirdate(track.proxy(properties + 'airdate')),
+    // `adLoadType` may be set in int opts, falling back to `load_type` property per our video spec
+    adloadtype: formatLoadType(
+      integrationOpts,
+      track.proxy(properties + 'load_type')
+    ),
     // below metadata fields must all be set in event's integrations opts object
-    adloadtype: find(integrationOpts, 'ad_load_type') === 'linear' ? '1' : '2', // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
     crossId1: find(integrationOpts, 'crossId1'),
     crossId2: find(integrationOpts, 'crossId2'),
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
@@ -497,3 +502,35 @@ NielsenDCR.prototype.videoPlaybackCompleted = function(track) {
   this.currentAssetId = null;
   this.heartbeatId = null;
 };
+
+/**
+ * Formats airdate property per Nielsen DCR spec.
+ * Nielsen DCR requires dates to be in format YYYYMMDD HH:MI:SS
+ *
+ * @api private
+ */
+
+function formatAirdate(airdate) {
+  var date;
+  try {
+    date = dateformat(airdate, 'yyyymmdd hh:MM:ss', true);
+  } catch (e) {
+    // do nothing with this error for now
+  }
+
+  return date;
+}
+
+/**
+ * Falls back to check `properties.load_type` if
+ * `integrationsOpts.ad_load_type` is falsy
+ *
+ * @api private
+ */
+
+function formatLoadType(integrationOpts, loadTypeProperty) {
+  var loadType = find(integrationOpts, 'ad_load_type') || loadTypeProperty;
+  // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
+  loadType = loadType === 'dynamic' ? '2' : '1';
+  return loadType;
+}

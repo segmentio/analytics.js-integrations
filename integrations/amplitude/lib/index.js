@@ -49,6 +49,10 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('preferAnonymousIdForDeviceId', false)
   .option('traitsToSetOnce', [])
   .option('traitsToIncrement', [])
+  .option('appendFieldsToEventProps', {})
+  .option('unsetParamsReferrerOnNewSession', false)
+  .option('trackProductsOnce', false)
+  .option('versionName', '')
   .tag('<script src="' + src + '">'));
 
 /**
@@ -78,12 +82,21 @@ Amplitude.prototype.initialize = function() {
     saveParamsReferrerOncePerSession: this.options
       .saveParamsReferrerOncePerSession,
     deviceIdFromUrlParam: this.options.deviceIdFromUrlParam,
+    unsetParamsReferrerOnNewSession: this.options
+      .unsetParamsReferrerOnNewSession,
     deviceId:
       this.options.preferAnonymousIdForDeviceId &&
       this.analytics &&
       this.analytics.user() &&
       this.analytics.user().anonymousId()
   });
+
+  // Initialize the amplitute with user specified site version if any.
+  // https://help.amplitude.com/hc/en-us/articles/115001361248-JavaScript-SDK-Installation#setting-version-name
+  var versionName = this.options.versionName;
+  if (versionName) {
+    window.amplitude.getInstance().setVersionName(versionName);
+  }
 
   var loaded = bind(this, this.loaded);
   var ready = this.ready;
@@ -253,6 +266,11 @@ function logEvent(track, dontSetRevenue) {
       window.amplitude.getInstance().setUserProperties(params);
   }
 
+  // Append extra fields to event_props
+  each(function(prop, field) {
+    props[prop] = track.proxy(field);
+  }, this.options.appendFieldsToEventProps);
+
   // track the event
   if (options.groups) {
     window.amplitude
@@ -277,8 +295,20 @@ Amplitude.prototype.orderCompleted = function(track) {
   var trackRevenuePerProduct = this.options.trackRevenuePerProduct;
   var revenueType = track.proxy('properties.revenueType');
   var revenue = track.revenue();
+  var trackProductsOnce = this.options.trackProductsOnce;
 
-  // Amplitude does not allow arrays of objects to as properties of events.
+  if (trackProductsOnce) {
+    var allProducts = [];
+    // products is object
+    var productKeys = Object.keys(products);
+    for (var index = 0; index < productKeys.length; index++) {
+      var eachProduct = new Track({ properties: products[index] });
+      allProducts.push(mapProductAttributes(eachProduct));
+    }
+    clonedTrack.properties.products = allProducts;
+    logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
+    return;
+  }
   // Our Order Completed event however uses a products array for product level tracking.
   // We need to remove this before logging the event and then use it to track revenue.
   delete clonedTrack.properties.products;
@@ -453,5 +483,18 @@ function mapRevenueAttributes(track) {
     quantity: track.quantity(),
     eventProps: track.properties(),
     revenue: track.revenue()
+  };
+}
+
+// map product for Order Completed event
+// REF: https://segment.com/docs/destinations/amplitude/#order-completed
+function mapProductAttributes(product) {
+  return {
+    productId: product.productId(),
+    sku: product.sku(),
+    name: product.name(),
+    price: product.price(),
+    quantity: product.quantity(),
+    category: product.category()
   };
 }

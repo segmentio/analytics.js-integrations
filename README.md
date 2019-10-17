@@ -19,7 +19,7 @@ yarn
 ```
 
 ## Contributing
-All indiviudal integrations are stored in the `integrations/` directory. We recommend navigating into the individual integration you are contributing to in your terminal rather than working from the root directory:
+All individual integrations are stored in the `integrations/` directory. We recommend navigating into the individual integration you are contributing to in your terminal rather than working from the root directory:
 
 ```bash
 cd integrations/<INTEGRATION_NAME>
