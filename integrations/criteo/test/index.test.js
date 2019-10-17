@@ -62,6 +62,15 @@ describe('Criteo', function() {
         analytics.initialize();
         analytics.called(criteo.load);
       });
+
+      it('should track setSiteType', function() {
+        analytics.stub(window.criteo_q, 'push');
+        analytics.initialize();
+        analytics.called(window.criteo_q.push, {
+          event: 'setSiteType',
+          type: 'd'
+        });
+      });
     });
   });
 
