@@ -14,7 +14,7 @@ var extend = require('extend');
  * Expose `GoogleAdWordsNew` integration.
  */
 
-var GoogleAdWordsNew = module.exports = integration('Google AdWords New')
+var GoogleAdWordsNew = (module.exports = integration('Google AdWords New')
   .option('accountId', '')
   .option('sendPageView', true)
   .option('conversionLinker', true)
@@ -22,7 +22,9 @@ var GoogleAdWordsNew = module.exports = integration('Google AdWords New')
   .option('pageLoadConversions', [])
   .option('defaultPageConversion', '')
   // The ID in this line (i.e. the gtag.js ID) does not determine which account(s) will receive data from the tag; rather, it is used to uniquely identify your global site tag. Which account(s) receive data from the tag is determined by calling the config command (and by using the send_to parameter on an event). For instance, if you use Google Analytics, you may already have the gtag.js global site tag installed on your site. In that case, the gtag.js ID may be that of the Google Analytics property where you first obtained the snippet.
-  .tag('<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">');
+  .tag(
+    '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
+  ));
 
 /**
  * Initialize.
@@ -39,8 +41,10 @@ GoogleAdWordsNew.prototype.initialize = function() {
   };
 
   var config = {};
-  if (this.options.sendPageView === false) config.send_page_view = this.options.sendPageView;
-  if (this.options.conversionLinker === false) config.conversion_linker = this.options.conversionLinker; // not recommended to set this by GA docs — less accurate measurements
+  if (this.options.sendPageView === false)
+    config.send_page_view = this.options.sendPageView;
+  if (this.options.conversionLinker === false)
+    config.conversion_linker = this.options.conversionLinker; // not recommended to set this by GA docs — less accurate measurements
 
   this.load(function() {
     window.gtag('js', new Date());
@@ -73,13 +77,21 @@ GoogleAdWordsNew.prototype.page = function(page) {
   var configs = this.options;
   var pageName = page.name();
   // If you are naming your `.page()` calls, you should explicitly map each one rather than expecting a fallback to default page conversion
-  if (!pageName && configs.defaultPageConversion) return sendPageLoadConversion(configs.defaultPageConversion);
+  if (!pageName && configs.defaultPageConversion)
+    return sendPageLoadConversion(configs.defaultPageConversion);
 
   // A mapped event can either be a 'Page Load' or a 'Click' conversion in AdWords.
   // Since the Page Load conversions are meant to just be dropped on a given page, we are mapping named page calls rather than `.track()`
-  var mappedConversion = matchConversion(this.options.pageLoadConversions, pageName);
+  var mappedConversion = matchConversion(
+    this.options.pageLoadConversions,
+    pageName
+  );
 
-  if (mappedConversion.id) return sendPageLoadConversion(mappedConversion.id, mappedConversion.override);
+  if (mappedConversion.id)
+    return sendPageLoadConversion(
+      mappedConversion.id,
+      mappedConversion.override
+    );
 
   function sendPageLoadConversion(id, override) {
     var semanticMetadata = reject({
@@ -117,11 +129,19 @@ GoogleAdWordsNew.prototype.track = function(track) {
   // Depending on what you chose inside Adwords when creating the conversions, we should expect `properties.value` if that is what they want to send
   // But for purchase events, we should map revenue/total
   var eventName = track.event();
-  var mappedConversion = matchConversion(this.options.clickConversions, track.event());
+  var mappedConversion = matchConversion(
+    this.options.clickConversions,
+    track.event()
+  );
 
   if (mappedConversion.id) {
     var properties = track.properties({ orderId: 'transaction_id' });
-    var metadata = extend(properties, { send_to: (mappedConversion.override || self.options.accountId) + '/' + mappedConversion.id });
+    var metadata = extend(properties, {
+      send_to:
+        (mappedConversion.override || self.options.accountId) +
+        '/' +
+        mappedConversion.id
+    });
     // metadata shouldn't contain PII — warning by Google
     return window.gtag('event', eventName, metadata);
   }
@@ -140,7 +160,10 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
   // Depending on what you chose inside Adwords when creating the conversions, we should expect `properties.value` if that is what they want to send
   // But for purchase events, we should map revenue/total
   var eventName = track.event();
-  var mappedConversion = matchConversion(this.options.clickConversions, track.event());
+  var mappedConversion = matchConversion(
+    this.options.clickConversions,
+    track.event()
+  );
 
   if (mappedConversion.id) {
     var properties = track.properties({
@@ -148,7 +171,12 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
       order_id: 'transaction_id',
       revenue: 'value'
     });
-    var metadata = extend(properties, { send_to: (mappedConversion.override || self.options.accountId) + '/' + mappedConversion.id });
+    var metadata = extend(properties, {
+      send_to:
+        (mappedConversion.override || self.options.accountId) +
+        '/' +
+        mappedConversion.id
+    });
     // metadata shouldn't contain PII — warning by Google
     return window.gtag('event', eventName, metadata);
   }
