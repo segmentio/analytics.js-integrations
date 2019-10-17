@@ -11,6 +11,7 @@
     "no-use-before-define": "warn",
     "no-loop-func": "warn",
     "no-restricted-syntax": "warn",
+    "no-restricted-globals": "warn",
     "no-continue": "off",
     "consistent-return": "warn",
     "no-shadow": "warn",
