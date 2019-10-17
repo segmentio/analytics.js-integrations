@@ -145,11 +145,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.content_asset_id,
             props.position,
-            {
-              type: 'content',
-              livestream: props.livestream,
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -169,11 +165,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.content_asset_id,
             props.position,
-            {
-              type: 'content',
-              livestream: props.livestream,
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -193,11 +185,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.content_asset_id,
             props.position,
-            {
-              type: 'content',
-              livestream: props.livestream,
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -307,11 +295,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -341,11 +325,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.custom_asset_id_prop,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -375,11 +355,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -413,11 +389,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -448,11 +420,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -486,11 +454,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -524,11 +488,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -543,11 +503,7 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -606,8 +562,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
@@ -622,8 +577,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.custom_asset_id_prop,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
@@ -678,8 +632,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
@@ -736,8 +689,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
@@ -798,8 +750,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
@@ -810,8 +761,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
