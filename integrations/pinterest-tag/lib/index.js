@@ -15,6 +15,7 @@ var Pinterest = (module.exports = integration('Pinterest Tag')
   .global('pintrk')
   .option('tid', '')
   .option('pinterestCustomProperties', [])
+  .option('useEnhancedMatchLoad', false)
   .mapping('pinterestEventMapping')
   .tag('<script src="https://s.pinimg.com/ct/core.js"></script>'));
 
@@ -26,7 +27,13 @@ Pinterest.prototype.initialize = function() {
   (function(e){if(!window.pintrk){window.pintrk=function(){window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var n=window.pintrk;n.queue=[],n.version="3.0";}})(); // eslint-disable-line
 
   this.load(this.ready);
-  window.pintrk('load', this.options.tid);
+  var traits = this.analytics.user().traits();
+  if (traits && traits.email && this.options.useEnhancedMatchLoad) {
+    var email = this.analytics.user().traits().email;
+    window.pintrk('load', this.options.tid, { em: email });
+  } else {
+    window.pintrk('load', this.options.tid);
+  }
   window.pintrk('page'); // This is treated semantically different than our own page implementation.
 
   this.createPropertyMapping();
@@ -37,12 +44,11 @@ Pinterest.prototype.loaded = function() {
 };
 
 Pinterest.prototype.identify = function(identify) {
-  // If we have an email then enable Enhanced Match feature by reloading the Pinterest library.
-  // TODO: We may want to add a toggle in the Pinterest integration UI as a configuration to enable enhanced match
+  // Set the Enhanced Match email if present  in .identify() call. The 'set' method piggybacks onto events because the values you set are not useful unless they relate to one or more events.
+  // Hence, after 'set' is called, nothing will appear in either the network or via the tag helper extension.
+  // But when the next event is called, a hashed value for an 'em' parameter will be in a JSON object encoded in the URL, and you can also see the email box in the tag helper extension.
   if (identify.email()) {
-    window.pintrk('load', this.options.tid, {
-      em: identify.email()
-    });
+    window.pintrk('set', { np: 'segment', em: identify.email() });
   }
 };
 
