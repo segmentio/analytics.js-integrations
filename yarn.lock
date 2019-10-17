@@ -1310,10 +1310,10 @@
     component-cookie "^1.1.2"
     component-url "^0.2.1"
 
-"@segment/tracktor@0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.4.2.tgz#b77bfe733edfff8d3010f4b45b750135ea3904e7"
-  integrity sha512-Ne9UF6ICgUKxgmejZih+8ItusfoLZuoY4S4Z427MgXVplJxf+RtGUSVmKWdC1ZDhc+u3+zmZRxE3bxShXIq7Dw==
+"@segment/tracktor@0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.6.1.tgz#34a01995220cc80a9dd62c4395ffaa4f0003a3c5"
+  integrity sha512-V0iMA072LOZ8FKGGGyFamGSs6264l2BHGild5Gz5dekPoIMrMIUiubvlMe1SG7TakmkBviiFuFlsIgmkYvnIxw==
 
 "@segment/trample@^0.2.0":
   version "0.2.0"
