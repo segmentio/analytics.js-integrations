@@ -33,10 +33,10 @@ describe('Tracktor', function() {
   it('should have the right settings', function() {
     analytics.compare(
       Tracktor,
-      integration('Tracktor')
+      integration('Visual Tagger')
         .global('Tracktor')
-        .option('sourceId', 'a-source-id')
-        .option('workspaceId', 'a-workspace-id')
+        .option('sourceId', '')
+        .option('workspaceId', '')
     );
   });
 });
