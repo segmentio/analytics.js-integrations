@@ -17,6 +17,12 @@ var is = require('is');
 var integration = require('@segment/analytics.js-integration');
 
 /**
+ * Regex to indentify the devices.
+ */
+var ipadRegex = /iPad/;
+var mobileRegex = /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/;
+
+/**
  * Expose Criteo integration.
  */
 
@@ -264,8 +270,9 @@ function getProductMetadata(track) {
  */
 
 function getDeviceType() {
-  var ipadRegex = /iPad/;
-  var mobileRegex = /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/;
+  if (!navigator || !navigator.userAgent) {
+    return 'd';
+  }
   if (ipadRegex.test(navigator.userAgent)) {
     return 't';
   }
