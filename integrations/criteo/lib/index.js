@@ -266,7 +266,9 @@ function getProductMetadata(track) {
 function getDeviceType() {
   var ipadRegex = /iPad/;
   var mobileRegex = /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/;
-  if (ipadRegex.test(navigator.userAgent)) return 't';
+  if (ipadRegex.test(navigator.userAgent)) {
+    return 't';
+  }
   if (mobileRegex.test(navigator.userAgent)) {
     return 'm';
   }
