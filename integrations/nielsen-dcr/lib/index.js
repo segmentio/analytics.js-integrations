@@ -115,9 +115,8 @@ NielsenDCR.prototype.page = function(page) {
  * We need to send the playhead position every 1 second
  */
 
-NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
+NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
   var self = this;
-  var opts = options || {};
   // if position is not sent as a string
   try {
     if (typeof position !== 'number') {
@@ -136,15 +135,14 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
   this.currentPosition = position;
 
   this.heartbeatId = setInterval(function() {
-    if (!opts.livestream) {
+    if (!livestream) {
       self._client.ggPM('setPlayheadPosition', self.currentPosition);
       self.currentPosition++;
       return;
     }
 
     // if livestream
-    var timestamp = new Date(opts.timestamp);
-    self.currentPosition = getUnixTime(timestamp) + position;
+    self.currentPosition = getOffsetTime(position);
     // for livestream events, properties.position should be a negative integer representing offset in seconds from current time
     self._client.ggPM('setPlayheadPosition', self.currentPosition);
     self.currentPosition++;
@@ -258,6 +256,8 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
   clearInterval(this.heartbeatId);
 
   var contentMetadata = this.getContentMetadata(track);
+  var position = track.proxy('properties.position');
+  var livestream = track.proxy('properties.livestream');
 
   // Nielsen requires that you call `end` if you need to load new content during the same session.
   // Since we always keep track of the current last seen asset to the instance, if this event has a different assetId, we assume that it is content switch during the same session
@@ -267,11 +267,7 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
   }
 
   this._client.ggPM('loadMetadata', contentMetadata);
-  this.heartbeat(contentMetadata.assetid, track.proxy('properties.position'), {
-    type: 'content',
-    livestream: track.proxy('properties.livestream'),
-    timestamp: track.timestamp()
-  });
+  this.heartbeat(contentMetadata.assetid, position, livestream);
 };
 
 /**
@@ -289,11 +285,7 @@ NielsenDCR.prototype.videoContentPlaying = function(track) {
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  this.heartbeat(assetId, position, {
-    type: 'content',
-    livestream: livestream,
-    timestamp: track.timestamp()
-  });
+  this.heartbeat(assetId, position, livestream);
 };
 
 /**
@@ -305,11 +297,10 @@ NielsenDCR.prototype.videoContentPlaying = function(track) {
 NielsenDCR.prototype.videoContentCompleted = function(track) {
   clearInterval(this.heartbeatId);
 
-  var timestamp = track.timestamp();
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  if (livestream) position = getUnixTime(timestamp) + position;
+  if (livestream) position = getOffsetTime(position);
 
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('stop', position);
@@ -343,7 +334,7 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   };
 
   this._client.ggPM('loadMetadata', adMetadata);
-  this.heartbeat(adAssetId, position, { type: 'ad' });
+  this.heartbeat(adAssetId, position);
 };
 
 /**
@@ -360,7 +351,7 @@ NielsenDCR.prototype.videoAdPlaying = function(track) {
     : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
 
-  this.heartbeat(assetId, position, { type: 'ad' });
+  this.heartbeat(assetId, position);
 };
 
 /**
@@ -391,11 +382,10 @@ NielsenDCR.prototype.videoPlaybackPaused = NielsenDCR.prototype.videoPlaybackSee
 ) {
   clearInterval(this.heartbeatId);
 
-  var timestamp = track.timestamp();
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  if (livestream) position = getUnixTime(timestamp) + position;
+  if (livestream) position = getOffsetTime(position);
 
   this._client.ggPM('stop', position);
 };
@@ -434,11 +424,7 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
     }
   }
 
-  this.heartbeat(assetId, position, {
-    type: type,
-    livestream: livestream,
-    timestamp: track.timestamp()
-  });
+  this.heartbeat(assetId, position, livestream);
 };
 
 /**
@@ -453,11 +439,10 @@ NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlayback
 ) {
   clearInterval(this.heartbeatId);
 
-  var timestamp = track.timestamp();
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  if (livestream) position = getUnixTime(timestamp) + position;
+  if (livestream) position = getOffsetTime(position);
 
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('end', position);
@@ -501,12 +486,27 @@ function formatLoadType(integrationOpts, loadTypeProperty) {
 }
 
 /**
- * Transforms Segment timestamp into unix date string in UTC.
+ * Transforms Segment timestamp into Unix date,
+ * seconds since epoch, in UTC. This method also
+ * handles offsets for livestreams, if applicable.
+ *
+ * @param {int} position
+ * @returns {int} Unix timestamp in seconds
  *
  * @api private
  */
 
-function getUnixTime(timestamp) {
-  var date = new Date(timestamp);
-  return Math.floor(date.getTime() / 1000);
+function getOffsetTime(position) {
+  try {
+    if (typeof position !== 'number') {
+      position = parseInt(position, 10); /* eslint-disable-line */
+    }
+  } catch (e) {
+    // if we can't parse position into an Int for some reason, early return
+    // this will mean that the subsequent Nielsen call fails
+    return;
+  }
+
+  var date = Date.now();
+  return Math.floor(date / 1000) + position;
 }
