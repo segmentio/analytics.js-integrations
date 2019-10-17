@@ -9040,7 +9040,8 @@
 
           var https =
             document.location.protocol === 'https:' ||
-            document.location.protocol === 'chrome-extension:';
+            document.location.protocol === 'chrome-extension:' ||
+            document.location.protocol === 'moz-extension:';
 
           // If you use protocol relative URLs, third-party scripts like Google
           // Analytics break when testing with `file:` so this fixes that.
