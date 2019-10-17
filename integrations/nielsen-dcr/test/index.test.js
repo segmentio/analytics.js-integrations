@@ -136,10 +136,7 @@ describe('NielsenDCR', function() {
         });
 
         it('video playback seek completed', function() {
-          var timestamp = new Date();
-          analytics.track('Video Playback Seek Completed', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Playback Seek Completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR.heartbeat,
@@ -156,10 +153,7 @@ describe('NielsenDCR', function() {
         });
 
         it('video playback buffer completed', function() {
-          var timestamp = new Date();
-          analytics.track('Video Playback Buffer Completed', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Playback Buffer Completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR.heartbeat,
@@ -176,10 +170,7 @@ describe('NielsenDCR', function() {
         });
 
         it('video playback resumed', function() {
-          var timestamp = new Date();
-          analytics.track('Video Playback Resumed', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Playback Resumed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR.heartbeat,
@@ -213,9 +204,7 @@ describe('NielsenDCR', function() {
         });
 
         it('video playback completed w livestream', function() {
-          var timestamp = new Date();
-          var unixTimestamp = Math.floor(timestamp.getTime() / 1000);
-          var offsetTime;
+          var timestamp;
           var props = {
             session_id: '12345',
             content_asset_id: null,
@@ -231,18 +220,17 @@ describe('NielsenDCR', function() {
             video_player: 'youtube',
             ad_enabled: false,
             quality: 'hd1080',
-            livestream: true,
-            timestamp: timestamp
+            livestream: true
           };
-          offsetTime = unixTimestamp + props.position;
+          timestamp = Math.floor(Date.now() / 1000) + props.position;
           analytics.track('video playback completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR._client.ggPM,
             'setPlayheadPosition',
-            offsetTime
+            timestamp
           );
-          analytics.called(nielsenDCR._client.ggPM, 'end', offsetTime);
+          analytics.called(nielsenDCR._client.ggPM, 'end', timestamp);
         });
       });
 
@@ -272,11 +260,9 @@ describe('NielsenDCR', function() {
         });
 
         it('video content started', function() {
-          var timestamp = new Date();
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -300,13 +286,11 @@ describe('NielsenDCR', function() {
         });
 
         it('video content started - custom asset id', function() {
-          var timestamp = new Date();
           nielsenDCR.options.contentAssetIdPropertyName =
             'custom_asset_id_prop';
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -330,13 +314,11 @@ describe('NielsenDCR', function() {
         });
 
         it('video content started - custom content length', function() {
-          var timestamp = new Date();
           nielsenDCR.options.contentLengthPropertyName = 'total_content_length';
           props.total_content_length = 460;
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -360,15 +342,13 @@ describe('NielsenDCR', function() {
         });
 
         it('video content started with cid/vcid override', function() {
-          var timestamp = new Date();
           nielsenDCR.options.clientIdPropertyName = 'nielsen_client_id';
           nielsenDCR.options.subbrandPropertyName = 'nielsen_subbrand';
           props.nielsen_subbrand = 'test network name';
           props.nielsen_client_id = 'test client id';
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -394,14 +374,12 @@ describe('NielsenDCR', function() {
         });
 
         it('video content started - livestream', function() {
-          var timestamp = new Date();
           props.livestream = true;
           props.total_length = null;
           props.position = -30; // offset in seconds
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -425,15 +403,13 @@ describe('NielsenDCR', function() {
         });
 
         it('video content started - segB/C', function() {
-          var timestamp = new Date();
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
             'Nielsen DCR': {
               ad_load_type: 'dynamic',
               segB: 'bend',
               segC: 'the knee'
-            },
-            timestamp: timestamp
+            }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -459,15 +435,13 @@ describe('NielsenDCR', function() {
         });
 
         it('video content started - load_type fallback', function() {
-          var timestamp = new Date();
           props.load_type = 'linear';
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
             'Nielsen DCR': {
               segB: 'bend',
               segC: 'the knee'
-            },
-            timestamp: timestamp
+            }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -494,10 +468,7 @@ describe('NielsenDCR', function() {
 
         // heartbeats
         it('video content playing', function() {
-          var timestamp = new Date();
-          analytics.track('Video Content Playing', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Content Playing', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR.heartbeat,
@@ -519,19 +490,16 @@ describe('NielsenDCR', function() {
         });
 
         it('video content completed — livestream', function() {
-          var timestamp = new Date();
-          var unixTimestamp = Math.floor(timestamp.getTime() / 1000);
+          var timestamp = Math.floor(Date.now / 1000) + props.position;
           props.livestream = true;
-          analytics.track('Video Content Completed', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Content Completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR._client.ggPM,
             'setPlayheadPosition',
-            unixTimestamp
+            timestamp
           );
-          analytics.called(nielsenDCR._client.ggPM, 'stop', unixTimestamp);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', timestamp);
         });
       });
 

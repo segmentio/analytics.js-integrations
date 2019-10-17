@@ -130,9 +130,9 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
 
   // we need to map the current position to the asset id to handle content/ad changes during the same playback session
   if (!this.currentAssetId) this.currentAssetId = assetId;
-
-  // if position is passed in we should override the state of the current playhead position with the explicit position given from the customer
-  this.currentPosition = position;
+  if (!this.currentPosition) this.currentPosition = position || 0;
+  // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
+  if (livestream) this.currentPosition = getOffsetTime(position);
 
   this.heartbeatId = setInterval(function() {
     if (!livestream) {
@@ -141,9 +141,6 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
       return;
     }
 
-    // if livestream
-    self.currentPosition = getOffsetTime(position);
-    // for livestream events, properties.position should be a negative integer representing offset in seconds from current time
     self._client.ggPM('setPlayheadPosition', self.currentPosition);
     self.currentPosition++;
   }, 1000);
@@ -490,13 +487,16 @@ function formatLoadType(integrationOpts, loadTypeProperty) {
  * seconds since epoch, in UTC. This method also
  * handles offsets for livestreams, if applicable.
  *
- * @param {int} position
- * @returns {int} Unix timestamp in seconds
+ * @param {*} position
+ * @returns {Number} Unix timestamp in seconds
  *
  * @api private
  */
 
 function getOffsetTime(position) {
+  var date = Date.now();
+  if (!position) return date;
+
   try {
     if (typeof position !== 'number') {
       position = parseInt(position, 10); /* eslint-disable-line */
@@ -507,6 +507,5 @@ function getOffsetTime(position) {
     return;
   }
 
-  var date = Date.now();
   return Math.floor(date / 1000) + position;
 }
