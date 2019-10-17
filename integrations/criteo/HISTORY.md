@@ -1,3 +1,8 @@
+1.2.2 / 2019-10-17
+==================
+
+  * Added support for track "setSiteType" based on device: "m" FOR MOBILE OR "t" FOR TABLET OR "d" FOR DESKTOP".
+
 1.2.1 / 2019-09-26
 ==================
 
