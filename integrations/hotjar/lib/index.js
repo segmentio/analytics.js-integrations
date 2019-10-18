@@ -44,30 +44,25 @@ Hotjar.prototype.initialize = function() {
 
   // Load HotJar snippet - for some reason, trying to load in .tag() was unsuccessful - directly loading script here.
 
+  /* eslint-disable no-param-reassign */
   (function(h, o, t, j, a, r) {
-    // To get rid of no-param-reassign, can be disabled from eslint rules as well.
-    var h1 = h;
-    var o1 = o;
-    var t1 = t;
-    var j1 = j;
-    var a1 = a;
-    var r1 = r;
-    h1.hj =
-      h1.hj ||
+    h.hj =
+      h.hj ||
       function() {
-        (h1.hj.q = h1.hj.q || []).push(arguments);
+        (h.hj.q = h.hj.q || []).push(arguments);
       };
-    h1._hjSettings = {
-      hjid: h1._hjSelf.options.hjid,
+    h._hjSettings = {
+      hjid: h._hjSelf.options.hjid,
       hjsv: 6,
-      hjPlaceholderPolyfill: h1._hjSelf.options.hjPlaceholderPolyfill
+      hjPlaceholderPolyfill: h._hjSelf.options.hjPlaceholderPolyfill
     };
-    a1 = o1.getElementsByTagName('head')[0];
-    r1 = o1.createElement('script');
-    r1.async = 1;
-    r1.src = t1 + h1._hjSettings.hjid + j1 + h1._hjSettings.hjsv;
-    a1.appendChild(r1);
+    a = o.getElementsByTagName('head')[0];
+    r = o.createElement('script');
+    r.async = 1;
+    r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+    a.appendChild(r);
   })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+  /* eslint-enable no-param-reassign */
 
   this.ready();
 };
