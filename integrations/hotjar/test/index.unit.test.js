@@ -68,7 +68,7 @@ describe('Hotjar Unit', function() {
       hotjar.initialize();
       analytics.deepEqual(window._hjSettings, {
         hjid: options.hjid,
-        hjsv: 5,
+        hjsv: 6,
         hjPlaceholderPolyfill: true
       });
       analytics.assert(typeof window.hj === 'function');
