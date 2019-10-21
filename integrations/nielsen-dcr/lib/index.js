@@ -73,7 +73,7 @@ NielsenDCR.prototype.initialize = function() {
   // we will need to keep our own state of the playhead position mapped to its corresponding assetId
   // for the currently viewing ad or content so that we can handle video switches in the same session
   this.currentAssetId = null;
-  this.currentPosition = null;
+  this.currentPosition = 0;
   this.heartbeatId = null; // reference to setTimeout
   this.load(protocol, this.ready);
 };
@@ -130,9 +130,14 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
 
   // we need to map the current position to the asset id to handle content/ad changes during the same playback session
   if (!this.currentAssetId) this.currentAssetId = assetId;
-  if (!this.currentPosition) this.currentPosition = position;
-  // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
-  if (livestream) this.currentPosition = getOffsetTime(position);
+
+  if (livestream) {
+    // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
+    this.currentPosition = getOffsetTime(position);
+  } else if (position) {
+    // this.currentPosition defaults to 0 upon initialization
+    this.currentPosition = position;
+  }
 
   this.heartbeatId = setInterval(function() {
     self._client.ggPM('setPlayheadPosition', self.currentPosition);
@@ -445,7 +450,7 @@ NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlayback
   this._client.ggPM('end', position);
 
   // reset state
-  this.currentPosition = null;
+  this.currentPosition = 0;
   this.currentAssetId = null;
   this.heartbeatId = null;
 };
@@ -502,9 +507,9 @@ function getOffsetTime(position) {
       position = parseInt(position, 10); /* eslint-disable-line */
     }
   } catch (e) {
-    // if we can't parse position into an Int for some reason, early return
-    // this will mean that the subsequent Nielsen call fails
-    return;
+    // if we can't parse position into an Int for some reason, simply return
+    // the current unix timestamp
+    return date;
   }
 
   return date + position;
