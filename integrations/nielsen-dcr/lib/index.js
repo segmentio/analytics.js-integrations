@@ -130,17 +130,11 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
 
   // we need to map the current position to the asset id to handle content/ad changes during the same playback session
   if (!this.currentAssetId) this.currentAssetId = assetId;
-  if (!this.currentPosition) this.currentPosition = position || 0;
+  if (!this.currentPosition) this.currentPosition = position;
   // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
   if (livestream) this.currentPosition = getOffsetTime(position);
 
   this.heartbeatId = setInterval(function() {
-    if (!livestream) {
-      self._client.ggPM('setPlayheadPosition', self.currentPosition);
-      self.currentPosition++;
-      return;
-    }
-
     self._client.ggPM('setPlayheadPosition', self.currentPosition);
     self.currentPosition++;
   }, 1000);
@@ -154,7 +148,7 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
 
 NielsenDCR.prototype.getContentMetadata = function(track, type) {
   var propertiesPath = 'properties.';
-  if (type && type === 'preroll') propertiesPath = 'properties.content.';
+  if (type && type === 'contentEvent') propertiesPath = 'properties.content.';
 
   var customAssetId;
   if (this.options.contentAssetIdPropertyName) {
@@ -322,7 +316,10 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   // edge case: if pre-roll, you must load the content metadata first
   // because nielsen ties ad attribution to the content not playback session
   if (type === 'preroll') {
-    this._client.ggPM('loadMetadata', this.getContentMetadata(track, type));
+    this._client.ggPM(
+      'loadMetadata',
+      this.getContentMetadata(track, 'contentEvent')
+    );
   }
 
   var adMetadata = {
@@ -417,7 +414,10 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
     if (type === 'ad') {
       this._client.ggPM('loadMetadata', this.getAdMetadata(track));
     } else if (type === 'content') {
-      this._client.ggPM('loadMetadata', this.getContentMetadata(track));
+      this._client.ggPM(
+        'loadMetadata',
+        this.getContentMetadata(track, 'contentEvent')
+      );
     }
   }
 
@@ -487,7 +487,7 @@ function formatLoadType(integrationOpts, loadTypeProperty) {
  * seconds since epoch, in UTC. This method also
  * handles offsets for livestreams, if applicable.
  *
- * @param {*} position
+ * @param {*} position Should be negative int representing livestream offset
  * @returns {Number} Unix timestamp in seconds
  *
  * @api private
