@@ -73,8 +73,8 @@ NielsenDCR.prototype.initialize = function() {
   // we will need to keep our own state of the playhead position mapped to its corresponding assetId
   // for the currently viewing ad or content so that we can handle video switches in the same session
   this.currentAssetId = null;
-  this.currentPosition = null;
-  this.heartbeatId = null; // reference to setTimeout we will need to kill them
+  this.currentPosition = 0;
+  this.heartbeatId = null; // reference to setTimeout
   this.load(protocol, this.ready);
 };
 
@@ -115,45 +115,33 @@ NielsenDCR.prototype.page = function(page) {
  * We need to send the playhead position every 1 second
  */
 
-NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
+NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
   var self = this;
-  var newPosition = position;
-  var opts = options || {};
   // if position is not sent as a string
   try {
     if (typeof position !== 'number') {
-      newPosition = parseInt(position, 10);
-    } // in case it is sent as a string
+      position = parseInt(position, 10); /* eslint-disable-line */
+    }
   } catch (e) {
     // if we can't parse position into an Int for some reason, early return
     // to prevent internal errors every second
     return;
   }
 
+  // we need to map the current position to the asset id to handle content/ad changes during the same playback session
   if (!this.currentAssetId) this.currentAssetId = assetId;
 
-  // if position is passed in we should override the state of the current playhead position with the explicit position given from the customer
-  this.currentPosition = newPosition;
+  if (livestream) {
+    // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
+    this.currentPosition = getOffsetTime(position);
+  } else if (position) {
+    // this.currentPosition defaults to 0 upon initialization
+    this.currentPosition = position;
+  }
 
-  // Segment expects our own heartbeats every 10 seconds, so we're adding 5 seconds of potential redundancy for buffer
-  // for a total of 15 heartbeats
-  // we also need to map the current position to the asset id to handle content/ad changes during the same playback session
-  var limit = this.currentPosition + 15;
   this.heartbeatId = setInterval(function() {
-    // if livestream, you need to send current UTC timestamp
-    if (opts.type === 'content' && opts.livestream) {
-      self.currentPosition = new Date(opts.timestamp);
-      var currentTime = self.currentPosition;
-      // for livestream, properties.position is a negative integer representing offset in seconds from current time
-      currentTime.setSeconds(currentTime.getSeconds() + newPosition);
-      self._client.ggPM('setPlayheadPosition', +Date.now(currentTime)); // UTC
-      // increment timestamp by 1 second
-      currentTime.setSeconds(currentTime.getSeconds() + 1);
-    } else if (newPosition < limit) {
-      self._client.ggPM('setPlayheadPosition', self.currentPosition);
-      // increment playhead by 1 second
-      self.currentPosition++;
-    }
+    self._client.ggPM('setPlayheadPosition', self.currentPosition);
+    self.currentPosition++;
   }, 1000);
 };
 
@@ -164,28 +152,32 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, options) {
  */
 
 NielsenDCR.prototype.getContentMetadata = function(track, type) {
-  var properties = 'properties.';
-  var assetIdProp = 'asset_id';
-  if (type) {
-    if (type === 'preroll') properties = 'properties.content.';
-    if (type === 'video') assetIdProp = 'content_asset_id';
-  }
+  var propertiesPath = 'properties.';
+  if (type && type === 'contentEvent') propertiesPath = 'properties.content.';
 
+  var customAssetId;
+  if (this.options.contentAssetIdPropertyName) {
+    customAssetId = track.proxy(
+      propertiesPath + this.options.contentAssetIdPropertyName
+    );
+  }
+  var assetIdProp =
+    track.proxy(propertiesPath + 'content_asset_id') ||
+    track.proxy(propertiesPath + 'asset_id');
+  var assetId = customAssetId || assetIdProp;
   var integrationOpts = track.options(this.name);
   var contentMetadata = {
     type: 'content',
-    assetid: this.options.contentAssetIdPropertyName
-      ? track.proxy(properties + this.options.contentAssetIdPropertyName)
-      : track.proxy(properties + assetIdProp),
-    program: track.proxy(properties + 'program'),
-    title: track.proxy(properties + 'title'),
-    isfullepisode: track.proxy(properties + 'full_episode') ? 'y' : 'n',
+    assetid: assetId,
+    program: track.proxy(propertiesPath + 'program'),
+    title: track.proxy(propertiesPath + 'title'),
+    isfullepisode: track.proxy(propertiesPath + 'full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
-    airdate: formatAirdate(track.proxy(properties + 'airdate')),
+    airdate: formatAirdate(track.proxy(propertiesPath + 'airdate')),
     // `adLoadType` may be set in int opts, falling back to `load_type` property per our video spec
     adloadtype: formatLoadType(
       integrationOpts,
-      track.proxy(properties + 'load_type')
+      track.proxy(propertiesPath + 'load_type')
     ),
     // below metadata fields must all be set in event's integrations opts object
     crossId1: find(integrationOpts, 'crossId1'),
@@ -193,24 +185,24 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
 
-  if (track.proxy(properties + 'livestream')) {
+  if (track.proxy(propertiesPath + 'livestream')) {
     // hardcode 86400 if livestream ¯\_(ツ)_/¯
     contentMetadata.length = 86400;
   } else if (this.options.contentLengthPropertyName !== 'total_length') {
     var contentLengthKey = this.options.contentLengthPropertyName;
-    contentMetadata.length = track.proxy(properties + contentLengthKey);
+    contentMetadata.length = track.proxy(propertiesPath + contentLengthKey);
   } else {
-    contentMetadata.length = track.proxy(properties + 'total_length');
+    contentMetadata.length = track.proxy(propertiesPath + 'total_length');
   }
 
   if (this.options.subbrandPropertyName) {
     var subbrandProp = this.options.subbrandPropertyName;
-    contentMetadata.subbrand = track.proxy(properties + subbrandProp);
+    contentMetadata.subbrand = track.proxy(propertiesPath + subbrandProp);
   }
 
   if (this.options.clientIdPropertyName) {
     var clientIdProp = this.options.clientIdPropertyName;
-    contentMetadata.clientid = track.proxy(properties + clientIdProp);
+    contentMetadata.clientid = track.proxy(propertiesPath + clientIdProp);
   }
 
   // optional: used for grouping data into different buckets
@@ -223,20 +215,28 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
 };
 
 /**
- * Get ad content metadata from track event
+ * Get ad metadata from track event
  *
  * @api private
  */
 
 NielsenDCR.prototype.getAdMetadata = function(track) {
   var type = track.proxy('properties.type');
+
   if (typeof type === 'string') type = type.replace('-', '');
 
+  var customAssetId;
+  if (this.options.adAssetIdPropertyName) {
+    customAssetId = track.proxy(
+      'properties.' + this.options.adAssetIdPropertyName
+    );
+  }
+  var assetIdProp =
+    track.proxy('properties.ad_asset_id') || track.proxy('properties.asset_id');
+  var assetId = customAssetId || assetIdProp;
   var adMetadata = {
-    assetid: this.options.adAssetIdPropertyName
-      ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
-      : track.proxy('properties.ad_asset_id'),
-    type: type
+    assetid: assetId,
+    type: type || 'ad'
   };
 
   return adMetadata;
@@ -250,7 +250,10 @@ NielsenDCR.prototype.getAdMetadata = function(track) {
 
 NielsenDCR.prototype.videoContentStarted = function(track) {
   clearInterval(this.heartbeatId);
+
   var contentMetadata = this.getContentMetadata(track);
+  var position = track.proxy('properties.position');
+  var livestream = track.proxy('properties.livestream');
 
   // Nielsen requires that you call `end` if you need to load new content during the same session.
   // Since we always keep track of the current last seen asset to the instance, if this event has a different assetId, we assume that it is content switch during the same session
@@ -260,11 +263,7 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
   }
 
   this._client.ggPM('loadMetadata', contentMetadata);
-  this.heartbeat(contentMetadata.assetid, track.proxy('properties.position'), {
-    type: 'content',
-    livestream: track.proxy('properties.livestream'),
-    timestamp: track.timestamp()
-  });
+  this.heartbeat(contentMetadata.assetid, position, livestream);
 };
 
 /**
@@ -282,11 +281,7 @@ NielsenDCR.prototype.videoContentPlaying = function(track) {
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  this.heartbeat(assetId, position, {
-    type: 'content',
-    livestream: livestream,
-    timestamp: track.timestamp()
-  });
+  this.heartbeat(assetId, position, livestream);
 };
 
 /**
@@ -298,15 +293,13 @@ NielsenDCR.prototype.videoContentPlaying = function(track) {
 NielsenDCR.prototype.videoContentCompleted = function(track) {
   clearInterval(this.heartbeatId);
 
-  // for livestream just send the current utc timestamp
-  var timestamp = track.timestamp();
+  var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
-  var position = livestream
-    ? +Date.now(timestamp)
-    : track.proxy('properties.position');
+
+  if (livestream) position = getOffsetTime(position);
 
   this._client.ggPM('setPlayheadPosition', position);
-  this._client.ggPM('end', position);
+  this._client.ggPM('stop', position);
 };
 
 /**
@@ -323,20 +316,24 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
     : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
   var type = track.proxy('properties.type');
+
   if (typeof type === 'string') type = type.replace('-', '');
   // edge case: if pre-roll, you must load the content metadata first
   // because nielsen ties ad attribution to the content not playback session
   if (type === 'preroll') {
-    this._client.ggPM('loadMetadata', this.getContentMetadata(track, type));
+    this._client.ggPM(
+      'loadMetadata',
+      this.getContentMetadata(track, 'contentEvent')
+    );
   }
 
   var adMetadata = {
     assetid: adAssetId,
-    type: type
+    type: type || 'ad'
   };
 
   this._client.ggPM('loadMetadata', adMetadata);
-  this.heartbeat(adAssetId, position, { type: 'ad' });
+  this.heartbeat(adAssetId, position);
 };
 
 /**
@@ -352,7 +349,8 @@ NielsenDCR.prototype.videoAdPlaying = function(track) {
     ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
     : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
-  this.heartbeat(assetId, position, { type: 'ad' });
+
+  this.heartbeat(assetId, position);
 };
 
 /**
@@ -365,40 +363,43 @@ NielsenDCR.prototype.videoAdCompleted = function(track) {
   clearInterval(this.heartbeatId);
 
   var position = track.proxy('properties.position');
+
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('stop', position);
 };
 
 /**
- * Video Playback Interrupted
+ * Video Playback Paused
+ * Video Playback Seek Started
+ * Video Playback Buffer Started
  *
  * @api public
  */
 
-NielsenDCR.prototype.videoPlaybackInterrupted = function(track) {
+NielsenDCR.prototype.videoPlaybackPaused = NielsenDCR.prototype.videoPlaybackSeekStarted = NielsenDCR.prototype.videoPlaybackBufferStarted = function(
+  track
+) {
   clearInterval(this.heartbeatId);
 
-  // if properly implemented, the point in which the playback is resumed
-  // you should _only_ be sending the asset_id of whatever you are pausing in: content or ad
-  var adAssetId = this.options.adAssetIdPropertyName
-    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
-    : track.proxy('properties.ad_asset_id');
-  // if playback was interrupted during an ad, we only call `stop`
-  // if interrupted during content play, we call both `end` and `stop`
   var position = track.proxy('properties.position');
-  if (adAssetId) return this._client.ggPM('stop', position);
+  var livestream = track.proxy('properties.livestream');
 
-  this._client.ggPM('end', position);
+  if (livestream) position = getOffsetTime(position);
+
   this._client.ggPM('stop', position);
 };
 
 /**
+ * Video Playback Resumed
  * Video Playback Seek Completed
+ * Video Playback Buffer Completed
  *
  * @api public
  */
 
-NielsenDCR.prototype.videoPlaybackSeekCompleted = function(track) {
+NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSeekCompleted = NielsenDCR.prototype.videoPlaybackBufferCompleted = function(
+  track
+) {
   clearInterval(this.heartbeatId);
 
   var contentAssetId = this.options.contentAssetIdPropertyName
@@ -409,57 +410,6 @@ NielsenDCR.prototype.videoPlaybackSeekCompleted = function(track) {
     : track.proxy('properties.ad_asset_id');
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
-  // if properly implemented, the point in which the playback is resumed
-  // you should _only_ be sending the asset_id of whatever you are pausing in: content or ad
-  var assetId = contentAssetId || adAssetId;
-  var type = contentAssetId ? 'content' : 'ad';
-
-  if (this.currentAssetId && this.currentAssetId !== assetId) {
-    if (type === 'ad') {
-      this._client.ggPM('loadMetadata', this.getAdMetadata(track));
-    } else if (type === 'content') {
-      this._client.ggPM(
-        'loadMetadata',
-        this.getContentMetadata(track, 'video')
-      );
-    }
-  }
-
-  this.heartbeat(assetId, position, {
-    type: type,
-    livestream: livestream,
-    timestamp: track.timestamp()
-  });
-};
-
-/**
- * Video Playback Paused
- *
- * @api public
- */
-
-NielsenDCR.prototype.videoPlaybackPaused = function(track) {
-  clearInterval(this.heartbeatId);
-  // NOTE: docs say to just pause the pings but Nielsen Reps say to call `stop`
-  this._client.ggPM('stop', track.proxy('properties.position'));
-};
-
-/**
- * Video Playback Resumed
- *
- * @api public
- */
-
-NielsenDCR.prototype.videoPlaybackResumed = function(track) {
-  clearInterval(this.heartbeatId);
-
-  var contentAssetId = this.options.contentAssetIdPropertyName
-    ? track.proxy('properties.' + this.options.contentAssetIdPropertyName)
-    : track.proxy('properties.content_asset_id');
-  var adAssetId = this.options.adAssetIdPropertyName
-    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
-    : track.proxy('properties.ad_asset_id');
-  var position = track.proxy('properties.position');
   // if properly implemented, the point in which the playback is resumed
   // you should _only_ be sending the asset_id of whatever you are resuming in: content or ad
   var type = contentAssetId ? 'content' : 'ad';
@@ -471,34 +421,36 @@ NielsenDCR.prototype.videoPlaybackResumed = function(track) {
     } else if (type === 'content') {
       this._client.ggPM(
         'loadMetadata',
-        this.getContentMetadata(track, 'video')
+        this.getContentMetadata(track, 'contentEvent')
       );
     }
   }
 
-  this.heartbeat(assetId, position, { type: type });
+  this.heartbeat(assetId, position, livestream);
 };
 
 /**
  * Video Playback Completed
+ * Video Playback Interrupted
  *
  * @api public
  */
 
-NielsenDCR.prototype.videoPlaybackCompleted = function(track) {
+NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlaybackInterrupted = function(
+  track
+) {
   clearInterval(this.heartbeatId);
 
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  // for livestream just send the current utc timestamp
-  if (livestream) position = +Date.now(track.timestamp());
+  if (livestream) position = getOffsetTime(position);
 
   this._client.ggPM('setPlayheadPosition', position);
-  this._client.ggPM('stop', position);
+  this._client.ggPM('end', position);
 
   // reset state
-  this.currentPosition = null;
+  this.currentPosition = 0;
   this.currentAssetId = null;
   this.heartbeatId = null;
 };
@@ -517,7 +469,6 @@ function formatAirdate(airdate) {
   } catch (e) {
     // do nothing with this error for now
   }
-
   return date;
 }
 
@@ -530,7 +481,36 @@ function formatAirdate(airdate) {
 
 function formatLoadType(integrationOpts, loadTypeProperty) {
   var loadType = find(integrationOpts, 'ad_load_type') || loadTypeProperty;
-  // or dynamic. linear means original ads that were broadcasted with tv airing. much less common use case
+  // linear or dynamic
+  // linear means original ads that were broadcasted with tv airing. much less common use case
   loadType = loadType === 'dynamic' ? '2' : '1';
   return loadType;
+}
+
+/**
+ * Transforms Segment timestamp into Unix date,
+ * seconds since epoch, in UTC. This method also
+ * handles offsets for livestreams, if applicable.
+ *
+ * @param {*} position Should be negative int representing livestream offset
+ * @returns {Number} Unix timestamp in seconds
+ *
+ * @api private
+ */
+
+function getOffsetTime(position) {
+  var date = Math.floor(Date.now() / 1000);
+  if (!position) return date;
+
+  try {
+    if (typeof position !== 'number') {
+      position = parseInt(position, 10); /* eslint-disable-line */
+    }
+  } catch (e) {
+    // if we can't parse position into an Int for some reason, simply return
+    // the current unix timestamp
+    return date;
+  }
+
+  return date + position;
 }
