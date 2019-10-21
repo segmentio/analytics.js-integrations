@@ -82,16 +82,14 @@ GoogleAdWordsNew.prototype.page = function(page) {
 
   // A mapped event can either be a 'Page Load' or a 'Click' conversion in AdWords.
   // Since the Page Load conversions are meant to just be dropped on a given page, we are mapping named page calls rather than `.track()`
-  var mappedConversion = matchConversion(
+  var mappedConversions = matchConversion(
     this.options.pageLoadConversions,
     pageName
   );
 
-  if (mappedConversion.id)
-    return sendPageLoadConversion(
-      mappedConversion.id,
-      mappedConversion.override
-    );
+  each(function(mappedConversion) {
+    sendPageLoadConversion(mappedConversion.id, mappedConversion.override);
+  }, mappedConversions);
 
   function sendPageLoadConversion(id, override) {
     var semanticMetadata = reject({
@@ -129,12 +127,12 @@ GoogleAdWordsNew.prototype.track = function(track) {
   // Depending on what you chose inside Adwords when creating the conversions, we should expect `properties.value` if that is what they want to send
   // But for purchase events, we should map revenue/total
   var eventName = track.event();
-  var mappedConversion = matchConversion(
+  var mappedConversions = matchConversion(
     this.options.clickConversions,
     track.event()
   );
 
-  if (mappedConversion.id) {
+  each(function(mappedConversion) {
     var properties = track.properties({ orderId: 'transaction_id' });
     var metadata = extend(properties, {
       send_to:
@@ -144,7 +142,7 @@ GoogleAdWordsNew.prototype.track = function(track) {
     });
     // metadata shouldn't contain PII — warning by Google
     return window.gtag('event', eventName, metadata);
-  }
+  }, mappedConversions);
 };
 
 /**
@@ -160,12 +158,12 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
   // Depending on what you chose inside Adwords when creating the conversions, we should expect `properties.value` if that is what they want to send
   // But for purchase events, we should map revenue/total
   var eventName = track.event();
-  var mappedConversion = matchConversion(
+  var mappedConversions = matchConversion(
     this.options.clickConversions,
     track.event()
   );
 
-  if (mappedConversion.id) {
+  each(function(mappedConversion) {
     var properties = track.properties({
       orderId: 'transaction_id',
       order_id: 'transaction_id',
@@ -179,7 +177,7 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
     });
     // metadata shouldn't contain PII — warning by Google
     return window.gtag('event', eventName, metadata);
-  }
+  }, mappedConversions);
 };
 
 /**
@@ -190,15 +188,16 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
  */
 
 function matchConversion(mappedConversions, segmentEvent) {
-  var ret = {};
+  var ret = [];
   each(function(setting) {
     var conversion = setting.value || setting;
 
     // to prevent common casing mistakes in our UI
     if (segmentEvent.toLowerCase() === conversion.event.toLowerCase()) {
-      ret.id = conversion.id;
-      // in case customer has multiple AdWords accounts
-      if (conversion.accountId) ret.override = conversion.accountId;
+      var con = { id: conversion.id };
+      if (conversion.accountId) con.override = conversion.accountId;
+
+      ret.push(con);
     }
   }, mappedConversions);
 
