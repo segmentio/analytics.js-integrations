@@ -1,3 +1,10 @@
+2.4.0 / 2019-10-03
+==================
+
+  * Option to specify is single page application "isSPA".
+  * Option to specify track only A/B type test if "trackOnlyABExperiments" enabled, track experiment only if type one of 'VISUAL_AB','VISUAL','SPLIT_URL','SURVEY'.
+
+
 2.3.0 / 2018-07-05
 ==================
 

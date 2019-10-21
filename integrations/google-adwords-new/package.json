@@ -1,12 +1,11 @@
 {
-  "name": "@segment/analytics.js-integration-amplitude",
-  "description": "The Amplitude analytics.js integration.",
-  "version": "3.3.0",
+  "name": "@segment/analytics.js-integration-google-adwords-new",
+  "description": "The google-adwords-new analytics.js integration.",
+  "version": "1.0.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
-    "segment",
-    "amplitude"
+    "segment"
   ],
   "main": "lib/index.js",
   "scripts": {
@@ -15,7 +14,7 @@
   },
   "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/amplitude#readme",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/google-adwords-new#readme",
   "bugs": {
     "url": "https://github.com/segmentio/analytics.js-integrations/issues"
   },
@@ -25,17 +24,16 @@
   },
   "dependencies": {
     "@ndhoule/each": "^2.0.1",
-    "@segment/analytics.js-integration": "^3.3.0",
-    "@segment/top-domain": "^3.0.0",
-    "component-bind": "^1.0.0",
-    "do-when": "^1.0.0",
-    "is": "^3.2.1",
-    "segmentio-facade": "^3.2.1"
+    "@segment/analytics.js-integration": "^3.2.0",
+    "extend": "^3.0.1",
+    "obj-case": "^0.2.0",
+    "reject": "0.0.1"
   },
   "devDependencies": {
-    "@segment/analytics.js-core": "^3.8.2",
-    "@segment/analytics.js-integration-tester": "^3.1.1",
-    "@segment/clear-env": "^2.1.1",
+    "@segment/analytics.js-core": "^3.0.0",
+    "@segment/analytics.js-integration-tester": "^3.1.0",
+    "@segment/clear-env": "^2.0.0",
+    "@segment/eslint-config": "^3.1.1",
     "browserify": "^16.2.3",
     "eslint": "^5.16.0",
     "karma": "^4.1.0",
@@ -47,7 +45,6 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
-    "sinon": "^7.3.2",
     "watchify": "^3.11.1"
   }
 }
