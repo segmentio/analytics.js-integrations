@@ -185,15 +185,14 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
 
-  if (track.proxy(propertiesPath + 'livestream')) {
-    // hardcode 86400 if livestream ¯\_(ツ)_/¯
-    contentMetadata.length = 86400;
-  } else if (this.options.contentLengthPropertyName !== 'total_length') {
+  if (this.options.contentLengthPropertyName !== 'total_length') {
     var contentLengthKey = this.options.contentLengthPropertyName;
     contentMetadata.length = track.proxy(propertiesPath + contentLengthKey);
   } else {
     contentMetadata.length = track.proxy(propertiesPath + 'total_length');
   }
+  // if length is any falsy value after the above checks, default to 0 length per Nielsen
+  contentMetadata.length = contentMetadata.length || 0;
 
   if (this.options.subbrandPropertyName) {
     var subbrandProp = this.options.subbrandPropertyName;
