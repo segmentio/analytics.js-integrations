@@ -387,7 +387,7 @@ describe('NielsenDCR', function() {
             assetid: props.asset_id,
             program: props.program,
             title: props.title,
-            length: 86400,
+            length: 0,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
             airdate: '19910813 12:00:00',
