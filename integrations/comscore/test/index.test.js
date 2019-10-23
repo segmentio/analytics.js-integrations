@@ -34,10 +34,13 @@ describe('comScore', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Comscore, integration('comScore')
-      .global('_comscore')
-      .option('c1', '2')
-      .option('c2', ''));
+    analytics.compare(
+      Comscore,
+      integration('comScore')
+        .global('_comscore')
+        .option('c1', '2')
+        .option('c2', '')
+    );
   });
 
   describe('before loading', function() {
@@ -82,7 +85,12 @@ describe('comScore', function() {
       it('should map properties in beaconParamMap', function() {
         analytics.didNotCall(window.COMSCORE.beacon, { c1: '2', c2: 'x' });
         analytics.page({ exampleParam: 'foo', anotherParam: 'bar' });
-        analytics.called(window.COMSCORE.beacon, { c1: '2', c2: 'x', c5: 'foo', c6: 'bar' });
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: 'x',
+          c5: 'foo',
+          c6: 'bar'
+        });
       });
     });
   });

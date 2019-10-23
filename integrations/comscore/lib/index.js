@@ -11,13 +11,13 @@ var useHttps = require('use-https');
  * Expose `Comscore` integration.
  */
 
-var Comscore = module.exports = integration('comScore')
+var Comscore = (module.exports = integration('comScore')
   .global('_comscore')
   .global('COMSCORE')
   .option('c1', '2')
   .option('c2', '')
   .tag('http', '<script src="http://b.scorecardresearch.com/beacon.js">')
-  .tag('https', '<script src="https://sb.scorecardresearch.com/beacon.js">');
+  .tag('https', '<script src="https://sb.scorecardresearch.com/beacon.js">'));
 
 /**
  * Initialize.
@@ -53,7 +53,7 @@ Comscore.prototype.loaded = function() {
 
 Comscore.prototype.page = function(page) {
   this.comScoreParams = this.mapComscoreParams(page);
-  
+
   if (!this.pageCalledYet) {
     this._ready = false;
     this.pageCalledYet = true;
@@ -68,7 +68,6 @@ Comscore.prototype._initialize = function() {
   var tagName = useHttps() ? 'https' : 'http';
   this.load(tagName, this.ready);
 };
-
 
 Comscore.prototype.mapComscoreParams = function(page) {
   var beaconParamMap = this.options.beaconParamMap;
