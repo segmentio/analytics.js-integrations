@@ -1,3 +1,8 @@
+2.9.0/ 2019-10-23
+==================
+
+  * Added support for user traits passed in snake case .
+
 2.8.1/ 2019-09-25
 ==================
 
