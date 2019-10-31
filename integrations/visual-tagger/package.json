@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics.js-integration-visual-tagger",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "The Visual Tagger analyticsjs integration",
   "main": "lib/index.js",
   "scripts": {
