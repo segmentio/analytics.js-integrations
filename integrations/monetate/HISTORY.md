@@ -1,4 +1,9 @@
 
+3.0.1 / 2019-10-31
+==================
+
+  * Send Segment `anonymousId` as Monetate `deviceId`.
+
 3.0.0 / 2019-06-24
 ==================
 
