@@ -10,7 +10,8 @@ describe('Monetate', function() {
   var monetate;
   var options = {
     domain: 'stage.segment.io',
-    siteId: 'a-63d5abf3'
+    siteId: 'a-63d5abf3',
+    sendDeviceId: false
   };
 
   beforeEach(function() {

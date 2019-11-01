@@ -28,6 +28,7 @@ var Monetate = (module.exports = integration('Monetate')
   .option('siteId', '')
   .option('domain', '')
   .option('events', events)
+  .option('sendDeviceId', false)
   .global('monetateQ'));
 
 /**
@@ -69,7 +70,7 @@ Monetate.prototype.loaded = function() {
  */
 
 Monetate.prototype.page = function(page) {
-  push('setPageType', page.category() || page.name() || 'unknown');
+  this.push('setPageType', page.category() || page.name() || 'unknown');
 };
 
 /**
@@ -88,7 +89,7 @@ Monetate.prototype.productListViewed = function(track) {
     items.push(p);
   });
 
-  push(this.options.events.productListViewed, items);
+  this.push(this.options.events.productListViewed, items);
 };
 
 /**
@@ -99,7 +100,7 @@ Monetate.prototype.productListViewed = function(track) {
 
 Monetate.prototype.productViewed = function(track) {
   var id = track.productId() || track.id();
-  push(this.options.events.productViewed, [id]);
+  this.push(this.options.events.productViewed, [id]);
 };
 
 /**
@@ -109,7 +110,7 @@ Monetate.prototype.productViewed = function(track) {
  */
 
 Monetate.prototype.productAdded = function(track) {
-  push(this.options.events.productAdded, [toProduct(track)]);
+  this.push(this.options.events.productAdded, [toProduct(track)]);
 };
 
 /**
@@ -130,7 +131,35 @@ Monetate.prototype.orderCompleted = function(track) {
     items.push(p);
   });
 
-  push(this.options.events.orderCompleted, items);
+  this.push(this.options.events.orderCompleted, items);
+};
+
+/**
+ * Push Monetate event(s) into the global Monetate queue and send it.
+ *
+ * Every `call` to monetate __must__ begin with
+ * "setPageType" and __end__ with "trackData" we defer
+ * "trackData" call, we defer "trackData" every time we push.
+ *
+ * @api private
+ * @param {...Array} args
+ */
+
+Monetate.prototype.push = function() {
+  var self = this;
+  mq.apply(null, arguments);
+
+  if (this.options.sendDeviceId) {
+    mq('deviceId', this.analytics.user().anonymousId());
+  }
+
+  if (this.tid) return;
+
+  this.tid = setTimeout(function() {
+    clearTimeout(self.tid);
+    mq('trackData');
+    self.tid = null;
+  });
 };
 
 /**
@@ -163,28 +192,4 @@ function toProduct(track) {
     itemId: track.productId() || track.id(),
     sku: track.sku()
   };
-}
-
-/**
- * Push Monetate event(s) into the global Monetate queue and send it.
- *
- * Every `call` to monetate __must__ begin with
- * "setPageType" and __end__ with "trackData" we defer
- * "trackData" call, we defer "trackData" every time we push.
- *
- * @api private
- * @param {...Array} args
- */
-
-function push() {
-  mq.apply(null, arguments);
-  if (push.tid) return;
-  push.tid = setTimeout(function() {
-    clearTimeout(push.tid);
-    if (window.monetateQ) {
-      window.monetateQ.push(['deviceId', this.analytics.user().anonymousId()]);
-    }
-    mq('trackData');
-    push.tid = null;
-  });
 }
