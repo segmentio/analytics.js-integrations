@@ -232,21 +232,21 @@ describe('NielsenDTVR', function() {
             id3: '1',
             livestream: false
           };
+        });
 
-          it('should send video content completed', function() {
-            analytics.track('Video Content Completed', props);
-            analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
-          });
+        it('should send video content completed', function() {
+          analytics.track('Video Content Completed', props);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
+        });
 
-          it('should send video content started', function() {
-            analytics.track('Video Content Started', props);
-            analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
-              type: 'content',
-              channel: 'segment',
-              adModel: '2'
-            });
-            analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
+        it('should send video content started', function() {
+          analytics.track('Video Content Started', props);
+          analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
+            type: 'content',
+            channelName: 'segment',
+            adModel: '2'
           });
+          analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
         });
       });
 

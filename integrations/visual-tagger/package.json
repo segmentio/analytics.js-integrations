@@ -1,0 +1,15 @@
+{
+  "name": "@segment/analytics.js-integration-visual-tagger",
+  "version": "0.1.4",
+  "description": "The Visual Tagger analyticsjs integration",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "karma start",
+    "test:ci": "karma start karma.conf-ci.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@segment/tracktor": "0.6.2"
+  }
+}

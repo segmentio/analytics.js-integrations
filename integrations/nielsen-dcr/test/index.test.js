@@ -5,7 +5,6 @@ var integrationTester = require('@segment/analytics.js-integration-tester');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var NielsenDCR = require('../lib/');
-var sinon = require('sinon');
 
 describe('NielsenDCR', function() {
   var analytics;
@@ -38,7 +37,14 @@ describe('NielsenDCR', function() {
       integration('Nielsen DCR')
         .option('appId', '')
         .option('instanceName', '')
-        .option('assetIdPropertyName', 'asset_id')
+        .option('nolDevDebug', false)
+        .option('assetIdPropertyName', '') // deprecated
+        .option('contentAssetIdPropertyName', '')
+        .option('adAssetIdPropertyName', '')
+        .option('subbrandPropertyName', '')
+        .option('clientIdPropertyName', '')
+        .option('contentLengthPropertyName', 'total_length')
+        .option('optout', false)
         .tag(
           'http',
           '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
@@ -123,21 +129,37 @@ describe('NielsenDCR', function() {
           };
         });
 
+        it('video playback seek started', function() {
+          analytics.track('Video Playback Seek Started', props);
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+        });
+
         it('video playback seek completed', function() {
-          var timestamp = new Date();
-          analytics.track('Video Playback Seek Completed', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Playback Seek Completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR.heartbeat,
             props.content_asset_id,
             props.position,
-            {
-              type: 'content',
-              livestream: props.livestream,
-              timestamp: timestamp
-            }
+            props.livestream
+          );
+        });
+
+        it('video playback buffer started', function() {
+          analytics.track('Video Playback Buffer Started', props);
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+        });
+
+        it('video playback buffer completed', function() {
+          analytics.track('Video Playback Buffer Completed', props);
+          analytics.called(window.clearInterval);
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.content_asset_id,
+            props.position,
+            props.livestream
           );
         });
 
@@ -149,22 +171,25 @@ describe('NielsenDCR', function() {
 
         it('video playback resumed', function() {
           analytics.track('Video Playback Resumed', props);
-          analytics.called(nielsenDCR.heartbeat, props.content_asset_id, 21, {
-            type: 'content'
-          });
+          analytics.called(window.clearInterval);
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.content_asset_id,
+            props.position,
+            props.livestream
+          );
         });
 
         it('video playback interrupted during content', function() {
           analytics.track('Video Playback Interrupted', props);
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
-          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
         });
 
         it('video playback interrupted during ad', function() {
           analytics.track('Video Playback Interrupted', props);
           analytics.called(window.clearInterval);
-          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
         });
 
         it('video playback completed', function() {
@@ -175,14 +200,11 @@ describe('NielsenDCR', function() {
             'setPlayheadPosition',
             props.position
           );
-          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
         });
 
         it('video playback completed w livestream', function() {
-          var timestamp = new Date();
-          var sandbox = sinon.sandbox.create();
-          var currentUTC = +Date.now(timestamp);
-          sandbox.stub(Date, 'now').returns(currentUTC);
+          var timestamp;
           var props = {
             session_id: '12345',
             content_asset_id: null,
@@ -190,7 +212,7 @@ describe('NielsenDCR', function() {
             ad_asset_id: 'ad907',
             ad_pod_id: 'adSegB',
             ad_type: null,
-            position: 392,
+            position: -100,
             total_length: 392,
             sound: 88,
             bitrate: 100,
@@ -198,18 +220,17 @@ describe('NielsenDCR', function() {
             video_player: 'youtube',
             ad_enabled: false,
             quality: 'hd1080',
-            livestream: true,
-            timestamp: timestamp
+            livestream: true
           };
+          timestamp = Math.floor(Date.now() / 1000) + props.position;
           analytics.track('video playback completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR._client.ggPM,
             'setPlayheadPosition',
-            currentUTC
+            timestamp
           );
-          analytics.called(nielsenDCR._client.ggPM, 'stop', currentUTC);
-          sandbox.restore();
+          analytics.called(nielsenDCR._client.ggPM, 'end', timestamp);
         });
       });
 
@@ -234,16 +255,14 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
         });
 
         it('video content started', function() {
-          var timestamp = new Date();
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -254,7 +273,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -262,21 +281,16 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
         it('video content started - custom asset id', function() {
-          var timestamp = new Date();
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.contentAssetIdPropertyName =
+            'custom_asset_id_prop';
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -287,7 +301,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -295,22 +309,16 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.custom_asset_id_prop,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
         it('video content started - custom content length', function() {
-          var timestamp = new Date();
           nielsenDCR.options.contentLengthPropertyName = 'total_content_length';
           props.total_content_length = 460;
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -321,7 +329,7 @@ describe('NielsenDCR', function() {
             length: props.total_content_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -329,24 +337,18 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
         it('video content started with cid/vcid override', function() {
-          var timestamp = new Date();
           nielsenDCR.options.clientIdPropertyName = 'nielsen_client_id';
           nielsenDCR.options.subbrandPropertyName = 'nielsen_subbrand';
           props.nielsen_subbrand = 'test network name';
           props.nielsen_client_id = 'test client id';
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -357,7 +359,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0',
             clientid: props.nielsen_client_id,
@@ -367,23 +369,17 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
         it('video content started - livestream', function() {
-          var timestamp = new Date();
           props.livestream = true;
           props.total_length = null;
           props.position = -30; // offset in seconds
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
-            'Nielsen DCR': { ad_load_type: 'dynamic' },
-            timestamp: timestamp
+            'Nielsen DCR': { ad_load_type: 'dynamic' }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -391,10 +387,10 @@ describe('NielsenDCR', function() {
             assetid: props.asset_id,
             program: props.program,
             title: props.title,
-            length: 86400,
+            length: 0,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0'
           });
@@ -402,24 +398,18 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
         it('video content started - segB/C', function() {
-          var timestamp = new Date();
           analytics.track('Video Content Started', props, {
             page: { url: 'segment.com' },
             'Nielsen DCR': {
               ad_load_type: 'dynamic',
               segB: 'bend',
               segC: 'the knee'
-            },
-            timestamp: timestamp
+            }
           });
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
@@ -430,7 +420,7 @@ describe('NielsenDCR', function() {
             length: props.total_length,
             isfullepisode: 'y',
             mediaURL: 'segment.com',
-            airdate: new Date(props.airdate),
+            airdate: '19910813 12:00:00',
             adloadtype: '2',
             hasAds: '0',
             segB: 'bend',
@@ -440,30 +430,51 @@ describe('NielsenDCR', function() {
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
+            props.livestream
+          );
+        });
+
+        it('video content started - load_type fallback', function() {
+          props.load_type = 'linear';
+          analytics.track('Video Content Started', props, {
+            page: { url: 'segment.com' },
+            'Nielsen DCR': {
+              segB: 'bend',
+              segC: 'the knee'
             }
+          });
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
+            type: 'content',
+            assetid: props.asset_id,
+            program: props.program,
+            title: props.title,
+            length: props.total_length,
+            isfullepisode: 'y',
+            mediaURL: 'segment.com',
+            airdate: '19910813 12:00:00',
+            adloadtype: '1',
+            hasAds: '0',
+            segB: 'bend',
+            segC: 'the knee'
+          });
+          analytics.called(
+            nielsenDCR.heartbeat,
+            props.asset_id,
+            props.position,
+            props.livestream
           );
         });
 
         // heartbeats
         it('video content playing', function() {
-          var timestamp = new Date();
-          analytics.track('Video Content Playing', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Content Playing', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
             props.position,
-            {
-              livestream: props.livestream,
-              type: 'content',
-              timestamp: timestamp
-            }
+            props.livestream
           );
         });
 
@@ -475,26 +486,20 @@ describe('NielsenDCR', function() {
             'setPlayheadPosition',
             props.position
           );
-          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
         });
 
         it('video content completed — livestream', function() {
-          var timestamp = new Date();
-          var sandbox = sinon.sandbox.create();
-          var currentUTC = +Date.now(timestamp);
-          sandbox.stub(Date, 'now').returns(currentUTC);
+          var timestamp = Math.floor(Date.now() / 1000) + props.position;
           props.livestream = true;
-          analytics.track('Video Content Completed', props, {
-            timestamp: timestamp
-          });
+          analytics.track('Video Content Completed', props);
           analytics.called(window.clearInterval);
           analytics.called(
             nielsenDCR._client.ggPM,
             'setPlayheadPosition',
-            currentUTC
+            timestamp
           );
-          analytics.called(nielsenDCR._client.ggPM, 'end', currentUTC);
-          sandbox.restore();
+          analytics.called(nielsenDCR._client.ggPM, 'stop', timestamp);
         });
       });
 
@@ -525,24 +530,22 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
         it('video ad started with custom asset id', function() {
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
+          nielsenDCR.options.adAssetIdPropertyName = 'custom_asset_id_prop';
           analytics.track('Video Ad Started', props);
           analytics.called(window.clearInterval);
           analytics.called(nielsenDCR._client.ggPM, 'loadMetadata', {
-            assetid: props.asset_id,
+            assetid: props.custom_asset_id_prop,
             type: 'midroll'
           });
           analytics.called(
             nielsenDCR.heartbeat,
-            props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.custom_asset_id_prop,
+            props.position
           );
         });
 
@@ -566,7 +569,7 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
@@ -582,8 +585,8 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              airdate: new Date(props.content.airdate),
-              adloadtype: '2',
+              airdate: '19910813 12:00:00',
+              adloadtype: '1',
               hasAds: '0'
             }
           ]);
@@ -597,12 +600,13 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
         it('video ad started — preroll with custom asset id', function() {
+          nielsenDCR.options.contentAssetIdPropertyName =
+            'custom_asset_id_prop';
           props.type = 'pre-roll';
           props.content = {
             session_id: '12345',
@@ -622,9 +626,8 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
-          nielsenDCR.options.assetIdPropertyName = 'custom_asset_id_prop';
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
           });
@@ -639,8 +642,8 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              airdate: new Date(props.content.airdate),
-              adloadtype: '2',
+              airdate: '19910813 12:00:00',
+              adloadtype: '1',
               hasAds: '0'
             }
           ]);
@@ -654,8 +657,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
@@ -683,7 +685,7 @@ describe('NielsenDCR', function() {
             channel: 'espn',
             full_episode: true,
             livestream: false,
-            airdate: '1991-08-13'
+            airdate: new Date('1991-08-13')
           };
           analytics.track('Video Ad Started', props, {
             page: { url: 'segment.com' }
@@ -699,8 +701,8 @@ describe('NielsenDCR', function() {
               length: props.content.total_length,
               isfullepisode: 'y',
               mediaURL: 'segment.com',
-              airdate: new Date(props.content.airdate),
-              adloadtype: '2',
+              airdate: '19910813 12:00:00',
+              adloadtype: '1',
               hasAds: '0',
               clientid: props.content.nielsen_client_id,
               subbrand: props.content.nielsen_subbrand
@@ -716,8 +718,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 
@@ -728,8 +729,7 @@ describe('NielsenDCR', function() {
           analytics.called(
             nielsenDCR.heartbeat,
             props.asset_id,
-            props.position,
-            { type: 'ad' }
+            props.position
           );
         });
 

@@ -19,7 +19,8 @@ describe('Appboy', function() {
     trackAllPages: false,
     trackNamedPages: false,
     customEndpoint: '',
-    version: 1
+    version: 1,
+    logPurchaseWhenRevenuePresent: false
   };
 
   beforeEach(function() {
@@ -59,6 +60,7 @@ describe('Appboy', function() {
         .option('trackAllPages', false)
         .option('trackNamedPages', false)
         .option('customEndpoint', '')
+        .option('logPurchaseWhenRevenuePresent', false)
         .option('version', 1)
     );
   });
@@ -229,6 +231,7 @@ describe('Appboy', function() {
           openInAppMessagesInNewTab: false,
           openNewsFeedCardsInNewTab: false,
           sessionTimeoutInSeconds: 30,
+          serviceWorkerLocation: undefined,
           requireExplicitInAppMessageDismissal: false,
           enableHtmlInAppMessages: false
         };
@@ -335,12 +338,13 @@ describe('Appboy', function() {
         );
       });
 
-      it('should handle custom traits of all types', function() {
+      it('should handle custom traits of valid types and exclude nested objects', function() {
         analytics.identify('userId', {
           song: "Who's That Chick?",
           artists: ['David Guetta', 'Rihanna'],
           number: 16,
-          date: 'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)'
+          date: 'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)',
+          details: { nested: 'object' }
         });
         analytics.called(window.appboy.changeUser, 'userId');
         analytics.called(
@@ -411,7 +415,10 @@ describe('Appboy', function() {
         analytics.track('event with properties', {
           nickname: 'noonz',
           spiritAnimal: 'rihanna',
-          best_friend: 'han'
+          best_friend: 'han',
+          number_of_friends: 12,
+          idols: ['beyonce', 'madonna'],
+          favoriteThings: { whiskers: 'on-kittins' }
         });
         analytics.called(
           window.appboy.logCustomEvent,
@@ -419,24 +426,56 @@ describe('Appboy', function() {
           {
             nickname: 'noonz',
             spiritAnimal: 'rihanna',
-            best_friend: 'han'
+            best_friend: 'han',
+            number_of_friends: 12
           }
         );
       });
 
-      it('should remove reserved keys from custom event properties', function() {
-        analytics.track('event with properties', {
-          product_id: 'noonz',
-          event_name: 'rihanna',
-          time: 'han',
-          currency: 'usd',
-          quantity: '123'
-        });
-        analytics.called(
-          window.appboy.logCustomEvent,
-          'event with properties',
-          {}
-        );
+      it('should call logPurchase if revenue propery is present in a Completed Order event', function(done) {
+        var today = new Date();
+        var orderCompleted = sinon.spy(appboy, 'orderCompleted');
+        appboy.options.logPurchaseWhenRevenuePresent = true;
+        var properties = {
+          total: 30,
+          shipping: 3,
+          currency: 'USD',
+          revenue: 25,
+          date: today,
+          invalidPropertyLength: 'a'.repeat(500),
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19.23,
+              quantity: 1,
+              category: 'Games',
+              $invalidPropertyName: 3,
+              invalidPropertyValue: ['red', 'blue']
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games',
+              size: 6
+            }
+          ]
+        };
+
+        analytics.track('Order Completed', properties);
+
+        assert.equal(appboy.options.logPurchaseWhenRevenuePresent, true);
+        assert.notEqual(properties.revenue, undefined);
+        try {
+          assert(orderCompleted.called);
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
 
       it('should call logPurchase for each product in a Completed Order event', function() {

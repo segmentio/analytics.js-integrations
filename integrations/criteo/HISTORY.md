@@ -1,3 +1,8 @@
+1.2.1 / 2019-09-26
+==================
+
+  * Update missing/deprecated properties for criteo event.
+
 1.1.0 / 2017-08-29
 ==================
 

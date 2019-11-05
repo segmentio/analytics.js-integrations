@@ -26,7 +26,9 @@ describe('Amplitude', function() {
     mapQueryParams: {},
     traitsToIncrement: [],
     traitsToSetOnce: [],
-    preferAnonymousIdForDeviceId: true
+    preferAnonymousIdForDeviceId: true,
+    unsetParamsReferrerOnNewSession: false,
+    versionName: '4.6.0'
   };
 
   beforeEach(function() {
@@ -64,6 +66,8 @@ describe('Amplitude', function() {
         .option('traitsToSetOnce', [])
         .option('traitsToIncrement', [])
         .option('deviceIdFromUrlParam', false)
+        .option('appendFieldsToEventProps', {})
+        .option('unsetParamsReferrerOnNewSession', false)
     );
   });
 
@@ -112,6 +116,7 @@ describe('Amplitude', function() {
 
     it('should init with right options', function() {
       var config = window.amplitude.getInstance().options;
+
       analytics.assert(config.includeUtm === options.trackUtmProperties);
       analytics.assert(config.includeReferrer === options.trackReferrer);
       analytics.assert(config.batchEvents === options.batchEvents);
@@ -131,12 +136,32 @@ describe('Amplitude', function() {
         config.deviceIdFromUrlParam === options.deviceIdFromUrlParam
       );
       analytics.assert(config.deviceId === analytics.user().anonymousId());
+      analytics.assert(
+        config.unsetParamsReferrerOnNewSession ===
+          options.unsetParamsReferrerOnNewSession
+      );
+      analytics.assert(config.versionName === options.versionName);
     });
 
     it('should set api key', function() {
       analytics.assert(
         window.amplitude.getInstance().options.apiKey === options.apiKey
       );
+    });
+
+    describe('Initialize amplitude without versionName', function() {
+      before(function() {
+        delete options.versionName;
+      });
+
+      it('should init without versionName', function() {
+        var config = window.amplitude.getInstance().options;
+        analytics.assert(config.versionName === undefined);
+      });
+
+      after(function() {
+        options.versionName = '4.6.0';
+      });
     });
 
     describe('preferAnonymousIdForDeviceId disabled', function() {
@@ -633,6 +658,18 @@ describe('Amplitude', function() {
         analytics.page();
         analytics.called(window.amplitude.getInstance().setDeviceId, 'example');
       });
+
+      it('should send an event with context properties mapped', function() {
+        amplitude.options.appendFieldsToEventProps = {
+          'context.page.path': 'pagePath'
+        };
+
+        analytics.track('event', { foo: 'bar' });
+        analytics.called(window.amplitude.getInstance().logEvent, 'event', {
+          foo: 'bar',
+          pagePath: '/context.html'
+        });
+      });
     });
 
     describe('#orderCompleted', function() {
@@ -738,6 +775,53 @@ describe('Amplitude', function() {
         amplitude.options.preferAnonymousIdForDeviceId = true;
         analytics.track('Order Completed');
         analytics.called(window.amplitude.getInstance().setDeviceId, 'example');
+      });
+
+      it('should call logEvent once if `trackProductsOnce` is set', function() {
+        var spy = sinon.spy(window.amplitude.getInstance(), 'logEvent');
+        amplitude.options.trackProductsOnce = true;
+        analytics.track('Order Completed', payload);
+        analytics.assert(spy.calledOnce);
+      });
+
+      it('should track all product at once once if `trackProductsOnce` is set', function() {
+        analytics.stub(window.amplitude.getInstance(), 'logEvent');
+        amplitude.options.trackProductsOnce = true;
+        analytics.track('Order Completed', payload);
+        analytics.called(
+          window.amplitude.getInstance().logEvent,
+          'Order Completed',
+          {
+            checkoutId: 'fksdjfsdjfisjf9sdfjsd9f',
+            orderId: '50314b8e9bcf000000000000',
+            affiliation: 'Google Store',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                productId: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games'
+              },
+              {
+                productId: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games'
+              }
+            ]
+          }
+        );
       });
     });
 

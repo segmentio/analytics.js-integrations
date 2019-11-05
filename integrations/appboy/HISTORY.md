@@ -1,3 +1,21 @@
+1.13.0 / 2019-09-04
+===================
+
+* Stop stripping "reserved" keywords from properties sent to `logCustomEvent`.
+
+1.12.0 / 2019-08-22
+===================
+
+* logPurchase event call inside track (#174)
+
+1.11.0 / 2019-08-08
+==================
+
+* Excludes nested non-null objects from customer user attributes in identify method
+* Excludes non-null objects from custom event properties in track method
+* Conditionally set user-related traits (ID, name, address, etc.)
+* Use serviceWorkerLocation from settings if it is available.
+
 1.9.0 / 2019-06-19
 ==================
 
