@@ -23,6 +23,13 @@ describe('Google AdWords New', function() {
       },
       {
         value: {
+          event: 'Order completed',
+          id: 'ljkhsdfkjlhsdfj',
+          accountId: ''
+        }
+      },
+      {
+        value: {
           event: 'signup',
           id: 'eAZJCICuz3gQ1ta71QM',
           accountId: ''
@@ -41,6 +48,13 @@ describe('Google AdWords New', function() {
         value: {
           event: 'Landing',
           id: '80mjCKaqz3gQ1ta71QM',
+          accountId: ''
+        }
+      },
+      {
+        value: {
+          event: 'Landing',
+          id: 'kajsd98sdf098sjf',
           accountId: ''
         }
       },
@@ -163,6 +177,19 @@ describe('Google AdWords New', function() {
             url: location.href
           }
         ]);
+        analytics.deepEqual(window.gtag.args[3], [
+          'event',
+          'landing',
+          {
+            name: 'landing',
+            send_to: options.accountId + '/kajsd98sdf098sjf',
+            path: location.pathname,
+            referrer: document.referrer,
+            search: location.search,
+            title: document.title,
+            url: location.href
+          }
+        ]);
       });
 
       it('should allow overriding accountId when sending page load conversions', function() {
@@ -236,6 +263,15 @@ describe('Google AdWords New', function() {
           'order completed',
           {
             send_to: options.accountId + '/hNDoCJ6Yt3gQ1ta71QM',
+            value: 25,
+            transaction_id: 'totally-tubular'
+          }
+        ]);
+        analytics.deepEqual(window.gtag.args[3], [
+          'event',
+          'order completed',
+          {
+            send_to: options.accountId + '/ljkhsdfkjlhsdfj',
             value: 25,
             transaction_id: 'totally-tubular'
           }
