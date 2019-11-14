@@ -1,0 +1,100 @@
+
+/**
+ * Segment Analytics.js
+ * 
+ * This file was created using Browserify.
+ * 
+ * This is a <%- version -%> build for analytics.js for the write key <%- writeKey -%>. DO NOT use it in
+ * production.
+ * 
+ * Components not supported:
+ * - Middlewares
+ * - Filters
+ * - Bot detection
+ */
+
+var analytics = require('@segment/analytics.js-core')
+
+var extend = require('extend');
+
+
+// Get a handle on the global analytics queue and middleware queue, as initialized by the
+// analytics.js snippet. The snippet stubs out the analytics.js API and queues
+// up calls for execution when the full analytics.js library (this file) loads.
+var analyticsq = global.analytics || [];
+
+// Parse the version from the analytics.js snippet.
+var snippetVersion = analyticsq && analyticsq.SNIPPET_VERSION ? parseFloat(analyticsq.SNIPPET_VERSION, 10) : 0;
+
+analytics._VERSIONS = <%- JSON.stringify(versions) %>;
+
+// Initialize analytics.js. CDN will render configuration objects using project settings.
+var integrationSettings = <%- JSON.stringify(settings.integrations) %>;
+
+// Require all intergrations
+var integrations = {
+<% let lastLine = Object.keys(integrations).length; -%>
+<% for (const integration in integrations) { -%>
+  <% const pkg = integrations[integration]; -%>
+  '<%= pkg.name.replace('@segment/analytics.js-integration-', '') %>': require('<%= pkg.name %>')<%= lastLine === 1 ? '' : ',' %>
+  <% lastLine = lastLine - 1; -%>
+<% }; -%>
+}
+
+var enabledIntegrations = {};
+
+if (analyticsq._loadOptions && analyticsq._loadOptions.integrations) {
+  var integrationOptions = analyticsq._loadOptions.integrations;
+
+  for (var integrationName in integrationOptions) {
+    if (!integrationOptions.hasOwnProperty(integrationName)) continue;
+
+    // Get the enabled/disabled status for the integrations that are configured
+    // (config objects get converted to true)
+    enabledIntegrations[integrationName] = Boolean(integrationOptions[integrationName]);
+
+    // Merge the DCS and load options
+    if (
+      // Make sure the integration exists
+      typeof integrationSettings[integrationName] === 'object'
+      // Ignore booleans
+      && typeof integrationOptions[integrationName] === 'object'
+    ) {
+      var recursive = true
+      extend(recursive, integrationSettings[integrationName], integrationOptions[integrationName]);
+    }
+  }
+}
+
+
+analytics.initialize(integrationSettings, {
+  initialPageview: snippetVersion === 0,
+  plan: <%- JSON.stringify(settings.plan || {}); %>,
+  integrations: enabledIntegrations,
+  metrics: <%- JSON.stringify(settings.metrics || {}); %>,
+  user: <%- JSON.stringify(settings.user || {}); %>,
+  group: <%- JSON.stringify(settings.group || {}); %>
+});
+
+// Make any queued calls up before the full analytics.js library
+// loaded
+while (analyticsq && analyticsq.length > 0) {
+  var args = analyticsq.shift();
+  var method = args.shift();
+
+  if (typeof analytics[method] === 'function') {
+    analytics[method].apply(analytics, args);
+  }
+}
+
+// Free the reference to analyticsq
+analyticsq = null;
+
+/*
+ * Exports.
+ */
+
+// Set `global.analytics` explicitly rather than using Browserify's
+// `--standalone` flag in order to avoid hooking into an already-declared
+// `global.require`
+global.analytics = analytics;

@@ -5,3 +5,5 @@ coverage/
 package-lock.json
 *.xml
 yarn-error.log
+*.tmp
+compiler/builds/**

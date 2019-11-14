@@ -17,8 +17,7 @@ var Yellowhammer = (module.exports = integration('Yellowhammer')
   /* eslint-disable */
   .tag('omnitarget', '<iframe src="https://jump.omnitarget.com/{{ omnitargetId }}?customer_id={{ customerId }}&order_revenue={{ orderRevenue }}&order_id={{ orderId }}" scrolling="no" frameborder="0" width="1" height="1">')
   .tag('adnexusConversion', '<script src="https://secure.adnxs.com/px?id={{ pixelId }}&value={{ revenue }}&t=1">')
-  .tag('adnexusExclude', '<script src="https://secure.adnxs.com/seg?add={{ segmentId }}&t=1">');
-  ));
+  .tag('adnexusExclude', '<script src="https://secure.adnxs.com/seg?add={{ segmentId }}&t=1">'));
 /* eslint-enable */
 
 /**
