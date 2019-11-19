@@ -600,9 +600,9 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
   var lastName;
   // Check for firstName property
   // else check for name
-  if (traits.firstName) {
-    firstName = traits.firstName;
-    lastName = traits.lastName;
+  if (traits.firstName || traits.first_name) {
+    firstName = traits.firstName || traits.first_name;
+    lastName = traits.lastName || traits.last_name;
   } else {
     var nameArray = (traits.name && traits.name.toLowerCase().split(' ')) || [];
     firstName = nameArray.shift();
@@ -621,7 +621,7 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
       .join('')
       .toLowerCase();
   var state = address.state && address.state.toLowerCase();
-  var postalCode = address.postalCode;
+  var postalCode = address.postalCode || address.postal_code;
   var external_id; // eslint-disable-line
   if (this.options.keyForExternalId) {
     external_id = traits[this.options.keyForExternalId]; // eslint-disable-line
