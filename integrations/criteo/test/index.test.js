@@ -62,6 +62,54 @@ describe('Criteo', function() {
         analytics.initialize();
         analytics.called(criteo.load);
       });
+
+      it('should track setSiteType for desktop', function() {
+        analytics.stub(window.criteo_q, 'push');
+        analytics.initialize();
+        analytics.called(window.criteo_q.push, {
+          event: 'setSiteType',
+          type: 'd'
+        });
+      });
+
+      it('should track setSiteType for mobile', function() {
+        Object.defineProperty(window.navigator, 'userAgent', {
+          value: 'Mobile',
+          writable: true // allow to modify readonly userAgent
+        });
+        analytics.stub(window.criteo_q, 'push');
+        analytics.initialize();
+        analytics.called(window.criteo_q.push, {
+          event: 'setSiteType',
+          type: 'm'
+        });
+      });
+
+      it('should track setSiteType for tablet', function() {
+        Object.defineProperty(window.navigator, 'userAgent', {
+          value: 'iPad',
+          writable: true // allow to modify readonly userAgent
+        });
+        analytics.stub(window.criteo_q, 'push');
+        analytics.initialize();
+        analytics.called(window.criteo_q.push, {
+          event: 'setSiteType',
+          type: 't'
+        });
+      });
+
+      it('should track setSiteType for unexpected userAgent', function() {
+        Object.defineProperty(window.navigator, 'userAgent', {
+          value: 'unknownDevice',
+          writable: true // allow to modify readonly userAgent
+        });
+        analytics.stub(window.criteo_q, 'push');
+        analytics.initialize();
+        analytics.called(window.criteo_q.push, {
+          event: 'setSiteType',
+          type: 'd'
+        });
+      });
     });
   });
 
