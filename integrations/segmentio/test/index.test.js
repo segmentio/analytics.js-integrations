@@ -20,7 +20,7 @@ var lolex = require('lolex');
 // Detect Phantom env and use it to disable affected tests. We should use a
 // better/more robust way of intercepting and canceling AJAX requests to avoid
 // this hackery
-var isPhantomJS = (/PhantomJS/).test(window.navigator.userAgent);
+var isPhantomJS = /PhantomJS/.test(window.navigator.userAgent);
 
 describe('Segment.io', function() {
   var segment;
@@ -74,9 +74,12 @@ describe('Segment.io', function() {
   }
 
   it('should have the right settings', function() {
-    analytics.compare(Segment, integration('Segment.io')
-      .option('apiKey', '')
-      .option('retryQueue', true));
+    analytics.compare(
+      Segment,
+      integration('Segment.io')
+        .option('apiKey', '')
+        .option('retryQueue', true)
+    );
   });
 
   it('should always be turned on', function(done) {
@@ -209,7 +212,8 @@ describe('Segment.io', function() {
 
       it('should add .campaign', function() {
         Segment.global = { navigator: {}, location: {} };
-        Segment.global.location.search = '?utm_source=source&utm_medium=medium&utm_term=term&utm_content=content&utm_campaign=name';
+        Segment.global.location.search =
+          '?utm_source=source&utm_medium=medium&utm_term=term&utm_content=content&utm_campaign=name';
         Segment.global.location.hostname = 'localhost';
         segment.normalize(object);
         analytics.assert(object);
@@ -225,7 +229,8 @@ describe('Segment.io', function() {
 
       it('should allow override of .campaign', function() {
         Segment.global = { navigator: {}, location: {} };
-        Segment.global.location.search = '?utm_source=source&utm_medium=medium&utm_term=term&utm_content=content&utm_campaign=name';
+        Segment.global.location.search =
+          '?utm_source=source&utm_medium=medium&utm_term=term&utm_content=content&utm_campaign=name';
         Segment.global.location.hostname = 'localhost';
         var object = {
           context: {
@@ -264,7 +269,10 @@ describe('Segment.io', function() {
       });
 
       it('should add .referrer.id and .referrer.type from cookie', function() {
-        segment.cookie('s:context.referrer', '{"id":"baz","type":"millennial-media"}');
+        segment.cookie(
+          's:context.referrer',
+          '{"id":"baz","type":"millennial-media"}'
+        );
         Segment.global = { navigator: {}, location: {} };
         Segment.global.location.search = '?utm_source=source';
         Segment.global.location.hostname = 'localhost';
@@ -278,7 +286,10 @@ describe('Segment.io', function() {
       });
 
       it('should add .referrer.id and .referrer.type from cookie when no query is given', function() {
-        segment.cookie('s:context.referrer', '{"id":"medium","type":"millennial-media"}');
+        segment.cookie(
+          's:context.referrer',
+          '{"id":"medium","type":"millennial-media"}'
+        );
         Segment.global = { navigator: {}, location: {} };
         Segment.global.location.search = '';
         Segment.global.location.hostname = 'localhost';
@@ -392,14 +403,19 @@ describe('Segment.io', function() {
         it('should add failedInitializations as part of _metadata object if this.analytics.failedInitilizations is not empty', function() {
           var spy = sinon.spy(segment, 'normalize');
           var TestIntegration = integration('TestIntegration');
-          TestIntegration.prototype.initialize = function() { throw new Error('Uh oh!'); };
+          TestIntegration.prototype.initialize = function() {
+            throw new Error('Uh oh!');
+          };
           TestIntegration.prototype.page = function() {};
           var testIntegration = new TestIntegration();
           analytics.use(TestIntegration);
           analytics.add(testIntegration);
           analytics.initialize();
           analytics.page();
-          assert(spy.returnValues[0]._metadata.failedInitializations[0] === 'TestIntegration');
+          assert(
+            spy.returnValues[0]._metadata.failedInitializations[0] ===
+              'TestIntegration'
+          );
         });
       });
 
@@ -422,20 +438,17 @@ describe('Segment.io', function() {
 
           assert(object);
           assert(object._metadata);
-          assert.deepEqual(object._metadata.bundled, [
-            'Segment.io',
-            'other'
-          ]);
+          assert.deepEqual(object._metadata.bundled, ['Segment.io', 'other']);
         });
 
         it('should add a list of unbundled integrations when `addBundledMetadata` and `unbundledIntegrations` are set', function() {
           segment.options.addBundledMetadata = true;
-          segment.options.unbundledIntegrations = [ 'other2' ];
+          segment.options.unbundledIntegrations = ['other2'];
           segment.normalize(object);
 
           assert(object);
           assert(object._metadata);
-          assert.deepEqual(object._metadata.unbundled, [ 'other2' ]);
+          assert.deepEqual(object._metadata.unbundled, ['other2']);
         });
 
         it('should not add _metadata when `addBundledMetadata` is unset', function() {
@@ -447,7 +460,7 @@ describe('Segment.io', function() {
       });
 
       it('should pick up messageId from AJS', function() {
-        object = analytics.normalize(object);  // ajs core generates the message ID here
+        object = analytics.normalize(object); // ajs core generates the message ID here
         var messageId = object.messageId;
         segment.normalize(object);
         assert.equal(object.messageId, messageId);
@@ -489,7 +502,12 @@ describe('Segment.io', function() {
           });
 
           it('should enqueue section, name and properties', function() {
-            analytics.page('section', 'name', { property: true }, { opt: true });
+            analytics.page(
+              'section',
+              'name',
+              { property: true },
+              { opt: true }
+            );
             var args = segment.enqueue.args[0];
             analytics.assert(args[0] === '/p');
             analytics.assert(args[1].name === 'name');
@@ -507,7 +525,10 @@ describe('Segment.io', function() {
 
           it('identify should not ultimately call getCachedCrossDomainId if crossDomainAnalytics is not enabled', function() {
             segment.options.crossDomainIdServers = [];
-            var getCachedCrossDomainIdSpy = sinon.spy(segment, 'getCachedCrossDomainId');
+            var getCachedCrossDomainIdSpy = sinon.spy(
+              segment,
+              'getCachedCrossDomainId'
+            );
             segment.normalize({});
             sinon.assert.notCalled(getCachedCrossDomainIdSpy);
             segment.getCachedCrossDomainId.restore();
@@ -615,150 +636,199 @@ describe('Segment.io', function() {
             if (segment.debug.restore) segment.debug.restore();
           });
 
-          it('should use https: protocol when http:', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should use https: protocol when http:',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            protocol('http:');
-            segment.enqueue('/i', { userId: 'id' });
+              protocol('http:');
+              segment.enqueue('/i', { userId: 'id' });
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
+            })
+          );
 
-          it('should use https: protocol when https:', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should use https: protocol when https:',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            protocol('https:');
-            segment.enqueue('/i', { userId: 'id' });
+              protocol('https:');
+              segment.enqueue('/i', { userId: 'id' });
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
+            })
+          );
 
-          it('should use https: protocol when https:', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should use https: protocol when https:',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            protocol('file:');
-            segment.enqueue('/i', { userId: 'id' });
+              protocol('file:');
+              segment.enqueue('/i', { userId: 'id' });
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
+            })
+          );
 
-          it('should use https: protocol when chrome-extension:', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should use https: protocol when chrome-extension:',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            protocol('chrome-extension:');
-            segment.enqueue('/i', { userId: 'id' });
+              protocol('chrome-extension:');
+              segment.enqueue('/i', { userId: 'id' });
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
+            })
+          );
 
-          it('should enqueue to `api.segment.io/v1` by default', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should enqueue to `api.segment.io/v1` by default',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            protocol('https:');
-            segment.enqueue('/i', { userId: 'id' });
+              protocol('https:');
+              segment.enqueue('/i', { userId: 'id' });
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(req.url, 'https://api.segment.io/v1/i');
+            })
+          );
 
-          it('should enqueue to `options.apiHost` when set', sinon.test(function() {
-            segment.options.apiHost = 'api.example.com';
+          it(
+            'should enqueue to `options.apiHost` when set',
+            sinon.test(function() {
+              segment.options.apiHost = 'api.example.com';
 
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            protocol('https:');
-            segment.enqueue('/i', { userId: 'id' });
+              protocol('https:');
+              segment.enqueue('/i', { userId: 'id' });
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(req.url, 'https://api.example.com/i');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(req.url, 'https://api.example.com/i');
+            })
+          );
 
-          it('should enqueue a normalized payload', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should enqueue a normalized payload',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            var payload = {
-              key1: 'value1',
-              key2: 'value2'
-            };
+              var payload = {
+                key1: 'value1',
+                key2: 'value2'
+              };
 
-            segment.normalize = function() { return payload; };
+              segment.normalize = function() {
+                return payload;
+              };
 
-            segment.enqueue('/i', {});
+              segment.enqueue('/i', {});
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(JSON.parse(req.requestBody).key1, 'value1');
-            assert.strictEqual(JSON.parse(req.requestBody).key2, 'value2');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(JSON.parse(req.requestBody).key1, 'value1');
+              assert.strictEqual(JSON.parse(req.requestBody).key2, 'value2');
+            })
+          );
 
-          it('should not log a normal payload', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should not log a normal payload',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            var payload = {
-              key1: 'value1',
-              key2: 'value2'
-            };
+              var payload = {
+                key1: 'value1',
+                key2: 'value2'
+              };
 
-            segment.normalize = function() { return payload; };
+              segment.normalize = function() {
+                return payload;
+              };
 
-            segment.enqueue('/i', {});
+              segment.enqueue('/i', {});
 
-            sinon.assert.neverCalledWith(segment.debug, 'message must be less than 32kb %O', payload);
+              sinon.assert.neverCalledWith(
+                segment.debug,
+                'message must be less than 32kb %O',
+                payload
+              );
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(JSON.parse(req.requestBody).key1, 'value1');
-            assert.strictEqual(JSON.parse(req.requestBody).key2, 'value2');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(JSON.parse(req.requestBody).key1, 'value1');
+              assert.strictEqual(JSON.parse(req.requestBody).key2, 'value2');
+            })
+          );
 
-          it('should enqueue an oversized payload', sinon.test(function() {
-            var spy = sinon.spy();
-            xhr.onCreate = spy;
+          it(
+            'should enqueue an oversized payload',
+            sinon.test(function() {
+              var spy = sinon.spy();
+              xhr.onCreate = spy;
 
-            var payload = {};
-            for (var i = 0; i < 1750; i++) {
-              payload['key' + i] = 'value' + i;
-            }
+              var payload = {};
+              for (var i = 0; i < 1750; i++) {
+                payload['key' + i] = 'value' + i;
+              }
 
-            segment.normalize = function() { return payload; };
+              segment.normalize = function() {
+                return payload;
+              };
 
-            segment.enqueue('/i', {});
+              segment.enqueue('/i', {});
 
-            sinon.assert.calledWith(segment.debug, 'message must be less than 32kb %O', payload);
+              sinon.assert.calledWith(
+                segment.debug,
+                'message must be less than 32kb %O',
+                payload
+              );
 
-            assert(spy.calledOnce);
-            var req = spy.getCall(0).args[0];
-            assert.strictEqual(JSON.parse(req.requestBody).key1749, 'value1749');
-          }));
+              assert(spy.calledOnce);
+              var req = spy.getCall(0).args[0];
+              assert.strictEqual(
+                JSON.parse(req.requestBody).key1749,
+                'value1749'
+              );
+            })
+          );
         });
 
         // FIXME(ndhoule): See note at `isPhantomJS` definition
-        (isPhantomJS ? xdescribe : describe)('e2e tests — without queueing', function() {
+        (isPhantomJS
+          ? xdescribe
+          : describe)('e2e tests — without queueing', function() {
           beforeEach(function() {
             segment.options.retryQueue = false;
           });
 
           describe('/g', function() {
             it('should succeed', function(done) {
-              segment.enqueue('/g', { groupId: 'gid', userId: 'uid' }, function(err, res) {
+              segment.enqueue('/g', { groupId: 'gid', userId: 'uid' }, function(
+                err,
+                res
+              ) {
                 if (err) return done(err);
                 analytics.assert(JSON.parse(res.responseText).success);
                 done();
@@ -813,7 +883,9 @@ describe('Segment.io', function() {
           });
         });
 
-        (isPhantomJS ? xdescribe : describe)('e2e tests — with queueing', function() {
+        (isPhantomJS
+          ? xdescribe
+          : describe)('e2e tests — with queueing', function() {
           beforeEach(function() {
             segment.options.retryQueue = true;
             analytics.initialize();
@@ -837,7 +909,11 @@ describe('Segment.io', function() {
                 analytics.assert(JSON.parse(res.responseText).success);
                 done();
               });
-              segment.enqueue('/p', { userId: 'id', name: 'page', properties: {} });
+              segment.enqueue('/p', {
+                userId: 'id',
+                name: 'page',
+                properties: {}
+              });
             });
           });
 
@@ -859,7 +935,11 @@ describe('Segment.io', function() {
                 analytics.assert(JSON.parse(res.responseText).success);
                 done();
               });
-              segment.enqueue('/t', { userId: 'id', event: 'my-event', properties: {} });
+              segment.enqueue('/t', {
+                userId: 'id',
+                event: 'my-event',
+                properties: {}
+              });
             });
           });
 
@@ -941,9 +1021,7 @@ describe('Segment.io', function() {
           });
 
           it('should use cached cross domain identifier from LS when saveCrossDomainIdInLocalStorage is true', function() {
-            segment.options.crossDomainIdServers = [
-              'localhost'
-            ];
+            segment.options.crossDomainIdServers = ['localhost'];
             segment.options.saveCrossDomainIdInLocalStorage = true;
 
             store('seg_xid', 'test_xid_cache_ls');
@@ -962,9 +1040,7 @@ describe('Segment.io', function() {
           });
 
           it('should use cached cross domain identifier from cookies when saveCrossDomainIdInLocalStorage is false', function() {
-            segment.options.crossDomainIdServers = [
-              'localhost'
-            ];
+            segment.options.crossDomainIdServers = ['localhost'];
             segment.options.saveCrossDomainIdInLocalStorage = false;
 
             segment.cookie('seg_xid', 'test_xid_cache_cookie');
@@ -989,7 +1065,10 @@ describe('Segment.io', function() {
 
               segment.options.saveCrossDomainIdInLocalStorage = true;
 
-              assert.equal(segment.getCachedCrossDomainId(), 'test_xid_cache_ls');
+              assert.equal(
+                segment.getCachedCrossDomainId(),
+                'test_xid_cache_ls'
+              );
             });
 
             it('should return identifiers from localstorage when saveCrossDomainIdInLocalStorage is true', function() {
@@ -998,7 +1077,10 @@ describe('Segment.io', function() {
 
               segment.options.saveCrossDomainIdInLocalStorage = false;
 
-              assert.equal(segment.getCachedCrossDomainId(), 'test_xid_cache_cookie');
+              assert.equal(
+                segment.getCachedCrossDomainId(),
+                'test_xid_cache_cookie'
+              );
             });
           });
 
@@ -1014,10 +1096,9 @@ describe('Segment.io', function() {
 
             describe('with ' + scenario, function() {
               it('should generate xid locally if there is only one (current hostname) server', function() {
-                segment.options.crossDomainIdServers = [
-                  'localhost'
-                ];
-                segment.options.saveCrossDomainIdInLocalStorage = cases[scenario];
+                segment.options.crossDomainIdServers = ['localhost'];
+                segment.options.saveCrossDomainIdInLocalStorage =
+                  cases[scenario];
 
                 var res = null;
                 segment.retrieveCrossDomainId(function(err, response) {
@@ -1035,17 +1116,23 @@ describe('Segment.io', function() {
               });
 
               it('should obtain crossDomainId', function() {
-                server.respondWith('GET', 'https://xid.domain2.com/v1/id/' + segment.options.apiKey, [
-                  200,
-                  { 'Content-Type': 'application/json' },
-                  '{ "id": "xdomain-id-1" }'
-                ]);
-                if (segment.options.saveCrossDomainIdInLocalStorage) {
-                  server.respondWith('GET', 'https://localhost/v1/saveId?writeKey=' + segment.options.apiKey + '&xid=xdomain-id-1', [
+                server.respondWith(
+                  'GET',
+                  'https://xid.domain2.com/v1/id/' + segment.options.apiKey,
+                  [
                     200,
-                    { 'Content-Type': 'text/plan' },
-                    'OK'
-                  ]);
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": "xdomain-id-1" }'
+                  ]
+                );
+                if (segment.options.saveCrossDomainIdInLocalStorage) {
+                  server.respondWith(
+                    'GET',
+                    'https://localhost/v1/saveId?writeKey=' +
+                      segment.options.apiKey +
+                      '&xid=xdomain-id-1',
+                    [200, { 'Content-Type': 'text/plan' }, 'OK']
+                  );
                 }
                 server.respondImmediately = true;
 
@@ -1055,7 +1142,9 @@ describe('Segment.io', function() {
                 });
 
                 var identify = segment.onidentify.args[0];
-                analytics.assert(identify[0].traits().crossDomainId === 'xdomain-id-1');
+                analytics.assert(
+                  identify[0].traits().crossDomainId === 'xdomain-id-1'
+                );
 
                 analytics.assert(res.crossDomainId === 'xdomain-id-1');
                 analytics.assert(res.fromDomain === 'xid.domain2.com');
@@ -1064,16 +1153,25 @@ describe('Segment.io', function() {
               });
 
               it('should generate crossDomainId if no server has it', function() {
-                server.respondWith('GET', 'https://xid.domain2.com/v1/id/' + segment.options.apiKey, [
-                  200,
-                  { 'Content-Type': 'application/json' },
-                  '{ "id": null }'
-                ]);
-                server.respondWith('GET', 'https://userdata.example1.com/v1/id/' + segment.options.apiKey, [
-                  200,
-                  { 'Content-Type': 'application/json' },
-                  '{ "id": null }'
-                ]);
+                server.respondWith(
+                  'GET',
+                  'https://xid.domain2.com/v1/id/' + segment.options.apiKey,
+                  [
+                    200,
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": null }'
+                  ]
+                );
+                server.respondWith(
+                  'GET',
+                  'https://userdata.example1.com/v1/id/' +
+                    segment.options.apiKey,
+                  [
+                    200,
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": null }'
+                  ]
+                );
                 if (segment.options.saveCrossDomainIdInLocalStorage) {
                   server.respondWith('GET', /https:\/\/localhost\/v1\/saveId/, [
                     200,
@@ -1106,16 +1204,17 @@ describe('Segment.io', function() {
                   res = response;
                 });
 
-                server.respondWith('GET', 'https://xid.domain2.com/v1/id/' + segment.options.apiKey, [
-                  500,
-                  { 'Content-Type': 'application/json' },
-                  ''
-                ]);
-                server.respondWith('GET', 'https://userdata.example1.com/v1/id/' + segment.options.apiKey, [
-                  500,
-                  { 'Content-Type': 'application/json' },
-                  ''
-                ]);
+                server.respondWith(
+                  'GET',
+                  'https://xid.domain2.com/v1/id/' + segment.options.apiKey,
+                  [500, { 'Content-Type': 'application/json' }, '']
+                );
+                server.respondWith(
+                  'GET',
+                  'https://userdata.example1.com/v1/id/' +
+                    segment.options.apiKey,
+                  [500, { 'Content-Type': 'application/json' }, '']
+                );
                 server.respond();
 
                 var identify = segment.onidentify.args[0];
@@ -1134,16 +1233,21 @@ describe('Segment.io', function() {
                   res = response;
                 });
 
-                server.respondWith('GET', 'https://xid.domain2.com/v1/id/' + segment.options.apiKey, [
-                  400,
-                  { 'Content-Type': 'application/json' },
-                  ''
-                ]);
-                server.respondWith('GET', 'https://userdata.example1.com/v1/id/' + segment.options.apiKey, [
-                  200,
-                  { 'Content-Type': 'application/json' },
-                  '{ "id": null }'
-                ]);
+                server.respondWith(
+                  'GET',
+                  'https://xid.domain2.com/v1/id/' + segment.options.apiKey,
+                  [400, { 'Content-Type': 'application/json' }, '']
+                );
+                server.respondWith(
+                  'GET',
+                  'https://userdata.example1.com/v1/id/' +
+                    segment.options.apiKey,
+                  [
+                    200,
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": null }'
+                  ]
+                );
                 server.respond();
 
                 var identify = segment.onidentify.args[0];
@@ -1155,22 +1259,29 @@ describe('Segment.io', function() {
               });
 
               it('should succeed even if one server fails', function() {
-                server.respondWith('GET', 'https://xid.domain2.com/v1/id/' + segment.options.apiKey, [
-                  500,
-                  { 'Content-Type': 'application/json' },
-                  ''
-                ]);
-                server.respondWith('GET', 'https://userdata.example1.com/v1/id/' + segment.options.apiKey, [
-                  200,
-                  { 'Content-Type': 'application/json' },
-                  '{ "id": "xidxid" }'
-                ]);
-                if (segment.options.saveCrossDomainIdInLocalStorage) {
-                  server.respondWith('GET', 'https://localhost/v1/saveId?writeKey=' + segment.options.apiKey + '&xid=xidxid', [
+                server.respondWith(
+                  'GET',
+                  'https://xid.domain2.com/v1/id/' + segment.options.apiKey,
+                  [500, { 'Content-Type': 'application/json' }, '']
+                );
+                server.respondWith(
+                  'GET',
+                  'https://userdata.example1.com/v1/id/' +
+                    segment.options.apiKey,
+                  [
                     200,
-                    { 'Content-Type': 'text/plan' },
-                    'OK'
-                  ]);
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": "xidxid" }'
+                  ]
+                );
+                if (segment.options.saveCrossDomainIdInLocalStorage) {
+                  server.respondWith(
+                    'GET',
+                    'https://localhost/v1/saveId?writeKey=' +
+                      segment.options.apiKey +
+                      '&xid=xidxid',
+                    [200, { 'Content-Type': 'text/plan' }, 'OK']
+                  );
                 }
                 server.respondImmediately = true;
 
@@ -1182,7 +1293,9 @@ describe('Segment.io', function() {
                 });
 
                 var identify = segment.onidentify.args[0];
-                analytics.assert(identify[0].traits().crossDomainId === 'xidxid');
+                analytics.assert(
+                  identify[0].traits().crossDomainId === 'xidxid'
+                );
 
                 analytics.assert(res.crossDomainId === 'xidxid');
                 analytics.assert(res.fromDomain === 'userdata.example1.com');
@@ -1217,9 +1330,7 @@ describe('Segment.io', function() {
             });
 
             it('should return true even when crossDomainIdServers is set with 1 server', function() {
-              segment.options.crossDomainIdServers = [
-                'localhost'
-              ];
+              segment.options.crossDomainIdServers = ['localhost'];
 
               assert.equal(segment.isCrossDomainAnalyticsEnabled(), true);
             });
@@ -1391,12 +1502,8 @@ describe('Segment.io', function() {
       if (send.type !== 'xhr') return done();
 
       Segment.sendJsonWithTimeout(url, [1, 2, 3], headers, 1, function(err) {
-        if (err !== null) {
-          assert(err.type === 'timeout');
-        } else {
-          // Fail instead of hang if test didn't timeout properly
-          assert(false);
-        }
+        assert(err !== null);
+        assert(err.type === 'timeout');
         done();
       });
     });
@@ -1404,8 +1511,13 @@ describe('Segment.io', function() {
     it('should work', function(done) {
       if (send.type !== 'xhr') return done();
 
-      Segment.sendJsonWithTimeout(url, [1, 2, 3], headers, 10 * 1000, function(err, req) {
-        if (err) return done(new Error(err.message));
+      Segment.sendJsonWithTimeout(url, [1, 2, 3], headers, 10 * 1000, function(
+        err,
+        req
+      ) {
+        if (err) {
+          return done(new Error(err.message));
+        }
         var res = JSON.parse(req.responseText);
         assert(res === true);
         done();
@@ -1431,10 +1543,18 @@ describe('Segment.io', function() {
         it('should throw on ' + code + ' HTTP errors', function(done) {
           if (send.type !== 'xhr') return done();
 
-          Segment.sendJsonWithTimeout(url + '/null', [1, 2, 3], headers, 10 * 1000, function(err) {
-            assert(RegExp('^HTTP Error ' + code + ' (.+)$').test(err.message));
-            done();
-          });
+          Segment.sendJsonWithTimeout(
+            url + '/null',
+            [1, 2, 3],
+            headers,
+            10 * 1000,
+            function(err) {
+              assert(
+                RegExp('^HTTP Error ' + code + ' (.+)$').test(err.message)
+              );
+              done();
+            }
+          );
 
           req.respond(code, null, 'nope');
         });
@@ -1444,7 +1564,13 @@ describe('Segment.io', function() {
         it('should not throw on ' + code + ' HTTP errors', function(done) {
           if (send.type !== 'xhr') return done();
 
-          Segment.sendJsonWithTimeout(url + '/null', [1, 2, 3], headers, 10 * 1000, done);
+          Segment.sendJsonWithTimeout(
+            url + '/null',
+            [1, 2, 3],
+            headers,
+            10 * 1000,
+            done
+          );
 
           req.respond(code, null, 'ok');
         });

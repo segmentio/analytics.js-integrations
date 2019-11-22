@@ -947,6 +947,13 @@
   dependencies:
     any-observable "^0.3.0"
 
+"@segment/ad-params@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@segment/ad-params/-/ad-params-1.0.0.tgz#e02ded70a7f8db952af03c21208f47201b86bc95"
+  integrity sha1-4C3tcKf425Uq8DwhII9HIBuGvJU=
+  dependencies:
+    component-querystring "^2.0.0"
+
 "@segment/alias@^1.0.1":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@segment/alias/-/alias-1.0.2.tgz#1ce0d2a28df59706a1b5c92fb99c0c48adc22ec1"
@@ -961,6 +968,47 @@
   integrity sha512-gxS1v1iphKcSJv51Ft0V8YSFQthMhojtUEce0UbCM90fPJltnY0ceelQKEVdA+IJ3mXfQUcUW0/IyWPHZNKauA==
   dependencies:
     "@ndhoule/after" "^1.0.0"
+    "@ndhoule/clone" "^1.0.0"
+    "@ndhoule/defaults" "^2.0.1"
+    "@ndhoule/each" "^2.0.1"
+    "@ndhoule/extend" "^2.0.0"
+    "@ndhoule/foldl" "^2.0.1"
+    "@ndhoule/includes" "^2.0.1"
+    "@ndhoule/keys" "^2.0.0"
+    "@ndhoule/map" "^2.0.1"
+    "@ndhoule/pick" "^2.0.0"
+    "@segment/canonical" "^1.0.0"
+    "@segment/is-meta" "^1.0.0"
+    "@segment/isodate" "^1.0.2"
+    "@segment/isodate-traverse" "^1.0.1"
+    "@segment/prevent-default" "^1.0.0"
+    "@segment/send-json" "^3.0.0"
+    "@segment/store" "^1.3.20"
+    "@segment/top-domain" "^3.0.0"
+    bind-all "^1.0.0"
+    component-cookie "^1.1.2"
+    component-emitter "^1.2.1"
+    component-event "^0.1.4"
+    component-querystring "^2.0.0"
+    component-type "^1.2.1"
+    component-url "^0.2.1"
+    debug "^0.7.4"
+    extend "3.0.2"
+    inherits "^2.0.1"
+    install "^0.7.3"
+    is "^3.1.0"
+    json3 "^3.3.2"
+    new-date "^1.0.0"
+    next-tick "^0.2.2"
+    segmentio-facade "^3.0.2"
+    spark-md5 "^2.0.2"
+    uuid "^2.0.2"
+
+"@segment/analytics.js-core@^3.8.0":
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/@segment/analytics.js-core/-/analytics.js-core-3.10.1.tgz#faf983dbddb5917de3ff500843c04a2cc4236ab7"
+  integrity sha512-YfI4Zu1YQpQ+HZ0cVvnkEeFaKLJrVkQTN0P9yDPTgfHiK5aPIPyiTPvYNb17cLZX4j2PW+rvpDCi9RjVpFws0A==
+  dependencies:
     "@ndhoule/clone" "^1.0.0"
     "@ndhoule/defaults" "^2.0.1"
     "@ndhoule/each" "^2.0.1"
@@ -1258,10 +1306,27 @@
     next-tick "^0.2.2"
     script-onload "^1.0.2"
 
+"@segment/localstorage-retry@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@segment/localstorage-retry/-/localstorage-retry-1.2.2.tgz#d141fab7212fd3efb0ee19bf7eb16b1e38930af3"
+  integrity sha1-0UH6tyEv0++w7hm/frFrHjiTCvM=
+  dependencies:
+    "@ndhoule/each" "^2.0.1"
+    "@ndhoule/keys" "^2.0.0"
+    component-emitter "^1.2.1"
+    debug "^0.7.4"
+    json3 "^3.3.2"
+    uuid "^3.0.1"
+
 "@segment/prevent-default@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@segment/prevent-default/-/prevent-default-1.0.0.tgz#2ac896ee8c0249dc7af4ac032f8df900fe31892e"
   integrity sha1-KsiW7owCSdx69KwDL435AP4xiS4=
+
+"@segment/protocol@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@segment/protocol/-/protocol-1.0.0.tgz#b92d39db580ab94c0e4d0cab09239dd0c3a3f69b"
+  integrity sha1-uS0521gKuUwOTQyrCSOd0MOj9ps=
 
 "@segment/send-json@^3.0.0":
   version "3.0.0"
@@ -1319,6 +1384,14 @@
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@segment/trample/-/trample-0.2.0.tgz#5b141159f67b06efaa295d2ebe240b51096134c5"
   integrity sha1-WxQRWfZ7Bu+qKV0uviQLUQlhNMU=
+
+"@segment/utm-params@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@segment/utm-params/-/utm-params-2.0.0.tgz#fea3c8a92bfba0d69e861fb3b26d7d882f139334"
+  integrity sha1-/qPIqSv7oNaehh+zsm19iC8TkzQ=
+  dependencies:
+    "@ndhoule/foldl" "^2.0.1"
+    component-querystring "^2.0.0"
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.0.2", "@sinonjs/commons@^1.4.0":
   version "1.4.0"
@@ -2603,7 +2676,7 @@ component-cookie@^1.1.2, component-cookie@^1.1.4:
   dependencies:
     debug "2.2.0"
 
-component-each@^0.2.6:
+component-each@*, component-each@^0.2.6:
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/component-each/-/component-each-0.2.6.tgz#991faf31ef4fcafbad04237124d381b3394941d5"
   integrity sha1-mR+vMe9PyvutBCNxJNOBszlJQdU=
@@ -8289,7 +8362,7 @@ simple-git@^1.85.0:
   dependencies:
     debug "^4.0.1"
 
-sinon@^1.17.6:
+sinon@^1.17.4, sinon@^1.17.6:
   version "1.17.7"
   resolved "https://registry.yarnpkg.com/sinon/-/sinon-1.17.7.tgz#4542a4f49ba0c45c05eb2e9dd9d203e2b8efe0bf"
   integrity sha1-RUKk9JugxFwF6y6d2dID4rjv4L8=
@@ -9714,6 +9787,19 @@ yeast@0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/yeast/-/yeast-0.1.2.tgz#008e06d8094320c372dbc2f8ed76a0ca6c8ac419"
   integrity sha1-AI4G2AlDIMNy28L47XagymyKxBk=
+
+yields-store@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/yields-store/-/yields-store-1.0.2.tgz#af16de4576ae323461ae27eafb01d0d5718e3649"
+  integrity sha1-rxbeRXauMjRhrifq+wHQ1XGONkk=
+  dependencies:
+    component-each "*"
+    yields-unserialize "*"
+
+yields-unserialize@*:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/yields-unserialize/-/yields-unserialize-0.0.1.tgz#75ab898ba307be40184293d931b2f6e3942b0bc4"
+  integrity sha1-dauJi6MHvkAYQpPZMbL245QrC8Q=
 
 yup@^0.27.0:
   version "0.27.0"
