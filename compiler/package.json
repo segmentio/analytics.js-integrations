@@ -1,0 +1,41 @@
+{
+  "name": "@segment/ajs-compiler",
+  "version": "1.1.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "bin": {
+    "compile-ajs": "./compile"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@segment/analytics.js-core": "^3.2.7",
+    "@segment/analytics.js-integration": "^3.2.2",
+    "@segment/analytics.js-integration-segmentio": "^3.6.0",
+    "browserify": "^16.1.0",
+    "commander": "^2.14.1",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "lodash": "^4.17.5",
+    "minify": "^3.0.3",
+    "mkdirp": "^0.5.1",
+    "through": "^2.3.8"
+  },
+  "devDependencies": {},
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/segmentio/ajs-compiler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/segmentio/ajs-compiler/issues"
+  },
+  "homepage": "https://github.com/segmentio/ajs-compiler#readme",
+  "description": ""
+}
