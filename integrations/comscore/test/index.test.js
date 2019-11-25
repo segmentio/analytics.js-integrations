@@ -11,6 +11,7 @@ describe('comScore', function() {
   var comscore;
   var options = {
     c2: 'x',
+    comscorekw: 'test',
     autoUpdateInterval: '',
     beaconParamMap: {
       exampleParam: 'c5',
@@ -40,6 +41,7 @@ describe('comScore', function() {
         .global('_comscore')
         .option('c1', '2')
         .option('c2', '')
+        .option('comscorekw', '')
     );
   });
 
@@ -77,19 +79,32 @@ describe('comScore', function() {
       });
 
       it('should call only on 2nd page', function() {
-        analytics.didNotCall(window.COMSCORE.beacon, { c1: '2', c2: 'x' });
+        analytics.didNotCall(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: 'x',
+          comscorekw: 'test'
+        });
         analytics.page();
-        analytics.called(window.COMSCORE.beacon, { c1: '2', c2: 'x' });
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: 'x',
+          comscorekw: 'test'
+        });
       });
 
       it('should map properties in beaconParamMap', function() {
-        analytics.didNotCall(window.COMSCORE.beacon, { c1: '2', c2: 'x' });
+        analytics.didNotCall(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: 'x',
+          comscorekw: 'test'
+        });
         analytics.page({ exampleParam: 'foo', anotherParam: 'bar' });
         analytics.called(window.COMSCORE.beacon, {
           c1: '2',
           c2: 'x',
           c5: 'foo',
-          c6: 'bar'
+          c6: 'bar',
+          comscorekw: 'test'
         });
       });
     });
