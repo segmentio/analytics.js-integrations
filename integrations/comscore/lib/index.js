@@ -16,6 +16,7 @@ var Comscore = (module.exports = integration('comScore')
   .global('COMSCORE')
   .option('c1', '2')
   .option('c2', '')
+  .option('comscorekw', '')
   .tag('http', '<script src="http://b.scorecardresearch.com/beacon.js">')
   .tag('https', '<script src="https://sb.scorecardresearch.com/beacon.js">'));
 
@@ -85,6 +86,9 @@ Comscore.prototype.mapComscoreParams = function(page) {
 
   comScoreParams.c1 = this.options.c1;
   comScoreParams.c2 = this.options.c2;
+  if (this.options.comscorekw.length) {
+    comScoreParams.comscorekw = this.options.comscorekw;
+  }
 
   return comScoreParams;
 };
