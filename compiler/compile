@@ -1,65 +1,47 @@
 #!/usr/bin/env node
 
 const fs = require('fs')
-const os = require('os')
 const process = require('process')
 const program = require('commander')
 const build = require('./scripts/build')
 const buildIntegrations = require('./scripts/buildIntegrations')
 const addSettings = require('./scripts/settings')
-const deps = require('./package.json')
 const path = require('path')
 const server = require('./server')
 
+const buildName = `${Math.floor(new Date() / 1000)}`;
+const fileName = path.join(__dirname, 'builds', `analytics-${buildName}.js`)
+
 program
-  .option('-s, --slug <slug>', 'Integration slug')
-  .option('-S, --settings <settings>', 'Path to integration settings')
-  .option('--with-server', 'Serve compiled ajs file from a local server')
   .option('-p, --port [port]', 'Set a port to serve the local ajs file from', 3000)
-  .option('-o, --out [out]', 'Path to write compiled ajs file to', './')
   .option('-w, --writeKey <writeKey>', 'Segment writeKey to for viewing events in the debugger')
   .parse(process.argv)
 
-if (!program.slug || !program.settings) {
-  console.error('Error: --settings, --slug, and --writeKey must be defined')
+if (!program.writeKey) {
+  console.error('Error: --writeKey required')
   process.exit(1)
 }
 
-const slug = program.slug
-const appDir = path.dirname(require.main.filename);
-const username = os.userInfo().username
-const integrationPath = `/Users/${username}/dev/src/github.com/segmentio/analytics.js-integration-${slug}`
-const settingsPath = `${process.cwd()}/${program.settings}`
-const settings = JSON.parse(fs.readFileSync(settingsPath))
 const writeKey = program.writeKey
-const destination = `${process.cwd()}/${program.out}`
-const package = `@segment/analytics.js-integration-${slug}`
-const { link, unlink } = require('./scripts/link')
+const port = program.port || 3000
 
-// Run the global linking process.
-link(integrationPath)
-
-// Run the local linking process
-link(appDir, package)
-
-buildIntegrations(slug)
-
-build(program.slug, (ajs, integrationVersions, coreVersion) => {
-  const compiled = addSettings({
+buildIntegrations()
+build(async (ajs, integrationVersions, coreVersion) => {
+  const compiled = await addSettings({
     ajs,
     integrationVersions,
     coreVersion,
-    settings,
     writeKey
   })
-  
-  if (program.withServer) {
-    server(compiled, program.port)
-  } else {
-    fs.writeFileSync(`${destination}/analytics.js`, compiled)
-  }
 
-  // Unlink to clean up global npm namespace.
-  unlink(appDir, package)
-  unlink(integrationPath)
+  fs.writeFileSync(fileName, compiled)
+  server(compiled, port)
 })
+
+// const { ajs, integrationVersions, coreVersion} = build(integrations, (ajs, integrationVersions, coreVersion) => {
+//   const compiled = addSettings({
+//     ajs,
+//     integrationVersions,
+//     coreVersion,
+//     writeKey
+//   })

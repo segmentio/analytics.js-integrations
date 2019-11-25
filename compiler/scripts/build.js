@@ -20,7 +20,7 @@ var dequoteTemplateStrings = function (source) {
     .replace(/['"]<%-\s*(integrations|plan|versions)\s*%>['"]/g, '<%- $1 %>');
 };
 
-function bundle(entry, slug, opts, fn) {
+function bundle(entry, fn) {
   // This holds a map of integrationName -> version
   // e.g. {
   //   "Mixpanel": "2.0.0",
@@ -30,13 +30,12 @@ function bundle(entry, slug, opts, fn) {
   var integrationMap = {};
 
   var integrations = Object.keys(require('../package').dependencies)
-    .filter(function(name) {
-      return (/^@segment\/analytics.js-integration/).test(name);
-    });
-  
-  integrations.push(`@segment/analytics.js-integration-${slug}`)
-  
+  .filter(function(name) {
+    return (/^@segment\/analytics.js-integration-/).test(name);
+  });
+
   var lookup = integrations.reduce(function (acc, name) {
+    // console.log('resolved name', fs.realpathSync(require.resolve(name)))
     acc[fs.realpathSync(require.resolve(name))] = require(path.join(__dirname, '../node_modules/', name, '/package.json'));
     return acc;
   }, {});
@@ -52,8 +51,10 @@ function bundle(entry, slug, opts, fn) {
   });
   
   b.pipeline.get('emit-deps').push(through.obj(function (dep, enc, next) {
+    console.log('dep', dep.file)
+    console.log('source', dep.source)
     // Wrap all integration entrypoints in a template conditional
-    if (lookup[fs.realpathSync(dep.file)]) {
+    if (lookup[dep.file]) {
       var matches = (/integration\(['"]([^'"]+)['"]\)/).exec(dep.source);
       var name = matches[1];
 
@@ -111,8 +112,8 @@ function bundle(entry, slug, opts, fn) {
   });
 }
 
-module.exports = (slug, fn) => {
-  bundle(`${__dirname}/../lib/index.js`, slug, {}, function (src, integrationMap) {
+module.exports = (fn) => {
+  bundle(`${__dirname}/../lib/index.js`, function (src, integrationMap) {
     fn(src, integrationMap, coreVersion)
   })
 }
