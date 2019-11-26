@@ -13,7 +13,8 @@ describe('FullStory', function() {
     org: '1JO',
     debug: false,
     trackAllPages: false,
-    trackNamedPages: true
+    trackNamedPages: true,
+    trackCategorizedPages: true
   };
 
   beforeEach(function() {
@@ -37,6 +38,9 @@ describe('FullStory', function() {
       integration('FullStory')
         .option('org', '')
         .option('debug', false)
+        .option('trackAllPages', false)
+        .option('trackNamedPages', true)
+        .option('trackCategorizedPages', true)
     );
   });
 
@@ -208,6 +212,11 @@ describe('FullStory', function() {
         fullstory.options.trackNamedPages = false;
         analytics.page('Dashboard');
         analytics.didNotCall(window.FS.event);
+      });
+
+      it('should track categorized pages by default', function() {
+        analytics.page('Category', 'Name');
+        analytics.called(window.FS.event, 'Viewed Category Name Page');
       });
     });
   });
