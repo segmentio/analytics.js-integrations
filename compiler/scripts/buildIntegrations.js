@@ -11,6 +11,5 @@ module.exports = () => {
   var dependencies = Object.keys(pkg.dependencies)
     .filter(name => (/^@segment\/analytics.js-integration-/).test(name))
   
-  // return compiled({ integrations: dependencies.sort() })
   fs.writeFileSync(__dirname + '/../lib/integrations.js', compiled({ integrations: dependencies.sort() }))
 }

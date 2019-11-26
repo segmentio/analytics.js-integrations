@@ -35,7 +35,6 @@ function bundle(entry, fn) {
   });
 
   var lookup = integrations.reduce(function (acc, name) {
-    // console.log('resolved name', fs.realpathSync(require.resolve(name)))
     acc[fs.realpathSync(require.resolve(name))] = require(path.join(__dirname, '../node_modules/', name, '/package.json'));
     return acc;
   }, {});
@@ -51,8 +50,6 @@ function bundle(entry, fn) {
   });
   
   b.pipeline.get('emit-deps').push(through.obj(function (dep, enc, next) {
-    console.log('dep', dep.file)
-    console.log('source', dep.source)
     // Wrap all integration entrypoints in a template conditional
     if (lookup[dep.file]) {
       var matches = (/integration\(['"]([^'"]+)['"]\)/).exec(dep.source);
