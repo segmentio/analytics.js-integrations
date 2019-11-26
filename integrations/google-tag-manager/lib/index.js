@@ -11,15 +11,21 @@ var push = require('global-queue')('dataLayer', { wrap: false });
  * Expose `GTM`.
  */
 
-var GTM = module.exports = integration('Google Tag Manager')
+var GTM = (module.exports = integration('Google Tag Manager')
   .global('dataLayer')
   .global('google_tag_manager')
   .option('containerId', '')
   .option('environment', '')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .tag('no-env', '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer">')
-  .tag('with-env', '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">');
+  .tag(
+    'no-env',
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer">'
+  )
+  .tag(
+    'with-env',
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">'
+  ));
 
 /**
  * Initialize.

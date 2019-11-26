@@ -30,12 +30,15 @@ describe('Google Tag Manager', function() {
   });
 
   it('should store the correct settings', function() {
-    analytics.compare(GTM, integration('Google Tag Manager')
-      .global('dataLayer')
-      .option('containerId', '')
-      .option('environment', '')
-      .option('trackNamedPages', true)
-      .option('trackCategorizedPages', true));
+    analytics.compare(
+      GTM,
+      integration('Google Tag Manager')
+        .global('dataLayer')
+        .option('containerId', '')
+        .option('environment', '')
+        .option('trackNamedPages', true)
+        .option('trackCategorizedPages', true)
+    );
   });
 
   describe('loading', function() {
@@ -70,26 +73,40 @@ describe('Google Tag Manager', function() {
       it('should send event', function() {
         var anonId = analytics.user().anonymousId();
         analytics.track('some-event');
-        analytics.called(window.dataLayer.push, { segmentAnonymousId: anonId, event: 'some-event' });
+        analytics.called(window.dataLayer.push, {
+          segmentAnonymousId: anonId,
+          event: 'some-event'
+        });
       });
 
       it('should send userId if it exists', function() {
         analytics.user().id('pablo');
         var anonId = analytics.user().anonymousId();
         analytics.track('some-event');
-        analytics.called(window.dataLayer.push, { segmentAnonymousId: anonId, userId: 'pablo', event: 'some-event' });
+        analytics.called(window.dataLayer.push, {
+          segmentAnonymousId: anonId,
+          userId: 'pablo',
+          event: 'some-event'
+        });
       });
 
       it('should send anonymousId if it exists', function() {
         analytics.user().anonymousId('el');
         analytics.track('stranger things');
-        analytics.called(window.dataLayer.push, { segmentAnonymousId: 'el', event: 'stranger things' });
+        analytics.called(window.dataLayer.push, {
+          segmentAnonymousId: 'el',
+          event: 'stranger things'
+        });
       });
 
       it('should send event with properties', function() {
         var anonId = analytics.user().anonymousId();
         analytics.track('event', { prop: true });
-        analytics.called(window.dataLayer.push, { segmentAnonymousId: anonId, event: 'event', prop: true });
+        analytics.called(window.dataLayer.push, {
+          segmentAnonymousId: anonId,
+          event: 'event',
+          prop: true
+        });
       });
     });
 
@@ -114,7 +131,12 @@ describe('Google Tag Manager', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
 
@@ -129,7 +151,12 @@ describe('Google Tag Manager', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
 
@@ -145,7 +172,12 @@ describe('Google Tag Manager', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
 
@@ -161,7 +193,12 @@ describe('Google Tag Manager', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname
         });
       });
 
@@ -182,7 +219,12 @@ describe('Google Tag Manager', function() {
         environment: 'test'
       };
 
-      var tag = '<script src="http://www.googletagmanager.com/gtm.js?id=' + gtm.options.containerId + '&l=dataLayer&gtm_preview=' + gtm.options.environment + '">';
+      var tag =
+        '<script src="http://www.googletagmanager.com/gtm.js?id=' +
+        gtm.options.containerId +
+        '&l=dataLayer&gtm_preview=' +
+        gtm.options.environment +
+        '">';
       analytics.spy(gtm, 'load');
       analytics.initialize();
       analytics.page();
