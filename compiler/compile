@@ -9,13 +9,15 @@ const addSettings = require('./scripts/settings')
 const path = require('path')
 const server = require('./server')
 const { spawnSync } = require('child_process')
-
+const generateFile = require('./scripts/generateFile')
+const open = require('open')
+const filePath = path.join(__dirname + '/src/index.html')
 const buildName = `${Math.floor(new Date() / 1000)}`;
 const fileName = path.join(__dirname, 'builds', `analytics-${buildName}.js`)
 
 program
-  .option('-p, --port [port]', 'Set a port to serve the local ajs file from', 3000)
   .option('-w, --writeKey <writeKey>', 'Segment writeKey to for viewing events in the debugger')
+  .option('-p, --port [port]', 'Set a port to serve the local ajs file from', 3000)
   .parse(process.argv)
 
 if (!program.writeKey) {
@@ -43,5 +45,8 @@ build(async (ajs, integrationVersions, coreVersion) => {
   })
 
   fs.writeFileSync(fileName, compiled)
-  server(compiled, port)
+  
+  generateFile(program.writeKey, port)
+  server(compiled, filePath, port)
+  open(`http://localhost:${port}`)
 })

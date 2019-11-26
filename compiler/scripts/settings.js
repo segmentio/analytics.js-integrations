@@ -120,6 +120,5 @@ async function context(integrationVersions, coreVersion, writeKey) {
 module.exports = async function ({ ajs, integrationVersions, coreVersion, writeKey }) {
   const { version } = coreVersion
   const ctx = await context(integrationVersions, version, writeKey)
-  console.log(ctx)
   return ejs.compile(ajs)(ctx)
 };
