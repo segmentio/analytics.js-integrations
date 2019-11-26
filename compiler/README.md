@@ -39,7 +39,7 @@ Adding new destinations is easy - just add the package name and file path to the
 add a new integration with slug `google-v2`, just add the following line to the `dependencies` section of `./package.json`:
 
 ```
-`@segment/analytics.js-integrations-google-v2: "file:../integrations/google-v2"
+"@segment/analytics.js-integrations-google-v2": "file:../integrations/google-v2"
 ```
 
 Note the `google-v2` destination directory must exist in `../integrations`, and the package name in that directory must match the package name
@@ -47,4 +47,5 @@ specified in the `package.json` file in this directory.
 
 # FAQ
 
-We'll add answers to FAQs here as we receive questions.
+**Are A.js video plugins and client-side tracking plans supported?**
+No, currently the A.js Tester doesn't support video plugins or tracking plans; however, we will add these in the future if needed for testing.
