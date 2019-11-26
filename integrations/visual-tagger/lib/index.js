@@ -3,6 +3,7 @@
  */
 var integration = require('@segment/analytics.js-integration');
 var TracktorLib = require('@segment/tracktor');
+var when = require('do-when');
 
 /**
  * Expose `Visual Tagger` integration.
@@ -26,6 +27,8 @@ Tracktor.prototype.initialize = function() {
     window.document
   );
   window.Tracktor = TracktorLib;
+
+  when(this.loaded, this.ready);
 
   tracktor.start();
 };
