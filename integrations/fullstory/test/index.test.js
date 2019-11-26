@@ -11,7 +11,8 @@ describe('FullStory', function() {
   var fullstory;
   var options = {
     org: '1JO',
-    debug: false
+    debug: false,
+    trackAllPages: false
   };
 
   beforeEach(function() {
@@ -62,6 +63,7 @@ describe('FullStory', function() {
     beforeEach(function(done) {
       analytics.once('ready', done);
       analytics.initialize();
+      analytics.page();
     });
 
     describe('#identify', function() {
@@ -177,6 +179,33 @@ describe('FullStory', function() {
           { some_field: 'field_value' },
           'segment'
         );
+      });
+    });
+
+    describe('#page', function() {
+      beforeEach(function() {
+        analytics.stub(window.FS, 'event');
+      });
+
+      it('should not track unnamed pages by default', function() {
+        analytics.page();
+        analytics.didNotCall(window.FS.event);
+      });
+
+      it('should track named pages', function() {
+        analytics.page();
+        analytics.didNotCall(window.FS.event);
+      });
+
+      it('should track unnamed pages if enabled', function() {
+        fullstory.options.trackAllPages = true;
+        analytics.page();
+        analytics.called(window.FS.event, '');
+      });
+
+      it('should track named pages by default', function() {
+        analytics.page('Dashboard');
+        analytics.called(window.FS.event, 'Dashboard');
       });
     });
   });
