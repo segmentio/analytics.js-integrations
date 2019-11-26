@@ -12,7 +12,8 @@ describe('FullStory', function() {
   var options = {
     org: '1JO',
     debug: false,
-    trackAllPages: false
+    trackAllPages: false,
+    trackNamedPages: true
   };
 
   beforeEach(function() {
@@ -192,20 +193,21 @@ describe('FullStory', function() {
         analytics.didNotCall(window.FS.event);
       });
 
-      it('should track named pages', function() {
-        analytics.page();
-        analytics.didNotCall(window.FS.event);
-      });
-
       it('should track unnamed pages if enabled', function() {
         fullstory.options.trackAllPages = true;
         analytics.page();
-        analytics.called(window.FS.event, '');
+        analytics.called(window.FS.event, 'Loaded a Page');
       });
 
       it('should track named pages by default', function() {
         analytics.page('Dashboard');
-        analytics.called(window.FS.event, 'Dashboard');
+        analytics.called(window.FS.event, 'Viewed Dashboard Page');
+      });
+
+      it('should not track name or categorized pages if disabled', function() {
+        fullstory.options.trackNamedPages = false;
+        analytics.page('Dashboard');
+        analytics.didNotCall(window.FS.event);
       });
     });
   });

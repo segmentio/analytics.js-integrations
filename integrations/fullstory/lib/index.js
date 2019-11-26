@@ -17,6 +17,8 @@ var integration = require('@segment/analytics.js-integration');
 var FullStory = (module.exports = integration('FullStory')
   .option('org', '')
   .option('debug', false)
+  .option('trackAllPages', false)
+  .option('trackNamedPages', true)
   .tag(
     '<script async src="https://www.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
   ));
@@ -93,6 +95,28 @@ FullStory.prototype.identify = function(identify) {
   } else {
     newTraits.segmentAnonymousId_str = String(identify.anonymousId());
     window.FS.setUserVars(newTraits, apiSource);
+  }
+};
+
+/**
+ * Page.
+ *
+ * @api public
+ * @param {Page} page
+ */
+
+FullStory.prototype.page = function(page) {
+  var name = page.fullName();
+  var opts = this.options;
+
+  // all pages
+  if (opts.trackAllPages) {
+    this.track(page.track());
+  }
+
+  // named pages
+  if (name && opts.trackNamedPages) {
+    this.track(page.track(name));
   }
 };
 
