@@ -11,7 +11,7 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Rollbar` integration.
  */
 
-var RollbarIntegration = module.exports = integration('Rollbar')
+var RollbarIntegration = (module.exports = integration('Rollbar')
   .global('Rollbar')
   .global('rollbar')
   .option('identify', true)
@@ -24,7 +24,7 @@ var RollbarIntegration = module.exports = integration('Rollbar')
   .option('guessUncaughtFrames', false)
   .option('ignoredMessages', [])
   .option('loadTimeout', 60000)
-  .option('verbose', false);
+  .option('verbose', false));
 
 /**
  * Initialize.
@@ -86,14 +86,14 @@ RollbarIntegration.prototype.loaded = function() {
 
 RollbarIntegration.prototype.load = function(callback) {
   var loadedCheck = this.loaded;
-  var startTime = (new Date()).getTime();
+  var startTime = new Date().getTime();
   var timeout = this.options.loadTimeout;
-  
+
   function timer() {
     if (loadedCheck()) {
       return callback();
     }
-    if ((new Date()).getTime() - startTime >= timeout) {
+    if (new Date().getTime() - startTime >= timeout) {
       return callback(new Error('Rollbar timed out while loading'));
     }
 
@@ -116,7 +116,7 @@ RollbarIntegration.prototype.identify = function(identify) {
   // Don't allow identify without a user id
   var uid = identify.userId();
   if (uid === null || uid === undefined) return;
-  
+
   var rollbar = window.Rollbar;
   var person = { id: uid };
   extend(person, identify.traits());

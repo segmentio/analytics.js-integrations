@@ -6,7 +6,6 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var Rollbar = require('../lib/');
 
-
 describe('Rollbar', function() {
   var analytics;
   var rollbar;
@@ -39,11 +38,14 @@ describe('Rollbar', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Rollbar, integration('Rollbar')
-      .global('Rollbar')
-      .global('rollbar')
-      .option('accessToken', '')
-      .option('identify', true));
+    analytics.compare(
+      Rollbar,
+      integration('Rollbar')
+        .global('Rollbar')
+        .global('rollbar')
+        .option('accessToken', '')
+        .option('identify', true)
+    );
   });
 
   describe('before loading', function() {
@@ -92,20 +94,40 @@ describe('Rollbar', function() {
   describe('after loading', function() {
     it('should initialize with right options', function(done) {
       analytics.once('ready', function() {
-        analytics.assert(window._rollbarConfig.accessToken === options.accessToken);
-        analytics.assert(window._rollbarConfig.captureUncaught === options.captureUncaught);
-        analytics.assert(window._rollbarConfig.captureUnhandledRejections === options.captureUnhandledRejections);
+        analytics.assert(
+          window._rollbarConfig.accessToken === options.accessToken
+        );
+        analytics.assert(
+          window._rollbarConfig.captureUncaught === options.captureUncaught
+        );
+        analytics.assert(
+          window._rollbarConfig.captureUnhandledRejections ===
+            options.captureUnhandledRejections
+        );
         analytics.assert(window._rollbarConfig.verbose === options.verbose);
-        analytics.assert(window._rollbarConfig.payload.environment === options.environment);
-        analytics.assert(window._rollbarConfig.ignoredMessages[0] === options.ignoredMessages[0]);
-        analytics.assert(window._rollbarConfig.payload.client.javascript.source_map_enabled === options.sourceMapEnabled);
-        analytics.assert(window._rollbarConfig.payload.client.javascript.code_version === options.codeVersion);
-        analytics.assert(window._rollbarConfig.payload.client.javascript.guess_uncaught_frames === options.guessUncaughtFrames);
+        analytics.assert(
+          window._rollbarConfig.payload.environment === options.environment
+        );
+        analytics.assert(
+          window._rollbarConfig.ignoredMessages[0] ===
+            options.ignoredMessages[0]
+        );
+        analytics.assert(
+          window._rollbarConfig.payload.client.javascript.source_map_enabled ===
+            options.sourceMapEnabled
+        );
+        analytics.assert(
+          window._rollbarConfig.payload.client.javascript.code_version ===
+            options.codeVersion
+        );
+        analytics.assert(
+          window._rollbarConfig.payload.client.javascript
+            .guess_uncaught_frames === options.guessUncaughtFrames
+        );
         done();
       });
       analytics.initialize();
     });
-
 
     describe('#identify', function() {
       var rollbarClient;
@@ -142,10 +164,11 @@ describe('Rollbar', function() {
         window.onerror = undefined;
         analytics.initialize();
         analytics.stub(window.Rollbar, 'handleUncaughtException');
-        
+
         var err = new Error('testing');
         window.onerror('test message', 'http://foo.com', 33, 21, err);
-        analytics.called(window.Rollbar.handleUncaughtException,
+        analytics.called(
+          window.Rollbar.handleUncaughtException,
           'test message',
           'http://foo.com',
           33,
