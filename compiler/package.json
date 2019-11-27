@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "clean-ajs": "rm -r ./builds/analytics*.js"
   },
   "bin": {
     "compile": "./compile"
@@ -78,7 +78,6 @@
     "ejs": "^2.7.1",
     "express": "^4.17.1",
     "open": "^7.0.0",
-    "pug": "^2.0.4",
     "request": "^2.88.0",
     "through2": "^3.0.1"
   },
