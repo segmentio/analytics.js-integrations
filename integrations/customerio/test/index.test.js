@@ -29,9 +29,12 @@ describe('Customer.io', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(CustomerIO, integration('Customer.io')
-      .global('_cio')
-      .option('siteId', ''));
+    analytics.compare(
+      CustomerIO,
+      integration('Customer.io')
+        .global('_cio')
+        .option('siteId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -107,8 +110,15 @@ describe('Customer.io', function() {
       });
 
       it('should send an id and traits', function() {
-        analytics.identify('id', { trait: true, email: 'blackwidow@shield.gov' });
-        analytics.called(window._cio.identify, { id: 'id', trait: true, email: 'blackwidow@shield.gov' });
+        analytics.identify('id', {
+          trait: true,
+          email: 'blackwidow@shield.gov'
+        });
+        analytics.called(window._cio.identify, {
+          id: 'id',
+          trait: true,
+          email: 'blackwidow@shield.gov'
+        });
       });
 
       it('should convert dates to unix timestamps', function() {
@@ -189,7 +199,9 @@ describe('Customer.io', function() {
       it('should convert dates to unix timestamps', function() {
         var date = new Date();
         analytics.track('event', { date: date });
-        analytics.called(window._cio.track, 'event', { date: Math.floor(date / 1000) });
+        analytics.called(window._cio.track, 'event', {
+          date: Math.floor(date / 1000)
+        });
       });
     });
   });

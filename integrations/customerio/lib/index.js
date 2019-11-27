@@ -13,10 +13,12 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Customerio` integration.
  */
 
-var Customerio = module.exports = integration('Customer.io')
+var Customerio = (module.exports = integration('Customer.io')
   .global('_cio')
   .option('siteId', '')
-  .tag('<script id="cio-tracker" src="https://assets.customer.io/assets/track.js" data-site-id="{{ siteId }}">');
+  .tag(
+    '<script id="cio-tracker" src="https://assets.customer.io/assets/track.js" data-site-id="{{ siteId }}">'
+  ));
 
 /**
  * Initialize.
@@ -91,10 +93,12 @@ Customerio.prototype.group = function(group) {
     return 'Group ' + trait;
   });
 
-  this.identify(new Identify({
-    userId: user.id(),
-    traits: traits
-  }));
+  this.identify(
+    new Identify({
+      userId: user.id(),
+      traits: traits
+    })
+  );
 };
 
 /**
