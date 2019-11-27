@@ -13,13 +13,13 @@ var push = require('global-queue')('_paq');
  * Expose `Piwik` integration.
  */
 
-var Piwik = module.exports = integration('Piwik')
+var Piwik = (module.exports = integration('Piwik')
   .global('_paq')
   .option('url', null)
   .option('siteId', '')
   .option('customVariableLimit', 5)
   .mapping('goals')
-  .tag('<script src="{{ url }}/piwik.js">');
+  .tag('<script src="{{ url }}/piwik.js">'));
 
 /**
  * Initialize.
@@ -95,7 +95,13 @@ Piwik.prototype.track = function(track) {
 
   for (var i = 1; i <= this.options.customVariableLimit; i += 1) {
     if (customVariables[i]) {
-      push('setCustomVariable', i.toString(), customVariables[i][0], customVariables[i][1], 'page');
+      push(
+        'setCustomVariable',
+        i.toString(),
+        customVariables[i][0],
+        customVariables[i][1],
+        'page'
+      );
     }
   }
 
