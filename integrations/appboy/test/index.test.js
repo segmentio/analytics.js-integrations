@@ -369,6 +369,19 @@ describe('Appboy', function() {
         );
       });
 
+      it('should handle custom traits of valid types and including date object', function() {
+        var date = new Date();
+        analytics.identify('userId', {
+          date: date
+        });
+        analytics.called(window.appboy.changeUser, 'userId');
+        analytics.called(
+          window.appboy.ab.User.prototype.setCustomUserAttribute,
+          'date',
+          date
+        );
+      });
+
       it('should not let you set reserved keys as custom attributes', function() {
         analytics.identify('rick sanchez', {
           avatar: 'airbender',
@@ -428,6 +441,24 @@ describe('Appboy', function() {
             spiritAnimal: 'rihanna',
             best_friend: 'han',
             number_of_friends: 12
+          }
+        );
+      });
+
+      it('should send all properties including date object', function() {
+        var dob = new Date();
+        analytics.track('event with properties', {
+          nickname: 'noonz',
+          idols: ['beyonce', 'madonna'],
+          favoriteThings: { whiskers: 'on-kittins' },
+          dob: dob
+        });
+        analytics.called(
+          window.appboy.logCustomEvent,
+          'event with properties',
+          {
+            nickname: 'noonz',
+            dob: dob
           }
         );
       });
