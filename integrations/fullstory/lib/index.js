@@ -111,19 +111,15 @@ FullStory.prototype.page = function(page) {
   var name = page.fullName();
   var opts = this.options;
 
-  // all pages
-  if (opts.trackAllPages) {
-    this.track(page.track());
-  }
-
-  // categorized pages
-  if (category && opts.trackCategorizedPages) {
-    this.track(page.track(category));
-  }
-
-  // named pages
   if (name && opts.trackNamedPages) {
+    // named pages
     this.track(page.track(name));
+  } else if (category && opts.trackCategorizedPages) {
+    // categorized pages
+    this.track(page.track(category));
+  } else if (opts.trackAllPages) {
+    // all pages
+    this.track(page.track());
   }
 };
 
