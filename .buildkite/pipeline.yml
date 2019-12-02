@@ -1,0 +1,89 @@
+env:
+  SEGMENT_CONTEXTS: 'snyk,npm,aws-credentials,ecr'
+steps:
+  - label: "Install Dependencies"
+    commands:
+      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_AUTH}
+      - yarn install --frozen-lockfile
+    plugins:
+      - docker#v3.3.0:
+          image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          environment:
+            - AWS_ACCOUNT_ID # passes required env variables to docker container
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
+          s3_bucket_name: "segment-buildkite-cache" # default s3 bucket
+
+  - wait: ~
+
+  - label: "Lint"
+    commands:
+      - yarn lint
+    plugins:
+      - docker#v3.3.0:
+          image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          environment:
+            - AWS_ACCOUNT_ID
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
+
+  - label: "Test"
+    commands:
+      - yarn test
+    plugins:
+      - docker#v3.3.0:
+          image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          environment:
+            - AWS_ACCOUNT_ID
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
+
+  - wait: ~
+
+  - label: "Test Sauce Labs"
+    commands:
+      - yarn test:ci
+    plugins:
+      - docker#v3.3.0:
+          image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          environment:
+            - AWS_ACCOUNT_ID
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
+
+  - label: "Snyk Setup"
+    commands:
+      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_AUTH}
+      - yarn install --frozen-lockfile --production
+    plugins:
+      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0: 
+          runtime: npm
+      - docker#v3.3.0:
+          image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          environment:
+            - AWS_ACCOUNT_ID
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-prod-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
+
+  - wait: ~
+
+  - label: "Publish"
+    branches: master
+    commands:
+      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_AUTH}
+      - yarn lerna publish from-package --yes
+    plugins:
+      - docker#v3.3.0:
+          image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          environment:
+            - AWS_ACCOUNT_ID
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
+
+  
