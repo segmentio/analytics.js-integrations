@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const process = require('process')
+const program = require('commander')
+const build = require('./scripts/build')
+const buildIntegrations = require('./scripts/buildIntegrations')
+const addSettings = require('./scripts/settings')
+const path = require('path')
+const server = require('./server')
+const { spawnSync } = require('child_process')
+const generateFile = require('./scripts/generateFile')
+const open = require('open')
+const filePath = path.join(__dirname + '/src/index.html')
+const buildName = `${Math.floor(new Date() / 1000)}`;
+const fileName = path.join(__dirname, 'builds', `analytics-${buildName}.js`)
+
+program
+  .option('-w, --writeKey <writeKey>', 'Segment writeKey to for viewing events in the debugger')
+  .option('-p, --port [port]', 'Set a port to serve the local ajs file from', 3000)
+  .parse(process.argv)
+
+if (!program.writeKey) {
+  console.error('Error: --writeKey required')
+  process.exit(1)
+}
+
+// run `yarn install --no-lockfile` before each build to pull in any updates made in the /integrations directory
+spawnSync('yarn install --no-lockfile', {
+  shell: true,
+  cwd: __dirname,
+  stdio: 'inherit'
+})
+
+const writeKey = program.writeKey
+const port = program.port || 3000
+
+buildIntegrations()
+build(async (ajs, integrationVersions, coreVersion) => {
+  const compiled = await addSettings({
+    ajs,
+    integrationVersions,
+    coreVersion,
+    writeKey
+  })
+
+  fs.writeFileSync(fileName, compiled)
+  
+  generateFile(program.writeKey, port)
+  server(compiled, filePath, port)
+  open(`http://localhost:${port}`)
+})

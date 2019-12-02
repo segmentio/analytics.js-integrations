@@ -2883,6 +2883,47 @@ describe('Facebook Pixel', function() {
 
       analytics.deepEqual(expected, actual);
     });
+
+    it('should send user traits if specified in snake case', function() {
+      analytics.identify('123', {
+        first_name: 'john',
+        last_name: 'doe',
+        address: {
+          postal_code: 123456
+        }
+      });
+      var expected = {
+        fn: 'john',
+        ln: 'doe',
+        ge: 'm',
+        db: '19910113',
+        zp: 123456
+      };
+      var actual = facebookPixel.formatTraits(analytics);
+
+      analytics.deepEqual(expected, actual);
+    });
+
+    it('should prefer camelCase traits over snake_case traits', function() {
+      analytics.identify('123', {
+        firstName: 'joe',
+        first_name: 'john',
+        last_name: 'doe',
+        address: {
+          postal_code: 123456
+        }
+      });
+      var expected = {
+        fn: 'joe',
+        ln: 'doe',
+        ge: 'm',
+        db: '19910113',
+        zp: 123456
+      };
+      var actual = facebookPixel.formatTraits(analytics);
+
+      analytics.deepEqual(expected, actual);
+    });
   });
 
   describe('#merge', function() {

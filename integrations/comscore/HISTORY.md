@@ -1,7 +1,9 @@
-2.0.4 / 2018-01-24
+2.0.5 / 2019-11-25
 ==================
 
- * Ladan made a mistake, see 2.0.3 for changes.
+ * Adds support for `comscorekw` parameter
+ * Leverages new destination config setting `comscorekw` to assign value to `comscorekw` query parameter
+
 
 2.0.3 / 2018-01-24
 ==================

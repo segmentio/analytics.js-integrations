@@ -17,6 +17,12 @@ var is = require('is');
 var integration = require('@segment/analytics.js-integration');
 
 /**
+ * Regex to indentify the devices.
+ */
+var ipadRegex = /iPad/;
+var mobileRegex = /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/;
+
+/**
  * Expose Criteo integration.
  */
 
@@ -39,6 +45,7 @@ Criteo.prototype.initialize = function() {
 
   window.criteo_q = window.criteo_q || [];
   window.criteo_q.push({ event: 'setAccount', account: account });
+  window.criteo_q.push({ event: 'setSiteType', type: getDeviceType() });
 
   var protocol = useHttps() ? 'https' : 'http';
   this.load(protocol, this.ready);
@@ -252,4 +259,25 @@ function getProductMetadata(track) {
   });
 
   return products;
+}
+
+/**
+ * Get Device Type
+ *
+ * @api private
+ *
+ * REF: https://support.criteo.com/s/article?article=202806931-Managing-your-different-site-types&language=en_US
+ */
+
+function getDeviceType() {
+  if (!navigator || !navigator.userAgent) {
+    return 'd';
+  }
+  if (ipadRegex.test(navigator.userAgent)) {
+    return 't';
+  }
+  if (mobileRegex.test(navigator.userAgent)) {
+    return 'm';
+  }
+  return 'd';
 }
