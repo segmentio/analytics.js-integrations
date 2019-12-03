@@ -6,7 +6,11 @@ Note: The path to all directories referenced in this document are relative to th
 
 # Install
 
-There is NO NEED to `yarn` or `yarn install` before using this command line tool. Simply run `./compile --writeKey=<YOUR WRITE KEY>` to get started.
+Before you begin, run `yarn install --no-lockfile` to install dependencies. Be sure to include `no-lockfile` - this prevents yarn from generating a `yarn.lock` file. The lock file locks dependency versions, which prevents this CLI 
+from pulling in local changes you make to integrations in this repo. If at any point you generate a lock file in this 
+directory, delete it before continuing, or you won't be able to test any of your local integration changes.
+
+To get started, simply run `./compile --writeKey=<YOUR WRITE KEY>`.
 
 # Usage
 
