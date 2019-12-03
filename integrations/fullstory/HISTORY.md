@@ -1,3 +1,7 @@
+2.2.2 / 2019-11-26
+==================
+
+  * Added support for page events with 3 option settings i.e. trackAllPages, trackNamedPages,trackCategorizedPages.
 
 2.2.1 / 2019-08-09
 ==================
