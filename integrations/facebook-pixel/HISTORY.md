@@ -1,3 +1,8 @@
+2.9.1/ 2019-12-03
+==================
+
+  * Use userId or anonyousId as external_id if not present in traits.
+
 2.9.0/ 2019-10-23
 ==================
 

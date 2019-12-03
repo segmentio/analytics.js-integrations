@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-facebook-pixel",
   "description": "The Facebook Pixel analytics.js integration.",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
