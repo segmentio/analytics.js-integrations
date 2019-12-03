@@ -13,8 +13,8 @@ describe('FullStory', function() {
     org: '1JO',
     debug: false,
     trackAllPages: false,
-    trackNamedPages: true,
-    trackCategorizedPages: true
+    trackNamedPages: false,
+    trackCategorizedPages: false
   };
 
   beforeEach(function() {
@@ -39,8 +39,8 @@ describe('FullStory', function() {
         .option('org', '')
         .option('debug', false)
         .option('trackAllPages', false)
-        .option('trackNamedPages', true)
-        .option('trackCategorizedPages', true)
+        .option('trackNamedPages', false)
+        .option('trackCategorizedPages', false)
     );
   });
 
@@ -203,20 +203,26 @@ describe('FullStory', function() {
         analytics.called(window.FS.event, 'Loaded a Page');
       });
 
-      it('should track named pages by default', function() {
-        analytics.page('Dashboard');
-        analytics.called(window.FS.event, 'Viewed Dashboard Page');
-      });
-
-      it('should not track name or categorized pages if disabled', function() {
-        fullstory.options.trackNamedPages = false;
-        analytics.page('Dashboard');
+      it('should not track named pages by default', function() {
+        analytics.page('Name');
         analytics.didNotCall(window.FS.event);
       });
 
-      it('should track categorized pages by default', function() {
+      it('should track named pages if enabled', function() {
+        fullstory.options.trackNamedPages = true;
+        analytics.page('Name');
+        analytics.called(window.FS.event, 'Viewed Name Page');
+      });
+
+      it('should not track categorized pages by default', function() {
         analytics.page('Category', 'Name');
-        analytics.called(window.FS.event, 'Viewed Category Name Page');
+        analytics.didNotCall(window.FS.event);
+      });
+
+      it('should track categorized pages if enabled', function() {
+        fullstory.options.trackCategorizedPages = true;
+        analytics.page('Category', 'Name');
+        analytics.called(window.FS.event, 'Viewed Category Page');
       });
     });
   });

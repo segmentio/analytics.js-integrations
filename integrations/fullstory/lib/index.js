@@ -18,8 +18,8 @@ var FullStory = (module.exports = integration('FullStory')
   .option('org', '')
   .option('debug', false)
   .option('trackAllPages', false)
-  .option('trackNamedPages', true)
-  .option('trackCategorizedPages', true)
+  .option('trackNamedPages', false)
+  .option('trackCategorizedPages', false)
   .tag(
     '<script async src="https://www.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
   ));
