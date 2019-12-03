@@ -627,8 +627,8 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
     external_id = traits[this.options.keyForExternalId]; // eslint-disable-line
   }
   if (!external_id && analytics) { // eslint-disable-line
-    var userData = analytics.user().options();
-    external_id = userData.ajs_user_id || userData.ajs_anonymous_id; // eslint-disable-line
+    var userData = analytics.user();
+    external_id = userData.id() || userData.anonymousId(); // eslint-disable-line
   }
   return reject({
     em: traits.email,
