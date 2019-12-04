@@ -30,13 +30,16 @@ describe('Atatus', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Atatus, integration('Atatus')
-      .global('atatus')
-      .option('apiKey', '')
-      .option('disableAjaxMonitoring', false)
-      .option('disableSPA', false)
-      .option('allowedDomains', [])
-      .option('enableOffline', false));
+    analytics.compare(
+      Atatus,
+      integration('Atatus')
+        .global('atatus')
+        .option('apiKey', '')
+        .option('disableAjaxMonitoring', false)
+        .option('disableSPA', false)
+        .option('allowedDomains', [])
+        .option('enableOffline', false)
+    );
   });
 
   describe('before loading', function() {
@@ -110,8 +113,17 @@ describe('Atatus', function() {
 
       it('should send an id and traits', function() {
         analytics.identify('id', { name: 'John Doe', email: 'john@acme.com' });
-        analytics.called(window.atatus.setUser, 'id', 'john@acme.com', 'John Doe');
-        analytics.called(window.atatus.setCustomData, { id: 'id', name: 'John Doe', email: 'john@acme.com' });
+        analytics.called(
+          window.atatus.setUser,
+          'id',
+          'john@acme.com',
+          'John Doe'
+        );
+        analytics.called(window.atatus.setCustomData, {
+          id: 'id',
+          name: 'John Doe',
+          email: 'john@acme.com'
+        });
       });
     });
   });

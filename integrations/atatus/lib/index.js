@@ -11,14 +11,14 @@ var isObject = require('isobject');
  * Expose `Atatus` integration.
  */
 
-var Atatus = module.exports = integration('Atatus')
+var Atatus = (module.exports = integration('Atatus')
   .global('atatus')
   .option('apiKey', '')
   .option('disableAjaxMonitoring', false)
   .option('disableSPA', false)
   .option('allowedDomains', [])
   .option('enableOffline', false)
-  .tag('<script src="//dmc1acwvwny3.cloudfront.net/{{ lib }}.js">');
+  .tag('<script src="//dmc1acwvwny3.cloudfront.net/{{ lib }}.js">'));
 
 /**
  * Initialize.
@@ -43,7 +43,10 @@ Atatus.prototype.initialize = function() {
     window.atatus.config(self.options.apiKey, configOptions).install();
 
     // Set allowed domains and enable offline
-    if (Array.isArray(self.options.allowedDomains) && self.options.allowedDomains.length > 0) {
+    if (
+      Array.isArray(self.options.allowedDomains) &&
+      self.options.allowedDomains.length > 0
+    ) {
       window.atatus.setAllowedDomains(self.options.allowedDomains);
     }
     window.atatus.enableOffline(self.options.enableOffline);
