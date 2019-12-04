@@ -5,6 +5,18 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Ignore custom A.js builds
+builds/*
+
+# Ignore custom index file
+src/index.html
+
+# Ignore integrations map
+lib/integrations.js
+
+# Ignore lockfiles
+*.lock
+
 # Runtime data
 pids
 *.pid

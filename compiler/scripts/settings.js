@@ -19,6 +19,9 @@ async function getSourceSettings(writeKey) {
     request.get({ url: url, gzip: true }, (err, _, body) => {
       if (err) {
         reject(err);
+      } else if (body && body.includes('Invalid path or write key provided.')) {
+        console.error('Please make sure your Segment writeKey was entered correctly.\nMore info: https://segment.com/docs/connections/find-writekey')
+        reject(body);
       } else {
         resolve(JSON.parse(body));
       }
@@ -119,6 +122,14 @@ async function context(integrationVersions, coreVersion, writeKey) {
 
 module.exports = async function ({ ajs, integrationVersions, coreVersion, writeKey }) {
   const { version } = coreVersion
-  const ctx = await context(integrationVersions, version, writeKey)
+  let ctx
+
+  try {
+    await context(integrationVersions, version, writeKey)
+  } catch(err) {
+    console.error('Error:', err)
+    return
+  }
+
   return ejs.compile(ajs)(ctx)
-};
+}

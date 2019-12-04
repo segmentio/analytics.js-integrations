@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "clean-ajs": "rm -i ./builds/analytics*.js"
   },
   "bin": {
     "compile": "./compile"
@@ -25,6 +25,7 @@
     "@segment/analytics.js-integration-clevertap": "file:../integrations/clevertap",
     "@segment/analytics.js-integration-convertro": "file:../integrations/convertro",
     "@segment/analytics.js-integration-criteo": "file:../integrations/criteo",
+    "@segment/analytics.js-integration-customerio": "file:../integrations/customerio",
     "@segment/analytics.js-integration-cxense": "file:../integrations/cxense",
     "@segment/analytics.js-integration-doubleclick-floodlight": "file:../integrations/doubleclick-floodlight",
     "@segment/analytics.js-integration-eloqua": "file:../integrations/eloqua",
@@ -33,6 +34,7 @@
     "@segment/analytics.js-integration-friendbuy": "file:../integrations/friendbuy",
     "@segment/analytics.js-integration-fullstory": "file:../integrations/fullstory",
     "@segment/analytics.js-integration-google-analytics": "file:../integrations/google-analytics",
+    "@segment/analytics.js-integration-google-tag-manager": "file:../integrations/google-tag-manager",
     "@segment/analytics.js-integration-heap": "file:../integrations/heap",
     "@segment/analytics.js-integration-hindsight": "file:../integrations/hindsight",
     "@segment/analytics.js-integration-hotjar": "file:../integrations/hotjar",
@@ -54,10 +56,12 @@
     "@segment/analytics.js-integration-optimizely": "file:../integrations/optimizely",
     "@segment/analytics.js-integration-pardot": "file:../integrations/pardot",
     "@segment/analytics.js-integration-pinterest-tag": "file:../integrations/pinterest-tag",
+    "@segment/analytics.js-integration-piwik": "file:../integrations/piwik",
     "@segment/analytics.js-integration-qualaroo": "file:../integrations/qualaroo",
     "@segment/analytics.js-integration-quora-conversion-pixel": "file:../integrations/quora-conversion-pixel",
     "@segment/analytics.js-integration-rockerbox": "file:../integrations/rockerbox",
     "@segment/analytics.js-integration-rocket-fuel": "file:../integrations/rocket-fuel",
+    "@segment/analytics.js-integration-rollbar": "file:../integrations/rollbar",
     "@segment/analytics.js-integration-salesforce-dmp": "file:../integrations/salesforce-dmp",
     "@segment/analytics.js-integration-salesforce-live-agent": "file:../integrations/salesforce-live-agent",
     "@segment/analytics.js-integration-segmentio": "file:../integrations/segmentio",
@@ -78,7 +82,6 @@
     "ejs": "^2.7.1",
     "express": "^4.17.1",
     "open": "^7.0.0",
-    "pug": "^2.0.4",
     "request": "^2.88.0",
     "through2": "^3.0.1"
   },
