@@ -15,7 +15,7 @@ var Atatus = (module.exports = integration('Atatus')
   .global('atatus')
   .option('apiKey', '')
   .option('disableAjaxMonitoring', false)
-  .option('disableSPA', false)
+  .option('disableSpa', false)
   .option('allowedDomains', [])
   .option('enableOffline', false)
   .tag('<script src="//dmc1acwvwny3.cloudfront.net/{{ lib }}.js">'));
@@ -29,13 +29,13 @@ var Atatus = (module.exports = integration('Atatus')
  */
 
 Atatus.prototype.initialize = function() {
-  var lib = this.options.disableSPA ? 'atatus' : 'atatus-spa';
+  var lib = this.options.disableSpa ? 'atatus' : 'atatus-spa';
   var self = this;
 
   this.load({ lib: lib }, function() {
     var configOptions = {
       disableAjaxMonitoring: self.options.disableAjaxMonitoring,
-      disableSPA: self.options.disableSPA
+      disableSPA: self.options.disableSpa
     };
 
     // Configure Atatus and install default handler to capture uncaught
