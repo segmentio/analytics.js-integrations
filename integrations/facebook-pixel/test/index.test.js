@@ -156,7 +156,6 @@ describe('Facebook Pixel', function() {
       });
 
       it("should call init with the user's traits if option enabled", function() {
-        facebookPixel.options.automaticConfiguration = true;
         var payload = {
           ct: 'emerald',
           db: '19910113',
@@ -164,8 +163,7 @@ describe('Facebook Pixel', function() {
           ge: 'm',
           ln: 'ketchum',
           st: 'kanto',
-          zp: 123456,
-          external_id: '123'
+          zp: 123456
         };
 
         analytics.stub(window, 'fbq');
@@ -2751,10 +2749,8 @@ describe('Facebook Pixel', function() {
 
   describe('#formatTraits', function() {
     it('should return an empty object if traits is falsy', function() {
+      var expected = {};
       analytics.reset();
-
-      var userData = analytics.user();
-      var expected = { external_id: userData.anonymousId() };
       var actual = facebookPixel.formatTraits(analytics);
 
       analytics.deepEqual(expected, actual);
@@ -2772,8 +2768,7 @@ describe('Facebook Pixel', function() {
         db: '19910113',
         ct: 'emerald',
         st: 'kanto',
-        zp: 123456,
-        external_id: '123'
+        zp: 123456
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2792,8 +2787,7 @@ describe('Facebook Pixel', function() {
         db: '19910113',
         ct: 'emerald',
         st: 'kanto',
-        zp: 123456,
-        external_id: '123'
+        zp: 123456
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2810,8 +2804,7 @@ describe('Facebook Pixel', function() {
         db: '19910113',
         ct: 'emerald',
         st: 'kanto',
-        zp: 123456,
-        external_id: '123'
+        zp: 123456
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2826,8 +2819,7 @@ describe('Facebook Pixel', function() {
         fn: 'ash',
         ln: 'ketchum',
         ge: 'm',
-        db: '19910113',
-        external_id: '123'
+        db: '19910113'
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2854,6 +2846,47 @@ describe('Facebook Pixel', function() {
       analytics.deepEqual(expected, actual);
     });
 
+    it('should add an id or anonymousId as external_id if both settings enabled', function() {
+      facebookPixel.options.keyForExternalId = 'test_external_id';
+      facebookPixel.options.userIdAsExternalId = true;
+      analytics.identify('123', {
+        firstName: 'brie',
+        lastName: 'test',
+        test_external_id: '123456789', // eslint-disable-line
+        address: null
+      });
+      var expected = {
+        fn: 'brie',
+        ln: 'test',
+        ge: 'm',
+        db: '19910113',
+        external_id: '123456789' // eslint-disable-line
+      };
+      var actual = facebookPixel.formatTraits(analytics);
+
+      analytics.deepEqual(expected, actual);
+    });
+
+    it('should prefer specified field over id or anonymousId as external_id if defined in settings', function() {
+      facebookPixel.options.userIdAsExternalId = true;
+      analytics.identify('123', {
+        firstName: 'brie',
+        lastName: 'test',
+        test_external_id: '123456789', // eslint-disable-line
+        address: null
+      });
+      var expected = {
+        fn: 'brie',
+        ln: 'test',
+        ge: 'm',
+        db: '19910113',
+        external_id: '123' // eslint-disable-line
+      };
+      var actual = facebookPixel.formatTraits(analytics);
+
+      analytics.deepEqual(expected, actual);
+    });
+
     it('should reject an external_id if NOT defined in settings', function() {
       facebookPixel.options.keyForExternalId = '';
       analytics.identify('123', {
@@ -2866,8 +2899,7 @@ describe('Facebook Pixel', function() {
         fn: 'brie',
         ln: 'test',
         ge: 'm',
-        db: '19910113',
-        external_id: '123'
+        db: '19910113'
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2886,8 +2918,7 @@ describe('Facebook Pixel', function() {
         fn: 'brie',
         ln: 'test',
         ge: 'm',
-        db: '19910113',
-        external_id: '123'
+        db: '19910113'
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2907,8 +2938,7 @@ describe('Facebook Pixel', function() {
         ln: 'doe',
         ge: 'm',
         db: '19910113',
-        zp: 123456,
-        external_id: '123'
+        zp: 123456
       };
       var actual = facebookPixel.formatTraits(analytics);
 
@@ -2929,8 +2959,7 @@ describe('Facebook Pixel', function() {
         ln: 'doe',
         ge: 'm',
         db: '19910113',
-        zp: 123456,
-        external_id: '123'
+        zp: 123456
       };
       var actual = facebookPixel.formatTraits(analytics);
 
