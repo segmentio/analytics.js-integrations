@@ -14,10 +14,12 @@ var obj = require('obj-case');
  * Expose `Pendo` integration.
  */
 
-var Pendo = module.exports = integration('Pendo')
+var Pendo = (module.exports = integration('Pendo')
   .global('pendo')
   .option('apiKey', '')
-  .tag('<script src="https://cdn.pendo.io/agent/static/{{ apiKey }}/pendo.js">');
+  .tag(
+    '<script src="https://cdn.pendo.io/agent/static/{{ apiKey }}/pendo.js">'
+  ));
 
 /**
  * Either use this as a TagLoader and all the relevant Pendo information will
@@ -30,7 +32,10 @@ var Pendo = module.exports = integration('Pendo')
 
 Pendo.prototype.initialize = function() {
   window.pendo = window.pendo || {};
-  window.pendo_options = window.pendo_options || { apiKey: this.options.apiKey, usePendoAgentAPI: true };
+  window.pendo_options = window.pendo_options || {
+    apiKey: this.options.apiKey,
+    usePendoAgentAPI: true
+  };
 
   this.load(this.ready, { apiKey: this.options.apiKey });
 };
@@ -83,7 +88,7 @@ function isUserAnonymous(identify) {
   return !identify.userId();
 }
 function pendoifyAnonymousId(anonymousId) {
-  return '_PENDO_T_'+anonymousId;
+  return '_PENDO_T_' + anonymousId;
 }
 
 /**
@@ -106,7 +111,7 @@ function _identify(identify, group) {
 
   var parentAccount = obj.find(groupTraits, 'parentAccount');
   if (parentAccount) {
-    obj['delete'](groupTraits, 'parentAccount');
+    obj.delete(groupTraits, 'parentAccount');
     options.parentAccount = parentAccount;
   }
 

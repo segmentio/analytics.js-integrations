@@ -60,7 +60,10 @@ describe('Pendo', function() {
       });
 
       it('should create a pendo_options object using API', function() {
-        analytics.assert.deepEqual(window.pendo_options, { apiKey: options.apiKey, usePendoAgentAPI: true });
+        analytics.assert.deepEqual(window.pendo_options, {
+          apiKey: options.apiKey,
+          usePendoAgentAPI: true
+        });
       });
     });
   });
