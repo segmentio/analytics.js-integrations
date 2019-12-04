@@ -27,12 +27,12 @@ if (!program.writeKey) {
 
 const opts = {
   shell: true,
-  cwd: __dirname,
+  cwd: __dirname
 }
 
 // check if any files have changed since most recent `git add`
 const diff = spawnSync('git diff --name-only', opts)
-if (diff) {
+if (diff.stdout && (diff.stdout).toString().length) {
   opts.stdio = 'inherit'
   // if not, run `yarn install --no-lockfile` to pull in any updates made in the /integrations directory
   spawnSync('yarn install --no-lockfile', opts)
