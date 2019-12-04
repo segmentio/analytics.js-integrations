@@ -605,10 +605,29 @@ describe('Google Analytics', function() {
           analytics.page('Name');
           analytics.page('Category', 'Name');
           // send should only be sent twice, for pageviews, not events
+          analytics.assert(window.ga.args.length === 6);
+          analytics.assert(window.ga.args[0][0] === 'set');
+          analytics.assert(window.ga.args[1][0] === 'set');
+          analytics.assert(window.ga.args[2][0] === 'send');
+          analytics.assert(window.ga.args[3][0] === 'set');
+          analytics.assert(window.ga.args[4][0] === 'set');
+          analytics.assert(window.ga.args[5][0] === 'send');
+        });
+
+        it('should reset custom dimensions before set', function() {
+          ga.options.dimensions = { fruit: 'CD1' };
+          analytics.page({
+            fruit: 'Apple'
+          });
           analytics.assert(window.ga.args.length === 4);
           analytics.assert(window.ga.args[0][0] === 'set');
-          analytics.assert(window.ga.args[1][0] === 'send');
-          analytics.assert(window.ga.args[2][0] === 'set');
+          analytics.deepEqual(window.ga.args[0][1], {
+            fruit: ''
+          });
+          analytics.assert(window.ga.args[1][0] === 'set');
+          analytics.deepEqual(window.ga.args[1][1], {
+            CD1: 'Apple'
+          });
           analytics.assert(window.ga.args[3][0] === 'send');
         });
 

@@ -228,6 +228,14 @@ GA.prototype.page = function(page) {
     title: pageTitle
   };
 
+  // Reset custom dimension which are previously set.
+  var customDimension = {};
+  var dimensionsKeys = Object.keys(opts.dimensions);
+  for (var i = 0; i < dimensionsKeys.length; i++) {
+    customDimension[dimensionsKeys[i]] = '';
+  }
+  window.ga(self._trackerName + 'set', customDimension);
+
   pageview = extend(
     pageview,
     setCustomDimenionsAndMetrics(props, opts, self._trackerName)

@@ -89,7 +89,7 @@
 </script>
 
 <body> 
-  <h1> ⚙️ Golden Compiler ⚙️ </h1>
+  <h1> ⚙️ Analytics.js Integration Tester ⚙️ </h1>
 
   <p> A version of the compiled AJS has been loaded on this page containing your new integration. 
   You can test out events in the console! </p>
