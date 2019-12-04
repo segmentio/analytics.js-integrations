@@ -1,7 +1,7 @@
 2.10.0/ 2019-12-04
 ==================
 
-  * Use userId or anonyousId as external_id if not present in traits.
+  * Use userId or anonyousId as external_id if not present in traits, user needs to enable new setting "userIdAsExternalId" needs to set to "true" which defaults to "false". Also setting "keyForExternalId" has high preference above this setting.
 
 2.9.0/ 2019-10-23
 ==================
