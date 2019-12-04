@@ -11,6 +11,9 @@ builds/*
 # Ignore custom index file
 src/index.html
 
+# Ignore integrations map
+lib/integrations.js
+
 # Ignore lockfiles
 *.lock
 
