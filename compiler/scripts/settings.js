@@ -20,7 +20,7 @@ async function getSourceSettings(writeKey) {
       if (err) {
         reject(err);
       } else if (body && body.includes('Invalid path or write key provided.')) {
-        console.error('Please make sure your Segment writeKey was entered correctly.')
+        console.error('Please make sure your Segment writeKey was entered correctly.\nMore info: https://segment.com/docs/connections/find-writekey')
         reject(body);
       } else {
         resolve(JSON.parse(body));

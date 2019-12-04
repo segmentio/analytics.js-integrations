@@ -25,12 +25,18 @@ if (!program.writeKey) {
   process.exit(1)
 }
 
-// run `yarn install --no-lockfile` before each build to pull in any updates made in the /integrations directory
-spawnSync('yarn install --no-lockfile', {
+const opts = {
   shell: true,
   cwd: __dirname,
-  stdio: 'inherit'
-})
+}
+
+// check if any files have changed since most recent `git add`
+const diff = spawnSync('git diff --name-only', opts)
+if (diff) {
+  opts.stdio = 'inherit'
+  // if not, run `yarn install --no-lockfile` to pull in any updates made in the /integrations directory
+  spawnSync('yarn install --no-lockfile', opts)
+}
 
 const writeKey = program.writeKey
 const port = program.port || 3000
