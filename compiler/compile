@@ -37,15 +37,26 @@ const port = program.port || 3000
 
 buildIntegrations()
 build(async (ajs, integrationVersions, coreVersion) => {
-  const compiled = await addSettings({
-    ajs,
-    integrationVersions,
-    coreVersion,
-    writeKey
-  })
+  let compiled
+
+  try {
+    compiled = await addSettings({
+      ajs,
+      integrationVersions,
+      coreVersion,
+      writeKey
+    })
+  } catch(err) {
+    console.error('Error:', err)
+    return
+  }
+
+  if (!compiled) {
+    console.error('Looks like we couldn\'t compile A.js! Please read the error output above and try again.')
+    process.exit(1)
+  }
 
   fs.writeFileSync(fileName, compiled)
-  
   generateFile(program.writeKey, port)
   server(compiled, filePath, port)
   open(`http://localhost:${port}`)
