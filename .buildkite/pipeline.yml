@@ -35,10 +35,13 @@
 env:
   SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr"
 steps:
-  - label: ":hammer: Install Dependencies"
+  - label: ":hammer: Build and Test"
     command:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
+      - yarn lint
+      - yarn test
+      - yarn test:ci
     plugins:
       # cache node_modules so we can avoid pulling them again next time
       ## the cache plugin will load the cache before the command runs, and
@@ -54,23 +57,25 @@ steps:
           user: root
           environment:
             - NPM_TOKEN
+            - SAUCE_USERNAME
+            - SAUCE_ACCESS_KEY
 
-  - wait: ~
+  # - wait: ~
 
-  - label: ":clippy: Test"
-    command:
-      - yarn lint
-      - yarn test
-      - yarn test:ci
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-      - docker#v3.3.0:
-        image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        environment:
-          - SAUCE_USERNAME
-          - SAUCE_ACCESS_KEY
+  # - label: ":clippy: Test"
+  #   command:
+  #     - yarn lint
+  #     - yarn test
+  #     - yarn test:ci
+  #   plugins:
+  #     - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+  #         key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+  #         paths: ["node_modules/"]
+  #     - docker#v3.3.0:
+  #       image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+  #       environment:
+  #         - SAUCE_USERNAME
+  #         - SAUCE_ACCESS_KEY
 
   # - wait: ~
 
