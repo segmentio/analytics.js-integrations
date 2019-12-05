@@ -51,6 +51,7 @@ steps:
       ## container
       - docker#v3.3.0:
           image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          user: root
           environment:
             - NPM_TOKEN
 

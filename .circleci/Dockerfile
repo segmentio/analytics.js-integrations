@@ -1,4 +1,4 @@
-FROM node:8
+FROM circleci/node:8-browsers
 
 RUN sudo apt-get install cmake libhttp-parser-dev openssl inotify-tools
 
