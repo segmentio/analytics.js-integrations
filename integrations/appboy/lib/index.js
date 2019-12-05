@@ -330,7 +330,12 @@ Appboy.prototype.identify = function(identify) {
   // Remove nested hash objects as Braze only supports nested array objects in identify calls
   // https://segment.com/docs/destinations/braze/#identify
   each(function(value, key) {
-    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      !isDate(value)
+    ) {
       delete traits[key];
     }
   }, traits);
@@ -385,7 +390,7 @@ Appboy.prototype.track = function(track) {
     // Remove nested objects as Braze doesn't support objects in tracking calls
     // https://segment.com/docs/destinations/braze/#track
     each(function(value, key) {
-      if (value != null && typeof value === 'object') {
+      if (value != null && typeof value === 'object' && !isDate(value)) {
         delete properties[key];
       }
     }, properties);
@@ -552,7 +557,7 @@ function isValidProperty(name, value) {
     return true;
   }
 
-  if (typeof value === 'object' && value instanceof Date) {
+  if (isDate(value)) {
     return true;
   }
 
@@ -564,4 +569,15 @@ function isValidProperty(name, value) {
   }
 
   return false;
+}
+
+/**
+ * Validate date:
+ *
+ * @param {*} value Value of the property.
+ *
+ * @return {boolean} <code>true</code> if the value are valid, <code>false</code> otherwise.
+ */
+function isDate(value) {
+  return typeof value === 'object' && value instanceof Date;
 }
