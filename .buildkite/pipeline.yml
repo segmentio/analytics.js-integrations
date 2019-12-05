@@ -1,37 +1,3 @@
-## Welcome to your new Buildkite pipeline! Here are some tips for writing 
-## Buildkite pipelines effectively.
-##
-## Note: all these tips start with ##. You can safely delete them, or run 
-## `robo buildkite.init --no-training-wheels` instead
-##
-## First and foremost, have the Migration and User Guides open:
-## https://paper.dropbox.com/doc/Buildkite-Migration-Guide--ApYHt7fhypjCwxOnWz0ZMrcxAg-KjGact4XknLOeYoLKzEIg
-## https://paper.dropbox.com/doc/Buildkite-User-Guide--ApY_Y9B3QdQh_4eFQG9Irpj~Ag-rgHkGmr6vm1QIcKDq0hJj
-##
-## `env` sets environment variables for every job
-## 
-## `SEGMENT_CONTEXTS` is a special env var that you can use to opt into
-## "contexts", preconfigured build environments.
-##
-## The list of available contexts is listed at
-## https://github.com/segmentio/buildkite-hooks#available-contexts
-##
-## In `steps`, there is a list of steps. Each of these is by default executed 
-## *in parallel* and on different build hosts.
-##
-## A step may have a `label`, and the label should have cool emoji in it.
-##
-## A step may have a list (or string) of `commands`, which are just shell. You
-## might see environment variables used like `$${TREB_IMAGE_TAG}`; the double-
-## dollar sign means to delay interpolation until it's run.
-##
-## A step may have a list of `plugins`, which are reusable chunks of shell
-## with an interface. The README in the source of the plugin should be
-## consulted for the parameters it takes. Plugin URLs are of the form
-## `<git remote URL>#<git ref>` for third party plugins, or just 
-## `<name>#<git ref>` for official ones.
-##
-## Plugins may run before and/or after commands via hooks.
 env:
   SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr,saucelabs"
 steps:
@@ -43,15 +9,10 @@ steps:
       - yarn test
       - yarn test:ci
     plugins:
-      # cache node_modules so we can avoid pulling them again next time
-      ## the cache plugin will load the cache before the command runs, and
-      ## store the cache after.
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache" # default s3 bucket
-      ## the docker plugin causes our commands to be executed inside a docker
-      ## container
+          s3_bucket_name: "segment-buildkite-cache"
       - docker#v3.3.0:
           image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
           user: root
@@ -63,27 +24,21 @@ steps:
   - wait: ~
 
   - label: ":hammer: Synk Setup"
-    # commands:
-    # Might not need this 
-    #   - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
-    #   - yarn install --frozen-lockfile --production
     plugins:
-      ## Remember, each step is executed on a separate machine, so we need to
-      ## carry our work along with us
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ["node_modules/"]
       - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0: 
           runtime: npm
 
-  # - wait: ~ 
+  - wait: ~ 
 
-  # - label: ":cloud: Publish"
-  #   branches: master 
-  #   commands:
-  #     - yarn lerna publish from-package --yes
-  #   plugins: 
-  #     - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-  #         key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-  #         paths: ["node_modules/"]
+  - label: ":cloud: Publish"
+    branches: master 
+    commands:
+      - yarn lerna publish from-package --yes
+    plugins: 
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
     
