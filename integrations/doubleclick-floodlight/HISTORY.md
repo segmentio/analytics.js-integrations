@@ -1,7 +1,7 @@
-1.5.0 / 2019-05-03
+1.5.0 / 2019-12-05
 ==================
 
-  * Add support for cookie matching tag
+  * Add support for cookie matching tag with setting to enable/disable "getDoubleClickId" defaults to false and "googleNetworkId" needs to be passed in options.
 
 1.4.2 / 2018-02-23
 ==================
