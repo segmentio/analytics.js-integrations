@@ -46,7 +46,6 @@ steps:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
       ## the docker plugin causes our commands to be executed inside a docker
       ## container
       - docker#v3.3.0:
@@ -56,37 +55,37 @@ steps:
             - NPM_TOKEN
 
 
-  - wait: ~
+  # - wait: ~
 
-  - label: ":clippy: Test"
-    command:
-      - yarn lint
-      - yarn test
-      - yarn test:ci
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-      - docker#v3.3.0:
-        image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        environment:
-          - AWS_ACCOUNT_ID # passes required env variables to docker container
-          - SAUCE_USERNAME
-          - SAUCE_ACCESS_KEY
+  # - label: ":clippy: Test"
+  #   command:
+  #     - yarn lint
+  #     - yarn test
+  #     - yarn test:ci
+  #   plugins:
+  #     - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+  #         key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+  #         paths: ["node_modules/"]
+  #     - docker#v3.3.0:
+  #       image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+  #       environment:
+  #         - AWS_ACCOUNT_ID # passes required env variables to docker container
+  #         - SAUCE_USERNAME
+  #         - SAUCE_ACCESS_KEY
 
-  - wait: ~
+  # - wait: ~
 
-  - label: ":hammer: Synk Setup"
-    # commands:
-    # Might not need this 
-    #   - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
-    #   - yarn install --frozen-lockfile --production
-    plugins:
-      ## Remember, each step is executed on a separate machine, so we need to
-      ## carry our work along with us
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0: 
-          runtime: npm
+  # - label: ":hammer: Synk Setup"
+  #   # commands:
+  #   # Might not need this 
+  #   #   - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+  #   #   - yarn install --frozen-lockfile --production
+  #   plugins:
+  #     ## Remember, each step is executed on a separate machine, so we need to
+  #     ## carry our work along with us
+  #     - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+  #         key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+  #         paths: ["node_modules/"]
+  #     - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0: 
+  #         runtime: npm
     
