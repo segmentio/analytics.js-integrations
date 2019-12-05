@@ -46,12 +46,12 @@ steps:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ["node_modules/"]
+          s3_bucket_name: "segment-buildkite-cache" # default s3 bucket
       ## the docker plugin causes our commands to be executed inside a docker
       ## container
       - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/circleci-node:8.11
           environment:
-            - AWS_ACCOUNT_ID # passes required env variables to docker container
             - NPM_TOKEN
 
 
