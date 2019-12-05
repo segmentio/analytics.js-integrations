@@ -85,8 +85,7 @@ workflows:
   version: 2
   test:
     jobs:
-      - setup:
-          context: npm
+      - setup
       - lint:
           requires:
             - setup
@@ -98,11 +97,9 @@ workflows:
             - test
             - setup
       - test_snyk:
-          context: snyk
           requires:
             - setup
       - publish:
-          context: npm
           requires:
             - test
             - test_saucelabs
