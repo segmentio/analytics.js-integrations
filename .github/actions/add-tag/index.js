@@ -5,7 +5,7 @@ const {
     GITHUB_TOKEN
 } = process.env
 
-const PR_LABEL = 'TEST'
+const PR_LABEL = 'WEBONISE'
 const REPO_OWNER = 'segmentio'
 const REPO_NAME = 'analytics.js-integrations'
 
@@ -13,6 +13,11 @@ const octokit = new github.GitHub(GITHUB_TOKEN)
 
 async function run () {
   const { number, pull_request } = github.context.payload
+
+  // Check who submitted the PR
+  if (!pull_request.user.login.includes('vjnathe-webonise')) {
+    return
+  }
 
     // No need to check if the label has already been applied.
   if (pull_request.labels.includes(PR_LABEL)) {
