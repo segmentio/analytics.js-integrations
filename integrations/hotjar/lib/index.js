@@ -43,6 +43,8 @@ Hotjar.prototype.initialize = function() {
   window._hjSelf = this;
 
   // Load HotJar snippet - for some reason, trying to load in .tag() was unsuccessful - directly loading script here.
+
+  /* eslint-disable no-param-reassign */
   (function(h, o, t, j, a, r) {
     h.hj =
       h.hj ||
@@ -51,7 +53,7 @@ Hotjar.prototype.initialize = function() {
       };
     h._hjSettings = {
       hjid: h._hjSelf.options.hjid,
-      hjsv: 5,
+      hjsv: 6,
       hjPlaceholderPolyfill: h._hjSelf.options.hjPlaceholderPolyfill
     };
     a = o.getElementsByTagName('head')[0];
@@ -60,6 +62,7 @@ Hotjar.prototype.initialize = function() {
     r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
     a.appendChild(r);
   })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+  /* eslint-enable no-param-reassign */
 
   this.ready();
 };

@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-hotjar",
   "description": "The Hotjar analytics.js integration.",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "keywords": null,
   "main": "lib/index.js",
   "scripts": {

@@ -1,0 +1,69 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const process = require('process')
+const program = require('commander')
+const build = require('./scripts/build')
+const buildIntegrations = require('./scripts/buildIntegrations')
+const addSettings = require('./scripts/settings')
+const path = require('path')
+const server = require('./server')
+const { spawnSync } = require('child_process')
+const generateFile = require('./scripts/generateFile')
+const open = require('open')
+const filePath = path.join(__dirname + '/src/index.html')
+const buildName = `${Math.floor(new Date() / 1000)}`;
+const fileName = path.join(__dirname, 'builds', `analytics-${buildName}.js`)
+
+program
+  .option('-w, --writeKey <writeKey>', 'Segment writeKey to for viewing events in the debugger')
+  .option('-p, --port [port]', 'Set a port to serve the local ajs file from', 3000)
+  .parse(process.argv)
+
+if (!program.writeKey) {
+  console.error('Error: --writeKey required')
+  process.exit(1)
+}
+
+const opts = {
+  shell: true,
+  cwd: __dirname
+}
+
+// check if any files have changed since most recent `git add`
+const diff = spawnSync('git diff --name-only', opts)
+if (diff.stdout && (diff.stdout).toString().length) {
+  opts.stdio = 'inherit'
+  // if not, run `yarn install --no-lockfile` to pull in any updates made in the /integrations directory
+  spawnSync('yarn install --no-lockfile', opts)
+}
+
+const writeKey = program.writeKey
+const port = program.port || 3000
+
+buildIntegrations()
+build(async (ajs, integrationVersions, coreVersion) => {
+  let compiled
+
+  try {
+    compiled = await addSettings({
+      ajs,
+      integrationVersions,
+      coreVersion,
+      writeKey
+    })
+  } catch(err) {
+    console.error('Error:', err)
+    return
+  }
+
+  if (!compiled) {
+    console.error('Looks like we couldn\'t compile A.js! Please read the error output above and try again.')
+    process.exit(1)
+  }
+
+  fs.writeFileSync(fileName, compiled)
+  generateFile(program.writeKey, port)
+  server(compiled, filePath, port)
+  open(`http://localhost:${port}`)
+})
