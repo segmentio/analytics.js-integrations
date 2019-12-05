@@ -55,24 +55,24 @@ steps:
           environment:
             - NPM_TOKEN
 
+  - wait: ~
 
-  # - wait: ~
-
-  # - label: ":clippy: Test"
-  #   command:
-  #     - yarn lint
-  #     - yarn test
-  #     - yarn test:ci
-  #   plugins:
-  #     - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-  #         key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-  #         paths: ["node_modules/"]
-  #     - docker#v3.3.0:
-  #       image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-  #       environment:
-  #         - AWS_ACCOUNT_ID # passes required env variables to docker container
-  #         - SAUCE_USERNAME
-  #         - SAUCE_ACCESS_KEY
+  - label: ":clippy: Test"
+    command:
+      - yarn lint
+      - yarn test
+      - yarn test:ci
+    plugins:
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ["node_modules/"]
+      - docker#v3.3.0:
+        image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+        user: root
+        environment:
+          - AWS_ACCOUNT_ID # passes required env variables to docker container
+          - SAUCE_USERNAME
+          - SAUCE_ACCESS_KEY
 
   # - wait: ~
 
