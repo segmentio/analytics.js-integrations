@@ -33,7 +33,7 @@
 ##
 ## Plugins may run before and/or after commands via hooks.
 env:
-  SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr"
+  SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr,saucelabs"
 steps:
   - label: ":hammer: Build and Test"
     command:
@@ -75,4 +75,15 @@ steps:
           paths: ["node_modules/"]
       - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0: 
           runtime: npm
+
+  # - wait: ~ 
+
+  # - label: ":cloud: Publish"
+  #   branches: master 
+  #   commands:
+  #     - yarn lerna publish from-package --yes
+  #   plugins: 
+  #     - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+  #         key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+  #         paths: ["node_modules/"]
     
