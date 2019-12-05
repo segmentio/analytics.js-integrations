@@ -1,3 +1,8 @@
+1.13.1 / 2019-11-27
+===================
+
+* Add support for sending date as object in event payload.
+
 1.13.0 / 2019-09-04
 ===================
 
