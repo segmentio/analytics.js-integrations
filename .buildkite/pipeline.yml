@@ -49,7 +49,7 @@ steps:
       ## the docker plugin causes our commands to be executed inside a docker
       ## container
       - docker#v3.3.0:
-          image: $${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
           environment:
             - AWS_ACCOUNT_ID # passes required env variables to docker container
             - NPM_TOKEN
