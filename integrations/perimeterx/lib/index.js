@@ -11,12 +11,12 @@ var each = require('@ndhoule/each');
  * Expose `Perimeterx` integration.
  */
 
-var Perimeterx = module.exports = integration('Perimeterx')
+var Perimeterx = (module.exports = integration('Perimeterx')
   .global('PX')
   .global('_pxAppId')
   .option('appId', '')
   .option('customTraits', {})
-  .tag('<script src="//client.perimeterx.net/{{ appId }}/main.min.js">');
+  .tag('<script src="//client.perimeterx.net/{{ appId }}/main.min.js">'));
 
 /**
  * Initialize.

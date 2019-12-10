@@ -32,13 +32,16 @@ describe('Lytics', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Lytics, integration('Lytics')
-      .global('jstag')
-      .option('cid', '')
-      .option('cookie', 'seerid')
-      .option('delay', 2000)
-      .option('sessionTimeout', 1800)
-      .option('url', '//c.lytics.io'));
+    analytics.compare(
+      Lytics,
+      integration('Lytics')
+        .global('jstag')
+        .option('cid', '')
+        .option('cookie', 'seerid')
+        .option('delay', 2000)
+        .option('sessionTimeout', 1800)
+        .option('url', '//c.lytics.io')
+    );
   });
 
   describe('before loading', function() {
@@ -78,7 +81,10 @@ describe('Lytics', function() {
       var tag = lytics.templates.library;
 
       analytics.equal(tag.type, 'script');
-      analytics.equal(tag.attrs.src, 'https://c.lytics.io/api/tag/{{ cid }}/lio.js');
+      analytics.equal(
+        tag.attrs.src,
+        'https://c.lytics.io/api/tag/{{ cid }}/lio.js'
+      );
     });
 
     describe('#page', function() {
@@ -95,7 +101,13 @@ describe('Lytics', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url: window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname + window.location.search
+          url:
+            window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname +
+            window.location.search
         });
       });
     });
@@ -117,7 +129,10 @@ describe('Lytics', function() {
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.called(window.jstag.send, 'default', { user_id: 'id', trait: true });
+        analytics.called(window.jstag.send, 'default', {
+          user_id: 'id',
+          trait: true
+        });
       });
     });
 
@@ -133,7 +148,10 @@ describe('Lytics', function() {
 
       it('should send an event and properties', function() {
         analytics.track('event', { property: true });
-        analytics.called(window.jstag.send, 'default', { _e: 'event', property: true });
+        analytics.called(window.jstag.send, 'default', {
+          _e: 'event',
+          property: true
+        });
       });
     });
   });

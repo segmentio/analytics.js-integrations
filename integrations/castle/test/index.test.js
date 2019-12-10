@@ -32,11 +32,14 @@ describe('Castle', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Castle, integration('Castle')
-    .option('publishableKey', '')
-    .option('autoPageview', false)
-    .option('cookieDomain', false)
-    .tag('<script src="//d2t77mnxyo7adj.cloudfront.net/v1/cs.js">'));
+    analytics.compare(
+      Castle,
+      integration('Castle')
+        .option('publishableKey', '')
+        .option('autoPageview', false)
+        .option('cookieDomain', false)
+        .tag('<script src="//d2t77mnxyo7adj.cloudfront.net/v1/cs.js">')
+    );
   });
 
   it('should load lib from CDN', function(done) {
@@ -51,9 +54,9 @@ describe('Castle', function() {
     it('should push options to _castle queue', function() {
       analytics.initialize();
       analytics.deepEqual(window._castle.q, [
-        ['setKey', options.publishableKey ],
-        ['setCookieDomain', options.cookieDomain ],
-        ['autoTrack', options.autoPageview ]
+        ['setKey', options.publishableKey],
+        ['setCookieDomain', options.cookieDomain],
+        ['autoTrack', options.autoPageview]
       ]);
     });
 
@@ -77,14 +80,13 @@ describe('Castle', function() {
       it('should identify with userId and traits', function() {
         analytics.initialize();
         analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey ],
-          ['setCookieDomain', options.cookieDomain ],
-          ['autoTrack', options.autoPageview ],
-          ['identify', userId, traits ]
+          ['setKey', options.publishableKey],
+          ['setCookieDomain', options.cookieDomain],
+          ['autoTrack', options.autoPageview],
+          ['identify', userId, traits]
         ]);
       });
     });
-
 
     describe('with empty userId', function() {
       var userId;
@@ -98,9 +100,9 @@ describe('Castle', function() {
       it('should not identify', function() {
         analytics.initialize();
         analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey ],
-          ['setCookieDomain', options.cookieDomain ],
-          ['autoTrack', options.autoPageview ]
+          ['setKey', options.publishableKey],
+          ['setCookieDomain', options.cookieDomain],
+          ['autoTrack', options.autoPageview]
         ]);
       });
     });
@@ -117,10 +119,10 @@ describe('Castle', function() {
       it('should identify with userId and traits', function() {
         analytics.initialize();
         analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey ],
-          ['setCookieDomain', options.cookieDomain ],
-          ['autoTrack', options.autoPageview ],
-          ['identify', userId, {} ]
+          ['setKey', options.publishableKey],
+          ['setCookieDomain', options.cookieDomain],
+          ['autoTrack', options.autoPageview],
+          ['identify', userId, {}]
         ]);
       });
     });
@@ -129,9 +131,9 @@ describe('Castle', function() {
       it('should not identify', function() {
         analytics.initialize();
         analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey ],
-          ['setCookieDomain', options.cookieDomain ],
-          ['autoTrack', options.autoPageview ]
+          ['setKey', options.publishableKey],
+          ['setCookieDomain', options.cookieDomain],
+          ['autoTrack', options.autoPageview]
         ]);
       });
     });
@@ -171,7 +173,8 @@ describe('Castle', function() {
 
       it('should call _castle with secure option, if provided', function() {
         var secureHash = 'abcdf';
-        analytics.identify('id',
+        analytics.identify(
+          'id',
           { email: 'young@fathers.com' },
           { integrations: { Castle: { secure: secureHash } } }
         );
@@ -190,7 +193,7 @@ describe('Castle', function() {
         analytics.called(window._castle, 'page');
       });
 
-      it('shouldn\'t call _castle#page when autoTracking is enabled', function() {
+      it("shouldn't call _castle#page when autoTracking is enabled", function() {
         castle.options.autoPageview = true;
         analytics.page('Category', 'Name');
         analytics.didNotCall(window._castle, 'page');
@@ -206,12 +209,7 @@ describe('Castle', function() {
         var eventName = 'Event';
         var eventProperties = { prop: true };
         analytics.track(eventName, eventProperties);
-        analytics.called(
-          window._castle,
-          'track',
-          eventName,
-          eventProperties
-        );
+        analytics.called(window._castle, 'track', eventName, eventProperties);
       });
     });
   });

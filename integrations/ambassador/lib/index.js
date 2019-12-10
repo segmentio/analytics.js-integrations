@@ -8,12 +8,12 @@ var integration = require('@segment/analytics.js-integration');
 /**
  * Expose `Ambassador` integration.
  */
-var Ambassador = module.exports = integration('Ambassador')
+var Ambassador = (module.exports = integration('Ambassador')
   .global('mbsy')
   .option('uid', '')
   .option('campaigns', {})
   .tag('<script src="https://cdn.getambassador.com/us.js">')
-  .mapping('events');
+  .mapping('events'));
 
 /**
  * Initialize.
@@ -58,7 +58,6 @@ Ambassador.prototype.identify = function(identify) {
   var args = [];
   if (id) args.push(id);
   args.push(traits);
-
 
   var opts = {};
   opts.identifyType = 'segment';
@@ -140,11 +139,13 @@ function containsHash(locationObj) {
  * @api private
  * @param {String} url
  */
-function isValidUrl(url) {
+function isValidUrl(u) {
   // If url is not present, return false
-  if (!url) {
+  if (!u) {
     return false;
   }
+
+  var url = u;
 
   // Replace dot-like characters with standard period
   url = url.replace(/．/g, '.');
@@ -167,27 +168,58 @@ function isValidUrl(url) {
   var browserUrlParts = parseUrl(rawBrowserUrl);
 
   // Split hostname and pathname parts
-  var providedHostnameParts = decodeURIComponent(providedUrlParts.hostname).split('.').filter(function(p) { return !!p; }).reverse();
+  var providedHostnameParts = decodeURIComponent(providedUrlParts.hostname)
+    .split('.')
+    .filter(function(p) {
+      return !!p;
+    })
+    .reverse();
   // Explanation -->             ^ decode hostname                               ^ split on .  ^ filter removes blank parts    ^ reverse array for proper comparison
-  var providedPathnameParts = decodeURIComponent(providedUrlParts.pathname).split('/').filter(function(p) { return !!p; });
+  var providedPathnameParts = decodeURIComponent(providedUrlParts.pathname)
+    .split('/')
+    .filter(function(p) {
+      return !!p;
+    });
   // Explanation -->             ^ decode pathname                               ^ split on /  ^ filter removes blank parts
-  var providedHashParts = decodeURIComponent(providedUrlParts.hash).replace(/[#!]+/g, '').split('/').filter(function(p) { return !!p; });
+  var providedHashParts = decodeURIComponent(providedUrlParts.hash)
+    .replace(/[#!]+/g, '')
+    .split('/')
+    .filter(function(p) {
+      return !!p;
+    });
   // Explanation -->         ^ decode pathname                            ^ remove #  ^ split on /  ^ filter removes blank parts
 
-  var browserHostnameParts = browserUrlParts.hostname.split('.').filter(function(p) { return !!p; }).reverse();
+  var browserHostnameParts = browserUrlParts.hostname
+    .split('.')
+    .filter(function(p) {
+      return !!p;
+    })
+    .reverse();
   // Explanation -->         ^ decode hostname       ^ split on .  ^ filter removes blank parts    ^ reverse array for proper comparison
-  var browserPathnameParts = browserUrlParts.pathname.split('/').filter(function(p) { return !!p; });
+  var browserPathnameParts = browserUrlParts.pathname
+    .split('/')
+    .filter(function(p) {
+      return !!p;
+    });
   // Explanation -->         ^ decode pathname       ^ split on /  ^ filter removes blank parts
-  var browserHashParts = browserUrlParts.hash.replace(/[#!]+/g, '').split('?')[0].split('/').filter(function(p) { return !!p; });
+  var browserHashParts = browserUrlParts.hash
+    .replace(/[#!]+/g, '')
+    .split('?')[0]
+    .split('/')
+    .filter(function(p) {
+      return !!p;
+    });
   // Explanation -->     ^ decode pathname    ^ remove #           ^split on ?   ^ split on /  ^ filter removes blank parts
-
 
   // Compare hostname parts
   // Hostname is compared in reverse (reversed above), that allows *.domain to match any number of subdomains before .domain
   for (var i = 0; i < providedHostnameParts.length; i++) {
     // We only compare when the parsed url is not a wildcard
     // If the hostname parts do not match -> no match
-    if (providedHostnameParts[i] !== wildcardPhrase && providedHostnameParts[i] !== browserHostnameParts[i]) {
+    if (
+      providedHostnameParts[i] !== wildcardPhrase &&
+      providedHostnameParts[i] !== browserHostnameParts[i]
+    ) {
       return false;
     }
   }
@@ -197,7 +229,10 @@ function isValidUrl(url) {
   for (var x = 0; x < providedPathnameParts.length; x++) {
     // We only compare when the parsed url is not a wildcard
     // If the pathname parts do not match -> no match
-    if (providedPathnameParts[x] !== wildcardPhrase && providedPathnameParts[x] !== browserPathnameParts[x]) {
+    if (
+      providedPathnameParts[x] !== wildcardPhrase &&
+      providedPathnameParts[x] !== browserPathnameParts[x]
+    ) {
       return false;
     }
   }
@@ -209,7 +244,11 @@ function isValidUrl(url) {
     for (var y = 0; y < providedHashParts.length; y++) {
       // We only compare when the parsed url is not a wildcard
       // If the pathname parts do not match -> no match
-      if (providedHashParts[y] !== wildcardPhrase && providedHashParts[y] !== browserHashParts[y] || !browserHashParts[y] && !containsHash(browserUrlParts)) {
+      if (
+        (providedHashParts[y] !== wildcardPhrase &&
+          providedHashParts[y] !== browserHashParts[y]) ||
+        (!browserHashParts[y] && !containsHash(browserUrlParts))
+      ) {
         return false;
       }
     }

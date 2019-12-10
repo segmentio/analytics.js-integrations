@@ -12,7 +12,7 @@ var onBody = require('on-body');
  * Expose `Chartbeat` integration.
  */
 
-var Chartbeat = module.exports = integration('Chartbeat')
+var Chartbeat = (module.exports = integration('Chartbeat')
   .global('_sf_async_config')
   .global('_sf_endpt')
   .global('pSUPERFLY')
@@ -22,7 +22,7 @@ var Chartbeat = module.exports = integration('Chartbeat')
   .option('sendNameAndCategoryAsTitle', false)
   .option('subscriberEngagementKeys', [])
 
-  .tag('<script src="//static.chartbeat.com/js/{{ script }}">');
+  .tag('<script src="//static.chartbeat.com/js/{{ script }}">'));
 
 /**
  * Loaded?
@@ -55,7 +55,7 @@ Chartbeat.prototype.page = function(page) {
   // since chartbeat automatically calls a page when it loads, don't load chartbeat script until
   // first Segment page call comes in and configures global config vars using its props
   if (!this.pageCalledYet) {
-    this._ready = false;  // switch ready to false so that no pages after the first one can fire until _initialize has loaded chartbeat script
+    this._ready = false; // switch ready to false so that no pages after the first one can fire until _initialize has loaded chartbeat script
     this.pageCalledYet = true;
     this._initialize();
   } else {
@@ -90,7 +90,7 @@ Chartbeat.prototype.updateConfig = function(page) {
   if (title) window._sf_async_config.title = title;
 
   // update subscriber engagement
-  var _cbq = window._cbq = window._cbq || [];
+  var _cbq = (window._cbq = window._cbq || []);
 
   for (var key in props) {
     if (!props.hasOwnProperty(key)) continue;
@@ -115,6 +115,6 @@ Chartbeat.prototype._initialize = function() {
     window._sf_endpt = new Date().getTime();
     // Note: Chartbeat depends on document.body existing so the script does
     // not load until that is confirmed. Otherwise it may trigger errors.
-    self.load({ script: script }, self.ready);  // switch ready to true for real once the script has loaded
+    self.load({ script: script }, self.ready); // switch ready to true for real once the script has loaded
   });
 };

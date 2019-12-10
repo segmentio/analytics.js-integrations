@@ -29,10 +29,13 @@ describe('Route', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Route, integration('Route')
-      .global('_rq')
-      .global('_route')
-      .option('organizationId', ''));
+    analytics.compare(
+      Route,
+      integration('Route')
+        .global('_rq')
+        .global('_route')
+        .option('organizationId', '')
+    );
   });
 
   describe('before loading', function() {

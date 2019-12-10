@@ -11,11 +11,13 @@ var objCase = require('obj-case');
  * Expose `SaaSquatch` integration.
  */
 
-var SaaSquatch = module.exports = integration('SaaSquatch')
+var SaaSquatch = (module.exports = integration('SaaSquatch')
   .option('tenantAlias', '')
   .option('referralImage', '')
   .global('_sqh')
-  .tag('<script src="//d2rcp9ak152ke1.cloudfront.net/assets/javascripts/squatch.min.js">');
+  .tag(
+    '<script src="//d2rcp9ak152ke1.cloudfront.net/assets/javascripts/squatch.min.js">'
+  ));
 
 /**
  * Initialize.
@@ -25,9 +27,12 @@ var SaaSquatch = module.exports = integration('SaaSquatch')
 
 SaaSquatch.prototype.initialize = function() {
   window._sqh = window._sqh || [];
-  window._sqh.push(['init', {
-    tenant_alias: this.options.tenantAlias
-  }]);
+  window._sqh.push([
+    'init',
+    {
+      tenant_alias: this.options.tenantAlias
+    }
+  ]);
   this.load(this.ready);
 };
 
@@ -57,7 +62,6 @@ SaaSquatch.prototype.identify = function(identify) {
 
   if (!(id || email)) return;
   if (this.called) return;
-
 
   var init = identify.traits();
 
@@ -95,7 +99,10 @@ SaaSquatch.prototype.identify = function(identify) {
     init.payment_provider_id = null;
   }
 
-  var image = objCase.find(opts, 'referralImage') || objCase.find(init, 'referralImage') || this.options.referralImage;
+  var image =
+    objCase.find(opts, 'referralImage') ||
+    objCase.find(init, 'referralImage') ||
+    this.options.referralImage;
   if (image) {
     objCase.del(init, 'referralImage');
     init.fb_share_image = image;

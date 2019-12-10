@@ -11,11 +11,11 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Simplereach` integration.
  */
 
-var SimpleReach = module.exports = integration('SimpleReach')
+var SimpleReach = (module.exports = integration('SimpleReach')
   .global('__reach_config')
   .global('SPR')
   .option('pid', '')
-  .tag('<script src="//d8rk54i4mohrb.cloudfront.net/js/reach.js">');
+  .tag('<script src="//d8rk54i4mohrb.cloudfront.net/js/reach.js">'));
 
 /**
  * Initialize.

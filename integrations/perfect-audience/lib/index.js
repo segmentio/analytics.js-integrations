@@ -11,11 +11,11 @@ var push = require('global-queue')('_pq');
  * Expose `PerfectAudience` integration.
  */
 
-var PerfectAudience = module.exports = integration('Perfect Audience')
+var PerfectAudience = (module.exports = integration('Perfect Audience')
   .assumesPageview()
   .global('_pq')
   .option('siteId', '')
-  .tag('<script src="//tag.perfectaudience.com/serve/{{ siteId }}.js">');
+  .tag('<script src="//tag.perfectaudience.com/serve/{{ siteId }}.js">'));
 
 /**
  * Initialize.

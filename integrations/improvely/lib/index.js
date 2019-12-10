@@ -10,13 +10,13 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Improvely` integration.
  */
 
-var Improvely = module.exports = integration('Improvely')
+var Improvely = (module.exports = integration('Improvely')
   .assumesPageview()
   .global('_improvely')
   .global('improvely')
   .option('domain', '')
   .option('projectId', null)
-  .tag('<script src="//{{ domain }}.iljmp.com/improvely.js">');
+  .tag('<script src="//{{ domain }}.iljmp.com/improvely.js">'));
 
 /**
  * Initialize.

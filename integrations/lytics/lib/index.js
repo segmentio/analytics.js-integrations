@@ -11,7 +11,7 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Lytics` integration.
  */
 
-var Lytics = module.exports = integration('Lytics')
+var Lytics = (module.exports = integration('Lytics')
   .global('jstag')
   .option('cid', '')
   .option('stream', 'default')
@@ -21,7 +21,7 @@ var Lytics = module.exports = integration('Lytics')
   .option('delay', 2000)
   .option('sessionTimeout', 1800)
   .option('url', '//c.lytics.io')
-  .tag('<script src="https://c.lytics.io/api/tag/{{ cid }}/lio.js">');
+  .tag('<script src="https://c.lytics.io/api/tag/{{ cid }}/lio.js">'));
 
 /**
  * Options aliases.
@@ -70,9 +70,12 @@ Lytics.prototype.loaded = function() {
  */
 
 Lytics.prototype.page = function(page) {
-  window.jstag.send(this.options.stream, page.properties({
-    name: '_e'
-  }));
+  window.jstag.send(
+    this.options.stream,
+    page.properties({
+      name: '_e'
+    })
+  );
 };
 
 /**
@@ -83,9 +86,12 @@ Lytics.prototype.page = function(page) {
  */
 
 Lytics.prototype.identify = function(identify) {
-  window.jstag.send(this.options.stream, identify.traits({
-    id: 'user_id'
-  }));
+  window.jstag.send(
+    this.options.stream,
+    identify.traits({
+      id: 'user_id'
+    })
+  );
 };
 
 /**

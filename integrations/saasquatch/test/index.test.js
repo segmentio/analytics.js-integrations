@@ -13,7 +13,7 @@ describe('SaaSquatch', function() {
   /* eslint-disable no-console */
   var consoleError = console.error;
   console.error = function(text) {
-    if ((/_sqh must be defined and initialized to use this widget/).test(text)) {
+    if (/_sqh must be defined and initialized to use this widget/.test(text)) {
       return;
     }
 
@@ -43,16 +43,19 @@ describe('SaaSquatch', function() {
     sandbox();
   });
 
-    // FIXME(wcjohnson11): This prevents an uncaught exception on page load in Firefox 44
-    // Find a better way to solve this in the long run.
+  // FIXME(wcjohnson11): This prevents an uncaught exception on page load in Firefox 44
+  // Find a better way to solve this in the long run.
   after(function() {
     window._sqh = [];
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(SaaSquatch, integration('SaaSquatch')
-      .option('tenantAlias', '')
-      .global('_sqh'));
+    analytics.compare(
+      SaaSquatch,
+      integration('SaaSquatch')
+        .option('tenantAlias', '')
+        .global('_sqh')
+    );
   });
 
   describe('before loading', function() {
@@ -66,9 +69,12 @@ describe('SaaSquatch', function() {
     });
 
     it('should push init onto window._sqh upon initialization', function() {
-      analytics.deepEqual(window._sqh[0], ['init', {
-        tenant_alias: options.tenantAlias
-      }]);
+      analytics.deepEqual(window._sqh[0], [
+        'init',
+        {
+          tenant_alias: options.tenantAlias
+        }
+      ]);
     });
   });
 
@@ -100,169 +106,230 @@ describe('SaaSquatch', function() {
 
       it('should send if userId is given', function() {
         analytics.identify('id');
-        analytics.called(window._sqh.push, ['init', {
-          user_id: 'id',
-          tenant_alias: 'baz',
-          email: undefined,
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: 'id',
+            tenant_alias: 'baz',
+            email: undefined,
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined
+          }
+        ]);
       });
 
       it('should send if email is given', function() {
         analytics.identify({ email: 'self@example.com' });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: null,
-          tenant_alias: 'baz',
-          email: 'self@example.com',
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: null,
+            tenant_alias: 'baz',
+            email: 'self@example.com',
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined
+          }
+        ]);
       });
 
       it('should pass checksum', function() {
-        analytics.identify({ email: 'self@example.com' }, { SaaSquatch: { checksum: 'wee' } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: null,
-          tenant_alias: 'baz',
-          email: 'self@example.com',
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          checksum: 'wee'
-        }]);
+        analytics.identify(
+          { email: 'self@example.com' },
+          { SaaSquatch: { checksum: 'wee' } }
+        );
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: null,
+            tenant_alias: 'baz',
+            email: 'self@example.com',
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            checksum: 'wee'
+          }
+        ]);
       });
 
       it('should pass accountId', function() {
-        analytics.identify({ email: 'self@example.com' }, { SaaSquatch: { accountId: 123 } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: null,
-          tenant_alias: 'baz',
-          email: 'self@example.com',
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          account_id: 123
-        }]);
+        analytics.identify(
+          { email: 'self@example.com' },
+          { SaaSquatch: { accountId: 123 } }
+        );
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: null,
+            tenant_alias: 'baz',
+            email: 'self@example.com',
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            account_id: 123
+          }
+        ]);
       });
 
       it('should pass paymentProviderId', function() {
-        analytics.identify({ email: 'self@example.com' }, { SaaSquatch: { paymentProviderId: 421 } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: null,
-          tenant_alias: 'baz',
-          email: 'self@example.com',
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          payment_provider_id: 421
-        }]);
+        analytics.identify(
+          { email: 'self@example.com' },
+          { SaaSquatch: { paymentProviderId: 421 } }
+        );
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: null,
+            tenant_alias: 'baz',
+            email: 'self@example.com',
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            payment_provider_id: 421
+          }
+        ]);
       });
 
       it('should null out paymentProviderId when passed "null"', function() {
-        analytics.identify({ email: 'self@example.com' }, { SaaSquatch: { paymentProviderId: 'null' } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: null,
-          tenant_alias: 'baz',
-          email: 'self@example.com',
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          payment_provider_id: null
-        }]);
+        analytics.identify(
+          { email: 'self@example.com' },
+          { SaaSquatch: { paymentProviderId: 'null' } }
+        );
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: null,
+            tenant_alias: 'baz',
+            email: 'self@example.com',
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            payment_provider_id: null
+          }
+        ]);
       });
 
       it('should pass accountStatus', function() {
-        analytics.identify({ email: 'self@example.com' }, { SaaSquatch: { accountStatus: 'active' } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: null,
-          tenant_alias: 'baz',
-          email: 'self@example.com',
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          account_status: 'active'
-        }]);
+        analytics.identify(
+          { email: 'self@example.com' },
+          { SaaSquatch: { accountStatus: 'active' } }
+        );
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: null,
+            tenant_alias: 'baz',
+            email: 'self@example.com',
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            account_status: 'active'
+          }
+        ]);
       });
 
       it('should pass referralCode', function() {
-        analytics.identify({ email: 'self@example.com' }, { SaaSquatch: { referralCode: 789 } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: null,
-          tenant_alias: 'baz',
-          email: 'self@example.com',
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          referral_code: 789
-        }]);
+        analytics.identify(
+          { email: 'self@example.com' },
+          { SaaSquatch: { referralCode: 789 } }
+        );
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: null,
+            tenant_alias: 'baz',
+            email: 'self@example.com',
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            referral_code: 789
+          }
+        ]);
       });
 
       it('should pass referral image', function() {
         analytics.identify(1, {}, { SaaSquatch: { referralImage: 'img' } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: 1,
-          tenant_alias: 'baz',
-          email: undefined,
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          fb_share_image: 'img'
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: 1,
+            tenant_alias: 'baz',
+            email: undefined,
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            fb_share_image: 'img'
+          }
+        ]);
       });
 
       it('should pass userReferralCode', function() {
-        analytics.identify(1, {}, { SaaSquatch: { userReferralCode: 'ABCDEFG' } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: 1,
-          tenant_alias: 'baz',
-          email: undefined,
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          user_referral_code: 'ABCDEFG'
-        }]);
+        analytics.identify(
+          1,
+          {},
+          { SaaSquatch: { userReferralCode: 'ABCDEFG' } }
+        );
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: 1,
+            tenant_alias: 'baz',
+            email: undefined,
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            user_referral_code: 'ABCDEFG'
+          }
+        ]);
       });
 
       it('should pass locale', function() {
         analytics.identify(1, {}, { SaaSquatch: { locale: 'en_US' } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: 1,
-          tenant_alias: 'baz',
-          email: undefined,
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          locale: 'en_US'
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: 1,
+            tenant_alias: 'baz',
+            email: undefined,
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            locale: 'en_US'
+          }
+        ]);
       });
 
       it('should pass mode', function() {
         analytics.identify(1, {}, { SaaSquatch: { mode: 'EMBED' } });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: 1,
-          tenant_alias: 'baz',
-          email: undefined,
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          mode: 'EMBED'
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: 1,
+            tenant_alias: 'baz',
+            email: undefined,
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            mode: 'EMBED'
+          }
+        ]);
       });
 
       it('should pass generic user traits through', function() {
         analytics.identify(1, { title: 'Test Dummy' });
-        analytics.called(window._sqh.push, ['init', {
-          user_id: 1,
-          tenant_alias: 'baz',
-          email: undefined,
-          first_name: undefined,
-          last_name: undefined,
-          user_image: undefined,
-          title: 'Test Dummy'
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            user_id: 1,
+            tenant_alias: 'baz',
+            email: undefined,
+            first_name: undefined,
+            last_name: undefined,
+            user_image: undefined,
+            title: 'Test Dummy'
+          }
+        ]);
       });
 
       it('should send only once', function() {
@@ -280,28 +347,37 @@ describe('SaaSquatch', function() {
 
       it('should pass groupId as accountId', function() {
         analytics.group('id');
-        analytics.called(window._sqh.push, ['init', {
-          tenant_alias: 'baz',
-          account_id: 'id'
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            tenant_alias: 'baz',
+            account_id: 'id'
+          }
+        ]);
       });
 
       it('should pass checksum', function() {
         analytics.group(1, {}, { SaaSquatch: { checksum: 'wee' } });
-        analytics.called(window._sqh.push, ['init', {
-          tenant_alias: 'baz',
-          account_id: 1,
-          checksum: 'wee'
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            tenant_alias: 'baz',
+            account_id: 1,
+            checksum: 'wee'
+          }
+        ]);
       });
 
       it('should pass referral image', function() {
         analytics.group(1, { referralImage: 'img' });
-        analytics.called(window._sqh.push, ['init', {
-          tenant_alias: 'baz',
-          account_id: 1,
-          fb_share_image: 'img'
-        }]);
+        analytics.called(window._sqh.push, [
+          'init',
+          {
+            tenant_alias: 'baz',
+            account_id: 1,
+            fb_share_image: 'img'
+          }
+        ]);
       });
 
       it('should send only once', function() {

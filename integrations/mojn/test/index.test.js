@@ -29,9 +29,12 @@ describe('Mojn', function() {
   });
 
   it('should have the correct default settings', function() {
-    analytics.compare(Mojn, integration('Mojn')
-      .global('_mojnTrack')
-      .option('customerCode', ''));
+    analytics.compare(
+      Mojn,
+      integration('Mojn')
+        .global('_mojnTrack')
+        .option('customerCode', '')
+    );
   });
 
   describe('before loading', function() {
@@ -98,7 +101,9 @@ describe('Mojn', function() {
 
       it('should not error', function() {
         analytics.identify({ email: 'foo@baz.com' });
-        analytics.loaded('<img src="https://matcher.idtargeting.com/identify.gif?cid=EWBCK&_mjnctid=foo@baz.com">');
+        analytics.loaded(
+          '<img src="https://matcher.idtargeting.com/identify.gif?cid=EWBCK&_mjnctid=foo@baz.com">'
+        );
       });
 
       it('should ignore if missing email', function() {
@@ -116,7 +121,11 @@ describe('Mojn', function() {
         var anonymousId = analytics.user().anonymousId();
         mojn.options.sync = true;
         analytics.page();
-        analytics.loaded('<img src="http://ho.idtargeting.com/c/EWBCK?u=' + anonymousId + '&_chk">');
+        analytics.loaded(
+          '<img src="http://ho.idtargeting.com/c/EWBCK?u=' +
+            anonymousId +
+            '&_chk">'
+        );
       });
     });
   });

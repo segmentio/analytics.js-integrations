@@ -9,16 +9,15 @@ var convertDates = require('@segment/convert-dates');
 var del = require('obj-case').del;
 var alias = require('@segment/alias');
 
-
 /**
  * Expose `Ramen` integration.
  */
 
-var Ramen = module.exports = integration('Ramen')
+var Ramen = (module.exports = integration('Ramen')
   .global('Ramen')
   .global('_ramen')
   .option('organization_id', '')
-  .tag('<script src="//cdn.ramen.is/assets/ramen.js">');
+  .tag('<script src="//cdn.ramen.is/assets/ramen.js">'));
 
 /**
  * Initialize.
@@ -134,7 +133,10 @@ Ramen.prototype.identify = function(identify) {
   }
 
   if (traits.company && traits.company.id) {
-    user.company = alias(traits.company, { createdAt: 'created', created: 'created_at' });
+    user.company = alias(traits.company, {
+      createdAt: 'created',
+      created: 'created_at'
+    });
   }
 
   // Clear out Ramen-specific values from traits, set traits to equal
@@ -148,7 +150,9 @@ Ramen.prototype.identify = function(identify) {
   user.traits = traits;
 
   // Convert all timestamps to epoch seconds
-  user = convertDates(user, function(date) { return Math.floor(date / 1000); });
+  user = convertDates(user, function(date) {
+    return Math.floor(date / 1000);
+  });
 
   user.traits = alias(user.traits, { createdAt: 'created' });
   user.traits = alias(user.traits, { created: 'created_at' });

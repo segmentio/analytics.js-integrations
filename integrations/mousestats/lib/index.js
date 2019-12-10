@@ -13,13 +13,19 @@ var useHttps = require('use-https');
  * Expose `MouseStats` integration.
  */
 
-var MouseStats = module.exports = integration('MouseStats')
+var MouseStats = (module.exports = integration('MouseStats')
   .assumesPageview()
   .global('msaa')
   .global('MouseStatsVisitorPlaybacks')
   .option('accountNumber', '')
-  .tag('http', '<script src="http://www2.mousestats.com/js/{{ path }}.js?{{ cacheBuster }}">')
-  .tag('https', '<script src="https://ssl.mousestats.com/js/{{ path }}.js?{{ cacheBuster }}">');
+  .tag(
+    'http',
+    '<script src="http://www2.mousestats.com/js/{{ path }}.js?{{ cacheBuster }}">'
+  )
+  .tag(
+    'https',
+    '<script src="https://ssl.mousestats.com/js/{{ path }}.js?{{ cacheBuster }}">'
+  ));
 
 /**
  * Initialize.
@@ -31,7 +37,12 @@ var MouseStats = module.exports = integration('MouseStats')
 
 MouseStats.prototype.initialize = function() {
   var accountNumber = this.options.accountNumber;
-  var path = accountNumber.slice(0, 1) + '/' + accountNumber.slice(1, 2) + '/' + accountNumber;
+  var path =
+    accountNumber.slice(0, 1) +
+    '/' +
+    accountNumber.slice(1, 2) +
+    '/' +
+    accountNumber;
   var cacheBuster = Math.floor(new Date().getTime() / 60000);
   var tagName = useHttps() ? 'https' : 'http';
   this.load(tagName, { path: path, cacheBuster: cacheBuster }, this.ready);

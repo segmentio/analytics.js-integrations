@@ -12,7 +12,7 @@ var useHttps = require('use-https');
  * Expose `LuckyOrange` integration.
  */
 
-var LuckyOrange = module.exports = integration('Lucky Orange')
+var LuckyOrange = (module.exports = integration('Lucky Orange')
   .assumesPageview()
   .global('_loq')
   .global('__lo_cs_added')
@@ -20,8 +20,14 @@ var LuckyOrange = module.exports = integration('Lucky Orange')
   .global('__wtw_lucky_is_segment_io')
   .global('__wtw_custom_user_data')
   .option('siteId', null)
-  .tag('http', '<script src="http://www.luckyorange.com/w.js?{{ cacheBuster }}">')
-  .tag('https', '<script src="https://ssl.luckyorange.com/w.js?{{ cacheBuster }}">');
+  .tag(
+    'http',
+    '<script src="http://www.luckyorange.com/w.js?{{ cacheBuster }}">'
+  )
+  .tag(
+    'https',
+    '<script src="https://ssl.luckyorange.com/w.js?{{ cacheBuster }}">'
+  ));
 
 /**
  * Initialize.
@@ -34,10 +40,12 @@ LuckyOrange.prototype.initialize = function() {
   window.__wtw_lucky_site_id = this.options.siteId;
 
   var user = this.analytics.user();
-  this.identify(new Identify({
-    traits: user.traits(),
-    userId: user.id()
-  }));
+  this.identify(
+    new Identify({
+      traits: user.traits(),
+      userId: user.id()
+    })
+  );
 
   var cacheBuster = Math.floor(new Date().getTime() / 60000);
   var tagName = useHttps() ? 'https' : 'http';

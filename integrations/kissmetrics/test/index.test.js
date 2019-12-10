@@ -37,14 +37,17 @@ describe('KISSmetrics', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(KISSmetrics, integration('KISSmetrics')
-      .global('KM')
-      .global('_kmil')
-      .global('_kmq')
-      .option('apiKey', '')
-      .option('prefixProperties', true)
-      .option('trackCategorizedPages', true)
-      .option('trackNamedPages', true));
+    analytics.compare(
+      KISSmetrics,
+      integration('KISSmetrics')
+        .global('KM')
+        .global('_kmil')
+        .global('_kmq')
+        .option('apiKey', '')
+        .option('prefixProperties', true)
+        .option('trackCategorizedPages', true)
+        .option('trackNamedPages', true)
+    );
   });
 
   describe('before loading', function() {
@@ -94,10 +97,14 @@ describe('KISSmetrics', function() {
 
         it('should send a Page View event with the window URL and referrer', function() {
           analytics.page();
-          analytics.called(window._kmq.push, ['record', 'Page View', {
-            'Viewed URL': window.location.href,
-            Referrer: document.referrer || 'Direct'
-          }]);
+          analytics.called(window._kmq.push, [
+            'record',
+            'Page View',
+            {
+              'Viewed URL': window.location.href,
+              Referrer: document.referrer || 'Direct'
+            }
+          ]);
         });
 
         describe('when a custom page is provided', function() {
@@ -106,10 +113,14 @@ describe('KISSmetrics', function() {
               url: 'http://foo.com/',
               referrer: 'http://bar.com/'
             });
-            analytics.called(window._kmq.push, ['record', 'Page View', {
-              'Viewed URL': 'http://foo.com/',
-              Referrer: 'http://bar.com/'
-            }]);
+            analytics.called(window._kmq.push, [
+              'record',
+              'Page View',
+              {
+                'Viewed URL': 'http://foo.com/',
+                Referrer: 'http://bar.com/'
+              }
+            ]);
           });
         });
       });
@@ -127,58 +138,92 @@ describe('KISSmetrics', function() {
           title: document.title,
           url: window.location.href
         });
-        analytics.called(window._kmq.push, ['record', 'Viewed Name Page', {
-          'Page - title': document.title,
-          'Page - url': window.location.href,
-          'Page - path': window.location.pathname,
-          'Page - referrer': document.referrer,
-          'Page - search': window.location.search,
-          'Page - name': 'Name'
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'Viewed Name Page',
+          {
+            'Page - title': document.title,
+            'Page - url': window.location.href,
+            'Page - path': window.location.pathname,
+            'Page - referrer': document.referrer,
+            'Page - search': window.location.search,
+            'Page - name': 'Name'
+          }
+        ]);
       });
 
       it('should not track a named page when the option is off, but should track category', function() {
         kissmetrics.options.trackNamedPages = false;
         analytics.page('Category', 'Name');
         analytics.calledOnce(window._kmq.push);
-        analytics.called(window._kmq.push, ['record', 'Viewed Category Page', {
-          'Page - path': window.location.pathname,
-          'Page - referrer': document.referrer,
-          'Page - title': document.title,
-          'Page - search': window.location.search,
-          'Page - name': 'Name',
-          'Page - category': 'Category',
-          'Page - url': window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname + window.location.search
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'Viewed Category Page',
+          {
+            'Page - path': window.location.pathname,
+            'Page - referrer': document.referrer,
+            'Page - title': document.title,
+            'Page - search': window.location.search,
+            'Page - name': 'Name',
+            'Page - category': 'Category',
+            'Page - url':
+              window.location.protocol +
+              '//' +
+              window.location.hostname +
+              (window.location.port ? ':' + window.location.port : '') +
+              window.location.pathname +
+              window.location.search
+          }
+        ]);
       });
 
       it('should not track a categorized page when the option is off, but should track name', function() {
         kissmetrics.options.trackCategorizedPages = false;
         analytics.page('Category', 'Name');
         analytics.calledOnce(window._kmq.push);
-        analytics.called(window._kmq.push, ['record', 'Viewed Name Page', {
-          'Page - title': document.title,
-          'Page - url': window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname + window.location.search,
-          'Page - path': window.location.pathname,
-          'Page - referrer': document.referrer,
-          'Page - search': window.location.search,
-          'Page - name': 'Name',
-          'Page - category': 'Category'
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'Viewed Name Page',
+          {
+            'Page - title': document.title,
+            'Page - url':
+              window.location.protocol +
+              '//' +
+              window.location.hostname +
+              (window.location.port ? ':' + window.location.port : '') +
+              window.location.pathname +
+              window.location.search,
+            'Page - path': window.location.pathname,
+            'Page - referrer': document.referrer,
+            'Page - search': window.location.search,
+            'Page - name': 'Name',
+            'Page - category': 'Category'
+          }
+        ]);
       });
 
       it('should track only named page when both options are on', function() {
         analytics.page('Category', 'Name');
         analytics.calledOnce(window._kmq.push);
-        analytics.called(window._kmq.push, ['record', 'Viewed Name Page', {
-          'Page - title': document.title,
-          'Page - url': window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname + window.location.search,
-          'Page - path': window.location.pathname,
-          'Page - referrer': document.referrer,
-          'Page - search': window.location.search,
-          'Page - name': 'Name',
-          'Page - category': 'Category'
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'Viewed Name Page',
+          {
+            'Page - title': document.title,
+            'Page - url':
+              window.location.protocol +
+              '//' +
+              window.location.hostname +
+              (window.location.port ? ':' + window.location.port : '') +
+              window.location.pathname +
+              window.location.search,
+            'Page - path': window.location.pathname,
+            'Page - referrer': document.referrer,
+            'Page - search': window.location.search,
+            'Page - name': 'Name',
+            'Page - category': 'Category'
+          }
+        ]);
       });
 
       it('should prefixProperties even if option is off', function() {
@@ -187,14 +232,18 @@ describe('KISSmetrics', function() {
           title: document.title,
           url: window.location.href
         });
-        analytics.called(window._kmq.push, ['record', 'Viewed Name Page', {
-          'Page - title': document.title,
-          'Page - url': window.location.href,
-          'Page - name': 'Name',
-          'Page - path': window.location.pathname,
-          'Page - referrer': document.referrer,
-          'Page - search': window.location.search
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'Viewed Name Page',
+          {
+            'Page - title': document.title,
+            'Page - url': window.location.href,
+            'Page - name': 'Name',
+            'Page - path': window.location.pathname,
+            'Page - referrer': document.referrer,
+            'Page - search': window.location.search
+          }
+        ]);
       });
     });
 
@@ -222,13 +271,19 @@ describe('KISSmetrics', function() {
       it('should send stringify nested traits objects', function() {
         analytics.identify('id', { trait: { foo: 'bar' } });
         analytics.called(window._kmq.push, ['identify', 'id']);
-        analytics.called(window._kmq.push, ['set', { 'trait.foo': 'bar', id: 'id' }]);
+        analytics.called(window._kmq.push, [
+          'set',
+          { 'trait.foo': 'bar', id: 'id' }
+        ]);
       });
 
       it('should send stringify arrays in nested traits objects', function() {
         analytics.identify('id', { trait: { foo: [1, 2, 3] } });
         analytics.called(window._kmq.push, ['identify', 'id']);
-        analytics.called(window._kmq.push, ['set', { 'trait.foo': '1,2,3', id: 'id' }]);
+        analytics.called(window._kmq.push, [
+          'set',
+          { 'trait.foo': '1,2,3', id: 'id' }
+        ]);
       });
     });
 
@@ -244,17 +299,25 @@ describe('KISSmetrics', function() {
 
       it('should send an event and properties', function() {
         analytics.track('event', { property: true });
-        analytics.called(window._kmq.push, ['record', 'event', {
-          'event - property': true
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'event',
+          {
+            'event - property': true
+          }
+        ]);
       });
 
       it('should alias revenue to "Billing Amount" and "revenue"', function() {
         analytics.track('event', { revenue: 9.99 });
-        analytics.called(window._kmq.push, ['record', 'event', {
-          'Billing Amount': 9.99,
-          'event - revenue': 9.99
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'event',
+          {
+            'Billing Amount': 9.99,
+            'event - revenue': 9.99
+          }
+        ]);
       });
 
       it('should stringify nested objects', function() {
@@ -266,10 +329,14 @@ describe('KISSmetrics', function() {
             }
           }
         });
-        analytics.called(window._kmq.push, ['record', 'event', {
-          'event - glenn.coco': 'best halloween costume',
-          'event - glenn.mean.girls': 'lindsey'
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'event',
+          {
+            'event - glenn.coco': 'best halloween costume',
+            'event - glenn.mean.girls': 'lindsey'
+          }
+        ]);
       });
 
       it('should stringify arrays inside nested objects', function() {
@@ -278,9 +345,13 @@ describe('KISSmetrics', function() {
             coco: ['1', '2', '3']
           }
         });
-        analytics.called(window._kmq.push, ['record', 'event', {
-          'event - glenn.coco': '1,2,3'
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'event',
+          {
+            'event - glenn.coco': '1,2,3'
+          }
+        ]);
       });
 
       it('should discard null and undefined values inside nested objects', function() {
@@ -290,10 +361,14 @@ describe('KISSmetrics', function() {
           baz: 'quux',
           zzy: undefined
         });
-        analytics.called(window._kmq.push, ['record', 'event', {
-          'event - foo': 'bar',
-          'event - baz': 'quux'
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'event',
+          {
+            'event - foo': 'bar',
+            'event - baz': 'quux'
+          }
+        ]);
       });
     });
 
@@ -326,14 +401,17 @@ describe('KISSmetrics', function() {
           plan: 'enterprise',
           'total billed': 830
         });
-        analytics.called(window._kmq.push, ['set', {
-          'Group - name': 'Initech',
-          'Group - industry': 'Technology',
-          'Group - employees': 329,
-          'Group - plan': 'enterprise',
-          'Group - total billed': 830,
-          'Group - id': 'new'
-        }]);
+        analytics.called(window._kmq.push, [
+          'set',
+          {
+            'Group - name': 'Initech',
+            'Group - industry': 'Technology',
+            'Group - employees': 329,
+            'Group - plan': 'enterprise',
+            'Group - total billed': 830,
+            'Group - id': 'new'
+          }
+        ]);
       });
     });
 
@@ -350,12 +428,16 @@ describe('KISSmetrics', function() {
           category: 'category',
           price: 9
         });
-        analytics.called(window._kmq.push, ['record', 'viewed product', {
-          'viewed product - sku': 1,
-          'viewed product - name': 'item',
-          'viewed product - category': 'category',
-          'viewed product - price': 9
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'viewed product',
+          {
+            'viewed product - sku': 1,
+            'viewed product - name': 'item',
+            'viewed product - category': 'category',
+            'viewed product - price': 9
+          }
+        ]);
       });
 
       it('should track added product', function() {
@@ -366,13 +448,17 @@ describe('KISSmetrics', function() {
           price: 9,
           quantity: 2
         });
-        analytics.called(window._kmq.push, ['record', 'added product', {
-          'added product - sku': 1,
-          'added product - name': 'item',
-          'added product - category': 'category',
-          'added product - price': 9,
-          'added product - quantity': 2
-        }]);
+        analytics.called(window._kmq.push, [
+          'record',
+          'added product',
+          {
+            'added product - sku': 1,
+            'added product - name': 'item',
+            'added product - category': 'category',
+            'added product - price': 9,
+            'added product - quantity': 2
+          }
+        ]);
       });
 
       it('should not prefix properties when `options.prefixProperties` is set to `false`', function() {
@@ -381,73 +467,98 @@ describe('KISSmetrics', function() {
           orderId: '12074d48',
           tax: 16,
           total: 166,
-          products: [{
-            sku: '40bcda73',
-            name: 'my-product',
-            price: 75,
-            quantity: 1
-          }, {
-            sku: '64346fc6',
-            name: 'other-product',
-            price: 75,
-            quantity: 1
-          }]
+          products: [
+            {
+              sku: '40bcda73',
+              name: 'my-product',
+              price: 75,
+              quantity: 1
+            },
+            {
+              sku: '64346fc6',
+              name: 'other-product',
+              price: 75,
+              quantity: 1
+            }
+          ]
         });
 
-        analytics.assert.deepEqual(window._kmq.push.args[0][0], ['record', 'completed order', {
-          orderId: '12074d48',
-          tax: 16,
-          total: 166
-        }]);
+        analytics.assert.deepEqual(window._kmq.push.args[0][0], [
+          'record',
+          'completed order',
+          {
+            orderId: '12074d48',
+            tax: 16,
+            total: 166
+          }
+        ]);
       });
 
       it('should track completed order', function() {
-        analytics.track('completed order', {
-          orderId: '12074d48',
-          tax: 16,
-          total: 166,
-          products: [{
-            sku: '40bcda73',
-            name: 'my-product',
-            price: 75,
-            quantity: 1
-          }, {
-            sku: '64346fc6',
-            name: 'other-product',
-            price: 75,
-            quantity: 1
-          }]
-        }, {
-          timestamp: new Date(0)
-        });
+        analytics.track(
+          'completed order',
+          {
+            orderId: '12074d48',
+            tax: 16,
+            total: 166,
+            products: [
+              {
+                sku: '40bcda73',
+                name: 'my-product',
+                price: 75,
+                quantity: 1
+              },
+              {
+                sku: '64346fc6',
+                name: 'other-product',
+                price: 75,
+                quantity: 1
+              }
+            ]
+          },
+          {
+            timestamp: new Date(0)
+          }
+        );
 
-        analytics.assert.deepEqual(window._kmq.push.args[0][0], ['record', 'completed order', {
-          'completed order - orderId': '12074d48',
-          'completed order - tax': 16,
-          'completed order - total': 166
-        }]);
+        analytics.assert.deepEqual(window._kmq.push.args[0][0], [
+          'record',
+          'completed order',
+          {
+            'completed order - orderId': '12074d48',
+            'completed order - tax': 16,
+            'completed order - total': 166
+          }
+        ]);
       });
 
       it('should add items once KM is loaded', function() {
-        analytics.track('completed order', {
-          orderId: '12074d48',
-          tax: 16,
-          products: [{
-            sku: '40bcda73',
-            name: 'my-product',
-            category: 'my-category',
-            price: 75,
-            quantity: 1
-          }, {
-            sku: '64346fc6',
-            name: 'other-product',
-            category: 'my-other-category',
-            price: 75,
-            quantity: 1
-          }]
-        }, {
-          timestamp: new Date(0)
-        });
+        analytics.track(
+          'completed order',
+          {
+            orderId: '12074d48',
+            tax: 16,
+            products: [
+              {
+                sku: '40bcda73',
+                name: 'my-product',
+                category: 'my-category',
+                price: 75,
+                quantity: 1
+              },
+              {
+                sku: '64346fc6',
+                name: 'other-product',
+                category: 'my-other-category',
+                price: 75,
+                quantity: 1
+              }
+            ]
+          },
+          {
+            timestamp: new Date(0)
+          }
+        );
 
         // TODO: what is happening here?
         var fn = window._kmq.push.args[1][0];

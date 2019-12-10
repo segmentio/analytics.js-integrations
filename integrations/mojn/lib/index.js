@@ -13,15 +13,24 @@ var when = require('do-when');
  * Expose `Mojn`
  */
 
-var Mojn = module.exports = integration('Mojn')
+var Mojn = (module.exports = integration('Mojn')
   .global('_mojnTrack')
   .option('customerCode', '')
   .option('region', 'eu')
   .option('sync', false)
   .tag('main', '<script src="https://cdn.idtargeting.com/track/{{region}}.js">')
-  .tag('custom', '<script src="https://cdn.idtargeting.com/track/{{customerCode}}.js">')
-  .tag('identify', '<img width="1" height="1" src="https://matcher.idtargeting.com/identify.gif?cid={{cid}}&_mjnctid={{mjnctid}}">')
-  .tag('sync', '<img width="1" height="1" src="http://ho.idtargeting.com/c/{{cid}}?u={{uid}}&_chk">');
+  .tag(
+    'custom',
+    '<script src="https://cdn.idtargeting.com/track/{{customerCode}}.js">'
+  )
+  .tag(
+    'identify',
+    '<img width="1" height="1" src="https://matcher.idtargeting.com/identify.gif?cid={{cid}}&_mjnctid={{mjnctid}}">'
+  )
+  .tag(
+    'sync',
+    '<img width="1" height="1" src="http://ho.idtargeting.com/c/{{cid}}?u={{uid}}&_chk">'
+  ));
 
 /**
  * Initialize.
@@ -94,5 +103,8 @@ Mojn.prototype.track = function(track) {
 
 Mojn.prototype.page = function() {
   if (!this.options.sync) return;
-  this.load('sync', { cid: this.options.customerCode, uid: this.analytics.user().anonymousId() });
+  this.load('sync', {
+    cid: this.options.customerCode,
+    uid: this.analytics.user().anonymousId()
+  });
 };

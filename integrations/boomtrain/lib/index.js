@@ -12,10 +12,12 @@ var md5 = require('spark-md5').hash;
  * Expose `Boomtrain` integration.
  */
 
-var Boomtrain = module.exports = integration('Boomtrain')
+var Boomtrain = (module.exports = integration('Boomtrain')
   .global('_bt')
   .option('apiKey', '')
-  .tag('<script src="https://cdn.boomtrain.com/analyticstrain/{{ apiKey }}/analyticstrain.min.js"></script>');
+  .tag(
+    '<script src="https://cdn.boomtrain.com/analyticstrain/{{ apiKey }}/analyticstrain.min.js"></script>'
+  ));
 
 /**
  * Initialize.

@@ -43,11 +43,14 @@ describe('Pingdom', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Pingdom, integration('Pingdom')
-      .assumesPageview()
-      .global('_prum')
-      .global('PRUM_EPISODES')
-      .option('id', ''));
+    analytics.compare(
+      Pingdom,
+      integration('Pingdom')
+        .assumesPageview()
+        .global('_prum')
+        .global('PRUM_EPISODES')
+        .option('id', '')
+    );
   });
 
   describe('before loading', function() {

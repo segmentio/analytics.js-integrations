@@ -29,13 +29,16 @@ describe('Mouseflow', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Mouseflow, integration('Mouseflow')
-      .assumesPageview()
-      .global('_mfq')
-      .global('mouseflow')
-      .global('mouseflowHtmlDelay')
-      .option('apiKey', '')
-      .option('mouseflowHtmlDelay', 0));
+    analytics.compare(
+      Mouseflow,
+      integration('Mouseflow')
+        .assumesPageview()
+        .global('_mfq')
+        .global('mouseflow')
+        .global('mouseflowHtmlDelay')
+        .option('apiKey', '')
+        .option('mouseflowHtmlDelay', 0)
+    );
   });
 
   describe('before loading', function() {
@@ -109,12 +112,20 @@ describe('Mouseflow', function() {
 
       it('should send event', function() {
         analytics.track('event-name');
-        analytics.called(window._mfq.push, ['setVariable', 'event', 'event-name']);
+        analytics.called(window._mfq.push, [
+          'setVariable',
+          'event',
+          'event-name'
+        ]);
       });
 
       it('should send props', function() {
         analytics.track('event-name', { a: 1 });
-        analytics.called(window._mfq.push, ['setVariable', 'event', 'event-name']);
+        analytics.called(window._mfq.push, [
+          'setVariable',
+          'event',
+          'event-name'
+        ]);
         analytics.called(window._mfq.push, ['setVariable', 'a', 1]);
       });
     });

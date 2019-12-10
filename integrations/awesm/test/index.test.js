@@ -33,11 +33,14 @@ describe('awe.sm', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Awesm, integration('awe.sm')
-      .assumesPageview()
-      .global('AWESM')
-      .option('apiKey', '')
-      .mapping('events'));
+    analytics.compare(
+      Awesm,
+      integration('awe.sm')
+        .assumesPageview()
+        .global('AWESM')
+        .option('apiKey', '')
+        .mapping('events')
+    );
   });
 
   describe('before loading', function() {

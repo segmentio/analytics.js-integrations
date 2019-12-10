@@ -32,12 +32,15 @@ describe('Chartbeat', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Chartbeat, integration('Chartbeat')
-      .global('_sf_async_config')
-      .global('_sf_endpt')
-      .global('pSUPERFLY')
-      .option('domain', '')
-      .option('uid', null));
+    analytics.compare(
+      Chartbeat,
+      integration('Chartbeat')
+        .global('_sf_async_config')
+        .global('_sf_endpt')
+        .global('pSUPERFLY')
+        .option('domain', '')
+        .option('uid', null)
+    );
   });
 
   describe('before loading', function() {
@@ -59,12 +62,16 @@ describe('Chartbeat', function() {
       });
 
       it('should create window._sf_async_config', function() {
-        var expected = extend({}, {
-          uid: options.uid,
-          domain: options.domain
-        }, {
-          useCanonical: true
-        });
+        var expected = extend(
+          {},
+          {
+            uid: options.uid,
+            domain: options.domain
+          },
+          {
+            useCanonical: true
+          }
+        );
 
         analytics.page();
         analytics.deepEqual(window._sf_async_config, expected);
@@ -72,10 +79,14 @@ describe('Chartbeat', function() {
 
       it('should inherit global window._sf_async_config defaults', function() {
         window._sf_async_config = { setting: true };
-        var expected = extend({}, { uid: options.uid, domain: options.domain }, {
-          setting: true,
-          useCanonical: true
-        });
+        var expected = extend(
+          {},
+          { uid: options.uid, domain: options.domain },
+          {
+            setting: true,
+            useCanonical: true
+          }
+        );
 
         analytics.page();
         analytics.deepEqual(window._sf_async_config, expected);
@@ -96,7 +107,11 @@ describe('Chartbeat', function() {
       it('should set custom globals', function() {
         chartbeat.options.subscriberEngagementKeys = ['test segment key'];
 
-        analytics.page({ path: '/path', title: 'test title', 'test segment key': 'test value' });
+        analytics.page({
+          path: '/path',
+          title: 'test title',
+          'test segment key': 'test value'
+        });
         analytics.deepEqual([['test segment key', 'test value']], window._cbq);
         analytics.equal('test title', window._sf_async_config.title);
       });
@@ -127,7 +142,9 @@ describe('Chartbeat', function() {
       analytics.spy(chartbeat, 'load');
       analytics.initialize();
       analytics.page();
-      analytics.loaded('<script src="http://static.chartbeat.com/js/chartbeat.js">');
+      analytics.loaded(
+        '<script src="http://static.chartbeat.com/js/chartbeat.js">'
+      );
     });
 
     it('should load video lib when selected', function() {
@@ -135,7 +152,9 @@ describe('Chartbeat', function() {
       analytics.spy(chartbeat, 'load');
       analytics.initialize();
       analytics.page();
-      analytics.loaded('<script src="http://static.chartbeat.com/js/chartbeat_video.js">');
+      analytics.loaded(
+        '<script src="http://static.chartbeat.com/js/chartbeat_video.js">'
+      );
     });
   });
 
@@ -182,7 +201,11 @@ describe('Chartbeat', function() {
       });
 
       it('should set the sections and title on the config', function() {
-        analytics.page('Category', 'Name', { path: '/path', title: 'title', author: 'Apple Potamus' });
+        analytics.page('Category', 'Name', {
+          path: '/path',
+          title: 'title',
+          author: 'Apple Potamus'
+        });
         analytics.equal('Category', window._sf_async_config.sections);
         analytics.equal('Apple Potamus', window._sf_async_config.authors);
         analytics.calledOnce(window.pSUPERFLY.virtualPage, '/path');

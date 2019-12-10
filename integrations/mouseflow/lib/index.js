@@ -12,14 +12,14 @@ var push = require('global-queue')('_mfq');
  * Expose `Mouseflow`.
  */
 
-var Mouseflow = module.exports = integration('Mouseflow')
+var Mouseflow = (module.exports = integration('Mouseflow')
   .assumesPageview()
   .global('_mfq')
   .global('mouseflow')
   .global('mouseflowHtmlDelay')
   .option('apiKey', '')
   .option('mouseflowHtmlDelay', 0)
-  .tag('<script src="//cdn.mouseflow.com/projects/{{ apiKey }}.js">');
+  .tag('<script src="//cdn.mouseflow.com/projects/{{ apiKey }}.js">'));
 
 /**
  * Initalize.

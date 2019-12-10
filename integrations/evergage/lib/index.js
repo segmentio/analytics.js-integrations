@@ -12,12 +12,14 @@ var push = require('global-queue')('_aaq');
  * Expose `Evergage` integration.
  */
 
-var Evergage = module.exports = integration('Evergage')
+var Evergage = (module.exports = integration('Evergage')
   .assumesPageview()
   .global('_aaq')
   .option('account', '')
   .option('dataset', '')
-  .tag('<script src="//cdn.evergage.com/beacon/{{ account }}/{{ dataset }}/scripts/evergage.min.js">');
+  .tag(
+    '<script src="//cdn.evergage.com/beacon/{{ account }}/{{ dataset }}/scripts/evergage.min.js">'
+  ));
 
 /**
  * Initialize.

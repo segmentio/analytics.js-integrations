@@ -31,12 +31,15 @@ describe('Alexa', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Alexa, integration('Alexa')
-      .assumesPageview()
-      .global('_atrk_opts')
-      .option('account', null)
-      .option('domain', '')
-      .option('dynamic', true));
+    analytics.compare(
+      Alexa,
+      integration('Alexa')
+        .assumesPageview()
+        .global('_atrk_opts')
+        .option('account', null)
+        .option('domain', '')
+        .option('dynamic', true)
+    );
   });
 
   describe('before loading', function() {

@@ -29,9 +29,12 @@ describe('Bronto', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Bronto, integration('Bronto')
-      .option('siteId', '')
-      .option('host', ''));
+    analytics.compare(
+      Bronto,
+      integration('Bronto')
+        .option('siteId', '')
+        .option('host', '')
+    );
   });
 
   describe('before loading', function() {
@@ -78,13 +81,23 @@ describe('Bronto', function() {
       it('should send ecommerce data', function() {
         analytics.identify({ email: 'lance@segment.io' });
         analytics.track('order completed', {
-          products: [{ product_id: 'yolo', sku: 'c546c96', quantity: 8, name: 'my-product', price: 99.99 }],
+          products: [
+            {
+              product_id: 'yolo',
+              sku: 'c546c96',
+              quantity: 8,
+              name: 'my-product',
+              price: 99.99
+            }
+          ],
           orderId: '55c497bf'
         });
 
         analytics.deepEqual(bronto.bta.addOrder.args[0][0], {
           email: 'lance@segment.io',
-          items: [{ item_id: 'yolo', quantity: 8, desc: 'my-product', amount: 99.99 }],
+          items: [
+            { item_id: 'yolo', quantity: 8, desc: 'my-product', amount: 99.99 }
+          ],
           order_id: '55c497bf'
         });
       });
@@ -92,13 +105,23 @@ describe('Bronto', function() {
       it('should fallback on id', function() {
         analytics.identify({ email: 'lance@segment.io' });
         analytics.track('order completed', {
-          products: [{ id: 'yolo', sku: 'c546c96', quantity: 8, name: 'my-product', price: 99.99 }],
+          products: [
+            {
+              id: 'yolo',
+              sku: 'c546c96',
+              quantity: 8,
+              name: 'my-product',
+              price: 99.99
+            }
+          ],
           orderId: '55c497bf'
         });
 
         analytics.deepEqual(bronto.bta.addOrder.args[0][0], {
           email: 'lance@segment.io',
-          items: [{ item_id: 'yolo', quantity: 8, desc: 'my-product', amount: 99.99 }],
+          items: [
+            { item_id: 'yolo', quantity: 8, desc: 'my-product', amount: 99.99 }
+          ],
           order_id: '55c497bf'
         });
       });
@@ -106,13 +129,22 @@ describe('Bronto', function() {
       it('should fallback on sku', function() {
         analytics.identify({ email: 'lance@segment.io' });
         analytics.track('order completed', {
-          products: [{ sku: 'c546c96', quantity: 8, name: 'my-product', price: 99.99 }],
+          products: [
+            { sku: 'c546c96', quantity: 8, name: 'my-product', price: 99.99 }
+          ],
           orderId: '55c497bf'
         });
 
         analytics.deepEqual(bronto.bta.addOrder.args[0][0], {
           email: 'lance@segment.io',
-          items: [{ item_id: 'c546c96', quantity: 8, desc: 'my-product', amount: 99.99 }],
+          items: [
+            {
+              item_id: 'c546c96',
+              quantity: 8,
+              desc: 'my-product',
+              amount: 99.99
+            }
+          ],
           order_id: '55c497bf'
         });
       });

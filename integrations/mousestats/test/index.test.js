@@ -29,11 +29,14 @@ describe('MouseStats', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(MouseStats, integration('MouseStats')
-      .assumesPageview()
-      .global('msaa')
-      .global('MouseStatsVisitorPlaybacks')
-      .option('accountNumber', ''));
+    analytics.compare(
+      MouseStats,
+      integration('MouseStats')
+        .assumesPageview()
+        .global('msaa')
+        .global('MouseStatsVisitorPlaybacks')
+        .option('accountNumber', '')
+    );
   });
 
   describe('before loading', function() {

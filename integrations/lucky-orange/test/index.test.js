@@ -30,13 +30,16 @@ describe('Lucky Orange', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(LuckyOrange, integration('Lucky Orange')
-      .assumesPageview()
-      .global('_loq')
-      .global('__wtw_lucky_site_id')
-      .global('__wtw_lucky_is_segment_io')
-      .global('__wtw_custom_user_data')
-      .option('siteId', null));
+    analytics.compare(
+      LuckyOrange,
+      integration('Lucky Orange')
+        .assumesPageview()
+        .global('_loq')
+        .global('__wtw_lucky_site_id')
+        .global('__wtw_lucky_is_segment_io')
+        .global('__wtw_custom_user_data')
+        .option('siteId', null)
+    );
   });
 
   describe('before loading', function() {
@@ -86,7 +89,9 @@ describe('Lucky Orange', function() {
 
       it('should send name', function() {
         analytics.identify({ email: 'test@example.com' });
-        analytics.deepEqual(window.__wtw_custom_user_data, { email: 'test@example.com' });
+        analytics.deepEqual(window.__wtw_custom_user_data, {
+          email: 'test@example.com'
+        });
       });
 
       it('should send name', function() {
@@ -96,7 +101,11 @@ describe('Lucky Orange', function() {
 
       it('should send traits', function() {
         analytics.identify('id', { name: 'test', email: 'test@example.com' });
-        analytics.deepEqual(window.__wtw_custom_user_data, { id: 'id', name: 'test', email: 'test@example.com' });
+        analytics.deepEqual(window.__wtw_custom_user_data, {
+          id: 'id',
+          name: 'test',
+          email: 'test@example.com'
+        });
       });
     });
   });

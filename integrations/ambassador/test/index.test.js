@@ -35,9 +35,12 @@ describe('Ambassador', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Ambassador, integration('Ambassador')
-      .global('mbsy')
-      .option('uid', ''));
+    analytics.compare(
+      Ambassador,
+      integration('Ambassador')
+        .global('mbsy')
+        .option('uid', '')
+    );
   });
 
   describe('before loading', function() {
@@ -78,35 +81,63 @@ describe('Ambassador', function() {
 
       it('should send an id', function() {
         analytics.identify('id');
-        analytics.called(window.mbsy.identify, 'id', {}, { identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          {},
+          { identifyType: 'segment' }
+        );
       });
 
       it('should send traits', function() {
         analytics.identify({ email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, { email: 'test@example.com' }, { identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          { email: 'test@example.com' },
+          { identifyType: 'segment' }
+        );
       });
 
       it('should send an id and traits', function() {
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { identifyType: 'segment' }
+        );
       });
 
       it('should send traits and options', function() {
         window.mockLocation = 'http://example.com';
         analytics.identify({ email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, { email: 'test@example.com' }, { campaign: 1, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          { email: 'test@example.com' },
+          { campaign: 1, identifyType: 'segment' }
+        );
       });
 
       it('should send an id and options', function() {
         window.mockLocation = 'http://example.com';
         analytics.identify('id', {});
-        analytics.called(window.mbsy.identify, 'id', {}, { campaign: 1, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          {},
+          { campaign: 1, identifyType: 'segment' }
+        );
       });
 
       it('should send an id, traits and options', function() {
         window.mockLocation = 'http://example.com';
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 1, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 1, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for all valid campaigns', function() {
@@ -126,7 +157,12 @@ describe('Ambassador', function() {
           'test.com/*': 2
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching test.example2.com', function() {
@@ -135,7 +171,12 @@ describe('Ambassador', function() {
           'test.example2.com': 3
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 3, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 3, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching *.example3.com', function() {
@@ -144,7 +185,12 @@ describe('Ambassador', function() {
           '*.example3.com': 4
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 4, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 4, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example4.*', function() {
@@ -153,7 +199,12 @@ describe('Ambassador', function() {
           'example4.*': 5
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 5, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 5, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching *.com', function() {
@@ -162,7 +213,12 @@ describe('Ambassador', function() {
           '*.com': 6
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 6, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 6, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching *.*', function() {
@@ -171,7 +227,12 @@ describe('Ambassador', function() {
           '*.*': 7
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 7, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 7, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example5.com/*', function() {
@@ -180,7 +241,12 @@ describe('Ambassador', function() {
           'example5.com/*': 8
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 8, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 8, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example6.com/test/*', function() {
@@ -189,7 +255,12 @@ describe('Ambassador', function() {
           'example6.com/test/*': 9
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 9, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 9, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example7.com/*/test2', function() {
@@ -198,7 +269,12 @@ describe('Ambassador', function() {
           'example7.com/*/test2': 10
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 10, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 10, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example8.com/#/', function() {
@@ -207,7 +283,12 @@ describe('Ambassador', function() {
           'example8.com/#/': 11
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 11, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 11, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example9.com/#/*', function() {
@@ -216,7 +297,12 @@ describe('Ambassador', function() {
           'example9.com/#/*': 12
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 12, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 12, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example10.com/#/test/*', function() {
@@ -225,7 +311,12 @@ describe('Ambassador', function() {
           'example10.com/#/test/*': 13
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 13, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 13, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching example11.com/#/*/test2', function() {
@@ -234,7 +325,12 @@ describe('Ambassador', function() {
           'example11.com/#/*/test2': 14
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 14, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 14, identifyType: 'segment' }
+        );
       });
 
       it('should send call identify for campaign matching *．test．com', function() {
@@ -243,7 +339,12 @@ describe('Ambassador', function() {
           '*．test．com': 14
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 14, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 14, identifyType: 'segment' }
+        );
       });
 
       it('should return true when path of browser contains mixed case', function() {
@@ -252,7 +353,12 @@ describe('Ambassador', function() {
           'example6.com/test/*': 9
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 9, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 9, identifyType: 'segment' }
+        );
       });
 
       it('should return true when path of url contains mixed case', function() {
@@ -261,7 +367,12 @@ describe('Ambassador', function() {
           'example6.com/TeST/*': 9
         };
         analytics.identify('id', { email: 'test@example.com' });
-        analytics.called(window.mbsy.identify, 'id', { email: 'test@example.com' }, { campaign: 9, identifyType: 'segment' });
+        analytics.called(
+          window.mbsy.identify,
+          'id',
+          { email: 'test@example.com' },
+          { campaign: 9, identifyType: 'segment' }
+        );
       });
     });
 
@@ -278,7 +389,12 @@ describe('Ambassador', function() {
       it('should send an event, properties and options', function() {
         window.mockLocation = 'http://example.com';
         analytics.track('Completed Order', { revenue: 1 });
-        analytics.called(window.mbsy.track, 'Completed Order', { revenue: 1, campaign: 1 }, { conversion: true });
+        analytics.called(
+          window.mbsy.track,
+          'Completed Order',
+          { revenue: 1, campaign: 1 },
+          { conversion: true }
+        );
       });
     });
   });

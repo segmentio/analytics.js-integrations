@@ -30,11 +30,14 @@ describe('Evergage', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Evergage, integration('Evergage')
-      .assumesPageview()
-      .global('_aaq')
-      .option('account', '')
-      .option('dataset', ''));
+    analytics.compare(
+      Evergage,
+      integration('Evergage')
+        .assumesPageview()
+        .global('_aaq')
+        .option('account', '')
+        .option('dataset', '')
+    );
   });
 
   describe('before loading', function() {
@@ -53,7 +56,10 @@ describe('Evergage', function() {
       it('should push the account', function() {
         analytics.initialize();
         analytics.page();
-        analytics.deepEqual(window._aaq[0], ['setEvergageAccount', options.account]);
+        analytics.deepEqual(window._aaq[0], [
+          'setEvergageAccount',
+          options.account
+        ]);
       });
 
       it('should push the dataset', function() {
@@ -107,17 +113,32 @@ describe('Evergage', function() {
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
         analytics.called(window._aaq.push, ['setUser', 'id']);
-        analytics.called(window._aaq.push, ['setUserField', 'trait', true, 'page']);
+        analytics.called(window._aaq.push, [
+          'setUserField',
+          'trait',
+          true,
+          'page'
+        ]);
       });
 
       it('should send an email', function() {
         analytics.identify('id', { email: 'name@example.com' });
-        analytics.called(window._aaq.push, ['setUserField', 'userEmail', 'name@example.com', 'page']);
+        analytics.called(window._aaq.push, [
+          'setUserField',
+          'userEmail',
+          'name@example.com',
+          'page'
+        ]);
       });
 
       it('should send a name', function() {
         analytics.identify('id', { name: 'name' });
-        analytics.called(window._aaq.push, ['setUserField', 'userName', 'name', 'page']);
+        analytics.called(window._aaq.push, [
+          'setUserField',
+          'userName',
+          'name',
+          'page'
+        ]);
       });
     });
 
@@ -139,7 +160,12 @@ describe('Evergage', function() {
       it('should send an id and properties', function() {
         analytics.group('id', { trait: true });
         analytics.called(window._aaq.push, ['setCompany', 'id']);
-        analytics.called(window._aaq.push, ['setAccountField', 'trait', true, 'page']);
+        analytics.called(window._aaq.push, [
+          'setAccountField',
+          'trait',
+          true,
+          'page'
+        ]);
       });
     });
 
@@ -155,7 +181,11 @@ describe('Evergage', function() {
 
       it('should send an event and properties', function() {
         analytics.track('event', { property: true });
-        analytics.called(window._aaq.push, ['trackAction', 'event', { property: true }]);
+        analytics.called(window._aaq.push, [
+          'trackAction',
+          'event',
+          { property: true }
+        ]);
       });
     });
 
@@ -172,7 +202,12 @@ describe('Evergage', function() {
 
       it('should send page properties', function() {
         analytics.page({ property: true });
-        analytics.called(window._aaq.push, ['setCustomField', 'property', true, 'page']);
+        analytics.called(window._aaq.push, [
+          'setCustomField',
+          'property',
+          true,
+          'page'
+        ]);
       });
 
       it('should send a page name', function() {

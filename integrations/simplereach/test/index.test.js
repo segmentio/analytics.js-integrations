@@ -29,10 +29,13 @@ describe('Simplereach', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(SimpleReach, integration('SimpleReach')
-      .global('SPR')
-      .global('__reach_config')
-      .option('pid', ''));
+    analytics.compare(
+      SimpleReach,
+      integration('SimpleReach')
+        .global('SPR')
+        .global('__reach_config')
+        .option('pid', '')
+    );
   });
 
   describe('before loading', function() {
@@ -81,7 +84,9 @@ describe('Simplereach', function() {
       analytics.spy(simplereach, 'load');
       analytics.initialize();
       analytics.page();
-      analytics.loaded('<script src="http://d8rk54i4mohrb.cloudfront.net/js/reach.js">');
+      analytics.loaded(
+        '<script src="http://d8rk54i4mohrb.cloudfront.net/js/reach.js">'
+      );
     });
   });
 
@@ -105,7 +110,10 @@ describe('Simplereach', function() {
       it('should send a page view', function() {
         var title = document.title;
         analytics.page();
-        analytics.equal(window.__reach_config.url, 'http://mygreatreachtestsite.com/ogurl.html');
+        analytics.equal(
+          window.__reach_config.url,
+          'http://mygreatreachtestsite.com/ogurl.html'
+        );
         analytics.equal(window.__reach_config.title, title);
         analytics.called(window.SPR.collect);
       });
@@ -204,4 +212,3 @@ describe('Simplereach', function() {
     });
   });
 });
-

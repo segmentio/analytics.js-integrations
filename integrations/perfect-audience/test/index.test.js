@@ -29,10 +29,13 @@ describe('Perfect Audience', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(PerfectAudience, integration('Perfect Audience')
-      .assumesPageview()
-      .global('_pq')
-      .option('siteId', ''));
+    analytics.compare(
+      PerfectAudience,
+      integration('Perfect Audience')
+        .assumesPageview()
+        .global('_pq')
+        .option('siteId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -84,7 +87,11 @@ describe('Perfect Audience', function() {
           orderId: '12345',
           total: 30
         });
-        analytics.called(window._pq.push, ['track', 'event', { orderId: '12345', revenue: 30 }]);
+        analytics.called(window._pq.push, [
+          'track',
+          'event',
+          { orderId: '12345', revenue: 30 }
+        ]);
       });
     });
 
@@ -102,7 +109,10 @@ describe('Perfect Audience', function() {
           category: 'Games'
         });
         analytics.called(window._pq.push, ['track', 'Product Viewed']);
-        analytics.called(window._pq.push, ['trackProduct', '507f1f77bcf86cd799439011']);
+        analytics.called(window._pq.push, [
+          'trackProduct',
+          '507f1f77bcf86cd799439011'
+        ]);
       });
 
       it('should send a track and a trackProduct with product SKU, if there is not product ID', function() {
@@ -151,7 +161,11 @@ describe('Perfect Audience', function() {
             }
           ]
         });
-        analytics.called(window._pq.push, ['track', 'Order Completed', { orderId: '12345', revenue: 30 }]);
+        analytics.called(window._pq.push, [
+          'track',
+          'Order Completed',
+          { orderId: '12345', revenue: 30 }
+        ]);
       });
     });
   });

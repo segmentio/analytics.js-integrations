@@ -10,13 +10,13 @@ var integration = require('@segment/analytics.js-integration');
  * Expose Alexa integration.
  */
 
-var Alexa = module.exports = integration('Alexa')
+var Alexa = (module.exports = integration('Alexa')
   .assumesPageview()
   .global('_atrk_opts')
   .option('account', null)
   .option('domain', '')
   .option('dynamic', true)
-  .tag('<script src="//d31qbv1cthcecs.cloudfront.net/atrk.js">');
+  .tag('<script src="//d31qbv1cthcecs.cloudfront.net/atrk.js">'));
 
 /**
  * Initialize.

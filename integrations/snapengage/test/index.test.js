@@ -29,10 +29,13 @@ describe('SnapEngage', function() {
   });
 
   it('should store the right settings', function() {
-    analytics.compare(SnapEngage, integration('SnapEngage')
-      .assumesPageview()
-      .global('SnapABug')
-      .option('apiKey', ''));
+    analytics.compare(
+      SnapEngage,
+      integration('SnapEngage')
+        .assumesPageview()
+        .global('SnapABug')
+        .option('apiKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -143,6 +146,6 @@ describe('SnapEngage', function() {
           done();
         }, 8000);
       });
-    });*/
+    }); */
   });
 });

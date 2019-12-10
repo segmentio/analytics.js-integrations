@@ -10,11 +10,13 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `CrazyEgg` integration.
  */
 
-var CrazyEgg = module.exports = integration('Crazy Egg')
+var CrazyEgg = (module.exports = integration('Crazy Egg')
   .assumesPageview()
   .global('CE2')
   .option('accountNumber', '')
-  .tag('<script src="//script.crazyegg.com/pages/scripts/{{ path }}.js?{{ cacheBuster }}">');
+  .tag(
+    '<script src="//script.crazyegg.com/pages/scripts/{{ path }}.js?{{ cacheBuster }}">'
+  ));
 
 /**
  * Initialize.

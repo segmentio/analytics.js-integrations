@@ -11,12 +11,14 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Awesm` integration.
  */
 
-var Awesm = module.exports = integration('awe.sm')
+var Awesm = (module.exports = integration('awe.sm')
   .assumesPageview()
   .global('AWESM')
   .option('apiKey', '')
-  .tag('<script src="//widgets.awe.sm/v3/widgets.js?key={{ apiKey }}&async=true">')
-  .mapping('events');
+  .tag(
+    '<script src="//widgets.awe.sm/v3/widgets.js?key={{ apiKey }}&async=true">'
+  )
+  .mapping('events'));
 
 /**
  * Initialize.

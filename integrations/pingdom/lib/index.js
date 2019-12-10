@@ -11,12 +11,12 @@ var push = require('global-queue')('_prum');
  * Expose `Pingdom` integration.
  */
 
-var Pingdom = module.exports = integration('Pingdom')
+var Pingdom = (module.exports = integration('Pingdom')
   .assumesPageview()
   .global('_prum')
   .global('PRUM_EPISODES')
   .option('id', '')
-  .tag('<script src="//rum-static.pingdom.net/prum.min.js">');
+  .tag('<script src="//rum-static.pingdom.net/prum.min.js">'));
 
 /**
  * Initialize.

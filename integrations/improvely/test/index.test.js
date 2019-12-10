@@ -38,12 +38,15 @@ describe('Improvely', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Improvely, integration('Improvely')
-      .assumesPageview()
-      .global('_improvely')
-      .global('improvely')
-      .option('domain', '')
-      .option('projectId', null));
+    analytics.compare(
+      Improvely,
+      integration('Improvely')
+        .assumesPageview()
+        .global('_improvely')
+        .global('improvely')
+        .option('domain', '')
+        .option('projectId', null)
+    );
   });
 
   describe('before loading', function() {
@@ -69,7 +72,11 @@ describe('Improvely', function() {
       it('should init with a domain and project id', function() {
         analytics.initialize();
         analytics.page();
-        analytics.deepEqual(window._improvely[0], ['init', options.domain, options.projectId]);
+        analytics.deepEqual(window._improvely[0], [
+          'init',
+          options.domain,
+          options.projectId
+        ]);
       });
 
       it('should call #load', function() {

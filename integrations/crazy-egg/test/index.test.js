@@ -29,10 +29,13 @@ describe('Crazy Egg', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(CrazyEgg, integration('Crazy Egg')
-      .assumesPageview()
-      .global('CE2')
-      .option('accountNumber', ''));
+    analytics.compare(
+      CrazyEgg,
+      integration('Crazy Egg')
+        .assumesPageview()
+        .global('CE2')
+        .option('accountNumber', '')
+    );
   });
 
   describe('before loading', function() {

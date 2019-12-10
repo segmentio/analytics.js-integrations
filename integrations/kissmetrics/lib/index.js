@@ -15,7 +15,7 @@ var del = require('obj-case').del;
  * Expose `KISSmetrics` integration.
  */
 
-var KISSmetrics = module.exports = integration('KISSmetrics')
+var KISSmetrics = (module.exports = integration('KISSmetrics')
   .global('KM')
   .global('_kmil')
   .global('_kmq')
@@ -23,7 +23,10 @@ var KISSmetrics = module.exports = integration('KISSmetrics')
   .option('prefixProperties', true)
   .option('trackCategorizedPages', true)
   .option('trackNamedPages', true)
-  .tag('library', '<script src="//scripts.kissmetrics.com/{{ apiKey }}.2.js">');
+  .tag(
+    'library',
+    '<script src="//scripts.kissmetrics.com/{{ apiKey }}.2.js">'
+  ));
 
 /**
  * Check if browser is mobile, for kissmetrics.
@@ -31,12 +34,13 @@ var KISSmetrics = module.exports = integration('KISSmetrics')
  * http://support.kissmetrics.com/how-tos/browser-detection.html#mobile-vs-non-mobile
  */
 
-exports.isMobile = navigator.userAgent.match(/Android/i)
-  || navigator.userAgent.match(/BlackBerry/i)
-  || navigator.userAgent.match(/IEMobile/i)
-  || navigator.userAgent.match(/Opera Mini/i)
-  || navigator.userAgent.match(/iPad/i)
-  || navigator.userAgent.match(/iPhone|iPod/i);
+exports.isMobile =
+  navigator.userAgent.match(/Android/i) ||
+  navigator.userAgent.match(/BlackBerry/i) ||
+  navigator.userAgent.match(/IEMobile/i) ||
+  navigator.userAgent.match(/Opera Mini/i) ||
+  navigator.userAgent.match(/iPad/i) ||
+  navigator.userAgent.match(/iPhone|iPod/i);
 
 /**
  * Initialize.
@@ -99,7 +103,6 @@ KISSmetrics.prototype.trackPage = function(page) {
   if (!e) {
     return;
   }
-
 
   var event = 'Viewed ' + e + ' Page';
   var properties = prefix('Page', page.properties());
@@ -221,8 +224,8 @@ function prefix(event, properties) {
 }
 
 function toUnixTimestamp(date) {
-  date = new Date(date);
-  return Math.floor(date.getTime() / 1000);
+  var d = new Date(date);
+  return Math.floor(d.getTime() / 1000);
 }
 
 /**
@@ -293,20 +296,19 @@ function clean(obj) {
  * @api public
  */
 
-function flatten(target, opts) {
-  opts = opts || {};
+function flatten(target, options) {
+  var opts = options || {};
 
   var delimiter = opts.delimiter || '.';
   var maxDepth = opts.maxDepth;
   var currentDepth = 1;
   var output = {};
 
-//   for (var key in p) {
-//   if (p.hasOwnProperty(key)) {
-//     alert(key + " -> " + p[key]);
-//   }
-// }
-
+  //   for (var key in p) {
+  //   if (p.hasOwnProperty(key)) {
+  //     alert(key + " -> " + p[key]);
+  //   }
+  // }
 
   function step(object, prev) {
     for (var key in object) {
@@ -317,9 +319,7 @@ function flatten(target, opts) {
         var isobject = type === '[object Object]' || type === '[object Array]';
         var arr = [];
 
-        var newKey = prev
-          ? prev + delimiter + key
-          : key;
+        var newKey = prev ? prev + delimiter + key : key;
 
         if (!opts.maxDepth) {
           maxDepth = currentDepth + 1;

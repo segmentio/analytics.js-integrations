@@ -14,11 +14,11 @@ var qs = require('component-querystring');
  * Expose `Bronto` integration.
  */
 
-var Bronto = module.exports = integration('Bronto')
+var Bronto = (module.exports = integration('Bronto')
   .global('__bta')
   .option('siteId', '')
   .option('host', '')
-  .tag('<script src="//p.bm23.com/bta.js">');
+  .tag('<script src="//p.bm23.com/bta.js">'));
 
 /**
  * Initialize.

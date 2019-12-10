@@ -29,11 +29,14 @@ describe('Ramen', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Ramen, integration('Ramen')
-      .global('Ramen')
-      .global('_ramen')
-      .option('organization_id', '')
-      .tag('<script src="//cdn.ramen.is/assets/ramen.js">'));
+    analytics.compare(
+      Ramen,
+      integration('Ramen')
+        .global('Ramen')
+        .global('_ramen')
+        .option('organization_id', '')
+        .tag('<script src="//cdn.ramen.is/assets/ramen.js">')
+    );
   });
 
   describe('before loading', function() {
@@ -77,7 +80,9 @@ describe('Ramen', function() {
     });
 
     it('should have created Ramen', function() {
-      analytics.assert(window.Ramen.config.settings.organization_id === '6389149');
+      analytics.assert(
+        window.Ramen.config.settings.organization_id === '6389149'
+      );
       analytics.assert(window._ramen.is_booted);
     });
 
@@ -182,33 +187,49 @@ describe('Ramen', function() {
 
         it('should call _ramen.identify with the id', function() {
           analytics.identify('users-id');
-          analytics.called(window._ramen.identify, {
-            id: 'users-id',
-            traits: {}
-          }, {});
+          analytics.called(
+            window._ramen.identify,
+            {
+              id: 'users-id',
+              traits: {}
+            },
+            {}
+          );
         });
 
         it('should call _ramen.identify and set correct attributes if just email passed', function() {
           var email = 'email@example.com';
           analytics.identify('id', { email: email });
-          analytics.called(window._ramen.identify, {
-            id: 'id',
-            email: email,
-            traits: {}
-          }, {});
+          analytics.called(
+            window._ramen.identify,
+            {
+              id: 'id',
+              email: email,
+              traits: {}
+            },
+            {}
+          );
         });
 
         it('should call _ramen.identify and set correct attributes if email, name, & trait passed', function() {
           var email = 'email@example.com';
           var name = 'ryan+segment@ramen.is';
-          analytics.identify('id', { email: email, name: name, is_friend: true });
-
-          analytics.called(window._ramen.identify, {
-            id: 'id',
+          analytics.identify('id', {
             email: email,
             name: name,
-            traits: { is_friend: true }
-          }, {});
+            is_friend: true
+          });
+
+          analytics.called(
+            window._ramen.identify,
+            {
+              id: 'id',
+              email: email,
+              name: name,
+              traits: { is_friend: true }
+            },
+            {}
+          );
         });
 
         it('should pass along company traits', function() {
@@ -223,22 +244,30 @@ describe('Ramen', function() {
             used_coupon_at: 1234567890
           };
 
-          analytics.identify('19', { email: email, name: name, company: company });
-
-          analytics.called(window._ramen.identify, {
-            id: '19',
+          analytics.identify('19', {
             email: email,
             name: name,
-            company: {
-              name: 'Pied Piper, Inc.',
-              url: 'http://piedpiper.com',
-              id: '987',
-              created_at: 1234567890,
-              is_friend: true,
-              used_coupon_at: 1234567890
+            company: company
+          });
+
+          analytics.called(
+            window._ramen.identify,
+            {
+              id: '19',
+              email: email,
+              name: name,
+              company: {
+                name: 'Pied Piper, Inc.',
+                url: 'http://piedpiper.com',
+                id: '987',
+                created_at: 1234567890,
+                is_friend: true,
+                used_coupon_at: 1234567890
+              },
+              traits: {}
             },
-            traits: {}
-          }, {});
+            {}
+          );
         });
 
         it('should pass other traits', function() {
@@ -256,70 +285,82 @@ describe('Ramen', function() {
             lastPurchaseAt: '2009-02-13T23:31:32.000Z'
           });
 
-          analytics.called(window._ramen.identify, {
-            id: 'id',
-            email: email,
-            name: name,
-            traits: {
-              age: 32,
-              score: 43.1,
-              color: 'green',
-              is_friend: true,
-              became_maven_at: 1234567890,
-              first_purchase_at: 1234567891,
-              lastPurchaseAt: 1234567892
-            }
-          }, {});
+          analytics.called(
+            window._ramen.identify,
+            {
+              id: 'id',
+              email: email,
+              name: name,
+              traits: {
+                age: 32,
+                score: 43.1,
+                color: 'green',
+                is_friend: true,
+                became_maven_at: 1234567890,
+                first_purchase_at: 1234567891,
+                lastPurchaseAt: 1234567892
+              }
+            },
+            {}
+          );
         });
 
         it('should pass along integration options', function() {
           var email = 'email@example.com';
           var name = 'ryan+segment@ramen.is';
-          var auth_hash = 'authy_hasy';
-          var auth_hash_timestamp = new Date() / 1000;
-          var custom_links = [{ href: 'https://ramen.is/support', title: 'Hello' }];
+          var authHash = 'authy_hasy';
+          var authHashTimestamp = new Date() / 1000;
+          var customLinks = [
+            { href: 'https://ramen.is/support', title: 'Hello' }
+          ];
           var labels = ['use', 'ramen!'];
           var environment = 'staging';
-          var logged_in_url = 'https://align.ramen.is/manage';
-          var unknown_future_opt = '11';
-          var unknown_future_user_opt = 'user 11';
+          var loggedInUrl = 'https://align.ramen.is/manage';
+          var unknownFutureOpt = '11';
+          var unknownFutureUserOpt = 'user 11';
 
-          analytics.identify('id', { email: email, name: name },
+          analytics.identify(
+            'id',
+            { email: email, name: name },
             {
               integrations: {
                 Ramen: {
-                  unknown_future_opt: unknown_future_opt,
+                  unknown_future_opt: unknownFutureOpt,
                   environment: environment,
-                  auth_hash_timestamp: auth_hash_timestamp,
-                  auth_hash: auth_hash,
-                  custom_links: custom_links,
+                  auth_hash_timestamp: authHashTimestamp,
+                  auth_hash: authHash,
+                  custom_links: customLinks,
                   user: {
-                    unknown_future_user_opt: unknown_future_user_opt,
+                    unknown_future_user_opt: unknownFutureUserOpt,
                     labels: labels,
-                    logged_in_url: logged_in_url
+                    logged_in_url: loggedInUrl
                   }
                 }
               }
             }
           );
 
-          analytics.called(window._ramen.identify, {
-            id: 'id',
-            email: email,
-            name: name,
-            traits: {}
-          }, {
-            unknown_future_opt: unknown_future_opt,
-            environment: environment,
-            auth_hash: auth_hash,
-            custom_links: custom_links,
-            user: {
-              unknown_future_user_opt: unknown_future_user_opt,
-              labels: labels,
-              logged_in_url: logged_in_url
+          analytics.called(
+            window._ramen.identify,
+            {
+              id: 'id',
+              email: email,
+              name: name,
+              traits: {}
             },
-            timestamp: auth_hash_timestamp
-          });
+            {
+              unknown_future_opt: unknownFutureOpt,
+              environment: environment,
+              auth_hash: authHash,
+              custom_links: customLinks,
+              user: {
+                unknown_future_user_opt: unknownFutureUserOpt,
+                labels: labels,
+                logged_in_url: loggedInUrl
+              },
+              timestamp: authHashTimestamp
+            }
+          );
         });
       });
     });

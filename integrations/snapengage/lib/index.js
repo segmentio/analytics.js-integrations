@@ -12,13 +12,13 @@ var tick = require('next-tick');
  * Expose `SnapEngage` integration.
  */
 
-var SnapEngage = module.exports = integration('SnapEngage')
+var SnapEngage = (module.exports = integration('SnapEngage')
   .assumesPageview()
   .global('SnapABug')
   .global('SnapEngage')
   .option('apiKey', '')
   .option('listen', false)
-  .tag('<script src="//www.snapengage.com/cdn/js/{{ apiKey }}.js">');
+  .tag('<script src="//www.snapengage.com/cdn/js/{{ apiKey }}.js">'));
 
 /**
  * Integration object for root events.
@@ -83,32 +83,40 @@ SnapEngage.prototype.attachListeners = function() {
   // Callback is passed `email, message, type`
   // TODO: Eventually this might pass information about the chat to Segment
   window.SnapEngage.setCallback('StartChat', function() {
-    self.analytics.track('Live Chat Conversation Started',
+    self.analytics.track(
+      'Live Chat Conversation Started',
       {},
-      { context: { integration: integrationContext } });
+      { context: { integration: integrationContext } }
+    );
   });
 
   // Callback is passed `agent, message`
   // TODO: Eventually this might pass information about the message to Segment
   window.SnapEngage.setCallback('ChatMessageReceived', function(agent) {
-    self.analytics.track('Live Chat Message Received',
+    self.analytics.track(
+      'Live Chat Message Received',
       { agentUsername: agent },
-      { context: { integration: integrationContext } });
+      { context: { integration: integrationContext } }
+    );
   });
 
   // Callback is passed `message`
   // TODO: Eventually this might pass information about the message to Segment
   window.SnapEngage.setCallback('ChatMessageSent', function() {
-    self.analytics.track('Live Chat Message Sent',
+    self.analytics.track(
+      'Live Chat Message Sent',
       {},
-      { context: { integration: integrationContext } });
+      { context: { integration: integrationContext } }
+    );
   });
 
   // Callback is passed `type, status`
   // TODO: Eventually this might pass information about the status to Segment
   window.SnapEngage.setCallback('Close', function() {
-    self.analytics.track('Live Chat Conversation Ended',
+    self.analytics.track(
+      'Live Chat Conversation Ended',
       {},
-      { context: { integration: integrationContext } });
+      { context: { integration: integrationContext } }
+    );
   });
 };

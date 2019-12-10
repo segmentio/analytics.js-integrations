@@ -11,4 +11,4 @@
   el.rel = 'canonical';
   el.href = 'http://mygreatreachtestsite.com/ogurl.html';
   document.head.appendChild(el);
-}());
+})();

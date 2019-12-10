@@ -10,11 +10,11 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Castle` integration.
  */
 
-var Castle = module.exports = integration('Castle')
+var Castle = (module.exports = integration('Castle')
   .option('publishableKey', '')
   .option('autoPageview', false)
   .option('cookieDomain', false)
-  .tag('<script src="//d2t77mnxyo7adj.cloudfront.net/v1/cs.js">');
+  .tag('<script src="//d2t77mnxyo7adj.cloudfront.net/v1/cs.js">'));
 
 /**
  * Initialize.
@@ -87,7 +87,6 @@ Castle.prototype.page = function(page) {
 Castle.prototype.track = function(track) {
   window._castle('track', track.event(), track.properties());
 };
-
 
 /**
  * Send user information to Castle from cached user

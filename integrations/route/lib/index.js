@@ -6,11 +6,13 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Route` integration.
  */
 
-var Route = module.exports = integration('Route')
+var Route = (module.exports = integration('Route')
   .global('_rq')
   .global('_route')
   .option('organizationId', '')
-  .tag('<script id="rtracker" data-organization-id="{{ organizationId }}" data-source="segment.com" src="//www.routecdn.com/tracker/route-tracker-min.js">');
+  .tag(
+    '<script id="rtracker" data-organization-id="{{ organizationId }}" data-source="segment.com" src="//www.routecdn.com/tracker/route-tracker-min.js">'
+  ));
 
 /**
  * Initialize Route.
