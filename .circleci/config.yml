@@ -8,26 +8,18 @@ jobs:
       - run:
           name: Determine which projects have changed and trigger the builds
           command: |
-            # Identify last successful build on branch
-            LAST_SUCCESSFUL_BUILD_URL="https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/tree/master?filter=completed&limit=1"
-            LAST_SUCCESSFUL_COMMIT=`curl -Ss -u "$CIRCLE_TOKEN:" $LAST_SUCCESSFUL_BUILD_URL | jq -r '.[0]["vcs_revision"]'`
-
             ## Indentify head of master
             git ls-remote origin | awk "/master/ {print \$1}" > master
             MASTER_COMMIT=`cat master`
 
-            #first commit in a branch
-            # if [[ ${LAST_SUCCESSFUL_COMMIT} ]]; then
-            #   COMMITS="${CIRCLE_SHA1}..${LAST_SUCCESSFUL_COMMIT}"
-            # else
-              COMMITS="${CIRCLE_SHA1}..${MASTER_COMMIT}"
-            # fi
+            #Determine range of SHAs for diffing files
+            COMMITS="${CIRCLE_SHA1}..${MASTER_COMMIT}"
 
             #Check the diff on the commits
             git diff --name-only $COMMITS | cut -d/ -f1 | sort -u > projects
             echo -e "Modified directories:\n`cat projects`\n"
 
-            # If modified directories contain yarn, operations, compiler, buildkite directores, exit
+            # If modified directories contain yarn, or buildkite directories
             buildall=0
             for project in `cat projects`; do
               if [[ ${project} =~ "yarn" || ${project} =~ ".buildkite" ]]; then
