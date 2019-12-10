@@ -16,11 +16,13 @@ var umd = typeof window.define === 'function' && window.define.amd;
  * Expose `Madkudu` integration.
  */
 
-var MadKudu = module.exports = integration('Madkudu')
+var MadKudu = (module.exports = integration('Madkudu')
   .global('madkudu')
   .option('apiKey', '')
   .readyOnLoad()
-  .tag('<script src="//cdn.madkudu.com/madkudu.js/v1/{{ apiKey }}/madkudu.min.js">');
+  .tag(
+    '<script src="//cdn.madkudu.com/madkudu.js/v1/{{ apiKey }}/madkudu.min.js">'
+  ));
 
 /**
  * Initialize.
@@ -40,10 +42,17 @@ MadKudu.prototype.initialize = function() {
   var self = this;
 
   if (umd) {
-    window.require(['//cdn.madkudu.com/madkudu.js/v1/' + self.options.apiKey + '/madkudu.min.js'], function(madkudu) {
-      window.madkudu = madkudu;
-      self.ready();
-    });
+    window.require(
+      [
+        '//cdn.madkudu.com/madkudu.js/v1/' +
+          self.options.apiKey +
+          '/madkudu.min.js'
+      ],
+      function(madkudu) {
+        window.madkudu = madkudu;
+        self.ready();
+      }
+    );
     return;
   }
 

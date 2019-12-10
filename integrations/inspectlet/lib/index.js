@@ -11,12 +11,12 @@ var push = require('global-queue')('__insp');
  * Expose `Inspectlet` integration.
  */
 
-var Inspectlet = module.exports = integration('Inspectlet')
+var Inspectlet = (module.exports = integration('Inspectlet')
   .assumesPageview()
   .global('__insp')
   .global('__insp_')
   .option('wid', '')
-  .tag('<script src="//cdn.inspectlet.com/inspectlet.js">');
+  .tag('<script src="//cdn.inspectlet.com/inspectlet.js">'));
 
 /**
  * Initialize.

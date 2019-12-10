@@ -30,9 +30,12 @@ describe('Blueshift', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Blueshift, integration('Blueshift')
-      .global('blueshift')
-      .global('_blueshiftid', ''));
+    analytics.compare(
+      Blueshift,
+      integration('Blueshift')
+        .global('blueshift')
+        .global('_blueshiftid', '')
+    );
   });
 
   describe('before loading', function() {

@@ -30,12 +30,15 @@ describe('Drip', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Drip, integration('Drip')
-      .global('_dc')
-      .global('_dcq')
-      .global('_dcqi')
-      .global('_dcs')
-      .option('account', ''));
+    analytics.compare(
+      Drip,
+      integration('Drip')
+        .global('_dc')
+        .global('_dcq')
+        .global('_dcqi')
+        .global('_dcs')
+        .option('account', '')
+    );
   });
 
   describe('before loading', function() {
@@ -97,7 +100,11 @@ describe('Drip', function() {
 
       it('should replace spaces with underscores in for property keys', function() {
         analytics.track('event', { 'ahoy mate there': 'howdy' });
-        analytics.called(window._dcq.push, ['track', 'event', { ahoy_mate_there: 'howdy' }]);
+        analytics.called(window._dcq.push, [
+          'track',
+          'event',
+          { ahoy_mate_there: 'howdy' }
+        ]);
       });
     });
 
@@ -109,7 +116,10 @@ describe('Drip', function() {
       it('should send identify with traits', function() {
         var traits = { email: 'philz@philz.com', heyyou: 'know yourself' };
         analytics.identify('id', traits);
-        analytics.called(window._dcq.push, ['identify', { id: 'id', heyyou: 'know yourself', email: 'philz@philz.com' }]);
+        analytics.called(window._dcq.push, [
+          'identify',
+          { id: 'id', heyyou: 'know yourself', email: 'philz@philz.com' }
+        ]);
       });
 
       it('should not send if email is not there', function() {
@@ -119,17 +129,32 @@ describe('Drip', function() {
 
       it('should subscribe to campaignId if provided in the settings', function() {
         drip.options.campaignId = '83702741';
-        var traits = { email: 'philz@philz.com', heyyou: 'know yourself', id: 'id' };
+        var traits = {
+          email: 'philz@philz.com',
+          heyyou: 'know yourself',
+          id: 'id'
+        };
         analytics.identify('id', traits);
-        analytics.deepEqual(window._dcq.push.args[1], [['subscribe', { campaign_id: drip.options.campaignId, fields: traits }]]);
+        analytics.deepEqual(window._dcq.push.args[1], [
+          [
+            'subscribe',
+            { campaign_id: drip.options.campaignId, fields: traits }
+          ]
+        ]);
       });
 
       it('should let you override subscribing to campaignId if provided in integration specific settings', function() {
         drip.options.campaignId = '83702741';
-        var traits = { email: 'philz@philz.com', heyyou: 'know yourself', id: 'id' };
+        var traits = {
+          email: 'philz@philz.com',
+          heyyou: 'know yourself',
+          id: 'id'
+        };
         var intOptions = { Drip: { campaignId: '12345678' } };
         analytics.identify('id', traits, intOptions);
-        analytics.deepEqual(window._dcq.push.args[1], [['subscribe', { campaign_id: '12345678', fields: traits }]]);
+        analytics.deepEqual(window._dcq.push.args[1], [
+          ['subscribe', { campaign_id: '12345678', fields: traits }]
+        ]);
       });
     });
   });

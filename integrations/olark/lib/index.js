@@ -12,7 +12,7 @@ var tick = require('next-tick');
  * Expose `Olark` integration.
  */
 
-var Olark = module.exports = integration('Olark')
+var Olark = (module.exports = integration('Olark')
   .assumesPageview()
   .global('olark')
   .option('groupId', '')
@@ -21,7 +21,7 @@ var Olark = module.exports = integration('Olark')
   .option('page', true)
   .option('siteId', '')
   .option('track', false)
-  .option('inline', false);
+  .option('inline', false));
 
 /**
  * The context for this integration.
@@ -52,8 +52,12 @@ Olark.prototype.initialize = function() {
   if (groupId) api('chat.setOperatorGroup', { group: groupId });
 
   // keep track of the widget's open state
-  api('box.onExpand', function() { self._open = true; });
-  api('box.onShrink', function() { self._open = false; });
+  api('box.onExpand', function() {
+    self._open = true;
+  });
+  api('box.onShrink', function() {
+    self._open = false;
+  });
 
   // record events
   if (this.options.listen) this.attachListeners();
@@ -197,11 +201,11 @@ Olark.prototype.attachListeners = function() {
  * @param {string} message
  */
 
-Olark.prototype.notify = function(message) {
+Olark.prototype.notify = function(msg) {
   if (!this._open) return;
 
   // lowercase since olark does
-  message = message.toLowerCase();
+  var message = msg.toLowerCase();
 
   api('visitor.getDetails', function(data) {
     if (!data || !data.isConversing) return;

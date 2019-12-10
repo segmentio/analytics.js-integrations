@@ -33,13 +33,18 @@ describe('Taplytics', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Taplytics, integration('Taplytics')
-      .global('_tlq')
-      .global('Taplytics')
-      .option('apiKey', '')
-      .option('options', {})
-      .tag('<script id="taplytics" src="https://cdn.taplytics.com/taplytics.min.js">')
-      .assumesPageview());
+    analytics.compare(
+      Taplytics,
+      integration('Taplytics')
+        .global('_tlq')
+        .global('Taplytics')
+        .option('apiKey', '')
+        .option('options', {})
+        .tag(
+          '<script id="taplytics" src="https://cdn.taplytics.com/taplytics.min.js">'
+        )
+        .assumesPageview()
+    );
   });
 
   describe('before loading', function() {
@@ -90,9 +95,14 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['track', 'NAME', 0, {
-          test: 1
-        }]);
+        analytics.called(window._tlq.push, [
+          'track',
+          'NAME',
+          0,
+          {
+            test: 1
+          }
+        ]);
       });
 
       it('should track events with revenue', function() {
@@ -101,9 +111,14 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['track', 'NAME', 10, {
-          revenue: 10
-        }]);
+        analytics.called(window._tlq.push, [
+          'track',
+          'NAME',
+          10,
+          {
+            revenue: 10
+          }
+        ]);
       });
 
       it('should track events with revenue and properties', function() {
@@ -113,10 +128,15 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['track', 'NAME', 20, {
-          revenue: 20,
-          test: 1
-        }]);
+        analytics.called(window._tlq.push, [
+          'track',
+          'NAME',
+          20,
+          {
+            revenue: 20,
+            test: 1
+          }
+        ]);
       });
 
       it('should track events with a total', function() {
@@ -125,9 +145,14 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['track', 'NAME', 12, {
-          total: 12
-        }]);
+        analytics.called(window._tlq.push, [
+          'track',
+          'NAME',
+          12,
+          {
+            total: 12
+          }
+        ]);
       });
 
       it('should track events with a total and properties', function() {
@@ -137,10 +162,15 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['track', 'NAME', 22, {
-          total: 22,
-          test: 1
-        }]);
+        analytics.called(window._tlq.push, [
+          'track',
+          'NAME',
+          22,
+          {
+            total: 22,
+            test: 1
+          }
+        ]);
       });
     });
 
@@ -153,42 +183,57 @@ describe('Taplytics', function() {
         analytics.page();
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['page', undefined, undefined, {
-          path: location.pathname,
-          referrer: document.referrer,
-          search: location.search,
-          title: document.title,
-          url: location.href
-        }]);
+        analytics.called(window._tlq.push, [
+          'page',
+          undefined,
+          undefined,
+          {
+            path: location.pathname,
+            referrer: document.referrer,
+            search: location.search,
+            title: document.title,
+            url: location.href
+          }
+        ]);
       });
 
       it('should track named page views', function() {
         analytics.page('NAME');
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['page', undefined, 'NAME', {
-          name: 'NAME',
-          path: location.pathname,
-          referrer: document.referrer,
-          search: location.search,
-          title: document.title,
-          url: location.href
-        }]);
+        analytics.called(window._tlq.push, [
+          'page',
+          undefined,
+          'NAME',
+          {
+            name: 'NAME',
+            path: location.pathname,
+            referrer: document.referrer,
+            search: location.search,
+            title: document.title,
+            url: location.href
+          }
+        ]);
       });
 
       it('should track catagorized and named page views', function() {
         analytics.page('CATEGORY', 'NAME');
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['page', 'CATEGORY', 'CATEGORY NAME', {
-          name: 'NAME',
-          category: 'CATEGORY',
-          path: location.pathname,
-          referrer: document.referrer,
-          search: location.search,
-          title: document.title,
-          url: location.href
-        }]);
+        analytics.called(window._tlq.push, [
+          'page',
+          'CATEGORY',
+          'CATEGORY NAME',
+          {
+            name: 'NAME',
+            category: 'CATEGORY',
+            path: location.pathname,
+            referrer: document.referrer,
+            search: location.search,
+            title: document.title,
+            url: location.href
+          }
+        ]);
       });
 
       it('should track catagorized, named pages with properties', function() {
@@ -197,16 +242,21 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['page', 'CATEGORY', 'CATEGORY NAME', {
-          test: 1,
-          name: 'NAME',
-          category: 'CATEGORY',
-          path: location.pathname,
-          referrer: document.referrer,
-          search: location.search,
-          title: document.title,
-          url: location.href
-        }]);
+        analytics.called(window._tlq.push, [
+          'page',
+          'CATEGORY',
+          'CATEGORY NAME',
+          {
+            test: 1,
+            name: 'NAME',
+            category: 'CATEGORY',
+            path: location.pathname,
+            referrer: document.referrer,
+            search: location.search,
+            title: document.title,
+            url: location.href
+          }
+        ]);
       });
     });
 
@@ -225,9 +275,12 @@ describe('Taplytics', function() {
         analytics.identify('id');
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['identify', {
-          id: 'id'
-        }]);
+        analytics.called(window._tlq.push, [
+          'identify',
+          {
+            id: 'id'
+          }
+        ]);
       });
 
       it('should send traits', function() {
@@ -236,9 +289,12 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['identify', {
-          test: 1
-        }]);
+        analytics.called(window._tlq.push, [
+          'identify',
+          {
+            test: 1
+          }
+        ]);
       });
 
       it('should merge traits and userId', function() {
@@ -247,10 +303,13 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['identify', {
-          id: 'id',
-          test: 1
-        }]);
+        analytics.called(window._tlq.push, [
+          'identify',
+          {
+            id: 'id',
+            test: 1
+          }
+        ]);
       });
     });
 
@@ -264,13 +323,16 @@ describe('Taplytics', function() {
         analytics.group('group_id');
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['identify', {
-          id: 'id',
-          groupId: 'group_id',
-          groupTraits: {
-            id: 'group_id'
+        analytics.called(window._tlq.push, [
+          'identify',
+          {
+            id: 'id',
+            groupId: 'group_id',
+            groupTraits: {
+              id: 'group_id'
+            }
           }
-        }]);
+        ]);
       });
 
       it('should send traits', function() {
@@ -279,12 +341,15 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['identify', {
-          id: 'id',
-          groupTraits: {
-            test: 1
+        analytics.called(window._tlq.push, [
+          'identify',
+          {
+            id: 'id',
+            groupTraits: {
+              test: 1
+            }
           }
-        }]);
+        ]);
       });
 
       it('should send an id and traits', function() {
@@ -293,14 +358,17 @@ describe('Taplytics', function() {
         });
 
         analytics.calledOnce(window._tlq.push);
-        analytics.called(window._tlq.push, ['identify', {
-          id: 'id',
-          groupId: 'group_id',
-          groupTraits: {
-            id: 'group_id',
-            test: 2
+        analytics.called(window._tlq.push, [
+          'identify',
+          {
+            id: 'id',
+            groupId: 'group_id',
+            groupTraits: {
+              id: 'group_id',
+              test: 2
+            }
           }
-        }]);
+        ]);
       });
     });
 

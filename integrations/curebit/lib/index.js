@@ -18,7 +18,7 @@ var when = require('do-when');
  * Expose `Curebit` integration.
  */
 
-var Curebit = module.exports = integration('Curebit')
+var Curebit = (module.exports = integration('Curebit')
   .global('_curebitq')
   .global('curebit')
   .option('campaigns', {})
@@ -32,7 +32,7 @@ var Curebit = module.exports = integration('Curebit')
   .option('server', 'https://www.curebit.com')
   .option('siteId', '')
   .option('customUrl', '')
-  .tag('<script src="{{ src }}">');
+  .tag('<script src="{{ src }}">'));
 
 /**
  * Initialize.
@@ -41,7 +41,9 @@ var Curebit = module.exports = integration('Curebit')
  */
 
 Curebit.prototype.initialize = function() {
-  var url = this.options.customUrl || '//d2jjzw81hqbuqv.cloudfront.net/integration/curebit-1.0.min.js';
+  var url =
+    this.options.customUrl ||
+    '//d2jjzw81hqbuqv.cloudfront.net/integration/curebit-1.0.min.js';
 
   push('init', { site_id: this.options.siteId, server: this.options.server });
 
@@ -82,15 +84,18 @@ Curebit.prototype.loaded = function() {
 
 // FIXME: Is this deprecated? Seems unused
 Curebit.prototype.injectIntoId = function(url, id, fn) {
-  when(function() {
-    return document.getElementById(id);
-  }, function() {
-    var script = document.createElement('script');
-    script.src = url;
-    var parent = document.getElementById(id);
-    parent.appendChild(script);
-    onload(script, fn);
-  });
+  when(
+    function() {
+      return document.getElementById(id);
+    },
+    function() {
+      var script = document.createElement('script');
+      script.src = url;
+      var parent = document.getElementById(id);
+      parent.appendChild(script);
+      onload(script, fn);
+    }
+  );
 };
 
 /**

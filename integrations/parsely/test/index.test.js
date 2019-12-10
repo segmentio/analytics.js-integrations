@@ -39,12 +39,15 @@ describe('Parsely', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Parsely, integration('Parsely')
-      .global('PARSELY')
-      .option('apiKey', '')
-      .option('dynamicTracking', false)
-      .option('inPixelMetadata', false)
-      .option('trackEvents', false));
+    analytics.compare(
+      Parsely,
+      integration('Parsely')
+        .global('PARSELY')
+        .option('apiKey', '')
+        .option('dynamicTracking', false)
+        .option('inPixelMetadata', false)
+        .option('trackEvents', false)
+    );
   });
 
   describe('before loading', function() {
@@ -54,7 +57,8 @@ describe('Parsely', function() {
 
     it('should create a Parsely meta tag', function() {
       var isLoaded = function() {
-        return !!filter(document.getElementsByTagName('meta'), isParselyMetaTag).length;
+        return !!filter(document.getElementsByTagName('meta'), isParselyMetaTag)
+          .length;
       };
 
       analytics.assert(!isLoaded());
@@ -222,60 +226,90 @@ describe('Parsely', function() {
         });
 
         it('should track content view starts', function() {
-          analytics.track('Video Content Started', {
-            assetId: assetId,
-            airdate: 'Mon May 08 2017 11:00:34 GMT-0700 (PDT)',
-            genre: 'Sports',
-            publisher: 'Chris Nixon',
-            keywords: ['hockey', 'henrik lundquist', 'rangers']
-          }, {
-            integrations: {
-              Parsely: {
-                imageUrl: 'http://logo.com'
+          analytics.track(
+            'Video Content Started',
+            {
+              assetId: assetId,
+              airdate: 'Mon May 08 2017 11:00:34 GMT-0700 (PDT)',
+              genre: 'Sports',
+              publisher: 'Chris Nixon',
+              keywords: ['hockey', 'henrik lundquist', 'rangers']
+            },
+            {
+              integrations: {
+                Parsely: {
+                  imageUrl: 'http://logo.com'
+                }
               }
             }
-          });
+          );
           var args = window.PARSELY.video.trackPlay.args;
           analytics.equal(args[0][0], assetId);
-          analytics.deepEqual(args[0][1], { pub_date_tmsp: 1494266434000, image_url: 'http://logo.com', section: 'Sports', authors: ['Chris Nixon'], tags: ['hockey', 'henrik lundquist', 'rangers'] });
+          analytics.deepEqual(args[0][1], {
+            pub_date_tmsp: 1494266434000,
+            image_url: 'http://logo.com',
+            section: 'Sports',
+            authors: ['Chris Nixon'],
+            tags: ['hockey', 'henrik lundquist', 'rangers']
+          });
         });
 
         it('should track playback paused events', function() {
-          analytics.track('Video Playback Paused', {
-            assetId: assetId,
-            airdate: 'Mon May 08 2017 11:00:34 GMT-0700 (PDT)',
-            genre: 'Sports',
-            publisher: 'Chris Nixon'
-          }, {
-            integrations: {
-              Parsely: {
-                imageUrl: 'http://logo.com',
-                tags: ['hockey', 'henrik lundquist', 'rangers']
+          analytics.track(
+            'Video Playback Paused',
+            {
+              assetId: assetId,
+              airdate: 'Mon May 08 2017 11:00:34 GMT-0700 (PDT)',
+              genre: 'Sports',
+              publisher: 'Chris Nixon'
+            },
+            {
+              integrations: {
+                Parsely: {
+                  imageUrl: 'http://logo.com',
+                  tags: ['hockey', 'henrik lundquist', 'rangers']
+                }
               }
             }
-          });
+          );
           var args = window.PARSELY.video.trackPause.args;
           analytics.equal(args[0][0], assetId);
-          analytics.deepEqual(args[0][1], { pub_date_tmsp: 1494266434000, image_url: 'http://logo.com', section: 'Sports', authors: ['Chris Nixon'], tags: ['hockey', 'henrik lundquist', 'rangers'] });
+          analytics.deepEqual(args[0][1], {
+            pub_date_tmsp: 1494266434000,
+            image_url: 'http://logo.com',
+            section: 'Sports',
+            authors: ['Chris Nixon'],
+            tags: ['hockey', 'henrik lundquist', 'rangers']
+          });
         });
 
         it('should fallback on CURRENT_VIDEO_METADATA global', function() {
-          analytics.track('Video Content Started', {
-            assetId: assetId,
-            airdate: 'Mon May 08 2017 11:00:34 GMT-0700 (PDT)',
-            genre: 'Sports',
-            publisher: 'Chris Nixon',
-            keywords: ['hockey', 'henrik lundquist', 'rangers']
-          }, {
-            integrations: {
-              Parsely: {
-                imageUrl: 'http://logo.com'
+          analytics.track(
+            'Video Content Started',
+            {
+              assetId: assetId,
+              airdate: 'Mon May 08 2017 11:00:34 GMT-0700 (PDT)',
+              genre: 'Sports',
+              publisher: 'Chris Nixon',
+              keywords: ['hockey', 'henrik lundquist', 'rangers']
+            },
+            {
+              integrations: {
+                Parsely: {
+                  imageUrl: 'http://logo.com'
+                }
               }
             }
-          });
+          );
           analytics.track('Video Playback Paused');
           var args = window.PARSELY.video.trackPause.args;
-          analytics.deepEqual(args[0][1], { pub_date_tmsp: 1494266434000, image_url: 'http://logo.com', section: 'Sports', authors: ['Chris Nixon'], tags: ['hockey', 'henrik lundquist', 'rangers'] });
+          analytics.deepEqual(args[0][1], {
+            pub_date_tmsp: 1494266434000,
+            image_url: 'http://logo.com',
+            section: 'Sports',
+            authors: ['Chris Nixon'],
+            tags: ['hockey', 'henrik lundquist', 'rangers']
+          });
         });
 
         it('should track playback interrupted events', function() {
@@ -300,7 +334,7 @@ function isParselyMetaTag(element) {
 }
 
 function isPjsScript(element) {
-  return !!element && (/p.js$/).test(element.src);
+  return !!element && /p.js$/.test(element.src);
 }
 
 function isLoaded() {

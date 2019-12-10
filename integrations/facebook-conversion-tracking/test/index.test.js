@@ -36,9 +36,12 @@ describe('Facebook Conversion Tracking', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Facebook, integration('Facebook Conversion Tracking')
-      .option('currency', 'USD')
-      .mapping('events'));
+    analytics.compare(
+      Facebook,
+      integration('Facebook Conversion Tracking')
+        .option('currency', 'USD')
+        .mapping('events')
+    );
   });
 
   describe('loading', function() {
@@ -61,26 +64,40 @@ describe('Facebook Conversion Tracking', function() {
 
       it('should track unnamed/categorized page', function() {
         analytics.page({ url: 'http://localhost:34448/test/' });
-        analytics.called(window._fbq.push, ['track', 3, {
-          currency: 'USD',
-          value: '0.00'
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          3,
+          {
+            currency: 'USD',
+            value: '0.00'
+          }
+        ]);
       });
 
       it('should track un-categorized page', function() {
         analytics.page('Name', { url: 'http://localhost:34448/test/' });
-        analytics.called(window._fbq.push, ['track', 4, {
-          currency: 'USD',
-          value: '0.00'
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          4,
+          {
+            currency: 'USD',
+            value: '0.00'
+          }
+        ]);
       });
 
       it('should track page view with fullname', function() {
-        analytics.page('Category', 'Name', { url: 'http://localhost:34448/test/' });
-        analytics.called(window._fbq.push, ['track', 5, {
-          currency: 'USD',
-          value: '0.00'
-        }]);
+        analytics.page('Category', 'Name', {
+          url: 'http://localhost:34448/test/'
+        });
+        analytics.called(window._fbq.push, [
+          'track',
+          5,
+          {
+            currency: 'USD',
+            value: '0.00'
+          }
+        ]);
       });
     });
 
@@ -91,27 +108,39 @@ describe('Facebook Conversion Tracking', function() {
 
       it('should send event if found', function() {
         analytics.track('signup', {});
-        analytics.called(window._fbq.push, ['track', 0, {
-          currency: 'USD',
-          value: '0.00'
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          0,
+          {
+            currency: 'USD',
+            value: '0.00'
+          }
+        ]);
       });
 
       it('should support array events', function() {
         facebook.options.events = [{ key: 'event', value: 4 }];
         analytics.track('event');
-        analytics.called(window._fbq.push, ['track', 4, {
-          currency: 'USD',
-          value: '0.00'
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          4,
+          {
+            currency: 'USD',
+            value: '0.00'
+          }
+        ]);
       });
 
       it('should send revenue', function() {
         analytics.track('login', { revenue: '$50' });
-        analytics.called(window._fbq.push, ['track', 1, {
-          value: '50.00',
-          currency: 'USD'
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          1,
+          {
+            value: '50.00',
+            currency: 'USD'
+          }
+        ]);
       });
     });
   });

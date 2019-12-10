@@ -59,10 +59,13 @@ describe('AdWords', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(AdWords, integration('AdWords')
-      .option('conversionId', '')
-      .option('pageRemarketing', false)
-      .option('eventMappings', []));
+    analytics.compare(
+      AdWords,
+      integration('AdWords')
+        .option('conversionId', '')
+        .option('pageRemarketing', false)
+        .option('eventMappings', [])
+    );
   });
 
   describe('loading', function() {
@@ -87,11 +90,13 @@ describe('AdWords', function() {
         adwords.options.pageRemarketing = false;
         analytics.page();
         analytics.calledOnce(window.google_trackConversion);
-        analytics.deepEqual(window.google_trackConversion.args[0], [{
-          google_conversion_id: options.conversionId,
-          google_custom_params: {},
-          google_remarketing_only: false
-        }]);
+        analytics.deepEqual(window.google_trackConversion.args[0], [
+          {
+            google_conversion_id: options.conversionId,
+            google_custom_params: {},
+            google_remarketing_only: false
+          }
+        ]);
       });
 
       it('should fire additional remarketing tag if option is on', function() {
@@ -99,23 +104,27 @@ describe('AdWords', function() {
         analytics.page();
         analytics.calledTwice(window.google_trackConversion);
         // fire conversion tag first
-        analytics.deepEqual(window.google_trackConversion.args[0], [{
-          google_conversion_id: options.conversionId,
-          google_custom_params: {},
-          google_remarketing_only: false 
-        }]);
+        analytics.deepEqual(window.google_trackConversion.args[0], [
+          {
+            google_conversion_id: options.conversionId,
+            google_custom_params: {},
+            google_remarketing_only: false
+          }
+        ]);
         // then fire remarketing with props
-        analytics.deepEqual(window.google_trackConversion.args[1], [{
-          google_conversion_id: options.conversionId,
-          google_custom_params: {
-            path: window.location.pathname,
-            referrer: document.referrer,
-            search: '',
-            title: '',
-            url: window.location.href
-          },
-          google_remarketing_only: true
-        }]);
+        analytics.deepEqual(window.google_trackConversion.args[1], [
+          {
+            google_conversion_id: options.conversionId,
+            google_custom_params: {
+              path: window.location.pathname,
+              referrer: document.referrer,
+              search: '',
+              title: '',
+              url: window.location.href
+            },
+            google_remarketing_only: true
+          }
+        ]);
       });
     });
 
@@ -186,14 +195,25 @@ describe('AdWords', function() {
       });
 
       it('should send remarketing along with conversion if both are enabled', function() {
-        adwords.options.eventMappings = [{ value: { eventName: 'danny mcbride is funny', conversionId: 4879235, remarketing: true, label: '' } }];
+        adwords.options.eventMappings = [
+          {
+            value: {
+              eventName: 'danny mcbride is funny',
+              conversionId: 4879235,
+              remarketing: true,
+              label: ''
+            }
+          }
+        ];
         analytics.track('danny mcbride is funny', { revenue: 90 });
         analytics.calledOnce(window.google_trackConversion);
-        analytics.deepEqual(window.google_trackConversion.args[0], [{
-          google_conversion_id: 4879235,
-          google_custom_params: { revenue: 90 },
-          google_remarketing_only: true
-        }]);
+        analytics.deepEqual(window.google_trackConversion.args[0], [
+          {
+            google_conversion_id: 4879235,
+            google_custom_params: { revenue: 90 },
+            google_remarketing_only: true
+          }
+        ]);
       });
 
       it('should send revenue', function() {
@@ -229,48 +249,65 @@ describe('AdWords', function() {
         adwords.options.remarketing = false;
         analytics.track('login', { revenue: 90 });
         analytics.calledOnce(window.google_trackConversion);
-        analytics.deepEqual(window.google_trackConversion.args[0], [{
-          google_conversion_id: options.conversionId,
-          google_custom_params: {},
-          google_conversion_language: 'en',
-          google_conversion_format: '3',
-          google_conversion_color: 'ffffff',
-          google_conversion_label: options.eventMappings[1].value.label,
-          google_conversion_value: 90,
-          google_remarketing_only: false
-        }]);
+        analytics.deepEqual(window.google_trackConversion.args[0], [
+          {
+            google_conversion_id: options.conversionId,
+            google_custom_params: {},
+            google_conversion_language: 'en',
+            google_conversion_format: '3',
+            google_conversion_color: 'ffffff',
+            google_conversion_label: options.eventMappings[1].value.label,
+            google_conversion_value: 90,
+            google_remarketing_only: false
+          }
+        ]);
       });
 
       it('should send only the remarketing tag if no conversions are mapped but is whitelisted', function() {
-        adwords.options.eventMappings = [{ value: { eventName: 'danny mcbride is funny', conversionId: '', remarketing: true, label: '' } }];
+        adwords.options.eventMappings = [
+          {
+            value: {
+              eventName: 'danny mcbride is funny',
+              conversionId: '',
+              remarketing: true,
+              label: ''
+            }
+          }
+        ];
         analytics.track('danny mcbride is funny', { revenue: 90 });
         analytics.calledOnce(window.google_trackConversion);
-        analytics.deepEqual(window.google_trackConversion.args[0], [{
-          google_conversion_id: options.conversionId,
-          google_custom_params: { revenue: 90 },
-          google_remarketing_only: true
-        }]);
+        analytics.deepEqual(window.google_trackConversion.args[0], [
+          {
+            google_conversion_id: options.conversionId,
+            google_custom_params: { revenue: 90 },
+            google_remarketing_only: true
+          }
+        ]);
       });
 
       it('should send both conversion and remarketing tag if remarketing is true', function() {
         adwords.options.eventMappings[1].value.remarketing = true;
         analytics.track('login', { revenue: 90, hello: 'foo' });
         analytics.calledTwice(window.google_trackConversion);
-        analytics.deepEqual(window.google_trackConversion.args[0], [{
-          google_conversion_id: options.conversionId,
-          google_custom_params: { hello: 'foo' },
-          google_conversion_language: 'en',
-          google_conversion_format: '3',
-          google_conversion_color: 'ffffff',
-          google_conversion_label: options.eventMappings[1].value.label,
-          google_conversion_value: 90,
-          google_remarketing_only: false
-        }]);
-        analytics.deepEqual(window.google_trackConversion.args[1], [{
-          google_conversion_id: options.conversionId,
-          google_custom_params: { hello: 'foo' },
-          google_remarketing_only: true
-        }]);
+        analytics.deepEqual(window.google_trackConversion.args[0], [
+          {
+            google_conversion_id: options.conversionId,
+            google_custom_params: { hello: 'foo' },
+            google_conversion_language: 'en',
+            google_conversion_format: '3',
+            google_conversion_color: 'ffffff',
+            google_conversion_label: options.eventMappings[1].value.label,
+            google_conversion_value: 90,
+            google_remarketing_only: false
+          }
+        ]);
+        analytics.deepEqual(window.google_trackConversion.args[1], [
+          {
+            google_conversion_id: options.conversionId,
+            google_custom_params: { hello: 'foo' },
+            google_remarketing_only: true
+          }
+        ]);
       });
     });
   });

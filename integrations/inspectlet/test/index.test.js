@@ -29,11 +29,14 @@ describe('Inspectlet', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Inspectlet, integration('Inspectlet')
-      .assumesPageview()
-      .global('__insp')
-      .global('__insp_')
-      .option('wid', ''));
+    analytics.compare(
+      Inspectlet,
+      integration('Inspectlet')
+        .assumesPageview()
+        .global('__insp')
+        .global('__insp_')
+        .option('wid', '')
+    );
   });
 
   describe('before loading', function() {
@@ -83,10 +86,13 @@ describe('Inspectlet', function() {
 
       it('should identify the user', function() {
         analytics.identify('userId', { email: 'email@example.com' });
-        analytics.called(window.__insp.push, ['tagSession', {
-          email: 'email@example.com',
-          userid: 'userId'
-        }]);
+        analytics.called(window.__insp.push, [
+          'tagSession',
+          {
+            email: 'email@example.com',
+            userid: 'userId'
+          }
+        ]);
         analytics.called(window.__insp.push, ['identify', 'email@example.com']);
       });
     });
@@ -98,7 +104,11 @@ describe('Inspectlet', function() {
 
       it('should tag the session', function() {
         analytics.track('event', { testProperty: true });
-        analytics.called(window.__insp.push, ['tagSession', 'event', { testProperty: true }]);
+        analytics.called(window.__insp.push, [
+          'tagSession',
+          'event',
+          { testProperty: true }
+        ]);
       });
     });
 

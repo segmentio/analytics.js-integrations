@@ -24,11 +24,11 @@ var src = '//d2wy8f7a9ursnm.cloudfront.net/bugsnag-3.min.js';
  * Expose `Bugsnag` integration.
  */
 
-var Bugsnag = module.exports = integration('Bugsnag')
+var Bugsnag = (module.exports = integration('Bugsnag')
   .global('Bugsnag')
   .option('apiKey', '')
   .option('releaseStage', null)
-  .tag('<script src="' + src + '">');
+  .tag('<script src="' + src + '">'));
 
 /**
  * Initialize.
@@ -42,9 +42,11 @@ Bugsnag.prototype.initialize = function() {
   var self = this;
 
   if (umd) {
-    window.require([src], function(bugsnag) {
+    window.require([src], function(bsg) {
+      var bugsnag = bsg;
       bugsnag.apiKey = self.options.apiKey;
-      if (self.options.releaseStage) bugsnag.releaseStage = self.options.releaseStage;
+      if (self.options.releaseStage)
+        bugsnag.releaseStage = self.options.releaseStage;
       window.Bugsnag = bugsnag;
       self.ready();
     });
@@ -53,7 +55,8 @@ Bugsnag.prototype.initialize = function() {
 
   this.load(function() {
     window.Bugsnag.apiKey = self.options.apiKey;
-    if (self.options.releaseStage) window.Bugsnag.releaseStage = self.options.releaseStage;
+    if (self.options.releaseStage)
+      window.Bugsnag.releaseStage = self.options.releaseStage;
     self.ready();
   });
 };

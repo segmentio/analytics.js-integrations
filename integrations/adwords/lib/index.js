@@ -11,11 +11,11 @@ var when = require('do-when');
  * Expose `AdWords`.
  */
 
-var AdWords = module.exports = integration('AdWords')
+var AdWords = (module.exports = integration('AdWords')
   .option('conversionId', '')
   .option('pageRemarketing', false)
   .option('eventMappings', [])
-  .tag('<script src="//www.googleadservices.com/pagead/conversion_async.js">');
+  .tag('<script src="//www.googleadservices.com/pagead/conversion_async.js">'));
 
 /**
  * Initialize.
@@ -93,14 +93,16 @@ AdWords.prototype.track = function(track) {
   var revenue = track.revenue() || 0;
 
   eventMappings.forEach(function(mapping) {
+    var id;
     if (mapping.value) {
-      if (mapping.value.eventName.toLowerCase() !== track.event().toLowerCase()) return;
-      var id = mapping.value.conversionId ||  self.options.conversionId;  // customer can either specify one global conversion id or one per  mapping
-  
+      if (mapping.value.eventName.toLowerCase() !== track.event().toLowerCase())
+        return;
+      id = mapping.value.conversionId || self.options.conversionId; // customer can either specify one global conversion id or one per  mapping
+
       // Fire conversion tag
       if (mapping.value.label !== '') {
         delete props.revenue;
-      
+
         window.google_trackConversion({
           google_conversion_id: id,
           google_custom_params: props,
@@ -112,7 +114,7 @@ AdWords.prototype.track = function(track) {
           google_remarketing_only: false // ensure this is a conversion tag
         });
       }
-  
+
       // Fire remarketing tag
       if (mapping.value.remarketing) {
         window.google_trackConversion({
@@ -122,13 +124,14 @@ AdWords.prototype.track = function(track) {
         });
       }
     } else {
-      if (mapping.eventName.toLowerCase() !== track.event().toLowerCase()) return;
-      id = mapping.conversionId ||  self.options.conversionId;  // customer can either specify one global conversion id or one per  mapping
-  
+      if (mapping.eventName.toLowerCase() !== track.event().toLowerCase())
+        return;
+      id = mapping.conversionId || self.options.conversionId; // customer can either specify one global conversion id or one per  mapping
+
       // Fire conversion tag
       if (mapping.label !== '') {
         delete props.revenue;
-      
+
         window.google_trackConversion({
           google_conversion_id: id,
           google_custom_params: props,
@@ -140,7 +143,7 @@ AdWords.prototype.track = function(track) {
           google_remarketing_only: false // ensure this is a conversion tag
         });
       }
-  
+
       // Fire remarketing tag
       if (mapping.remarketing) {
         window.google_trackConversion({

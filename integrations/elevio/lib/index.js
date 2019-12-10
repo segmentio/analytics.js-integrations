@@ -10,10 +10,10 @@ var objectKeys = require('@ndhoule/keys');
  * Expose `Elevio` integration.
  */
 
-var Elevio = module.exports = integration('Elevio')
+var Elevio = (module.exports = integration('Elevio')
   .option('accountId', '')
   .global('_elev')
-  .tag('<script src="//static.elev.io/js/v3.js">');
+  .tag('<script src="//static.elev.io/js/v3.js">'));
 
 /**
  * Initialize elevio.

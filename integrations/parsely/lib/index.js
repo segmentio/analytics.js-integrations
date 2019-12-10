@@ -15,13 +15,13 @@ var defaults = require('@ndhoule/defaults');
  * Expose `Parsely` integration.
  */
 
-var Parsely = module.exports = integration('Parsely')
+var Parsely = (module.exports = integration('Parsely')
   .global('PARSELY')
   .option('apiKey', '')
   .option('dynamicTracking', false)
   .option('trackEvents', false)
   .option('inPixelMetadata', false)
-  .tag('<script src="//d1z2jf7jlzjs58.cloudfront.net/p.js">');
+  .tag('<script src="//d1z2jf7jlzjs58.cloudfront.net/p.js">'));
 
 /**
  * Initialize.
@@ -74,7 +74,7 @@ Parsely.prototype.page = function(page) {
       pub_date_tmsp: aliasedProps.pub_date_tmsp || aliasedProps.created,
       title: aliasedProps.title || page.title(),
       tags: aliasedProps.tags,
-      authors:  aliasedProps.authors,
+      authors: aliasedProps.authors,
       link: aliasedProps.link || page.url(),
       page_type: aliasedProps.page_type || 'post'
     };
@@ -99,21 +99,21 @@ Parsely.prototype.page = function(page) {
 
 Parsely.prototype.track = function(track) {
   /**
-  * Because Parse.ly has two possible .track() endpoints, we need to
-  * use a helper function to alias track calls. This is because we are
-  * using spec'd event names/functions. If we call .track() within them,
-  * it will trigger an infinite loop wherein the spec'd functions get called
-  * continuously. 
-  *
-  * See here: https://github.com/segmentio/analytics.js-integration/blob/master/lib/protos.js#L355
-  */
+   * Because Parse.ly has two possible .track() endpoints, we need to
+   * use a helper function to alias track calls. This is because we are
+   * using spec'd event names/functions. If we call .track() within them,
+   * it will trigger an infinite loop wherein the spec'd functions get called
+   * continuously.
+   *
+   * See here: https://github.com/segmentio/analytics.js-integration/blob/master/lib/protos.js#L355
+   */
   return this.trackDynamicEvent(track);
 };
 
 /**
  * Parse.ly requires metadata be passed about the video for started AND paused events.
  * Since our video spec does not specify passing any metadata about the video, we need
- * to store it from the videoContentStarted event as a global variable that the 
+ * to store it from the videoContentStarted event as a global variable that the
  * videoPlaybackPaused event can access.
  */
 
@@ -129,7 +129,7 @@ Parsely.prototype.videoContentStarted = function(track) {
 
     window.PARSELY.video.trackPlay(vidId, metadata, urlOverride);
   }
-  
+
   return this.trackDynamicEvent(track);
 };
 
@@ -176,10 +176,10 @@ Parsely.prototype.parseVideoMetadata = function(track) {
 
   // https://www.parse.ly/help/integration/video/#video-metadata
   // https://paper.dropbox.com/doc/Segment-Video-Spec-jdrVhQdGo9aUTQ2kMsbnx
-  return reject({ 
+  return reject({
     title: track.proxy('properties.title'),
     // Fallback on null to avoid NaN trickling through reject.
-    pub_date_tmsp: + new Date(track.proxy('properties.airdate')) || null,
+    pub_date_tmsp: +new Date(track.proxy('properties.airdate')) || null,
     image_url: options.imageUrl,
     section: track.proxy('properties.genre'),
     authors: authors,

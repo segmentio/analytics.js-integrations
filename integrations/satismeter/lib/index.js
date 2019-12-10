@@ -11,11 +11,11 @@ var when = require('do-when');
  * Expose `SatisMeter` integration.
  */
 
-var SatisMeter = module.exports = integration('SatisMeter')
+var SatisMeter = (module.exports = integration('SatisMeter')
   .global('satismeter')
   .option('token', '')
   .option('apiKey', '')
-  .tag('<script src="https://app.satismeter.com/satismeter.js">');
+  .tag('<script src="https://app.satismeter.com/satismeter.js">'));
 
 /**
  * Initialize.
@@ -26,7 +26,9 @@ var SatisMeter = module.exports = integration('SatisMeter')
 SatisMeter.prototype.initialize = function() {
   var self = this;
   this.load(function() {
-    when(function() { return self.loaded(); }, self.ready);
+    when(function() {
+      return self.loaded();
+    }, self.ready);
   });
 };
 

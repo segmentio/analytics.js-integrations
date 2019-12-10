@@ -14,13 +14,13 @@ var find = require('obj-case').find;
  * Expose `Drip` integration.
  */
 
-var Drip = module.exports = integration('Drip')
+var Drip = (module.exports = integration('Drip')
   .global('_dc')
   .global('_dcq')
   .global('_dcqi')
   .global('_dcs')
   .option('account', '')
-  .tag('<script src="//tag.getdrip.com/{{ account }}.js">');
+  .tag('<script src="//tag.getdrip.com/{{ account }}.js">'));
 
 /**
  * Initialize.
@@ -77,11 +77,16 @@ Drip.prototype.identify = function(identify) {
   push('identify', format(identify.traits()));
 
   // default can be configured in your UI settings
-  var dripCampaignId = find(identify.options(this.name), 'campaignId') || this.options.campaignId;
+  var dripCampaignId =
+    find(identify.options(this.name), 'campaignId') || this.options.campaignId;
 
   // you can subscribe users to specific campaigns in Drip
   // https://www.getdrip.com/docs/js-api#subscribe
-  if (dripCampaignId) push('subscribe', { campaign_id: dripCampaignId, fields: identify.traits() });
+  if (dripCampaignId)
+    push('subscribe', {
+      campaign_id: dripCampaignId,
+      fields: identify.traits()
+    });
 };
 
 /**

@@ -13,13 +13,13 @@ var isObject = require('isobject');
  * Expose `Clicky` integration.
  */
 
-var Clicky = module.exports = integration('Clicky')
+var Clicky = (module.exports = integration('Clicky')
   .assumesPageview()
   .global('clicky')
   .global('clicky_site_ids')
   .global('clicky_custom')
   .option('siteId', null)
-  .tag('<script src="//static.getclicky.com/js"></script>');
+  .tag('<script src="//static.getclicky.com/js"></script>'));
 
 /**
  * Initialize.
@@ -32,10 +32,12 @@ var Clicky = module.exports = integration('Clicky')
 Clicky.prototype.initialize = function() {
   var user = this.analytics.user();
   window.clicky_site_ids = window.clicky_site_ids || [this.options.siteId];
-  this.identify(new Identify({
-    userId: user.id(),
-    traits: user.traits()
-  }));
+  this.identify(
+    new Identify({
+      userId: user.id(),
+      traits: user.traits()
+    })
+  );
   this.load(this.ready);
 };
 

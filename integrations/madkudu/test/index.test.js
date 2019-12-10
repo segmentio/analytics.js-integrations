@@ -29,10 +29,13 @@ describe('MadKudu', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(MadKudu, integration('Madkudu')
-      .global('madkudu')
-      .option('apiKey', '')
-      .readyOnLoad());
+    analytics.compare(
+      MadKudu,
+      integration('Madkudu')
+        .global('madkudu')
+        .option('apiKey', '')
+        .readyOnLoad()
+    );
   });
 
   describe('before loading', function() {
@@ -82,7 +85,10 @@ describe('MadKudu', function() {
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.called(window.madkudu.identify, 'id', { id: 'id', trait: true });
+        analytics.called(window.madkudu.identify, 'id', {
+          id: 'id',
+          trait: true
+        });
       });
     });
   });

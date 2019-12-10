@@ -11,9 +11,11 @@ describe('Keen IO', function() {
   var keen;
   var options = {
     projectId: '53e40374e861700e79000002',
-    writeKey: 'f474c11bcf5813fabc933d0a1f80ff2e1ac9ff1c9338dcf2707bbb8cf68971ae524b4cac8db5da549aa3383d499ed4a809e2b6294d1d093818d699495a4171dab3e6ad86e2c31d06627f27aadb8433f43c8f27f3e0354e6ea4c12f9da57ca9d8420b18c5e4f719286a0fae08914d9c44'
+    writeKey:
+      'f474c11bcf5813fabc933d0a1f80ff2e1ac9ff1c9338dcf2707bbb8cf68971ae524b4cac8db5da549aa3383d499ed4a809e2b6294d1d093818d699495a4171dab3e6ad86e2c31d06627f27aadb8433f43c8f27f3e0354e6ea4c12f9da57ca9d8420b18c5e4f719286a0fae08914d9c44'
   };
-  var readKey = 'e5cdee9b7395b315bd8cc635f3b04fc07561d4e42889fe1b6ac719a9a4b45732c746666d83ce8644c8b0f06b867166654f900b67b250adbc225befac4b3a2562729c2ebebfbf19b1d13f631c2ed0c9f8de0be7897eded88102abe4366c7906011dd480631ed9ba60cdef84f908abc852';
+  var readKey =
+    'e5cdee9b7395b315bd8cc635f3b04fc07561d4e42889fe1b6ac719a9a4b45732c746666d83ce8644c8b0f06b867166654f900b67b250adbc225befac4b3a2562729c2ebebfbf19b1d13f631c2ed0c9f8de0be7897eded88102abe4366c7906011dd480631ed9ba60cdef84f908abc852';
 
   beforeEach(function() {
     analytics = new Analytics();
@@ -31,17 +33,20 @@ describe('Keen IO', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(KeenLib, integration('Keen IO')
-      .global('KeenSegment')
-      .option('ipAddon', false)
-      .option('projectId', '')
-      .option('readKey', '')
-      .option('referrerAddon', false)
-      .option('trackAllPages', false)
-      .option('trackNamedPages', true)
-      .option('uaAddon', false)
-      .option('urlAddon', false)
-      .option('writeKey', ''));
+    analytics.compare(
+      KeenLib,
+      integration('Keen IO')
+        .global('KeenSegment')
+        .option('ipAddon', false)
+        .option('projectId', '')
+        .option('readKey', '')
+        .option('referrerAddon', false)
+        .option('trackAllPages', false)
+        .option('trackNamedPages', true)
+        .option('uaAddon', false)
+        .option('urlAddon', false)
+        .option('writeKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -192,14 +197,20 @@ describe('Keen IO', function() {
       it('should pass an id and traits', function() {
         analytics.identify('id', { trait: true });
         var user = keen.client.config.globalProperties().user;
-        analytics.deepEqual(user, { userId: 'id', traits: { trait: true, id: 'id' } });
+        analytics.deepEqual(user, {
+          userId: 'id',
+          traits: { trait: true, id: 'id' }
+        });
       });
 
       it('should not have modified traits after addEvent', function() {
         analytics.identify('id', { trait: true });
         analytics.track('event', { other_trait: true });
-        
-        analytics.equal(typeof keen.client.config.globalProperties().user.traits.other_trait, 'undefined');
+
+        analytics.equal(
+          typeof keen.client.config.globalProperties().user.traits.other_trait,
+          'undefined'
+        );
       });
 
       describe('addons', function() {

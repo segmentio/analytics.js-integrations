@@ -12,10 +12,10 @@ var push = require('global-queue')('_veroq');
  * Expose `Vero` integration.
  */
 
-var Vero = module.exports = integration('Vero')
+var Vero = (module.exports = integration('Vero')
   .global('_veroq')
   .option('apiKey', '')
-  .tag('<script src="//d3qxef4rp70elm.cloudfront.net/m.js">');
+  .tag('<script src="//d3qxef4rp70elm.cloudfront.net/m.js">'));
 
 /**
  * Initialize.

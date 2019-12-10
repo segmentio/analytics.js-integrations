@@ -29,10 +29,13 @@ describe('Klaviyo', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Klaviyo, integration('Klaviyo')
-      .assumesPageview()
-      .global('_learnq')
-      .option('apiKey', ''));
+    analytics.compare(
+      Klaviyo,
+      integration('Klaviyo')
+        .assumesPageview()
+        .global('_learnq')
+        .option('apiKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -88,7 +91,10 @@ describe('Klaviyo', function() {
       it('should not send an id if enforceEmail is enabled', function() {
         klaviyo.options.enforceEmail = true;
         analytics.identify('id', { email: 'han@segment.com' });
-        analytics.called(window._learnq.push, ['identify', { $email: 'han@segment.com' }]);
+        analytics.called(window._learnq.push, [
+          'identify',
+          { $email: 'han@segment.com' }
+        ]);
       });
 
       it('shouldnt send just traits', function() {
@@ -97,8 +103,14 @@ describe('Klaviyo', function() {
       });
 
       it('should send an id and traits', function() {
-        analytics.identify('horseRadish', { email: 'horses@horses.com', foo: true });
-        analytics.called(window._learnq.push, ['identify', { $id: 'horseRadish', $email: 'horses@horses.com', foo: true }]);
+        analytics.identify('horseRadish', {
+          email: 'horses@horses.com',
+          foo: true
+        });
+        analytics.called(window._learnq.push, [
+          'identify',
+          { $id: 'horseRadish', $email: 'horses@horses.com', foo: true }
+        ]);
       });
 
       it('should alias traits', function() {
@@ -109,14 +121,17 @@ describe('Klaviyo', function() {
           phone: 'phone',
           title: 'title'
         });
-        analytics.called(window._learnq.push, ['identify', {
-          $id: 'id',
-          $email: 'name@example.com',
-          $first_name: 'first',
-          $last_name: 'last',
-          $phone_number: 'phone',
-          $title: 'title'
-        }]);
+        analytics.called(window._learnq.push, [
+          'identify',
+          {
+            $id: 'id',
+            $email: 'name@example.com',
+            $first_name: 'first',
+            $last_name: 'last',
+            $phone_number: 'phone',
+            $title: 'title'
+          }
+        ]);
       });
     });
 
@@ -127,7 +142,10 @@ describe('Klaviyo', function() {
 
       it('should send a name', function() {
         analytics.group('id', { name: 'name' });
-        analytics.called(window._learnq.push, ['identify', { $organization: 'name' }]);
+        analytics.called(window._learnq.push, [
+          'identify',
+          { $organization: 'name' }
+        ]);
       });
     });
 
@@ -143,12 +161,20 @@ describe('Klaviyo', function() {
 
       it('should send an event and properties', function() {
         analytics.track('event', { property: true });
-        analytics.called(window._learnq.push, ['track', 'event', { property: true }]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'event',
+          { property: true }
+        ]);
       });
 
       it('should alias revenue to `$value`', function() {
         analytics.track('event', { revenue: 90 });
-        analytics.called(window._learnq.push, ['track', 'event', { $value: 90 }]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'event',
+          { $value: 90 }
+        ]);
       });
 
       it('should send completed order', function() {
@@ -182,39 +208,43 @@ describe('Klaviyo', function() {
             }
           ]
         });
-        analytics.called(window._learnq.push, ['track', 'Completed Order', {
-          $event_id: '50314b8e9bcf000000000000',
-          $value: 25,
-          Categories: ['Games', 'Interwebs'],
-          ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
-          Items: [
-            {
-              id: '507f1f77bcf86cd799439011',
-              SKU: '45790-32',
-              Name: 'Monopoly: 3rd Edition',
-              Quantity: 1,
-              ItemPrice: 19,
-              RowTotal: 19,
-              ProductURL: 'http://www.example.com/path/to/product',
-              ImageURL: 'http://www.example.com/path/to/product/image.png',
-              Categories: ['Games']
-            },
-            {
-              id: '505bd76785ebb509fc183733',
-              SKU: '46493-32',
-              Name: 'Suh dude',
-              Quantity: 2,
-              ItemPrice: 17.38,
-              RowTotal: 17.38,
-              Categories: ['Interwebs']
-            }
-          ],
-          shipping: 3,
-          tax: 2,
-          discount: 2.5,
-          coupon: 'hasbros',
-          currency: 'USD'
-        }]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'Completed Order',
+          {
+            $event_id: '50314b8e9bcf000000000000',
+            $value: 25,
+            Categories: ['Games', 'Interwebs'],
+            ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
+            Items: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                SKU: '45790-32',
+                Name: 'Monopoly: 3rd Edition',
+                Quantity: 1,
+                ItemPrice: 19,
+                RowTotal: 19,
+                ProductURL: 'http://www.example.com/path/to/product',
+                ImageURL: 'http://www.example.com/path/to/product/image.png',
+                Categories: ['Games']
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                SKU: '46493-32',
+                Name: 'Suh dude',
+                Quantity: 2,
+                ItemPrice: 17.38,
+                RowTotal: 17.38,
+                Categories: ['Interwebs']
+              }
+            ],
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD'
+          }
+        ]);
       });
 
       it('should send an event for each product', function() {
@@ -241,40 +271,48 @@ describe('Klaviyo', function() {
           ]
         });
         analytics.calledTwice(window._learnq.push);
-        analytics.called(window._learnq.push, ['track', 'Completed Order', {
-          $event_id: '50314b8e9bcf000000000000',
-          $value: 25,
-          Categories: ['Games'],
-          ItemNames: ['Monopoly: 3rd Edition'],
-          Items: [
-            {
-              id: '507f1f77bcf86cd799439011',
-              SKU: '45790-32',
-              Name: 'Monopoly: 3rd Edition',
-              Quantity: 1,
-              ItemPrice: 19,
-              RowTotal: 19,
-              ProductURL: 'http://www.example.com/path/to/product',
-              ImageURL: 'http://www.example.com/path/to/product/image.png',
-              Categories: ['Games']
-            }
-          ],
-          shipping: 3,
-          tax: 2,
-          discount: 2.5,
-          coupon: 'hasbros',
-          currency: 'USD'
-        }]);
-        analytics.called(window._learnq.push, ['track', 'Ordered Product', {
-          $event_id: '50314b8e9bcf000000000000_507f1f77bcf86cd799439011',
-          $value: 19,
-          Name: 'Monopoly: 3rd Edition',
-          Quantity: 1,
-          ProductCategories: ['Games'],
-          ProductURL: 'http://www.example.com/path/to/product',
-          ImageURL: 'http://www.example.com/path/to/product/image.png',
-          SKU: '45790-32'
-        }]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'Completed Order',
+          {
+            $event_id: '50314b8e9bcf000000000000',
+            $value: 25,
+            Categories: ['Games'],
+            ItemNames: ['Monopoly: 3rd Edition'],
+            Items: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                SKU: '45790-32',
+                Name: 'Monopoly: 3rd Edition',
+                Quantity: 1,
+                ItemPrice: 19,
+                RowTotal: 19,
+                ProductURL: 'http://www.example.com/path/to/product',
+                ImageURL: 'http://www.example.com/path/to/product/image.png',
+                Categories: ['Games']
+              }
+            ],
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD'
+          }
+        ]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'Ordered Product',
+          {
+            $event_id: '50314b8e9bcf000000000000_507f1f77bcf86cd799439011',
+            $value: 19,
+            Name: 'Monopoly: 3rd Edition',
+            Quantity: 1,
+            ProductCategories: ['Games'],
+            ProductURL: 'http://www.example.com/path/to/product',
+            ImageURL: 'http://www.example.com/path/to/product/image.png',
+            SKU: '45790-32'
+          }
+        ]);
       });
 
       it('should have the correct $event_id for Ordered Product if id passed as product_id', function() {
@@ -301,16 +339,20 @@ describe('Klaviyo', function() {
           ]
         });
         analytics.calledTwice(window._learnq.push);
-        analytics.called(window._learnq.push, ['track', 'Ordered Product', {
-          $event_id: '50314b8e9bcf000000000000_507f1f77bcf86cd799439011',
-          $value: 19,
-          Name: 'Monopoly: 3rd Edition',
-          Quantity: 1,
-          ProductCategories: ['Games'],
-          ProductURL: 'http://www.example.com/path/to/product',
-          ImageURL: 'http://www.example.com/path/to/product/image.png',
-          SKU: '45790-32'
-        }]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'Ordered Product',
+          {
+            $event_id: '50314b8e9bcf000000000000_507f1f77bcf86cd799439011',
+            $value: 19,
+            Name: 'Monopoly: 3rd Edition',
+            Quantity: 1,
+            ProductCategories: ['Games'],
+            ProductURL: 'http://www.example.com/path/to/product',
+            ImageURL: 'http://www.example.com/path/to/product/image.png',
+            SKU: '45790-32'
+          }
+        ]);
       });
 
       it('should have the correct $event_id for Ordered Product if sku is passed and not id or produt_id', function() {
@@ -336,16 +378,20 @@ describe('Klaviyo', function() {
           ]
         });
         analytics.calledTwice(window._learnq.push);
-        analytics.called(window._learnq.push, ['track', 'Ordered Product', {
-          $event_id: '50314b8e9bcf000000000000_45790-32',
-          $value: 19,
-          Name: 'Monopoly: 3rd Edition',
-          Quantity: 1,
-          ProductCategories: ['Games'],
-          ProductURL: 'http://www.example.com/path/to/product',
-          ImageURL: 'http://www.example.com/path/to/product/image.png',
-          SKU: '45790-32'
-        }]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'Ordered Product',
+          {
+            $event_id: '50314b8e9bcf000000000000_45790-32',
+            $value: 19,
+            Name: 'Monopoly: 3rd Edition',
+            Quantity: 1,
+            ProductCategories: ['Games'],
+            ProductURL: 'http://www.example.com/path/to/product',
+            ImageURL: 'http://www.example.com/path/to/product/image.png',
+            SKU: '45790-32'
+          }
+        ]);
       });
 
       it('should let custom props pass', function() {
@@ -384,44 +430,48 @@ describe('Klaviyo', function() {
             }
           ]
         });
-        analytics.called(window._learnq.push, ['track', 'Completed Order', {
-          $event_id: '50314b8e9bcf000000000000',
-          $value: 25,
-          Categories: ['Games', 'Interwebs'],
-          ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
-          Items: [
-            {
-              id: '507f1f77bcf86cd799439011',
-              SKU: '45790-32',
-              Name: 'Monopoly: 3rd Edition',
-              Quantity: 1,
-              ItemPrice: 19,
-              RowTotal: 19,
-              ProductURL: 'http://www.example.com/path/to/product',
-              ImageURL: 'http://www.example.com/path/to/product/image.png',
-              Categories: ['Games'],
-              customItemProp: 'glenncoco',
-              friday: 'is here'
-            },
-            {
-              id: '505bd76785ebb509fc183733',
-              SKU: '46493-32',
-              Name: 'Suh dude',
-              Quantity: 2,
-              ItemPrice: 17.38,
-              RowTotal: 17.38,
-              Categories: ['Interwebs'],
-              pikachu: 'pika'
-            }
-          ],
-          shipping: 3,
-          tax: 2,
-          discount: 2.5,
-          coupon: 'hasbros',
-          currency: 'USD',
-          letMePass: 'hi',
-          customProp: true
-        }]);
+        analytics.called(window._learnq.push, [
+          'track',
+          'Completed Order',
+          {
+            $event_id: '50314b8e9bcf000000000000',
+            $value: 25,
+            Categories: ['Games', 'Interwebs'],
+            ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
+            Items: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                SKU: '45790-32',
+                Name: 'Monopoly: 3rd Edition',
+                Quantity: 1,
+                ItemPrice: 19,
+                RowTotal: 19,
+                ProductURL: 'http://www.example.com/path/to/product',
+                ImageURL: 'http://www.example.com/path/to/product/image.png',
+                Categories: ['Games'],
+                customItemProp: 'glenncoco',
+                friday: 'is here'
+              },
+              {
+                id: '505bd76785ebb509fc183733',
+                SKU: '46493-32',
+                Name: 'Suh dude',
+                Quantity: 2,
+                ItemPrice: 17.38,
+                RowTotal: 17.38,
+                Categories: ['Interwebs'],
+                pikachu: 'pika'
+              }
+            ],
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            letMePass: 'hi',
+            customProp: true
+          }
+        ]);
       });
     });
   });

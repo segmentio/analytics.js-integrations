@@ -15,7 +15,7 @@ var useHttps = require('use-https');
  * Expose `AdRoll` integration.
  */
 
-var AdRoll = module.exports = integration('AdRoll')
+var AdRoll = (module.exports = integration('AdRoll')
   .assumesPageview()
   .global('__adroll')
   .global('__adroll_loaded')
@@ -28,7 +28,7 @@ var AdRoll = module.exports = integration('AdRoll')
   .option('_version', 2)
   .tag('http', '<script src="http://a.adroll.com/j/roundtrip.js">')
   .tag('https', '<script src="https://s.adroll.com/j/roundtrip.js">')
-  .mapping('events');
+  .mapping('events'));
 
 /**
  * Initialize.
@@ -118,7 +118,9 @@ AdRoll.prototype.track = function(track) {
  * @param {Track} track
  */
 
-AdRoll.prototype.productViewed = AdRoll.prototype.productAdded = function(track) {
+AdRoll.prototype.productViewed = AdRoll.prototype.productAdded = function(
+  track
+) {
   var events = this.events(track.event());
   var userId = this.analytics.user().id();
   var data = formulateData(track, {
@@ -178,8 +180,9 @@ AdRoll.prototype.orderCompleted = function(track) {
  * @api private
  */
 
-function sendConversion(events, data) {
+function sendConversion(events, d) {
   each(function(segmentId) {
+    var data = d;
     data.adroll_segments = segmentId;
     window.__adroll.record_user(data);
   }, events);
@@ -195,8 +198,9 @@ function sendConversion(events, data) {
 function formulateData(track, alias) {
   var aliases = alias || {};
   var ret = foldl(function(props, val, key) {
-    props[snake(key)] = val;
-    return props;
+    var properties = props;
+    properties[snake(key)] = val;
+    return properties;
   }, track.properties(aliases));
 
   return ret;

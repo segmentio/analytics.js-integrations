@@ -29,9 +29,12 @@ describe('Elevio', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Elevio, integration('Elevio')
-      .global('_elev')
-      .option('accountId', ''));
+    analytics.compare(
+      Elevio,
+      integration('Elevio')
+        .global('_elev')
+        .option('accountId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -88,8 +91,8 @@ describe('Elevio', function() {
 
       // TODO seems Identify.prototype.name returns nothing when no last name is sent
       // it('should send a first name', function() {
-        // analytics.identify(undefined, { firstName: 'Test' });
-        // analytics.assert(window._elev.user.name === 'Test');
+      // analytics.identify(undefined, { firstName: 'Test' });
+      // analytics.assert(window._elev.user.name === 'Test');
       // });
 
       it('should send a combined name', function() {
@@ -112,7 +115,11 @@ describe('Elevio', function() {
       });
 
       it('should not send traits when no trait information is present', function() {
-        analytics.identify('id', { firstName: 'Test', lastName: 'Person', email: 'test@email.com' });
+        analytics.identify('id', {
+          firstName: 'Test',
+          lastName: 'Person',
+          email: 'test@email.com'
+        });
         analytics.assert(!(window._elev.user.traits instanceof Object));
       });
 

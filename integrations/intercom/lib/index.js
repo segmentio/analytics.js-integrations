@@ -18,12 +18,12 @@ var pick = require('@ndhoule/pick');
  * Expose `Intercom` integration.
  */
 
-var Intercom = module.exports = integration('Intercom')
+var Intercom = (module.exports = integration('Intercom')
   .global('Intercom')
   .option('activator', '#IntercomDefaultWidget')
   .option('appId', '')
   .option('richLinkProperties', [])
-  .tag('<script src="https://widget.intercom.io/widget/{{ appId }}">');
+  .tag('<script src="https://widget.intercom.io/widget/{{ appId }}">'));
 
 /**
  * Initialize.
@@ -123,8 +123,10 @@ Intercom.prototype.identify = function(identify) {
   traits = formatNestedCustomTraits(traits, settings);
 
   // handle options
-  if (integrationSettings.userHash) traits.user_hash = integrationSettings.userHash;
-  if (integrationSettings.user_hash) traits.user_hash = integrationSettings.user_hash;
+  if (integrationSettings.userHash)
+    traits.user_hash = integrationSettings.userHash;
+  if (integrationSettings.user_hash)
+    traits.user_hash = integrationSettings.user_hash;
 
   this.bootOrUpdate(traits, integrationSettings);
 };
@@ -152,7 +154,10 @@ Intercom.prototype.group = function(group) {
   // format nested custom traits
   props = formatNestedCustomTraits(props, settings);
 
-  var traits = extend({ company: props }, hideDefaultLauncher(integrationSettings));
+  var traits = extend(
+    { company: props },
+    hideDefaultLauncher(integrationSettings)
+  );
 
   api('update', traits);
 };
@@ -168,8 +173,9 @@ Intercom.prototype.track = function(track) {
   var settings = this.options;
   var props = track.properties();
   var revenue = track.revenue();
+  var revenueData;
   if (revenue) {
-    var revenueData = {
+    revenueData = {
       // Intercom requests value in cents
       price: {
         amount: revenue * 100,
@@ -195,8 +201,8 @@ Intercom.prototype.track = function(track) {
  * @param {Object} options
  */
 
-Intercom.prototype.bootOrUpdate = function(options, integrationSettings) {
-  options = options || {};
+Intercom.prototype.bootOrUpdate = function(opts, integrationSettings) {
+  var options = opts || {};
   var method = this.booted === true ? 'update' : 'boot';
   var activator = this.options.activator;
   options.app_id = this.options.appId;
@@ -302,6 +308,6 @@ function hideDefaultLauncher(options) {
   var ret = {};
   var setting = options.hideDefaultLauncher;
   if (setting === undefined || typeof setting !== 'boolean') return ret;
-  ret.hide_default_launcher= setting;
+  ret.hide_default_launcher = setting;
   return ret;
 }

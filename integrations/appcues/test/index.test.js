@@ -37,9 +37,12 @@ describe('Appcues', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Appcues, integration('Appcues')
-      .global('Appcues')
-      .option('appcuesId', ''));
+    analytics.compare(
+      Appcues,
+      integration('Appcues')
+        .global('Appcues')
+        .option('appcuesId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -93,7 +96,9 @@ describe('Appcues', function() {
 
       it('should send name and attributes', function() {
         analytics.track('some event', { someAttr: true });
-        analytics.called(window.Appcues.track, 'some event', { someAttr: true });
+        analytics.called(window.Appcues.track, 'some event', {
+          someAttr: true
+        });
       });
     });
 
@@ -104,7 +109,10 @@ describe('Appcues', function() {
 
       it('should send and id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.called(window.Appcues.identify, 'id', { id: 'id', trait: true });
+        analytics.called(window.Appcues.identify, 'id', {
+          id: 'id',
+          trait: true
+        });
       });
     });
   });

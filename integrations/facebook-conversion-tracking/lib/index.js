@@ -12,11 +12,11 @@ var push = require('global-queue')('_fbq');
  * Expose `Facebook`
  */
 
-var Facebook = module.exports = integration('Facebook Conversion Tracking')
+var Facebook = (module.exports = integration('Facebook Conversion Tracking')
   .global('_fbq')
   .option('currency', 'USD')
   .tag('<script src="//connect.facebook.net/en_US/fbds.js">')
-  .mapping('events');
+  .mapping('events'));
 
 /**
  * Initialize Facebook Conversion Tracking

@@ -13,13 +13,13 @@ var push = require('global-queue')('_tlq');
  * Expose `Taplytics` integration.
  */
 
-var Taplytics = module.exports = integration('Taplytics')
+var Taplytics = (module.exports = integration('Taplytics')
   .global('_tlq')
   .global('Taplytics')
   .option('apiKey', '')
   .option('options', {})
   .tag('<script id="taplytics" src="//cdn.taplytics.com/taplytics.min.js">')
-  .assumesPageview();
+  .assumesPageview());
 
 /**
  * Initialize Taplytics.
@@ -103,11 +103,11 @@ Taplytics.prototype.track = function(track) {
 };
 
 /**
-* Page.
-*
-* @api public
-* @param {Facade} page
-*/
+ * Page.
+ *
+ * @api public
+ * @param {Facade} page
+ */
 
 Taplytics.prototype.page = function(page) {
   var category = page.category() || undefined;
@@ -118,10 +118,10 @@ Taplytics.prototype.page = function(page) {
 };
 
 /**
-* Reset a user and log them out.
-*
-* @api private
-*/
+ * Reset a user and log them out.
+ *
+ * @api private
+ */
 
 Taplytics.prototype.reset = function() {
   push('reset');

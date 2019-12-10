@@ -12,17 +12,16 @@ var foldl = require('@ndhoule/foldl');
 var remove = require('obj-case').del;
 var extend = require('@ndhoule/extend');
 
-
 /**
  * Expose `Klaviyo` integration.
  */
 
-var Klaviyo = module.exports = integration('Klaviyo')
+var Klaviyo = (module.exports = integration('Klaviyo')
   .assumesPageview()
   .global('_learnq')
   .option('apiKey', '')
   .option('enforceEmail', false)
-  .tag('<script src="//a.klaviyo.com/media/js/analytics/analytics.js">');
+  .tag('<script src="//a.klaviyo.com/media/js/analytics/analytics.js">'));
 
 /**
  * Initialize.
@@ -100,9 +99,13 @@ Klaviyo.prototype.group = function(group) {
  */
 
 Klaviyo.prototype.track = function(track) {
-  push('track', track.event(), track.properties({
-    revenue: '$value'
-  }));
+  push(
+    'track',
+    track.event(),
+    track.properties({
+      revenue: '$value'
+    })
+  );
 };
 
 /**
@@ -152,7 +155,6 @@ Klaviyo.prototype.orderCompleted = function(track) {
   }
 };
 
-
 /**
  * Return only custom properties
  *
@@ -178,47 +180,51 @@ function filter(facade, list) {
  */
 
 function formatItems(track) {
-  return foldl(function(payloads, props) {
-    var product = new Track({ properties: props });
-    var itemWhitelist = [
-      '$event_id',
-      '$value',
-      'name',
-      'product categories',
-      'category',
-      'id',
-      'productId',
-      'product_id',
-      'sku',
-      'quantity',
-      'price',
-      'productUrl',
-      'imageUrl'
-    ];
+  return foldl(
+    function(payloads, props) {
+      var product = new Track({ properties: props });
+      var itemWhitelist = [
+        '$event_id',
+        '$value',
+        'name',
+        'product categories',
+        'category',
+        'id',
+        'productId',
+        'product_id',
+        'sku',
+        'quantity',
+        'price',
+        'productUrl',
+        'imageUrl'
+      ];
 
-    // filter standard item props so we can merge custom props later
-    var itemCustomProps = filter(product, itemWhitelist);
+      // filter standard item props so we can merge custom props later
+      var itemCustomProps = filter(product, itemWhitelist);
 
-    var item = reject({
-      $value: product.price(),
-      Name: product.name(),
-      Quantity: product.quantity(),
-      ProductCategories: [product.category()],
-      ProductURL: product.proxy('properties.productUrl'),
-      ImageURL: product.proxy('properties.imageUrl'),
-      SKU: product.sku()
-    });
+      var item = reject({
+        $value: product.price(),
+        Name: product.name(),
+        Quantity: product.quantity(),
+        ProductCategories: [product.category()],
+        ProductURL: product.proxy('properties.productUrl'),
+        ImageURL: product.proxy('properties.imageUrl'),
+        SKU: product.sku()
+      });
 
-    // ensure unique $event_id is associated with each Ordered Product event by combining Order Completed
-    //  order_id and product's productId or SKU
-    var identifier = product.productId() || product.id() || product.sku();
-    item.$event_id = track.orderId() + '_' + identifier;
+      // ensure unique $event_id is associated with each Ordered Product event by combining Order Completed
+      //  order_id and product's productId or SKU
+      var identifier = product.productId() || product.id() || product.sku();
+      item.$event_id = track.orderId() + '_' + identifier;
 
-    item = extend(item, itemCustomProps);
-    payloads.push(item);
+      item = extend(item, itemCustomProps);
+      payloads.push(item);
 
-    return payloads;
-  }, [], track.products());
+      return payloads;
+    },
+    [],
+    track.products()
+  );
 }
 
 /**
@@ -230,44 +236,48 @@ function formatItems(track) {
  */
 
 function formatProducts(products) {
-  return foldl(function(payloads, props) {
-    var product = new Track({ properties: props });
-    var whitelist = [
-      'id',
-      'product_id',
-      'productId',
-      'sku',
-      'name',
-      'quantity',
-      'itemPrice',
-      'price',
-      'rowTotal',
-      'categories',
-      'category',
-      'productUrl',
-      'imageUrl'
-    ];
-    // filter standard traits to merge custom props later
-    var customProps = filter(product, whitelist);
+  return foldl(
+    function(payloads, props) {
+      var product = new Track({ properties: props });
+      var whitelist = [
+        'id',
+        'product_id',
+        'productId',
+        'sku',
+        'name',
+        'quantity',
+        'itemPrice',
+        'price',
+        'rowTotal',
+        'categories',
+        'category',
+        'productUrl',
+        'imageUrl'
+      ];
+      // filter standard traits to merge custom props later
+      var customProps = filter(product, whitelist);
 
-    var item = reject({
-      id: product.productId() || product.id(),
-      SKU: product.sku(),
-      Name: product.name(),
-      Quantity: product.quantity(),
-      ItemPrice: product.price(),
-      RowTotal: product.price(),
-      Categories: [product.category()],
-      ProductURL: product.proxy('properties.productUrl'),
-      ImageURL: product.proxy('properties.imageUrl')
-    });
-    item = extend(item, customProps);
-    payloads.items.push(item);
-    payloads.categories.push(product.category());
-    payloads.names.push(product.name());
+      var item = reject({
+        id: product.productId() || product.id(),
+        SKU: product.sku(),
+        Name: product.name(),
+        Quantity: product.quantity(),
+        ItemPrice: product.price(),
+        RowTotal: product.price(),
+        Categories: [product.category()],
+        ProductURL: product.proxy('properties.productUrl'),
+        ImageURL: product.proxy('properties.imageUrl')
+      });
+      item = extend(item, customProps);
+      payloads.items.push(item);
+      payloads.categories.push(product.category());
+      payloads.names.push(product.name());
 
-    return payloads;
-  }, { categories: [], names: [], items: [] }, products);
+      return payloads;
+    },
+    { categories: [], names: [], items: [] },
+    products
+  );
 }
 
 /**
@@ -279,10 +289,15 @@ function formatProducts(products) {
  */
 
 function reject(obj) {
-  return foldl(function(result, val, key) {
-    if (val !== undefined) {
-      result[key] = val;
-    }
-    return result;
-  }, {}, obj);
+  return foldl(
+    function(res, val, key) {
+      var result = res;
+      if (val !== undefined) {
+        result[key] = val;
+      }
+      return result;
+    },
+    {},
+    obj
+  );
 }

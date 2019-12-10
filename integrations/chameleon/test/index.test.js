@@ -39,11 +39,14 @@ describe('Chameleon', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Chameleon, integration('Chameleon')
-      .readyOnInitialize()
-      .readyOnLoad()
-      .global('chmln')
-      .option('apiKey', null));
+    analytics.compare(
+      Chameleon,
+      integration('Chameleon')
+        .readyOnInitialize()
+        .readyOnLoad()
+        .global('chmln')
+        .option('apiKey', null)
+    );
   });
 
   describe('before loading', function() {
@@ -69,7 +72,7 @@ describe('Chameleon', function() {
       it('should add the current location', function() {
         var protocol = window.location.protocol;
         var host = window.location.host;
-        var loc = new RegExp(protocol + '\/\/' + host + '\/');
+        var loc = new RegExp(protocol + '//' + host + '/');
 
         analytics.assert.equal(loc.test(window.chmln.location), true);
       });
@@ -116,7 +119,10 @@ describe('Chameleon', function() {
       });
 
       it('should store the identify', function() {
-        analytics.assert.equal(Array.prototype.slice.call(window.chmln.identify_a).length, 1);
+        analytics.assert.equal(
+          Array.prototype.slice.call(window.chmln.identify_a).length,
+          1
+        );
         analytics.assert.equal('id', window.chmln.identify_a[0][0]);
       });
     });
@@ -173,7 +179,9 @@ describe('Chameleon', function() {
 
       it('should send traits', function() {
         analytics.group('13', { trait: true });
-        analytics.called(window.chmln.set, { company: { uid: '13', trait: true } });
+        analytics.called(window.chmln.set, {
+          company: { uid: '13', trait: true }
+        });
       });
     });
 

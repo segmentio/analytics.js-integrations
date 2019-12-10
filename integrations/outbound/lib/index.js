@@ -1,4 +1,3 @@
-
 'use strict';
 
 /**
@@ -14,11 +13,11 @@ var Identify = require('segmentio-facade').Identify;
  * Expose `Outbound` integration.
  */
 
-var Outbound = module.exports = integration('Outbound')
+var Outbound = (module.exports = integration('Outbound')
   .global('outbound')
   .option('publicApiKey', '')
   .option('trackReferrer', false)
-  .tag('<script src="//cdn.outbound.io/{{ publicApiKey }}.js">');
+  .tag('<script src="//cdn.outbound.io/{{ publicApiKey }}.js">'));
 
 /**
  * Initialize.
@@ -63,11 +62,11 @@ Outbound.prototype.initialize = function() {
 };
 
 /**
-* Loaded
-*
-* @api private
-* @return {boolean}
-*/
+ * Loaded
+ *
+ * @api private
+ * @return {boolean}
+ */
 
 Outbound.prototype.loaded = function() {
   return !!(window.outbound && window.outbound.reset);
@@ -92,16 +91,20 @@ Outbound.prototype.identify = function(identify) {
 
   var userId = identify.userId() || identify.anonymousId();
 
-  var attributes = foldl(function(acc, val, key) {
-    if (!specialTraits.hasOwnProperty(uncase(key))) acc.attributes[key] = val;
-    return acc;
-  }, {
-    attributes: {},
-    email: identify.email(),
-    phoneNumber: identify.phone(),
-    firstName: identify.firstName(),
-    lastName: identify.lastName()
-  }, identify.traits());
+  var attributes = foldl(
+    function(acc, val, key) {
+      if (!specialTraits.hasOwnProperty(uncase(key))) acc.attributes[key] = val;
+      return acc;
+    },
+    {
+      attributes: {},
+      email: identify.email(),
+      phoneNumber: identify.phone(),
+      firstName: identify.firstName(),
+      lastName: identify.lastName()
+    },
+    identify.traits()
+  );
 
   window.outbound.identify(userId, attributes);
 };

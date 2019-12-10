@@ -12,11 +12,11 @@ var integration = require('@segment/analytics.js-integration');
  * https://bingads.microsoft.com/campaign/signup
  */
 
-var Bing = module.exports = integration('Bing Ads')
+var Bing = (module.exports = integration('Bing Ads')
   .global('UET')
   .global('uetq')
   .option('tagId', '')
-  .tag('<script src="//bat.bing.com/bat.js">');
+  .tag('<script src="//bat.bing.com/bat.js">'));
 
 /**
  * Initialize.

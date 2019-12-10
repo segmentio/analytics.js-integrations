@@ -29,9 +29,12 @@ describe('Vero', function() {
   });
 
   it('should store the proper settings', function() {
-    analytics.compare(Vero, integration('Vero')
-      .global('_veroq')
-      .option('apiKey', ''));
+    analytics.compare(
+      Vero,
+      integration('Vero')
+        .global('_veroq')
+        .option('apiKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -43,7 +46,10 @@ describe('Vero', function() {
       it('should push onto window._veroq', function() {
         analytics.initialize();
         analytics.page();
-        analytics.deepEqual(window._veroq[0], ['init', { api_key: options.apiKey }]);
+        analytics.deepEqual(window._veroq[0], [
+          'init',
+          { api_key: options.apiKey }
+        ]);
       });
 
       it('should call #load', function() {
@@ -90,24 +96,33 @@ describe('Vero', function() {
 
       it('should send with just an id', function() {
         analytics.identify('id');
-        analytics.called(window._veroq.push, ['user', {
-          id: 'id'
-        }]);
+        analytics.called(window._veroq.push, [
+          'user',
+          {
+            id: 'id'
+          }
+        ]);
       });
 
       it('should send with just an email', function() {
         analytics.identify(null, { email: 'name@example.com' });
-        analytics.called(window._veroq.push, ['user', {
-          email: 'name@example.com'
-        }]);
+        analytics.called(window._veroq.push, [
+          'user',
+          {
+            email: 'name@example.com'
+          }
+        ]);
       });
 
       it('should send an id and email', function() {
         analytics.identify('id', { email: 'name@example.com' });
-        analytics.called(window._veroq.push, ['user', {
-          id: 'id',
-          email: 'name@example.com'
-        }]);
+        analytics.called(window._veroq.push, [
+          'user',
+          {
+            id: 'id',
+            email: 'name@example.com'
+          }
+        ]);
       });
 
       it('should send an id and traits', function() {
@@ -115,11 +130,14 @@ describe('Vero', function() {
           email: 'name@example.com',
           trait: true
         });
-        analytics.called(window._veroq.push, ['user', {
-          id: 'id',
-          email: 'name@example.com',
-          trait: true
-        }]);
+        analytics.called(window._veroq.push, [
+          'user',
+          {
+            id: 'id',
+            email: 'name@example.com',
+            trait: true
+          }
+        ]);
       });
     });
 
@@ -130,12 +148,22 @@ describe('Vero', function() {
 
       it('should send an event', function() {
         analytics.track('event');
-        analytics.called(window._veroq.push, ['track', 'event', {}, { source: 'segment' }]);
+        analytics.called(window._veroq.push, [
+          'track',
+          'event',
+          {},
+          { source: 'segment' }
+        ]);
       });
 
       it('should send an event and properties', function() {
         analytics.track('event', { property: true });
-        analytics.called(window._veroq.push, ['track', 'event', { property: true }, { source: 'segment' }]);
+        analytics.called(window._veroq.push, [
+          'track',
+          'event',
+          { property: true },
+          { source: 'segment' }
+        ]);
       });
 
       it('should send an unsubscribe event in the correct format', function() {
@@ -166,60 +194,88 @@ describe('Vero', function() {
       });
 
       it('should add tags if they are present as integration options', function() {
-        analytics.track('event', {}, { 
-          integrations: { 
-            Vero: { 
-              tags: { 
-                action: 'add',
-                values: ['yoloer'] 
-              } 
-            } 
-          } 
-        });
-        analytics.assert.deepEqual(window._veroq.push.args[1][0], ['tags', { add: ['yoloer'] }]);
+        analytics.track(
+          'event',
+          {},
+          {
+            integrations: {
+              Vero: {
+                tags: {
+                  action: 'add',
+                  values: ['yoloer']
+                }
+              }
+            }
+          }
+        );
+        analytics.assert.deepEqual(window._veroq.push.args[1][0], [
+          'tags',
+          { add: ['yoloer'] }
+        ]);
       });
 
       it('should remove tags if they are present as integration options', function() {
-        analytics.track('event', {}, {
-          integrations: {
-            Vero: { 
-              tags: { 
-                action: 'remove',
-                values: ['yoloer'] 
+        analytics.track(
+          'event',
+          {},
+          {
+            integrations: {
+              Vero: {
+                tags: {
+                  action: 'remove',
+                  values: ['yoloer']
+                }
               }
             }
           }
-        });
-        analytics.assert.deepEqual(window._veroq.push.args[1][0], ['tags', { remove: ['yoloer'] }]);
+        );
+        analytics.assert.deepEqual(window._veroq.push.args[1][0], [
+          'tags',
+          { remove: ['yoloer'] }
+        ]);
       });
 
       it('should work for .identify calls', function() {
-        analytics.identify('user-id', {}, {
-          integrations: {
-            Vero: { 
-              tags: { 
-                action: 'add',
-                values: ['yoloer'] 
+        analytics.identify(
+          'user-id',
+          {},
+          {
+            integrations: {
+              Vero: {
+                tags: {
+                  action: 'add',
+                  values: ['yoloer']
+                }
               }
             }
           }
-        });
-        analytics.assert.deepEqual(window._veroq.push.args[1][0], ['tags', { add: ['yoloer'] }]);
+        );
+        analytics.assert.deepEqual(window._veroq.push.args[1][0], [
+          'tags',
+          { add: ['yoloer'] }
+        ]);
       });
 
       it('should add an id to the payload if one is present in the options object', function() {
-        analytics.identify('user-id', {}, {
-          integrations: {
-            Vero: { 
-              tags: { 
-                id: 'other-user-id',
-                action: 'add',
-                values: ['yoloer'] 
+        analytics.identify(
+          'user-id',
+          {},
+          {
+            integrations: {
+              Vero: {
+                tags: {
+                  id: 'other-user-id',
+                  action: 'add',
+                  values: ['yoloer']
+                }
               }
             }
           }
-        });
-        analytics.assert.deepEqual(window._veroq.push.args[1][0], ['tags', { id: 'other-user-id', add: ['yoloer'] }]);
+        );
+        analytics.assert.deepEqual(window._veroq.push.args[1][0], [
+          'tags',
+          { id: 'other-user-id', add: ['yoloer'] }
+        ]);
       });
     });
   });

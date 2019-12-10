@@ -37,12 +37,15 @@ describe('Intercom', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Intercom, integration('Intercom')
-      .global('Intercom')
-      .option('activator', '#IntercomDefaultWidget')
-      .option('appId', '')
-      .option('richLinkProperties', [])
-      .tag('<script src="https://widget.intercom.io/widget/{{ appId }}">'));
+    analytics.compare(
+      Intercom,
+      integration('Intercom')
+        .global('Intercom')
+        .option('activator', '#IntercomDefaultWidget')
+        .option('appId', '')
+        .option('richLinkProperties', [])
+        .tag('<script src="https://widget.intercom.io/widget/{{ appId }}">')
+    );
   });
 
   describe('before loading', function() {
@@ -150,7 +153,11 @@ describe('Intercom', function() {
       });
 
       it('should respect .name, .firstName and .lastName', function() {
-        analytics.identify('id', { firstName: 'john', lastName: 'doe', name: 'baz' });
+        analytics.identify('id', {
+          firstName: 'john',
+          lastName: 'doe',
+          name: 'baz'
+        });
         analytics.called(window.Intercom, 'boot', {
           app_id: options.appId,
           user_id: 'id',
@@ -257,9 +264,13 @@ describe('Intercom', function() {
       });
 
       it('should allow passing a user hash', function() {
-        analytics.identify('id', {}, {
-          Intercom: { userHash: 'x' }
-        });
+        analytics.identify(
+          'id',
+          {},
+          {
+            Intercom: { userHash: 'x' }
+          }
+        );
         analytics.called(window.Intercom, 'boot', {
           app_id: options.appId,
           user_id: 'id',
@@ -335,7 +346,9 @@ describe('Intercom', function() {
 
       it('should send map monthlySpend to monthly_spend', function() {
         analytics.group('id', { monthlySpend: 17.38 });
-        analytics.called(window.Intercom, 'update', { company: { id: 'id', monthly_spend: 17.38 } });
+        analytics.called(window.Intercom, 'update', {
+          company: { id: 'id', monthly_spend: 17.38 }
+        });
       });
 
       it('should send an id and properties', function() {
@@ -409,8 +422,10 @@ describe('Intercom', function() {
       });
 
       it('should map price correctly', function() {
-        analytics.track('event', { revenue: 200.00, currency: 'USD' });
-        analytics.called(window.Intercom, 'trackEvent', 'event', { price: { amount: 20000, currency: 'USD' } });
+        analytics.track('event', { revenue: 200.0, currency: 'USD' });
+        analytics.called(window.Intercom, 'trackEvent', 'event', {
+          price: { amount: 20000, currency: 'USD' }
+        });
       });
 
       it('should send custom traits', function() {

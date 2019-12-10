@@ -11,7 +11,7 @@ var clone = require('@ndhoule/clone');
  * Expose `Keen IO` integration.
  */
 
-var Keen = module.exports = integration('Keen IO')
+var Keen = (module.exports = integration('Keen IO')
   .global('KeenSegment')
   .option('ipAddon', false)
   .option('projectId', '')
@@ -23,7 +23,9 @@ var Keen = module.exports = integration('Keen IO')
   .option('uaAddon', false)
   .option('urlAddon', false)
   .option('writeKey', '')
-  .tag('<script src="//d26b395fwzu5fz.cloudfront.net/3.4.0/{{ lib }}.min.js">');
+  .tag(
+    '<script src="//d26b395fwzu5fz.cloudfront.net/3.4.0/{{ lib }}.min.js">'
+  ));
 
 /**
  * Initialize.
@@ -44,13 +46,13 @@ Keen.prototype.initialize = function() {
     // Force-undefine `Keen` (saved as `previousKeen`)
     window.Keen = undefined;
     /**
-      * Shim out the Keen client library.
-      *
-      * To update the library, grab the most up-to-date embed code from Keen's
-      * JS library readme (https://github.com/keen/keen-js) and remove any of the
-      * script loading/appending business. Next, update the script tag above with
-      * the new client library URL.
-    */
+     * Shim out the Keen client library.
+     *
+     * To update the library, grab the most up-to-date embed code from Keen's
+     * JS library readme (https://github.com/keen/keen-js) and remove any of the
+     * script loading/appending business. Next, update the script tag above with
+     * the new client library URL.
+     */
     /* eslint-disable */
     !(function(a,b){if(void 0===b[a]){b["_"+a]={},b[a]=function(c){b["_"+a].clients=b["_"+a].clients||{},b["_"+a].clients[c.projectId]=this,this._config=c},b[a].ready=function(c){b["_"+a].ready=b["_"+a].ready||[],b["_"+a].ready.push(c)};for(var c=["addEvent","setGlobalProperties","trackExternalLink","on"],d=0;d<c.length;d++){var e=c[d],f=function(a){return function(){return this["_"+a]=this["_"+a]||[],this["_"+a].push(arguments),this}};b[a].prototype[e]=f(e)}}})("Keen",window);
     /* eslint-enable */
@@ -139,7 +141,7 @@ Keen.prototype.identify = function(identify) {
   if (id) user.userId = id;
   if (traits) user.traits = traits;
   var props = { user: user };
-  this.addons(props, identify);
+  props = this.addons(props, identify);
   this.client.setGlobalProperties(function() {
     // Clone the props so the Keen Client can't manipulate the ref
     return clone(props);
@@ -155,7 +157,7 @@ Keen.prototype.identify = function(identify) {
 
 Keen.prototype.track = function(track) {
   var props = track.properties();
-  this.addons(props, track);
+  props = this.addons(props, track);
   this.client.addEvent(track.event(), props);
 };
 
@@ -167,7 +169,8 @@ Keen.prototype.track = function(track) {
  * @param {Facade} msg
  */
 
-Keen.prototype.addons = function(obj, msg) {
+Keen.prototype.addons = function(properties, msg) {
+  var obj = properties;
   var options = this.options;
   var addons = [];
 
@@ -215,4 +218,6 @@ Keen.prototype.addons = function(obj, msg) {
     timestamp: msg.timestamp(),
     addons: addons
   };
+
+  return obj;
 };

@@ -1,4 +1,3 @@
-
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
@@ -31,9 +30,12 @@ describe('Outbound', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Outbound, integration('Outbound')
-      .global('outbound')
-      .option('publicApiKey', ''));
+    analytics.compare(
+      Outbound,
+      integration('Outbound')
+        .global('outbound')
+        .option('publicApiKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -148,7 +150,12 @@ describe('Outbound', function() {
         // adding fake cookie for user identification
         var date = new Date();
         date.setTime(date.getTime() + 10 * 24 * 60 * 60 * 1000); // 10 days
-        document.cookie = '_ob_' + options.publicApiKey + '=user123; expires=' + date.toGMTString() + '; path=/;';
+        document.cookie =
+          '_ob_' +
+          options.publicApiKey +
+          '=user123; expires=' +
+          date.toGMTString() +
+          '; path=/;';
         analytics.stub(window.outbound, 'track');
       });
 
@@ -170,7 +177,9 @@ describe('Outbound', function() {
 
       it('should alias a user', function() {
         analytics.alias('user123', 'actualUserId');
-        analytics.called(window.outbound.identify, 'user123', { previousId: 'actualUserId' });
+        analytics.called(window.outbound.identify, 'user123', {
+          previousId: 'actualUserId'
+        });
       });
     });
 
@@ -179,7 +188,12 @@ describe('Outbound', function() {
         // adding fake cookie for user identification
         var date = new Date();
         date.setTime(date.getTime() + 10 * 24 * 60 * 60 * 1000); // 10 days
-        document.cookie = '_ob_' + options.publicApiKey + '=user123; expires=' + date.toGMTString() + '; path=/;';
+        document.cookie =
+          '_ob_' +
+          options.publicApiKey +
+          '=user123; expires=' +
+          date.toGMTString() +
+          '; path=/;';
         analytics.stub(window.outbound, 'track');
       });
 

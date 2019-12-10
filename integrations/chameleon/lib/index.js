@@ -10,12 +10,14 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Chameleon` integration.
  */
 
-var Chameleon = module.exports = integration('Chameleon')
+var Chameleon = (module.exports = integration('Chameleon')
   .readyOnInitialize()
   .readyOnLoad()
   .global('chmln')
   .option('apiKey', null)
-  .tag('<script src="https://fast.trychameleon.com/messo/{{apiKey}}/messo.min.js"></script>');
+  .tag(
+    '<script src="https://fast.trychameleon.com/messo/{{apiKey}}/messo.min.js"></script>'
+  ));
 
 /**
  * Initialize Chameleon.
@@ -85,5 +87,8 @@ Chameleon.prototype.track = function(track) {
  */
 
 Chameleon.prototype.alias = function(alias) {
-  window.chmln.alias({ from : alias.previousId() || alias.anonymousId(), to: alias.userId() });
+  window.chmln.alias({
+    from: alias.previousId() || alias.anonymousId(),
+    to: alias.userId()
+  });
 };

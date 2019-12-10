@@ -30,12 +30,15 @@ describe('Facebook Custom Audiences', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(FacebookCustomAudiences, integration('Facebook Custom Audiences')
-      .global('_fbds')
-      .global('_fbq')
-      .option('pixelId', '')
-      .option('currency', 'USD')
-      .mapping('events'));
+    analytics.compare(
+      FacebookCustomAudiences,
+      integration('Facebook Custom Audiences')
+        .global('_fbds')
+        .global('_fbq')
+        .option('pixelId', '')
+        .option('currency', 'USD')
+        .mapping('events')
+    );
   });
 
   describe('before loading', function() {
@@ -91,62 +94,82 @@ describe('Facebook Custom Audiences', function() {
       });
 
       it('should send properties', function() {
-        analytics.track('event', { revenue: 50.99, lala: true, tobi: 'lovableferret' });
-        analytics.called(window._fbq.push, ['track', 'event', {
+        analytics.track('event', {
           revenue: 50.99,
           lala: true,
           tobi: 'lovableferret'
-        }]);
+        });
+        analytics.called(window._fbq.push, [
+          'track',
+          'event',
+          {
+            revenue: 50.99,
+            lala: true,
+            tobi: 'lovableferret'
+          }
+        ]);
       });
 
       it('should send ecommerce event - Product List Viewed', function() {
         analytics.track('Product List Viewed', { category: 'Games' });
-        analytics.called(window._fbq.push, ['track', 'ViewContent', {
-          content_ids: ['Games'],
-          content_type: 'product_group'
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          'ViewContent',
+          {
+            content_ids: ['Games'],
+            content_type: 'product_group'
+          }
+        ]);
       });
 
       it('should send ecommerce event - Product Viewed', function() {
         analytics.track('Product Viewed', {
           product_id: '507f1f77bcf86cd799439011',
           currency: 'USD',
-          value: 0.50,
+          value: 0.5,
           quantity: 1,
           price: 24.75,
           name: 'my product',
           category: 'cat 1',
           sku: 'p-298'
         });
-        analytics.called(window._fbq.push, ['track', 'ViewContent', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: 'product',
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: 0.50
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          'ViewContent',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: 'product',
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: 0.5
+          }
+        ]);
       });
 
       it('should send ecommerce event - Adding to Cart', function() {
         analytics.track('Product Added', {
           product_id: '507f1f77bcf86cd799439011',
           currency: 'USD',
-          value: 0.50,
+          value: 0.5,
           quantity: 1,
           price: 24.75,
           name: 'my product',
           category: 'cat 1',
           sku: 'p-298'
         });
-        analytics.called(window._fbq.push, ['track', 'AddToCart', {
-          content_ids: ['507f1f77bcf86cd799439011'],
-          content_type: 'product',
-          content_name: 'my product',
-          content_category: 'cat 1',
-          currency: 'USD',
-          value: 0.50
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          'AddToCart',
+          {
+            content_ids: ['507f1f77bcf86cd799439011'],
+            content_type: 'product',
+            content_name: 'my product',
+            content_category: 'cat 1',
+            currency: 'USD',
+            value: 0.5
+          }
+        ]);
       });
 
       it('should send ecommerce event - Completing an Order', function() {
@@ -156,14 +179,21 @@ describe('Facebook Custom Audiences', function() {
             { product_id: '505bd76785ebb509fc183733' }
           ],
           currency: 'USD',
-          value: 0.50
+          value: 0.5
         });
-        analytics.called(window._fbq.push, ['track', 'Purchase', {
-          content_ids: ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'],
-          content_type: 'product',
-          currency: 'USD',
-          value: 0.50
-        }]);
+        analytics.called(window._fbq.push, [
+          'track',
+          'Purchase',
+          {
+            content_ids: [
+              '507f1f77bcf86cd799439011',
+              '505bd76785ebb509fc183733'
+            ],
+            content_type: 'product',
+            currency: 'USD',
+            value: 0.5
+          }
+        ]);
       });
     });
   });

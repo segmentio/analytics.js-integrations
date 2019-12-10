@@ -34,16 +34,19 @@ describe('Olark', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Olark, integration('Olark')
-      .assumesPageview()
-      .global('olark')
-      .option('groupId', '')
-      .option('identify', true)
-      .option('listen', false)
-      .option('page', true)
-      .option('siteId', '')
-      .option('track', false)
-      .option('inline', false));
+    analytics.compare(
+      Olark,
+      integration('Olark')
+        .assumesPageview()
+        .global('olark')
+        .option('groupId', '')
+        .option('identify', true)
+        .option('listen', false)
+        .option('page', true)
+        .option('siteId', '')
+        .option('track', false)
+        .option('inline', false)
+    );
   });
 
   describe('before loading', function() {
@@ -60,7 +63,9 @@ describe('Olark', function() {
       olark.options.groupId = '-groupId-';
       analytics.initialize();
       analytics.page();
-      analytics.called(window.olark, 'api.chat.setOperatorGroup', { group: '-groupId-' });
+      analytics.called(window.olark, 'api.chat.setOperatorGroup', {
+        group: '-groupId-'
+      });
     });
   });
 
@@ -282,26 +287,38 @@ describe('Olark', function() {
       describe('#page', function() {
         it('should not send a notification', function() {
           analytics.page();
-          analytics.didNotCall(window.olark, 'api.chat.sendNotificationToOperator');
+          analytics.didNotCall(
+            window.olark,
+            'api.chat.sendNotificationToOperator'
+          );
         });
 
         it('should not send a notification when the chat isnt open', function() {
           olark.options.page = true;
           analytics.page();
-          analytics.didNotCall(window.olark, 'api.chat.sendNotificationToOperator');
+          analytics.didNotCall(
+            window.olark,
+            'api.chat.sendNotificationToOperator'
+          );
         });
       });
 
       describe('#track', function() {
         it('should not send a notification by default', function() {
           analytics.track('event');
-          analytics.didNotCall(window.olark, 'api.chat.sendNotificationToOperator');
+          analytics.didNotCall(
+            window.olark,
+            'api.chat.sendNotificationToOperator'
+          );
         });
 
         it('should not send a notification when the chat isnt open', function() {
           olark.options.track = true;
           analytics.track('event');
-          analytics.didNotCall(window.olark, 'api.chat.sendNotificationToOperator');
+          analytics.didNotCall(
+            window.olark,
+            'api.chat.sendNotificationToOperator'
+          );
         });
       });
     });
@@ -323,7 +340,15 @@ describe('Olark', function() {
       it('should send a chat started event', function(done) {
         window.olark('api.chat.sendMessageToVisitor', { body: 'hello' });
         setTimeout(function() {
-          analytics.called(analytics.track, 'Live Chat Conversation Started', {}, { context: { integration: { name: 'olark', version: '1.0.0' } }, integrations: { Olark: false } });
+          analytics.called(
+            analytics.track,
+            'Live Chat Conversation Started',
+            {},
+            {
+              context: { integration: { name: 'olark', version: '1.0.0' } },
+              integrations: { Olark: false }
+            }
+          );
           done();
         }, 3000);
       });
@@ -338,12 +363,20 @@ describe('Olark', function() {
           analytics.called(analytics.track, 'Live Chat Message Sent', { messageBody: 'hi' }, { context: { integration: { name: 'olark', version: '1.0.0' }}, integrations: { Olark: false }});
           done();
         }, 5000);
-      });**/
+      });* */
 
       it('should send a chat received event', function(done) {
         window.olark('api.chat.sendMessageToVisitor', { body: 'oh hai' });
         setTimeout(function() {
-          analytics.called(analytics.track, 'Live Chat Message Received', {}, { context: { integration: { name: 'olark', version: '1.0.0' } }, integrations: { Olark: false } });
+          analytics.called(
+            analytics.track,
+            'Live Chat Message Received',
+            {},
+            {
+              context: { integration: { name: 'olark', version: '1.0.0' } },
+              integrations: { Olark: false }
+            }
+          );
           done();
         }, 3000);
       });
@@ -369,23 +402,35 @@ describe('Olark', function() {
       describe('#page', function() {
         it('should send a page name', function() {
           analytics.page('Name');
-          analytics.called(window.olark, 'api.chat.sendNotificationToOperator', {
-            body: 'looking at name page'
-          });
+          analytics.called(
+            window.olark,
+            'api.chat.sendNotificationToOperator',
+            {
+              body: 'looking at name page'
+            }
+          );
         });
 
         it('should send a page category and name', function() {
           analytics.page('Category', 'Name');
-          analytics.called(window.olark, 'api.chat.sendNotificationToOperator', {
-            body: 'looking at category name page'
-          });
+          analytics.called(
+            window.olark,
+            'api.chat.sendNotificationToOperator',
+            {
+              body: 'looking at category name page'
+            }
+          );
         });
 
         it('should send a page url', function() {
           analytics.page({ url: 'url' });
-          analytics.called(window.olark, 'api.chat.sendNotificationToOperator', {
-            body: 'looking at url'
-          });
+          analytics.called(
+            window.olark,
+            'api.chat.sendNotificationToOperator',
+            {
+              body: 'looking at url'
+            }
+          );
         });
 
         it('should not send an event when page is disabled', function() {
@@ -399,9 +444,13 @@ describe('Olark', function() {
         it('should send an event', function() {
           olark.options.track = true;
           analytics.track('event');
-          analytics.called(window.olark, 'api.chat.sendNotificationToOperator', {
-            body: 'visitor triggered "event"'
-          });
+          analytics.called(
+            window.olark,
+            'api.chat.sendNotificationToOperator',
+            {
+              body: 'visitor triggered "event"'
+            }
+          );
         });
       });
     });

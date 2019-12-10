@@ -29,10 +29,13 @@ describe('Clicky', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Clicky, integration('Clicky')
-      .assumesPageview()
-      .global('clicky_site_ids')
-      .option('siteId', null));
+    analytics.compare(
+      Clicky,
+      integration('Clicky')
+        .assumesPageview()
+        .global('clicky_site_ids')
+        .option('siteId', null)
+    );
   });
 
   describe('before loading', function() {
@@ -100,11 +103,18 @@ describe('Clicky', function() {
 
       it('should set an id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.deepEqual(window.clicky_custom.session, { id: 'id', trait: true });
+        analytics.deepEqual(window.clicky_custom.session, {
+          id: 'id',
+          trait: true
+        });
       });
 
       it('should set a `traits.username` to clicky username', function() {
-        analytics.identify('id', { trait: true, name: 'Joe Jonas', username: 'joejonas' });
+        analytics.identify('id', {
+          trait: true,
+          name: 'Joe Jonas',
+          username: 'joejonas'
+        });
         analytics.deepEqual(window.clicky_custom.session, {
           id: 'id',
           trait: true,
@@ -114,7 +124,11 @@ describe('Clicky', function() {
       });
 
       it('should set a `traits.email` to clicky username if !traits.username', function() {
-        analytics.identify('id', { trait: true, name: 'Joe Jonas', email: 'joe@jonas.com' });
+        analytics.identify('id', {
+          trait: true,
+          name: 'Joe Jonas',
+          email: 'joe@jonas.com'
+        });
         analytics.deepEqual(window.clicky_custom.session, {
           id: 'id',
           trait: true,
@@ -135,7 +149,11 @@ describe('Clicky', function() {
       });
 
       it('should set use traits.firstName, traits.lastName', function() {
-        analytics.identify('id', { trait: true, firstName: 'Joe', lastName: 'Jonas' });
+        analytics.identify('id', {
+          trait: true,
+          firstName: 'Joe',
+          lastName: 'Jonas'
+        });
         analytics.deepEqual(window.clicky_custom.session, {
           id: 'id',
           trait: true,

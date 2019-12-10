@@ -30,9 +30,12 @@ describe('Bugsnag', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Bugsnag, integration('Bugsnag')
-      .global('Bugsnag')
-      .option('apiKey', ''));
+    analytics.compare(
+      Bugsnag,
+      integration('Bugsnag')
+        .global('Bugsnag')
+        .option('apiKey', '')
+    );
   });
 
   describe('before loading', function() {

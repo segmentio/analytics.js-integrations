@@ -13,13 +13,15 @@ var Track = require('segmentio-facade').Track;
  * Expose `FacebookCustomAudiences`.
  */
 
-var FacebookCustomAudiences = module.exports = integration('Facebook Custom Audiences')
+var FacebookCustomAudiences = (module.exports = integration(
+  'Facebook Custom Audiences'
+)
   .global('_fbds')
   .global('_fbq')
   .option('pixelId', '')
   .option('currency', 'USD')
   .mapping('events')
-  .tag('<script src="//connect.facebook.net/en_US/fbds.js">');
+  .tag('<script src="//connect.facebook.net/en_US/fbds.js">'));
 
 /**
  * Initialize.
@@ -122,15 +124,19 @@ FacebookCustomAudiences.prototype.productAdded = function(track) {
  */
 
 FacebookCustomAudiences.prototype.orderCompleted = function(track) {
-  var content_ids = foldl(function(ret, product) {
-    var item = new Track({ properties: product });
-    var id = item.productId() || item.id() || item.sku() || '';
-    ret.push(id);
-    return ret;
-  }, [], track.products());
+  var contentIds = foldl(
+    function(ret, product) {
+      var item = new Track({ properties: product });
+      var id = item.productId() || item.id() || item.sku() || '';
+      ret.push(id);
+      return ret;
+    },
+    [],
+    track.products()
+  );
 
   push('track', 'Purchase', {
-    content_ids: content_ids,
+    content_ids: contentIds,
     content_type: 'product',
     currency: String(track.currency()),
     value: Number(track.value())

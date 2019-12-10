@@ -11,12 +11,12 @@ var foldl = require('@ndhoule/foldl');
  * Expose `Blueshift` integration.
  */
 
-var Blueshift = module.exports = integration('Blueshift')
+var Blueshift = (module.exports = integration('Blueshift')
   .global('blueshift')
   .global('_blueshiftid')
   .option('apiKey', '')
   .option('retarget', false)
-  .tag('<script src="https://cdn.getblueshift.com/blueshift.js">');
+  .tag('<script src="https://cdn.getblueshift.com/blueshift.js">'));
 
 /**
  * Initialize.
@@ -119,12 +119,15 @@ Blueshift.prototype.track = function(track) {
  */
 
 Blueshift.prototype.alias = function(alias) {
-  window.blueshift.track('alias', removeBlankAttributes({
-    _bsft_source: 'segment.com',
-    customer_id: alias.userId(),
-    previous_customer_id: alias.previousId(),
-    anonymousId: alias.anonymousId()
-  }));
+  window.blueshift.track(
+    'alias',
+    removeBlankAttributes({
+      _bsft_source: 'segment.com',
+      customer_id: alias.userId(),
+      previous_customer_id: alias.previousId(),
+      anonymousId: alias.anonymousId()
+    })
+  );
 };
 
 /**
@@ -136,8 +139,13 @@ Blueshift.prototype.alias = function(alias) {
  */
 
 function removeBlankAttributes(obj) {
-  return foldl(function(results, val, key) {
-    if (val !== null && val !== undefined) results[key] = val;
-    return results;
-  }, {}, obj);
+  return foldl(
+    function(r, val, key) {
+      var results = r;
+      if (val !== null && val !== undefined) results[key] = val;
+      return results;
+    },
+    {},
+    obj
+  );
 }

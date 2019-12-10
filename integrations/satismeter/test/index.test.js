@@ -29,9 +29,12 @@ describe('SatisMeter', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(SatisMeter, integration('SatisMeter')
-      .global('satismeter')
-      .option('apiKey', ''));
+    analytics.compare(
+      SatisMeter,
+      integration('SatisMeter')
+        .global('satismeter')
+        .option('apiKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -69,8 +72,7 @@ describe('SatisMeter', function() {
         analytics.called(window.satismeter, {
           writeKey: options.apiKey,
           userId: 'id',
-          traits: {
-          },
+          traits: {},
           type: 'identify'
         });
       });
@@ -175,9 +177,12 @@ describe('SatisMeter - legacy setup', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(SatisMeter, integration('SatisMeter')
-      .global('satismeter')
-      .option('token', ''));
+    analytics.compare(
+      SatisMeter,
+      integration('SatisMeter')
+        .global('satismeter')
+        .option('token', '')
+    );
   });
 
   describe('before loading', function() {
@@ -215,8 +220,7 @@ describe('SatisMeter - legacy setup', function() {
         analytics.called(window.satismeter, {
           writeKey: options.token,
           userId: 'id',
-          traits: {
-          },
+          traits: {},
           type: 'identify'
         });
       });

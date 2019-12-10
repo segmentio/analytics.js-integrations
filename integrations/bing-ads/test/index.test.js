@@ -29,10 +29,13 @@ describe('Bing Ads', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Bing, integration('Bing Ads')
-      .global('UET')
-      .global('uetq')
-      .option('tagId', ''));
+    analytics.compare(
+      Bing,
+      integration('Bing Ads')
+        .global('UET')
+        .global('uetq')
+        .option('tagId', '')
+    );
   });
 
   describe('loading', function() {
