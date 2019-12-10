@@ -34,7 +34,7 @@ steps:
   - wait: ~
 
   - label: ":cloud: Publish"
-    branches: master
+    # branches: master
     commands:
       - yarn lerna publish from-package --yes
     plugins:
