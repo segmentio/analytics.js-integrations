@@ -36,6 +36,7 @@ steps:
   - label: ":cloud: Publish"
     # branches: master
     commands:
+      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn lerna publish from-package --yes
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
