@@ -8,7 +8,7 @@ jobs:
       - run:
           name: Determine which projects have changed and trigger the builds
           command: |
-            ## Indentify head of master
+            ## Identify head of master
             git ls-remote origin | awk "/master/ {print \$1}" > master
             MASTER_COMMIT=`cat master`
 
@@ -28,17 +28,17 @@ jobs:
                 exit 1
               fi
             done
+      - restore_cache:
+          key: deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install
+          command: yarn install --frozen-lockfile
       - run:
           name: Run Linter (not enforcing for now)
           command: yarn lint
       - run:
           name: Run Tests
           command: yarn test
-      - restore_cache:
-          key: deps-{{ checksum "yarn.lock" }}
-      - run:
-          name: Install
-          command: yarn install --frozen-lockfile
       - save_cache:
           key: deps-{{ checksum "yarn.lock" }}
           paths:
