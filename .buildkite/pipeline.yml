@@ -34,7 +34,7 @@ steps:
   - wait: ~
 
   - label: ":cloud: Publish"
-    # branches: master
+    branches: master
     commands:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn lerna publish from-package --yes
