@@ -15,7 +15,8 @@
     "no-continue": "off",
     "consistent-return": "warn",
     "no-shadow": "warn",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "no-template-curly-in-string": "warn"
   },
   "overrides": [
     {
