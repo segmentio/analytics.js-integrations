@@ -1,5 +1,5 @@
 env:
-  SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr,saucelabs"
+  SEGMENT_CONTEXTS: "snyk,aws-credentials,ecr,saucelabs,npm-publish"
 steps:
   - label: ":hammer: Build and Test"
     command:
@@ -28,17 +28,18 @@ steps:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ["node_modules/"]
-      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0: 
+      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0:
           runtime: npm
 
-  - wait: ~ 
+  - wait: ~
 
   - label: ":cloud: Publish"
-    branches: master 
+    branches: master
     commands:
       - yarn lerna publish from-package --yes
-    plugins: 
+    plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ["node_modules/"]
-    
+          environment:
+            - NPM_TOKEN
