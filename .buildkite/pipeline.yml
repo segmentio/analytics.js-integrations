@@ -41,8 +41,8 @@ steps:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ["node_modules/"]
-    - docker#v3.3.0:
-        image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-        user: root
-        environment:
-          - NPM_TOKEN
+      - docker#v3.3.0:
+          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          user: root
+          environment:
+            - NPM_TOKEN
