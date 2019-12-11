@@ -29,10 +29,13 @@ describe('Gauges', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Gauges, integration('Gauges')
-      .assumesPageview()
-      .global('_gauges')
-      .option('siteId', ''));
+    analytics.compare(
+      Gauges,
+      integration('Gauges')
+        .assumesPageview()
+        .global('_gauges')
+        .option('siteId', '')
+    );
   });
 
   describe('before loading', function() {

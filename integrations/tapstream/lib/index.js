@@ -12,14 +12,14 @@ var slug = require('slug-component');
  * Expose `Tapstream` integration.
  */
 
-var Tapstream = module.exports = integration('Tapstream')
+var Tapstream = (module.exports = integration('Tapstream')
   .assumesPageview()
   .global('_tsq')
   .option('accountName', '')
   .option('trackAllPages', true)
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .tag('<script src="//cdn.tapstream.com/static/js/tapstream.js">');
+  .tag('<script src="//cdn.tapstream.com/static/js/tapstream.js">'));
 
 /**
  * Initialize.

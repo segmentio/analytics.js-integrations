@@ -13,7 +13,7 @@ var when = require('do-when');
  * Expose `Yandex` integration.
  */
 
-var Yandex = module.exports = integration('Yandex Metrica')
+var Yandex = (module.exports = integration('Yandex Metrica')
   .assumesPageview()
   .global('yandex_metrika_callbacks')
   .global('Ya')
@@ -24,7 +24,7 @@ var Yandex = module.exports = integration('Yandex Metrica')
   .option('trackHash', false)
   .option('trackLinks', false)
   .option('accurateTrackBounce', false)
-  .tag('<script src="//mc.yandex.ru/metrika/watch.js">');
+  .tag('<script src="//mc.yandex.ru/metrika/watch.js">'));
 
 /**
  * Initialize.

@@ -30,16 +30,19 @@ describe('GoSquared', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(GoSquared, integration('GoSquared')
-      .assumesPageview()
-      .global('_gs')
-      .option('anonymizeIP', false)
-      .option('apiSecret', '')
-      .option('cookieDomain', null)
-      .option('trackHash', false)
-      .option('trackLocal', false)
-      .option('trackParams', true)
-      .option('useCookies', true));
+    analytics.compare(
+      GoSquared,
+      integration('GoSquared')
+        .assumesPageview()
+        .global('_gs')
+        .option('anonymizeIP', false)
+        .option('apiSecret', '')
+        .option('cookieDomain', null)
+        .option('trackHash', false)
+        .option('trackLocal', false)
+        .option('trackParams', true)
+        .option('useCookies', true)
+    );
   });
 
   describe('before loading', function() {
@@ -252,23 +255,33 @@ describe('GoSquared', function() {
           id: 'a9173991',
           total: 90,
           quantity: 10,
-          products: [{
-            category: 'my category',
-            name: 'my-product',
-            quantity: 10,
-            price: 9
-          }]
+          products: [
+            {
+              category: 'my category',
+              name: 'my-product',
+              quantity: 10,
+              price: 9
+            }
+          ]
         });
 
-        analytics.called(window._gs, 'transaction', 'a9173991', {
-          revenue: 90,
-          track: true
-        }, [{
-          name: 'my-product',
-          category: 'my category',
-          quantity: 10,
-          price: 9
-        }]);
+        analytics.called(
+          window._gs,
+          'transaction',
+          'a9173991',
+          {
+            revenue: 90,
+            track: true
+          },
+          [
+            {
+              name: 'my-product',
+              category: 'my category',
+              quantity: 10,
+              price: 9
+            }
+          ]
+        );
       });
     });
   });

@@ -12,12 +12,14 @@ var is = require('is');
  * Expose `Kenshoo` integration.
  */
 
-var Kenshoo = module.exports = integration('Kenshoo')
+var Kenshoo = (module.exports = integration('Kenshoo')
   .global('k_trackevent')
   .option('cid', '')
   .option('events', [])
   .option('subdomain', '')
-  .tag('<script src="//{{ subdomain }}.xg4ken.com/media/getpx.php?cid={{ cid }}">');
+  .tag(
+    '<script src="//{{ subdomain }}.xg4ken.com/media/getpx.php?cid={{ cid }}">'
+  ));
 
 /**
  * Initialize.

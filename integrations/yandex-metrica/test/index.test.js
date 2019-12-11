@@ -31,13 +31,16 @@ describe('Yandex', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Yandex, integration('Yandex Metrica')
-      .assumesPageview()
-      .global('yandex_metrika_callbacks')
-      .global('Ya')
-      .option('counterId', null)
-      .option('clickmap', false)
-      .option('webvisor', false));
+    analytics.compare(
+      Yandex,
+      integration('Yandex Metrica')
+        .assumesPageview()
+        .global('yandex_metrika_callbacks')
+        .global('Ya')
+        .option('counterId', null)
+        .option('clickmap', false)
+        .option('webvisor', false)
+    );
   });
 
   describe('before loading', function() {

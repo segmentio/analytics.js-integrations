@@ -84,13 +84,13 @@ describe('Aptrinsic', function() {
       it('should identify with the given id', function() {
         analytics.stub(window, 'aptrinsic');
         analytics.identify('id');
-        analytics.called(window.aptrinsic,'identify');
+        analytics.called(window.aptrinsic, 'identify');
       });
 
       it('should send the given id and gender', function() {
         analytics.stub(window, 'aptrinsic');
         analytics.identify('id', { gender: 'FEMALE' });
-        analytics.called(window.aptrinsic,'identify');
+        analytics.called(window.aptrinsic, 'identify');
       });
 
       it('should identify with the user data', function() {
@@ -120,16 +120,16 @@ describe('Aptrinsic', function() {
           phone: '(555) 555-5555',
           position: 'Mr.',
           address: {
-            street : '100 Main St.',
-            countryCode : 'USA',
-            stateCode : 'NY' ,
-            city : 'New York City',
-            zip : 10000
+            street: '100 Main St.',
+            countryCode: 'USA',
+            stateCode: 'NY',
+            city: 'New York City',
+            zip: 10000
           }
         };
 
         analytics.identify(userId, userAttrs);
-        analytics.called(window.aptrinsic,'identify');
+        analytics.called(window.aptrinsic, 'identify');
       });
 
       it('should identify with the company data', function() {
@@ -138,17 +138,16 @@ describe('Aptrinsic', function() {
         var userAttrs = {
           email: 'test@example.com',
           company: {
-            name : 'Acme Corp',
-            industry : 'Road Runner Catchers',
-            employee_count : 10
+            name: 'Acme Corp',
+            industry: 'Road Runner Catchers',
+            employee_count: 10
           }
         };
 
         analytics.identify(userId, userAttrs);
-        analytics.called(window.aptrinsic,'identify');
+        analytics.called(window.aptrinsic, 'identify');
       });
     });
-
 
     describe('#group', function() {
       beforeEach(function(done) {

@@ -14,7 +14,7 @@ var unix = require('to-unix-timestamp');
  * Expose `UserVoice` integration.
  */
 
-var UserVoice = module.exports = integration('UserVoice')
+var UserVoice = (module.exports = integration('UserVoice')
   .assumesPageview()
   .global('UserVoice')
   .global('showClassicWidget')
@@ -40,7 +40,7 @@ var UserVoice = module.exports = integration('UserVoice')
   .option('tabPosition', 'middle-right')
   .option('tabInverted', false)
   .option('customTicketFields', {})
-  .tag('<script src="//widget.uservoice.com/{{ apiKey }}.js">');
+  .tag('<script src="//widget.uservoice.com/{{ apiKey }}.js">'));
 
 /**
  * When in "classic" mode, on `construct` swap all of the method to point to
@@ -51,9 +51,11 @@ var UserVoice = module.exports = integration('UserVoice')
 
 UserVoice.on('construct', function(integration) {
   if (!integration.options.classic) return;
+  /* eslint-disable no-param-reassign */
   integration.group = undefined;
   integration.identify = integration.identifyClassic;
   integration.initialize = integration.initializeClassic;
+  /* eslint-enable no-param-reassign */
 });
 
 /**
@@ -126,7 +128,8 @@ UserVoice.prototype.initializeClassic = function() {
   var options = this.options;
   // part of public api
   window.showClassicWidget = showClassicWidget;
-  if (options.showWidget) showClassicWidget('showTab', formatClassicOptions(options));
+  if (options.showWidget)
+    showClassicWidget('showTab', formatClassicOptions(options));
   this.load(this.ready);
 };
 
@@ -194,6 +197,6 @@ function formatClassicOptions(options) {
  */
 
 function showClassicWidget(type, options) {
-  type = type || 'showLightbox';
-  push(type, 'classic_widget', options);
+  var t = type || 'showLightbox';
+  push(t, 'classic_widget', options);
 }

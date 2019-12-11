@@ -12,12 +12,12 @@ var when = require('do-when');
  * Expose `Spinnakr` integration.
  */
 
-var Spinnakr = module.exports = integration('Spinnakr')
+var Spinnakr = (module.exports = integration('Spinnakr')
   .assumesPageview()
   .global('_spinnakr_site_id')
   .global('_spinnakr')
   .option('siteId', '')
-  .tag('<script src="//d3ojzyhbolvoi5.cloudfront.net/js/so.js">');
+  .tag('<script src="//d3ojzyhbolvoi5.cloudfront.net/js/so.js">'));
 
 /**
  * Initialize.

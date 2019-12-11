@@ -12,12 +12,18 @@ var remove = require('obj-case').del;
  * Expose `WebEngage` integration.
  */
 
-var WebEngage = module.exports = integration('WebEngage')
+var WebEngage = (module.exports = integration('WebEngage')
   .readyOnInitialize()
   .global('webengage')
   .option('licenseCode', '')
-  .tag('http', '<script src="http://cdn.widgets.webengage.com/js/webengage-min-v-6.0.js">')
-  .tag('https', '<script src="https://ssl.widgets.webengage.com/js/webengage-min-v-6.0.js">');
+  .tag(
+    'http',
+    '<script src="http://cdn.widgets.webengage.com/js/webengage-min-v-6.0.js">'
+  )
+  .tag(
+    'https',
+    '<script src="https://ssl.widgets.webengage.com/js/webengage-min-v-6.0.js">'
+  ));
 
 /**
  * Initialize.
@@ -51,7 +57,6 @@ WebEngage.prototype.loaded = function() {
   return !!window.webengage;
 };
 
-
 /**
  * Identify.
  *
@@ -77,7 +82,6 @@ WebEngage.prototype.identify = function(identify) {
   if (traits) window.webengage.user.setAttribute(mappedTraits);
 };
 
-
 /**
  * Track.
  *
@@ -93,7 +97,6 @@ WebEngage.prototype.track = function(track) {
   window.webengage.track(event, properties);
 };
 
-
 /**
  * Page.
  *
@@ -107,7 +110,6 @@ WebEngage.prototype.page = function(page) {
 
   window.webengage.screen(name, properties);
 };
-
 
 /**
  * Map traits to their WebEngage attributes.
@@ -137,17 +139,21 @@ function mapTraits(traits) {
     }
   }
 
-  if (Object.prototype.toString.call(mapped.we_birth_date) === '[object Date]') {
+  if (
+    Object.prototype.toString.call(mapped.we_birth_date) === '[object Date]'
+  ) {
     var date = mapped.we_birth_date;
 
-    mapped.we_birth_date = date.getUTCFullYear()
-      + '-' + pad(date.getUTCMonth() + 1)
-      + '-' + pad(date.getUTCDate());
+    mapped.we_birth_date =
+      date.getUTCFullYear() +
+      '-' +
+      pad(date.getUTCMonth() + 1) +
+      '-' +
+      pad(date.getUTCDate());
   }
 
   return mapped;
 }
-
 
 /**
  * Pad single digit numbers with a leading 0.

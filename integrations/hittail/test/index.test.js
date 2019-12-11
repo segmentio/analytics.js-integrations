@@ -29,10 +29,13 @@ describe('HitTail', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(HitTail, integration('HitTail')
-      .assumesPageview()
-      .global('htk')
-      .option('siteId', ''));
+    analytics.compare(
+      HitTail,
+      integration('HitTail')
+        .assumesPageview()
+        .global('htk')
+        .option('siteId', '')
+    );
   });
 
   describe('loading', function() {

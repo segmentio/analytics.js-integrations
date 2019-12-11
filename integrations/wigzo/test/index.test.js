@@ -34,9 +34,12 @@ describe('Wigzo', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Wigzo, integration('Wigzo')
-      .global('wigzo')
-      .option('orgToken', ''));
+    analytics.compare(
+      Wigzo,
+      integration('Wigzo')
+        .global('wigzo')
+        .option('orgToken', '')
+    );
   });
 
   describe('before loading', function() {
@@ -84,10 +87,11 @@ describe('Wigzo', function() {
       it('should pass page name and default properties via page', function() {
         var wigzoPageData = {
           title: 'Dummy Page Name',
-          canonicalUrl: 'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40'
+          canonicalUrl:
+            'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40'
         };
         analytics.page(wigzoPageData.title, {
-          url : wigzoPageData.canonicalUrl
+          url: wigzoPageData.canonicalUrl
         });
         analytics.called(window.wigzo.track, 'view', wigzoPageData);
       });
@@ -111,24 +115,29 @@ describe('Wigzo', function() {
         };
 
         var options = {
-          Wigzo: { // make sure this is capitalized
-            imageUrl : 'https://snoopy.wigzopush.com/image/cache/catalog/demo/iphone_1-228x228.jpg',
-            canonicalUrl : 'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40',
-            description: 'iPhone is a revolutionary new mobile phone that allows you',
+          Wigzo: {
+            // make sure this is capitalized
+            imageUrl:
+              'https://snoopy.wigzopush.com/image/cache/catalog/demo/iphone_1-228x228.jpg',
+            canonicalUrl:
+              'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40',
+            description:
+              'iPhone is a revolutionary new mobile phone that allows you',
             language: 'en'
           },
           page: {
-            url: 'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40'
+            url:
+              'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40'
           }
         };
 
         var wigzoProduct = {
           productId: productData.product_id,
           title: productData.name,
-          price : productData.currency + ' ' + productData.price,
+          price: productData.currency + ' ' + productData.price,
           category: productData.category,
-          image : options.Wigzo.imageUrl,
-          canonicalUrl : options.page.url,
+          image: options.Wigzo.imageUrl,
+          canonicalUrl: options.page.url,
           description: options.Wigzo.description,
           language: options.Wigzo.language
         };
@@ -148,23 +157,27 @@ describe('Wigzo', function() {
         };
 
         var options = {
-          Wigzo: { // make sure this is capitalized
-            imageUrl : 'https://snoopy.wigzopush.com/image/cache/catalog/demo/iphone_1-228x228.jpg',
-            description: 'iPhone is a revolutionary new mobile phone that allows you',
+          Wigzo: {
+            // make sure this is capitalized
+            imageUrl:
+              'https://snoopy.wigzopush.com/image/cache/catalog/demo/iphone_1-228x228.jpg',
+            description:
+              'iPhone is a revolutionary new mobile phone that allows you',
             language: 'en'
           },
           page: {
-            url: 'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40'
+            url:
+              'https://snoopy.wigzopush.com/index.php?route=product/product&amp;product_id=40'
           }
         };
 
         var wigzoProduct = {
           productId: productData.product_id,
           title: productData.name,
-          price : productData.currency + ' ' + productData.price,
+          price: productData.currency + ' ' + productData.price,
           category: productData.category,
-          image : options.Wigzo.imageUrl,
-          canonicalUrl : options.page.url,
+          image: options.Wigzo.imageUrl,
+          canonicalUrl: options.page.url,
           description: options.Wigzo.description,
           language: options.Wigzo.language
         };
@@ -240,7 +253,11 @@ describe('Wigzo', function() {
         };
 
         analytics.track('Product Removed', eventData);
-        analytics.called(window.wigzo.track, 'removedfromcart', eventData.product_id);
+        analytics.called(
+          window.wigzo.track,
+          'removedfromcart',
+          eventData.product_id
+        );
       });
 
       it('should not send product removed without product_id', function() {
@@ -266,7 +283,10 @@ describe('Wigzo', function() {
       });
 
       it('should send checkout started', function() {
-        var productIdList = ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'];
+        var productIdList = [
+          '507f1f77bcf86cd799439011',
+          '505bd76785ebb509fc183733'
+        ];
         var eventData = {
           products: [
             { product_id: productIdList[0] },
@@ -289,7 +309,10 @@ describe('Wigzo', function() {
       });
 
       it('should send order completed', function() {
-        var productIdList = ['507f1f77bcf86cd799439011', '505bd76785ebb509fc183733'];
+        var productIdList = [
+          '507f1f77bcf86cd799439011',
+          '505bd76785ebb509fc183733'
+        ];
         var eventData = {
           products: [
             { product_id: productIdList[0] },
@@ -349,7 +372,7 @@ describe('Wigzo', function() {
 
         analytics.identify(id, user);
         analytics.equal(window.wigzo.USER_IDENTIFIER, id);
-        analytics.called(window.wigzo.identify,{
+        analytics.called(window.wigzo.identify, {
           fullName: user.name,
           email: user.email,
           phone: user.phone
@@ -369,8 +392,8 @@ describe('Wigzo', function() {
 
       it('should send an event and properties', function() {
         var eventData = {
-          property1 : 'test1',
-          property2 : 'test2'
+          property1: 'test1',
+          property2: 'test2'
         };
 
         analytics.track('event', eventData);
@@ -379,4 +402,3 @@ describe('Wigzo', function() {
     });
   });
 });
-

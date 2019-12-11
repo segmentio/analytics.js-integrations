@@ -40,10 +40,13 @@ describe('Twitter Ads', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Twitter, integration('Twitter Ads')
-      .option('page', '')
-      .option('universalTagPixelId', '')
-      .mapping('events'));
+    analytics.compare(
+      Twitter,
+      integration('Twitter Ads')
+        .option('page', '')
+        .option('universalTagPixelId', '')
+        .mapping('events')
+    );
   });
 
   describe('before loading', function() {
@@ -108,7 +111,9 @@ describe('Twitter Ads', function() {
         it('should send if `page` option is defined', function() {
           twitter.options.page = 'e3196de1';
           analytics.page();
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=e3196de1&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=e3196de1&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">'
+          );
         });
       });
 
@@ -117,7 +122,9 @@ describe('Twitter Ads', function() {
           twitter.options.page = 'e3196de1';
           twitter.options.universalTagPixelId = 'teemo';
           analytics.page();
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=e3196de1&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=e3196de1&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">'
+          );
           analytics.called(window.twq, 'track', 'PageView');
         });
       });
@@ -149,18 +156,24 @@ describe('Twitter Ads', function() {
 
       it('should send correctly', function() {
         analytics.track('play');
-        analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=e3196de1&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">');
+        analytics.loaded(
+          '<img src="http://analytics.twitter.com/i/adsct?txn_id=e3196de1&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">'
+        );
       });
 
       it('should support array events', function() {
         twitter.options.events = [{ key: 'event', value: 12 }];
         analytics.track('event');
-        analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=12&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">');
+        analytics.loaded(
+          '<img src="http://analytics.twitter.com/i/adsct?txn_id=12&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">'
+        );
       });
 
       it('should send revenue', function() {
         analytics.track('signup', { revenue: 10 });
-        analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=c36462a3&p_id=Twitter&tw_sale_amount=10&tw_order_quantity=0">');
+        analytics.loaded(
+          '<img src="http://analytics.twitter.com/i/adsct?txn_id=c36462a3&p_id=Twitter&tw_sale_amount=10&tw_order_quantity=0">'
+        );
       });
     });
   });
@@ -201,10 +214,12 @@ describe('Twitter Ads', function() {
               }
             ]
           });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=adsf7as8&p_id=Twitter&tw_sale_amount=25&tw_order_quantity=1">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=adsf7as8&p_id=Twitter&tw_sale_amount=25&tw_order_quantity=1">'
+          );
         });
 
-        it('should send quantity as sum of all product\'s quantities', function() {
+        it("should send quantity as sum of all product's quantities", function() {
           analytics.track('Order Completed', {
             orderId: '50314b8e9bcf000000000000',
             total: 30,
@@ -234,7 +249,9 @@ describe('Twitter Ads', function() {
               }
             ]
           });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=adsf7as8&p_id=Twitter&tw_sale_amount=25&tw_order_quantity=3">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=adsf7as8&p_id=Twitter&tw_sale_amount=25&tw_order_quantity=3">'
+          );
         });
       });
 
@@ -305,7 +322,10 @@ describe('Twitter Ads', function() {
           analytics.called(window.twq, 'track', 'Purchase', {
             value: '25.00',
             currency: 'USD',
-            content_ids: ['505bd76785ebb509fc183733', '507f1f77bcf86cd799439011'],
+            content_ids: [
+              '505bd76785ebb509fc183733',
+              '507f1f77bcf86cd799439011'
+            ],
             content_type: 'product',
             content_name: 'Monopoly: 3rd Edition, Uno Card Game',
             num_items: '3',
@@ -401,7 +421,9 @@ describe('Twitter Ads', function() {
             position: 3,
             value: 18.99
           });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=asodn281&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=1">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=asodn281&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=1">'
+          );
         });
       });
 
@@ -518,7 +540,9 @@ describe('Twitter Ads', function() {
             coupon: 'MAYDEALS',
             position: 3
           });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=idbdn291&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=2">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=idbdn291&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=2">'
+          );
         });
       });
 
@@ -595,14 +619,20 @@ describe('Twitter Ads', function() {
     describe('#productsSearched', function() {
       describe('#legacy', function() {
         it('should fire single website event tag', function() {
-          analytics.track('Products Searched', { query: 'Where are my pants?' });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=bbnmz010&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">');
+          analytics.track('Products Searched', {
+            query: 'Where are my pants?'
+          });
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=bbnmz010&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">'
+          );
         });
       });
 
       describe('#uWT', function() {
         it('should send Search tag', function() {
-          analytics.track('Products Searched', { query: 'Where are my pants?' });
+          analytics.track('Products Searched', {
+            query: 'Where are my pants?'
+          });
           analytics.called(window.twq, 'track', 'Search', {});
         });
       });
@@ -625,7 +655,9 @@ describe('Twitter Ads', function() {
             coupon: 'MAYDEALS',
             position: 3
           });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=zasnd888&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=1">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=zasnd888&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=1">'
+          );
         });
       });
 
@@ -732,7 +764,9 @@ describe('Twitter Ads', function() {
               }
             ]
           });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=mzzns123&p_id=Twitter&tw_sale_amount=25&tw_order_quantity=3">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=mzzns123&p_id=Twitter&tw_sale_amount=25&tw_order_quantity=3">'
+          );
         });
       });
 
@@ -767,7 +801,10 @@ describe('Twitter Ads', function() {
             ]
           });
           analytics.called(window.twq, 'track', 'InitiateCheckout', {
-            content_ids: ['505bd76785ebb509fc183733', '507f1f77bcf86cd799439011'],
+            content_ids: [
+              '505bd76785ebb509fc183733',
+              '507f1f77bcf86cd799439011'
+            ],
             content_name: 'Monopoly: 3rd Edition, Uno Card Game',
             content_category: 'Games, Games'
           });
@@ -841,7 +878,10 @@ describe('Twitter Ads', function() {
             status: 'in progress'
           });
           analytics.called(window.twq, 'track', 'InitiateCheckout', {
-            content_ids: ['505bd76785ebb509fc183733', '507f1f77bcf86cd799439011'],
+            content_ids: [
+              '505bd76785ebb509fc183733',
+              '507f1f77bcf86cd799439011'
+            ],
             content_name: 'Monopoly: 3rd Edition, Uno Card Game',
             content_category: 'Games, Games',
             status: 'in progress'
@@ -860,7 +900,9 @@ describe('Twitter Ads', function() {
             shipping_method: 'FedEx',
             payment_method: 'Credit Card'
           });
-          analytics.loaded('<img src="http://analytics.twitter.com/i/adsct?txn_id=alsnx120&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">');
+          analytics.loaded(
+            '<img src="http://analytics.twitter.com/i/adsct?txn_id=alsnx120&p_id=Twitter&tw_sale_amount=0&tw_order_quantity=0">'
+          );
         });
       });
 
@@ -885,7 +927,9 @@ describe('Twitter Ads', function() {
             payment_method: 'Credit Card',
             status: 'paid'
           });
-          analytics.called(window.twq, 'track', 'AddPaymentInfo', { status: 'paid' });
+          analytics.called(window.twq, 'track', 'AddPaymentInfo', {
+            status: 'paid'
+          });
         });
       });
     });

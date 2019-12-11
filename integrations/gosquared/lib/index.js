@@ -15,7 +15,7 @@ var pick = require('pick');
  * Expose `GoSquared` integration.
  */
 
-var GoSquared = module.exports = integration('GoSquared')
+var GoSquared = (module.exports = integration('GoSquared')
   .assumesPageview()
   .global('_gs')
   .option('anonymizeIP', false)
@@ -25,7 +25,7 @@ var GoSquared = module.exports = integration('GoSquared')
   .option('trackLocal', false)
   .option('trackParams', true)
   .option('useCookies', true)
-  .tag('<script src="//d1l6p2sc9645hc.cloudfront.net/tracker.js">');
+  .tag('<script src="//d1l6p2sc9645hc.cloudfront.net/tracker.js">'));
 
 /**
  * Initialize.
@@ -48,10 +48,12 @@ GoSquared.prototype.initialize = function() {
     push('set', name, value);
   });
 
-  self.identify(new Identify({
-    traits: user.traits(),
-    userId: user.id()
-  }));
+  self.identify(
+    new Identify({
+      traits: user.traits(),
+      userId: user.id()
+    })
+  );
 
   self.load(this.ready);
 };
@@ -168,10 +170,15 @@ GoSquared.prototype.orderCompleted = function(track) {
     });
   });
 
-  push('transaction', track.orderId(), {
-    revenue: track.total(),
-    track: true
-  }, items);
+  push(
+    'transaction',
+    track.orderId(),
+    {
+      revenue: track.total(),
+      track: true
+    },
+    items
+  );
 };
 
 /**
@@ -182,9 +189,11 @@ GoSquared.prototype.orderCompleted = function(track) {
  */
 
 function push() {
-  window._gs = window._gs || function() {
-    window._gs.q.push(arguments);
-  };
+  window._gs =
+    window._gs ||
+    function() {
+      window._gs.q.push(arguments);
+    };
   window._gs.q = window._gs.q || [];
   window._gs.apply(null, arguments);
 }

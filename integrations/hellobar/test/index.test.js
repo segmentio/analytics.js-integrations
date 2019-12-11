@@ -33,9 +33,12 @@ describe('Hellobar', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Hellobar, integration('Hello Bar')
-      .assumesPageview()
-      .option('apiKey', ''));
+    analytics.compare(
+      Hellobar,
+      integration('Hello Bar')
+        .assumesPageview()
+        .option('apiKey', '')
+    );
   });
 
   describe('before loading', function() {

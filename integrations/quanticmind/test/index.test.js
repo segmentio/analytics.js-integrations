@@ -34,10 +34,13 @@ describe('QuanticMind', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(QuanticMind, integration('QuanticMind')
-      .global('_iva')
-      .option('clientId', '')
-      .option('domain', ''));
+    analytics.compare(
+      QuanticMind,
+      integration('QuanticMind')
+        .global('_iva')
+        .option('clientId', '')
+        .option('domain', '')
+    );
   });
 
   describe('before loading', function() {
@@ -58,7 +61,10 @@ describe('QuanticMind', function() {
         analytics.stub(window._iva, 'push');
         analytics.initialize();
         analytics.page();
-        analytics.called(window._iva.push, ['setClientId', quanticMind.options.clientId]);
+        analytics.called(window._iva.push, [
+          'setClientId',
+          quanticMind.options.clientId
+        ]);
       });
 
       it('should pass in userId', function() {
@@ -75,7 +81,10 @@ describe('QuanticMind', function() {
         analytics.stub(window._iva, 'push');
         analytics.initialize();
         analytics.page();
-        analytics.called(window._iva.push, ['setDomain', quanticMind.options.domain]);
+        analytics.called(window._iva.push, [
+          'setDomain',
+          quanticMind.options.domain
+        ]);
       });
 
       it('should not pass in domain if blank', function() {
@@ -84,7 +93,10 @@ describe('QuanticMind', function() {
         analytics.stub(window._iva, 'push');
         analytics.initialize();
         analytics.page();
-        analytics.didNotCall(window._iva.push, ['setDomain', quanticMind.options.domain]);
+        analytics.didNotCall(window._iva.push, [
+          'setDomain',
+          quanticMind.options.domain
+        ]);
       });
     });
   });
@@ -127,24 +139,47 @@ describe('QuanticMind', function() {
       it('should track an event with revenue', function() {
         analytics.user().anonymousId('id');
         analytics.track('completed order', { revenue: '0.75' });
-        analytics.called(window._iva.push, ['trackEvent', 'event2', 0.75, 'id']);
+        analytics.called(window._iva.push, [
+          'trackEvent',
+          'event2',
+          0.75,
+          'id'
+        ]);
       });
 
       it('should track an event with value', function() {
         analytics.user().anonymousId('id');
         analytics.track('completed order', { value: 1.23 });
-        analytics.called(window._iva.push, ['trackEvent', 'event2', 1.23, 'id']);
+        analytics.called(window._iva.push, [
+          'trackEvent',
+          'event2',
+          1.23,
+          'id'
+        ]);
       });
 
       it('should track an event with revenue and order id', function() {
-        analytics.track('completed order', { revenue: '89.7', orderId: 'abc123' });
-        analytics.called(window._iva.push, ['trackEvent', 'event2', 89.7, 'abc123']);
+        analytics.track('completed order', {
+          revenue: '89.7',
+          orderId: 'abc123'
+        });
+        analytics.called(window._iva.push, [
+          'trackEvent',
+          'event2',
+          89.7,
+          'abc123'
+        ]);
       });
 
       it('should track an event with userId and orderId, using orderId', function() {
         analytics.user().anonymousId('id');
         analytics.track('completed order', { orderId: 'abc123' });
-        analytics.called(window._iva.push, ['trackEvent', 'event2', 0, 'abc123']);
+        analytics.called(window._iva.push, [
+          'trackEvent',
+          'event2',
+          0,
+          'abc123'
+        ]);
       });
 
       it('should fall back to userId if no orderId', function() {

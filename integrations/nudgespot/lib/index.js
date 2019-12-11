@@ -11,11 +11,11 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Nudgespot` integration.
  */
 
-var Nudgespot = module.exports = integration('Nudgespot')
+var Nudgespot = (module.exports = integration('Nudgespot')
   .assumesPageview()
   .global('nudgespot')
   .option('clientApiKey', '')
-  .tag('<script id="nudgespot" src="//cdn.nudgespot.com/nudgespot.js">');
+  .tag('<script id="nudgespot" src="//cdn.nudgespot.com/nudgespot.js">'));
 
 /**
  * Initialize Nudgespot.

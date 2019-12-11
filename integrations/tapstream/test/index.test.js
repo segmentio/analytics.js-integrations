@@ -29,12 +29,15 @@ describe('Tapstream', function() {
   });
 
   it('should store the right settings', function() {
-    analytics.compare(Tapstream, integration('Tapstream')
-      .assumesPageview()
-      .global('_tsq')
-      .option('accountName', '')
-      .option('trackAllPages', true)
-      .option('trackNamedPages', true));
+    analytics.compare(
+      Tapstream,
+      integration('Tapstream')
+        .assumesPageview()
+        .global('_tsq')
+        .option('accountName', '')
+        .option('trackAllPages', true)
+        .option('trackNamedPages', true)
+    );
   });
 
   describe('before loading', function() {
@@ -46,7 +49,10 @@ describe('Tapstream', function() {
       it('should push setAccount name onto window._tsq', function() {
         analytics.initialize();
         analytics.page();
-        analytics.deepEqual(window._tsq[0], ['setAccountName', options.accountName]);
+        analytics.deepEqual(window._tsq[0], [
+          'setAccountName',
+          options.accountName
+        ]);
       });
 
       it('should call #load', function() {
@@ -77,22 +83,62 @@ describe('Tapstream', function() {
 
       it('should track all pages by default', function() {
         analytics.page();
-        analytics.called(window._tsq.push, ['fireHit', 'loaded-a-page', [window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname]]);
+        analytics.called(window._tsq.push, [
+          'fireHit',
+          'loaded-a-page',
+          [
+            window.location.protocol +
+              '//' +
+              window.location.hostname +
+              (window.location.port ? ':' + window.location.port : '') +
+              window.location.pathname
+          ]
+        ]);
       });
 
       it('should track named pages by default', function() {
         analytics.page('Name');
-        analytics.called(window._tsq.push, ['fireHit', 'viewed-name-page', [window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname]]);
+        analytics.called(window._tsq.push, [
+          'fireHit',
+          'viewed-name-page',
+          [
+            window.location.protocol +
+              '//' +
+              window.location.hostname +
+              (window.location.port ? ':' + window.location.port : '') +
+              window.location.pathname
+          ]
+        ]);
       });
 
       it('should track named pages with a category', function() {
         analytics.page('Category', 'Name');
-        analytics.called(window._tsq.push, ['fireHit', 'viewed-category-name-page', [window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname]]);
+        analytics.called(window._tsq.push, [
+          'fireHit',
+          'viewed-category-name-page',
+          [
+            window.location.protocol +
+              '//' +
+              window.location.hostname +
+              (window.location.port ? ':' + window.location.port : '') +
+              window.location.pathname
+          ]
+        ]);
       });
 
       it('should track categorized pages by default', function() {
         analytics.page('Category', 'Name');
-        analytics.called(window._tsq.push, ['fireHit', 'viewed-category-page', [window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname]]);
+        analytics.called(window._tsq.push, [
+          'fireHit',
+          'viewed-category-page',
+          [
+            window.location.protocol +
+              '//' +
+              window.location.hostname +
+              (window.location.port ? ':' + window.location.port : '') +
+              window.location.pathname
+          ]
+        ]);
       });
 
       it('should not track any pages if the options are off', function() {

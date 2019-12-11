@@ -12,12 +12,12 @@ var push = require('global-queue')('_iva');
  * Expose `QuanticMind` integration.
  */
 
-var QuanticMind = module.exports = integration('QuanticMind')
+var QuanticMind = (module.exports = integration('QuanticMind')
   .global('_iva')
   .option('clientId', '')
   .option('domain', '')
   .tag('<script src="//analytics.staticiv.com/iva.js">')
-  .mapping('events');
+  .mapping('events'));
 
 /**
  * Initialize.

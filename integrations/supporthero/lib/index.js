@@ -10,12 +10,14 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `SupportHero` integration.
  */
 
-var SupportHero = module.exports = integration('SupportHero')
+var SupportHero = (module.exports = integration('SupportHero')
   .assumesPageview()
   .global('supportHeroWidget')
   .option('token', '')
   .option('track', false)
-  .tag('<script src="https://d29l98y0pmei9d.cloudfront.net/js/widget.min.js?k={{ token }}">');
+  .tag(
+    '<script src="https://d29l98y0pmei9d.cloudfront.net/js/widget.min.js?k={{ token }}">'
+  ));
 
 /**
  * Initialize Support Hero.
@@ -25,8 +27,10 @@ var SupportHero = module.exports = integration('SupportHero')
 
 SupportHero.prototype.initialize = function() {
   window.supportHeroWidget = {};
-  window.supportHeroWidget.setUserId = window.supportHeroWidget.setUserId || function() {};
-  window.supportHeroWidget.setUserTraits = window.supportHeroWidget.setUserTraits || function() {};
+  window.supportHeroWidget.setUserId =
+    window.supportHeroWidget.setUserId || function() {};
+  window.supportHeroWidget.setUserTraits =
+    window.supportHeroWidget.setUserTraits || function() {};
   this.load(this.ready);
 };
 

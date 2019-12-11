@@ -15,17 +15,41 @@ var sha256 = require('js-sha256');
  * Expose `Nanigans`.
  */
 
-var Nanigans = module.exports = integration('Nanigans')
+var Nanigans = (module.exports = integration('Nanigans')
   .option('appId', '')
   .option('events', {})
-  .tag('page', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=visit&name=landing">')
-  .tag('track', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}">')
-  .tag('track_no_user_id', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&ut1={{ ut1 }}">')
-  .tag('product', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=purchase&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}&sku={{ sku }}">')
-  .tag('add_to_cart', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=user&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}&{{ products }}">')
-  .tag('add_to_cart_no_user_id', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=user&name={{ name }}&ut1={{ ut1 }}&{{ products }}">')
-  .tag('purchase', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}&unique={{ orderId }}&{{ products }}">')
-  .tag('purchase_no_user_id', '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&ut1={{ ut1 }}&unique={{ orderId }}&{{ products }}">');
+  .tag(
+    'page',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=visit&name=landing">'
+  )
+  .tag(
+    'track',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}">'
+  )
+  .tag(
+    'track_no_user_id',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&ut1={{ ut1 }}">'
+  )
+  .tag(
+    'product',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=purchase&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}&sku={{ sku }}">'
+  )
+  .tag(
+    'add_to_cart',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=user&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}&{{ products }}">'
+  )
+  .tag(
+    'add_to_cart_no_user_id',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type=user&name={{ name }}&ut1={{ ut1 }}&{{ products }}">'
+  )
+  .tag(
+    'purchase',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&user_id={{ userId }}&ut1={{ ut1 }}&unique={{ orderId }}&{{ products }}">'
+  )
+  .tag(
+    'purchase_no_user_id',
+    '<img src="//api.nanigans.com/event.php?app_id={{ appId }}&type={{ type }}&name={{ name }}&ut1={{ ut1 }}&unique={{ orderId }}&{{ products }}">'
+  ));
 
 /**
  * Initialize.
@@ -110,34 +134,50 @@ Nanigans.prototype.track = function(track) {
     if (data.user_id) params.userId = data.user_id;
 
     switch (event.type) {
-    case 'purchase':
-      params.orderId = data.unique;
-      params.products.qty = data.qty;
-      params.products.value = data.value;
-      params.products.sku = data.sku;
-      params.products = qs.stringify(params.products);
-      params.userId ? this.load('purchase', params) : this.load('purchase_no_user_id', params);
-      break;
-    case 'user':
-      switch (event.name) {
-      case 'product':
-        params.sku = data.sku;
-        break;
-      case 'add_to_cart':
+      case 'purchase':
+        params.orderId = data.unique;
         params.products.qty = data.qty;
         params.products.value = data.value;
         params.products.sku = data.sku;
         params.products = qs.stringify(params.products);
-        params.userId ? this.load('add_to_cart', params) : this.load('add_to_cart_no_user_id', params);
+        if (params.userId) {
+          this.load('purchase', params);
+        } else {
+          this.load('purchase_no_user_id', params);
+        }
+        break;
+      case 'user':
+        switch (event.name) {
+          case 'product':
+            params.sku = data.sku;
+            break;
+          case 'add_to_cart':
+            params.products.qty = data.qty;
+            params.products.value = data.value;
+            params.products.sku = data.sku;
+            params.products = qs.stringify(params.products);
+            if (params.userId) {
+              this.load('add_to_cart', params);
+            } else {
+              this.load('add_to_cart_no_user_id', params);
+            }
+            break;
+          default:
+            if (params.userId) {
+              this.load('track', params);
+            } else {
+              this.load('track_no_user_id', params);
+            }
+            break;
+        }
         break;
       default:
-        params.userId ? this.load('track', params) : this.load('track_no_user_id', params);
+        if (params.userId) {
+          this.load('track', params);
+        } else {
+          this.load('track_no_user_id', params);
+        }
         break;
-      }
-      break;
-    default:
-      params.userId ? this.load('track', params) : this.load('track_no_user_id', params);
-      break;
     }
   }
 };

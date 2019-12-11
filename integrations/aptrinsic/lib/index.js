@@ -11,10 +11,12 @@ var integration = require('@segment/analytics.js-integration');
 /**
  * Expose `Aptrinsic` integration.
  */
-var Aptrinsic = module.exports = integration('Aptrinsic')
+var Aptrinsic = (module.exports = integration('Aptrinsic')
   .global('aptrinsic')
   .option('apiKey', '')
-  .tag('<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a={{ apiKey }}">');
+  .tag(
+    '<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a={{ apiKey }}">'
+  ));
 
 /**
  * Initialize.
@@ -23,14 +25,15 @@ var Aptrinsic = module.exports = integration('Aptrinsic')
  */
 Aptrinsic.prototype.initialize = function() {
   var apiKey = this.options.apiKey;
-  window.aptrinsic = window.aptrinsic || function() {
-    window.aptrinsic.q = window.aptrinsic.q || [];
-    window.aptrinsic.q.push(arguments);
-  };
+  window.aptrinsic =
+    window.aptrinsic ||
+    function() {
+      window.aptrinsic.q = window.aptrinsic.q || [];
+      window.aptrinsic.q.push(arguments);
+    };
   window.aptrinsic.p = apiKey;
   this.load(this.ready);
 };
-
 
 /**
  * The context for this integration.
@@ -57,7 +60,7 @@ Aptrinsic.prototype.loaded = function() {
  * @param {Facade} identify
  */
 Aptrinsic.prototype.identify = function(identify) {
-  var group = this.analytics.group();  // Current group in segment.analytics
+  var group = this.analytics.group(); // Current group in segment.analytics
   var identifyGroup = new Group({
     groupId: group.id(),
     traits: group.traits()
@@ -86,7 +89,12 @@ Aptrinsic.prototype.group = function(group) {
  * @param {Facade} track
  */
 Aptrinsic.prototype.track = function(track) {
-  window.aptrinsic('event', track.event(), track.properties(), integrationContext);
+  window.aptrinsic(
+    'event',
+    track.event(),
+    track.properties(),
+    integrationContext
+  );
 };
 
 function _identify(user, group) {

@@ -29,10 +29,13 @@ describe('WebEngage', function() {
   });
 
   it('should store the correct settings', function() {
-    analytics.compare(WebEngage, integration('WebEngage')
-      .readyOnInitialize()
-      .global('webengage')
-      .option('licenseCode', ''));
+    analytics.compare(
+      WebEngage,
+      integration('WebEngage')
+        .readyOnInitialize()
+        .global('webengage')
+        .option('licenseCode', '')
+    );
   });
 
   describe('before loading', function() {
@@ -118,12 +121,14 @@ describe('WebEngage', function() {
 
       it('should pass page name and properties (some overridden) via screen', function() {
         analytics.page('Arbitrary category', 'Name', {
-          title: 'Multi-channel User Engagement & Marketing Automation Platform - WebEngage',
+          title:
+            'Multi-channel User Engagement & Marketing Automation Platform - WebEngage',
           url: 'https://webengage.com',
           custom: 'Custom property'
         });
         analytics.called(window.webengage.screen, 'Name', {
-          title: 'Multi-channel User Engagement & Marketing Automation Platform - WebEngage',
+          title:
+            'Multi-channel User Engagement & Marketing Automation Platform - WebEngage',
           url: 'https://webengage.com',
           name: 'Name',
           path: window.location.pathname,

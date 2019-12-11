@@ -10,11 +10,11 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `HitTail` integration.
  */
 
-var HitTail = module.exports = integration('HitTail')
+var HitTail = (module.exports = integration('HitTail')
   .assumesPageview()
   .global('htk')
   .option('siteId', '')
-  .tag('<script src="//{{ siteId }}.hittail.com/mlt.js">');
+  .tag('<script src="//{{ siteId }}.hittail.com/mlt.js">'));
 
 /**
  * Initialize.
@@ -43,5 +43,8 @@ HitTail.prototype.loaded = function() {
 
 function isFunction(functionToCheck) {
   var getType = {};
-  return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+  return (
+    functionToCheck &&
+    getType.toString.call(functionToCheck) === '[object Function]'
+  );
 }

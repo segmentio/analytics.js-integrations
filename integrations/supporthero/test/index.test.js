@@ -29,11 +29,14 @@ describe('SupportHero', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(SupportHero, integration('SupportHero')
-      .assumesPageview()
-      .global('supportHeroWidget')
-      .option('token', '')
-      .option('track', false));
+    analytics.compare(
+      SupportHero,
+      integration('SupportHero')
+        .assumesPageview()
+        .global('supportHeroWidget')
+        .option('token', '')
+        .option('track', false)
+    );
   });
 
   describe('before loading', function() {
@@ -92,7 +95,9 @@ describe('SupportHero', function() {
 
       it('should send traits', function() {
         analytics.identify({ trait: true });
-        analytics.called(window.supportHeroWidget.setUserTraits, { trait: true });
+        analytics.called(window.supportHeroWidget.setUserTraits, {
+          trait: true
+        });
       });
     });
 
@@ -105,7 +110,10 @@ describe('SupportHero', function() {
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
         analytics.called(window.supportHeroWidget.setUserId, 'id');
-        analytics.called(window.supportHeroWidget.setUserTraits, { trait: true, id: 'id' });
+        analytics.called(window.supportHeroWidget.setUserTraits, {
+          trait: true,
+          id: 'id'
+        });
       });
     });
   });

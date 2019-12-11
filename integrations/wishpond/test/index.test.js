@@ -34,10 +34,13 @@ describe('Wishpond', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Wishpond, integration('Wishpond')
-      .global('Wishpond')
-      .option('siteId', '')
-      .option('apiKey', ''));
+    analytics.compare(
+      Wishpond,
+      integration('Wishpond')
+        .global('Wishpond')
+        .option('siteId', '')
+        .option('apiKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -87,8 +90,15 @@ describe('Wishpond', function() {
       });
 
       it('should send an id and traits', function() {
-        analytics.identify('id', { trait: true, email: 'blackwidow@shield.gov' });
-        analytics.called(window.Wishpond.Tracker.identify, 'id', { id: 'id', trait: true, email: 'blackwidow@shield.gov' });
+        analytics.identify('id', {
+          trait: true,
+          email: 'blackwidow@shield.gov'
+        });
+        analytics.called(window.Wishpond.Tracker.identify, 'id', {
+          id: 'id',
+          trait: true,
+          email: 'blackwidow@shield.gov'
+        });
       });
 
       it('should alias createdAt to created_at', function() {
@@ -167,7 +177,9 @@ describe('Wishpond', function() {
 
       it('should send an event and properties', function() {
         analytics.track('event', { property: true });
-        analytics.called(window.Wishpond.Tracker.track, 'event', { property: true });
+        analytics.called(window.Wishpond.Tracker.track, 'event', {
+          property: true
+        });
       });
     });
   });

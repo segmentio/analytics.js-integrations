@@ -30,11 +30,14 @@ describe('Kenshoo', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Kenshoo, integration('Kenshoo')
-      .global('k_trackevent')
-      .option('cid', '')
-      .option('events', [])
-      .option('subdomain', ''));
+    analytics.compare(
+      Kenshoo,
+      integration('Kenshoo')
+        .global('k_trackevent')
+        .option('cid', '')
+        .option('events', [])
+        .option('subdomain', '')
+    );
   });
 
   describe('before loading', function() {
@@ -78,17 +81,21 @@ describe('Kenshoo', function() {
           currency: 'EUR'
         });
 
-        analytics.called(window.k_trackevent, [
-          'id=' + options.cid,
-          'type=conv',
-          'val=42',
-          'orderId=84',
-          'promoCode=promo',
-          'valueCurrency=EUR',
-          'GCID=',
-          'kw=',
-          'product='
-        ], options.subdomain);
+        analytics.called(
+          window.k_trackevent,
+          [
+            'id=' + options.cid,
+            'type=conv',
+            'val=42',
+            'orderId=84',
+            'promoCode=promo',
+            'valueCurrency=EUR',
+            'GCID=',
+            'kw=',
+            'product='
+          ],
+          options.subdomain
+        );
       });
 
       it('should not track undefined events', function() {

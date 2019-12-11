@@ -29,10 +29,13 @@ describe('FoxMetrics', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(FoxMetrics, integration('FoxMetrics')
-      .assumesPageview()
-      .global('_fxm')
-      .option('appId', ''));
+    analytics.compare(
+      FoxMetrics,
+      integration('FoxMetrics')
+        .assumesPageview()
+        .global('_fxm')
+        .option('appId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -74,7 +77,11 @@ describe('FoxMetrics', function() {
           document.title,
           undefined,
           undefined,
-          window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname,
+          window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname,
           document.referrer
         ]);
       });
@@ -176,11 +183,7 @@ describe('FoxMetrics', function() {
 
       it('should send an event', function() {
         analytics.track('event');
-        analytics.called(window._fxm.push, [
-          'event',
-          undefined,
-          {}
-        ]);
+        analytics.called(window._fxm.push, ['event', undefined, {}]);
       });
 
       it('should send an event and properties', function() {
@@ -209,7 +212,11 @@ describe('FoxMetrics', function() {
           document.title,
           'category',
           null,
-          window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + window.location.pathname,
+          window.location.protocol +
+            '//' +
+            window.location.hostname +
+            (window.location.port ? ':' + window.location.port : '') +
+            window.location.pathname,
           document.referrer
         ]);
       });
@@ -272,14 +279,16 @@ describe('FoxMetrics', function() {
           total: 300,
           tax: 10,
           shipping: 20,
-          products: [{
-            product_id: 'charlie',
-            sku: 'd370b4cd',
-            name: 'sony pulse',
-            category: 'tech',
-            price: 270,
-            quantity: 1
-          }]
+          products: [
+            {
+              product_id: 'charlie',
+              sku: 'd370b4cd',
+              name: 'sony pulse',
+              category: 'tech',
+              price: 270,
+              quantity: 1
+            }
+          ]
         });
 
         analytics.deepEqual(window._fxm.push.args[0][0], [

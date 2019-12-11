@@ -10,10 +10,10 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `hellobar.com` integration.
  */
 
-var Hellobar = module.exports = integration('Hello Bar')
+var Hellobar = (module.exports = integration('Hello Bar')
   .assumesPageview()
   .option('apiKey', '')
-  .tag('<script src="//my.hellobar.com/{{ apiKey }}.js">');
+  .tag('<script src="//my.hellobar.com/{{ apiKey }}.js">'));
 
 /**
  * Initialize.

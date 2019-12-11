@@ -29,10 +29,13 @@ describe('Get Satisfaction', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(GetSatisfaction, integration('Get Satisfaction')
-      .assumesPageview()
-      .global('GSFN')
-      .option('widgetId', ''));
+    analytics.compare(
+      GetSatisfaction,
+      integration('Get Satisfaction')
+        .assumesPageview()
+        .global('GSFN')
+        .option('widgetId', '')
+    );
   });
 
   describe('before loading', function() {
@@ -44,7 +47,9 @@ describe('Get Satisfaction', function() {
       it('should add the get satisfaction widget to the dom', function() {
         analytics.initialize();
         analytics.page();
-        analytics.assert(document.getElementById('getsat-widget-' + options.widgetId));
+        analytics.assert(
+          document.getElementById('getsat-widget-' + options.widgetId)
+        );
       });
     });
   });

@@ -8,10 +8,10 @@ var when = require('do-when');
  * Expose `Wigzo` integration
  */
 
-var Wigzo = module.exports = integration('Wigzo')
+var Wigzo = (module.exports = integration('Wigzo')
   .global('wigzo')
   .option('orgToken', '')
-  .tag('tracker', '<script src="https://app.wigzo.com/wigzo.compressed.js">');
+  .tag('tracker', '<script src="https://app.wigzo.com/wigzo.compressed.js">'));
 
 /**
  * Initialize Wigzo
@@ -33,7 +33,7 @@ Wigzo.prototype.initialize = function() {
 
   window.wigzo.integrationSource = 'Segment';
   window.wigzo('configure', orgToken);
-  
+
   this.load('tracker', function() {
     // make sure necessary functions and objects exist
     when(self.loaded, self.ready);
@@ -61,7 +61,6 @@ Wigzo.prototype.productAdded = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('addtocart', productId);
 };
-
 
 /**
  * Wishlist Product Added to Cart
@@ -109,7 +108,6 @@ Wigzo.prototype.productAddedToWishlist = function(track) {
   if (productId) window.wigzo.track('wishlist', productId);
 };
 
-
 /**
  * Checkout Started
  *
@@ -124,7 +122,8 @@ Wigzo.prototype.checkoutStarted = function(track) {
     addedProductIds.push(item.product_id || item.productId);
   }
 
-  if (addedProductIds.length) window.wigzo.track('checkoutstarted', addedProductIds);
+  if (addedProductIds.length)
+    window.wigzo.track('checkoutstarted', addedProductIds);
 };
 
 /**
@@ -161,7 +160,7 @@ Wigzo.prototype.productReviewed = function(track) {
 Wigzo.prototype.productClicked = function(track) {
   var options = track.options(this.name);
   var traits = reject({
-    productId : track.productId(),
+    productId: track.productId(),
     title: track.name(),
     price: track.currency() + ' ' + track.price(),
     category: track.category(),
@@ -169,7 +168,7 @@ Wigzo.prototype.productClicked = function(track) {
     /* custom props */
     image: options.imageUrl,
     description: options.description,
-    language:options.language
+    language: options.language
   });
   window.wigzo.index(traits);
 };
@@ -182,7 +181,7 @@ Wigzo.prototype.productClicked = function(track) {
 Wigzo.prototype.productViewed = function(track) {
   var options = track.options(this.name);
   var traits = reject({
-    productId : track.productId(),
+    productId: track.productId(),
     title: track.name(),
     price: track.currency() + ' ' + track.price(),
     category: track.category(),
@@ -190,7 +189,7 @@ Wigzo.prototype.productViewed = function(track) {
     /* custom props */
     image: options.imageUrl,
     description: options.description,
-    language:options.language
+    language: options.language
   });
   window.wigzo.index(traits);
 };
@@ -236,5 +235,5 @@ Wigzo.prototype.page = function(page) {
     canonicalUrl: page.url(),
     title: page.name()
   });
-  window.wigzo.track('view',pageData);
+  window.wigzo.track('view', pageData);
 };

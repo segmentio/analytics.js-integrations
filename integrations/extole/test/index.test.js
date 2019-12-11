@@ -47,10 +47,13 @@ describe('Extole', function() {
   });
 
   it('should have the correct settings', function() {
-    analytics.compare(Extole, integration('Extole')
-      .global('extole')
-      .option('clientId', '')
-      .mapping('events'));
+    analytics.compare(
+      Extole,
+      integration('Extole')
+        .global('extole')
+        .option('clientId', '')
+        .mapping('events')
+    );
   });
 
   describe('before loading', function() {
@@ -119,19 +122,21 @@ describe('Extole', function() {
     });
 
     describe('data mapper', function() {
-      it('should convert `purchase` events to Extole\'s format', function() {
+      it("should convert `purchase` events to Extole's format", function() {
         var userId = 12345;
         var email = 'name@example.com';
         var event = 'Completed Order';
         var data = {
           orderId: 12345,
           total: 1.95,
-          products: [{
-            sku: 'fakesku',
-            quantity: 1,
-            price: 1.95,
-            name: 'fake-product'
-          }]
+          products: [
+            {
+              sku: 'fakesku',
+              quantity: 1,
+              price: 1.95,
+              name: 'fake-product'
+            }
+          ]
         };
         var expected = {
           'tag:cart_value': 1.95,
@@ -139,15 +144,20 @@ describe('Extole', function() {
           e: email,
           orderId: 12345,
           partner_conversion_id: userId,
-          products: [{
-            sku: 'fakesku',
-            quantity: 1,
-            price: 1.95,
-            name: 'fake-product'
-          }]
+          products: [
+            {
+              sku: 'fakesku',
+              quantity: 1,
+              price: 1.95,
+              name: 'fake-product'
+            }
+          ]
         };
 
-        analytics.deepEqual(extole._formatConversionParams(event, email, userId, data), expected);
+        analytics.deepEqual(
+          extole._formatConversionParams(event, email, userId, data),
+          expected
+        );
       });
     });
   });
@@ -159,18 +169,18 @@ describe('Extole', function() {
 
 function waitForWidgets(cb, attempts) {
   window.extole.require(['jquery'], function($) {
-    attempts = attempts || 70;
+    var attps = attempts || 70;
     if (
-      attempts < 2
-        || $('[id^="extole-advocate-widget"]')[0]
-        && $('[id^="easyXDM_cloudsponge"]')[0]
-        && $('#cs_container')[0]
-        && $('#cs_link')[0]
+      attps < 2 ||
+      ($('[id^="extole-advocate-widget"]')[0] &&
+        $('[id^="easyXDM_cloudsponge"]')[0] &&
+        $('#cs_container')[0] &&
+        $('#cs_link')[0])
     ) {
       window.setTimeout(cb, 200);
     } else {
       window.setTimeout(function() {
-        waitForWidgets(cb, attempts - 1);
+        waitForWidgets(cb, attps - 1);
       }, 100);
     }
   });
@@ -196,7 +206,8 @@ function messageListenerOff() {
 
 function xtlTearDown() {
   window.extole.require(['jquery'], function($) {
-    var xtlSelectors = '[id^="extole-"], [id^="easyXDM_cloudsponge"], div[class^="extole"], #cs_container, #cs_link, #wrapped, #footer, style, link[href="https://api.cloudsponge.com/javascripts/address_books/floatbox.css"], link[href^="https://media.extole.com/"]';
+    var xtlSelectors =
+      '[id^="extole-"], [id^="easyXDM_cloudsponge"], div[class^="extole"], #cs_container, #cs_link, #wrapped, #footer, style, link[href="https://api.cloudsponge.com/javascripts/address_books/floatbox.css"], link[href^="https://media.extole.com/"]';
     $(xtlSelectors).remove();
     delete window.cloudsponge;
     messageListenerOff();

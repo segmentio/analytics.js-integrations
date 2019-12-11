@@ -32,11 +32,14 @@ describe('Spinnakr', function() {
   });
 
   it('should store the right settings', function() {
-    analytics.compare(Spinnakr, integration('Spinnakr')
-      .assumesPageview()
-      .global('_spinnakr_site_id')
-      .global('_spinnakr')
-      .option('siteId', ''));
+    analytics.compare(
+      Spinnakr,
+      integration('Spinnakr')
+        .assumesPageview()
+        .global('_spinnakr_site_id')
+        .global('_spinnakr')
+        .option('siteId', '')
+    );
   });
 
   describe('before loading', function() {

@@ -10,7 +10,8 @@ describe('Userlike', function() {
   var userlike;
   var analytics;
   var options = {
-    secretKey: 'c3e839df9320d85ff590d07477c32cff837c02d7d4acaa18af91205800606b6c',
+    secretKey:
+      'c3e839df9320d85ff590d07477c32cff837c02d7d4acaa18af91205800606b6c',
     listen: true
   };
 
@@ -30,11 +31,14 @@ describe('Userlike', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Userlike, integration('Userlike')
-      .assumesPageview()
-      .global('userlikeConfig')
-      .global('userlikeData')
-      .option('secretKey', ''));
+    analytics.compare(
+      Userlike,
+      integration('Userlike')
+        .assumesPageview()
+        .global('userlikeConfig')
+        .global('userlikeData')
+        .option('secretKey', '')
+    );
   });
 
   describe('before loading', function() {

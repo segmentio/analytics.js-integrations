@@ -10,11 +10,11 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Wishpond` integration.
  */
 
-var Wishpond = module.exports = integration('Wishpond')
+var Wishpond = (module.exports = integration('Wishpond')
   .global('Wishpond')
   .option('siteId', '')
   .option('apiKey', '')
-  .tag('<script id="wishpond-tracker" src="//cdn.wishpond.net/connect.js">');
+  .tag('<script id="wishpond-tracker" src="//cdn.wishpond.net/connect.js">'));
 
 /**
  * Initialize.
@@ -62,14 +62,17 @@ Wishpond.prototype.loaded = function() {
 Wishpond.prototype.identify = function(identify) {
   if (!identify.userId()) return this.debug('user id required');
 
-  window.Wishpond.Tracker.identify(identify.userId(), identify.traits({
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    firstName: 'first_name',
-    lastName: 'last_name',
-    phoneNumber: 'phone_number',
-    leadScore: 'lead_score'
-  }));
+  window.Wishpond.Tracker.identify(
+    identify.userId(),
+    identify.traits({
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+      firstName: 'first_name',
+      lastName: 'last_name',
+      phoneNumber: 'phone_number',
+      leadScore: 'lead_score'
+    })
+  );
 };
 
 /**

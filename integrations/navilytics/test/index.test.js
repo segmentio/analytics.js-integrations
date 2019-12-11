@@ -31,11 +31,14 @@ describe('Navilytics', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Navilytics, integration('Navilytics')
-      .assumesPageview()
-      .global('__nls')
-      .option('memberId', '')
-      .option('projectId', ''));
+    analytics.compare(
+      Navilytics,
+      integration('Navilytics')
+        .assumesPageview()
+        .global('__nls')
+        .option('memberId', '')
+        .option('projectId', '')
+    );
   });
 
   describe('before loading', function() {

@@ -31,12 +31,15 @@ describe('BugHerd', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(BugHerd, integration('BugHerd')
-      .assumesPageview()
-      .global('BugHerdConfig')
-      .global('_bugHerd')
-      .option('apiKey', '')
-      .option('showFeedbackTab', true));
+    analytics.compare(
+      BugHerd,
+      integration('BugHerd')
+        .assumesPageview()
+        .global('BugHerdConfig')
+        .global('_bugHerd')
+        .option('apiKey', '')
+        .option('showFeedbackTab', true)
+    );
   });
 
   describe('before loading', function() {

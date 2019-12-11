@@ -11,13 +11,13 @@ var tick = require('next-tick');
  * Expose `BugHerd` integration.
  */
 
-var BugHerd = module.exports = integration('BugHerd')
+var BugHerd = (module.exports = integration('BugHerd')
   .assumesPageview()
   .global('BugHerdConfig')
   .global('_bugHerd')
   .option('apiKey', '')
   .option('showFeedbackTab', true)
-  .tag('<script src="//www.bugherd.com/sidebarv2.js?apikey={{ apiKey }}">');
+  .tag('<script src="//www.bugherd.com/sidebarv2.js?apikey={{ apiKey }}">'));
 
 /**
  * Initialize.

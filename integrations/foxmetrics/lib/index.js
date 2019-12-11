@@ -13,11 +13,13 @@ var push = require('global-queue')('_fxm');
  * Expose `FoxMetrics` integration.
  */
 
-var FoxMetrics = module.exports = integration('FoxMetrics')
+var FoxMetrics = (module.exports = integration('FoxMetrics')
   .assumesPageview()
   .global('_fxm')
   .option('appId', '')
-  .tag('<script src="//d35tca7vmefkrc.cloudfront.net/scripts/{{ appId }}.js">');
+  .tag(
+    '<script src="//d35tca7vmefkrc.cloudfront.net/scripts/{{ appId }}.js">'
+  ));
 
 /**
  * Initialize.
@@ -187,10 +189,13 @@ FoxMetrics.prototype.orderCompleted = function(track) {
  */
 
 function ecommerce(event, track, arr) {
-  push.apply(null, [
-    '_fxm.ecommerce.' + event,
-    track.productId() || track.id() || track.sku(),
-    track.name(),
-    track.category()
-  ].concat(arr || []));
+  push.apply(
+    null,
+    [
+      '_fxm.ecommerce.' + event,
+      track.productId() || track.id() || track.sku(),
+      track.name(),
+      track.category()
+    ].concat(arr || [])
+  );
 }

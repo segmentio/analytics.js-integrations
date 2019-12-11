@@ -10,10 +10,12 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Autosend` integration.
  */
 
-var Autosend = module.exports = integration('Autosend')
+var Autosend = (module.exports = integration('Autosend')
   .global('_autosend')
   .option('appKey', '')
-  .tag('<script id="asnd-tracker" src="https://d2zjxodm1cz8d6.cloudfront.net/js/v1/autosend.js" data-auth-key="{{ appKey }}">');
+  .tag(
+    '<script id="asnd-tracker" src="https://d2zjxodm1cz8d6.cloudfront.net/js/v1/autosend.js" data-auth-key="{{ appKey }}">'
+  ));
 
 /**
  * Initialize.

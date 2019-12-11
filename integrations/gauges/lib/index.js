@@ -11,11 +11,13 @@ var push = require('global-queue')('_gauges');
  * Expose `Gauges` integration.
  */
 
-var Gauges = module.exports = integration('Gauges')
+var Gauges = (module.exports = integration('Gauges')
   .assumesPageview()
   .global('_gauges')
   .option('siteId', '')
-  .tag('<script id="gauges-tracker" src="//secure.gaug.es/track.js" data-site-id="{{ siteId }}">');
+  .tag(
+    '<script id="gauges-tracker" src="//secure.gaug.es/track.js" data-site-id="{{ siteId }}">'
+  ));
 
 /**
  * Initialize Gauges.

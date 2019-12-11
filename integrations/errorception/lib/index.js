@@ -12,12 +12,12 @@ var push = require('global-queue')('_errs');
  * Expose `Errorception` integration.
  */
 
-var Errorception = module.exports = integration('Errorception')
+var Errorception = (module.exports = integration('Errorception')
   .assumesPageview()
   .global('_errs')
   .option('projectId', '')
   .option('meta', true)
-  .tag('<script src="//beacon.errorception.com/{{ projectId }}.js">');
+  .tag('<script src="//beacon.errorception.com/{{ projectId }}.js">'));
 
 /**
  * Initialize.

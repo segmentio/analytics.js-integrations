@@ -1,8 +1,8 @@
 'use strict';
 
 /**
-* Module dependencies.
-*/
+ * Module dependencies.
+ */
 
 var domify = require('domify');
 var each = require('@ndhoule/each');
@@ -11,21 +11,21 @@ var integration = require('@segment/analytics.js-integration');
 var json = require('json3');
 
 /**
-* Expose `Extole` integration.
-*/
+ * Expose `Extole` integration.
+ */
 
-var Extole = module.exports = integration('Extole')
+var Extole = (module.exports = integration('Extole')
   .global('extole')
   .option('clientId', '')
   .mapping('events')
-  .tag('main', '<script src="//tags.extole.com/{{ clientId }}/core.js">');
+  .tag('main', '<script src="//tags.extole.com/{{ clientId }}/core.js">'));
 
 /**
-* Initialize.
-*
-* @api public
-* @param {Object} page
-*/
+ * Initialize.
+ *
+ * @api public
+ * @param {Object} page
+ */
 
 Extole.prototype.initialize = function() {
   if (this.loaded()) return this.ready();
@@ -33,22 +33,22 @@ Extole.prototype.initialize = function() {
 };
 
 /**
-* Loaded?
-*
-* @api private
-* @return {boolean}
-*/
+ * Loaded?
+ *
+ * @api private
+ * @return {boolean}
+ */
 
 Extole.prototype.loaded = function() {
   return !!window.extole;
 };
 
 /**
-* Track.
-*
-* @api public
-* @param {Track} track
-*/
+ * Track.
+ *
+ * @api public
+ * @param {Track} track
+ */
 
 Extole.prototype.track = function(track) {
   var user = this.analytics.user();
@@ -69,10 +69,17 @@ Extole.prototype.track = function(track) {
   }
 
   each(function(extoleEvent) {
-    self._registerConversion(self._createConversionTag({
-      type: extoleEvent,
-      params: self._formatConversionParams(event, email, userId, track.properties())
-    }));
+    self._registerConversion(
+      self._createConversionTag({
+        type: extoleEvent,
+        params: self._formatConversionParams(
+          event,
+          email,
+          userId,
+          track.properties()
+        )
+      })
+    );
   }, extoleEvents);
 };
 
@@ -109,7 +116,13 @@ Extole.prototype._registerConversion = function(conversionTag) {
  * @return {Object}
  */
 
-Extole.prototype._formatConversionParams = function(event, email, userId, properties) {
+Extole.prototype._formatConversionParams = function(
+  event,
+  email,
+  userId,
+  props
+) {
+  var properties = props;
   var total;
 
   if (properties.total) {
@@ -118,11 +131,14 @@ Extole.prototype._formatConversionParams = function(event, email, userId, proper
     properties['tag:cart_value'] = total;
   }
 
-  return extend({
-    'tag:segment_event': event,
-    e: email,
-    partner_conversion_id: userId
-  }, properties);
+  return extend(
+    {
+      'tag:segment_event': event,
+      e: email,
+      partner_conversion_id: userId
+    },
+    properties
+  );
 };
 
 /**
@@ -133,5 +149,9 @@ Extole.prototype._formatConversionParams = function(event, email, userId, proper
  */
 
 Extole.prototype._createConversionTag = function(conversion) {
-  return domify('<script type="extole/conversion">' + json.stringify(conversion) + '</script>');
+  return domify(
+    '<script type="extole/conversion">' +
+      json.stringify(conversion) +
+      '</script>'
+  );
 };

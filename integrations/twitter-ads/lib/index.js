@@ -16,13 +16,16 @@ var extend = require('@ndhoule/extend');
  * Expose `TwitterAds`.
  */
 
-var TwitterAds = module.exports = integration('Twitter Ads')
+var TwitterAds = (module.exports = integration('Twitter Ads')
   .option('page', '')
   .option('universalTagPixelId', '')
   .option('identifier', 'productId')
-  .tag('singleTag', '<img src="//analytics.twitter.com/i/adsct?txn_id={{ pixelId }}&p_id=Twitter&tw_sale_amount={{ revenue }}&tw_order_quantity={{ quantity }}"/>')
+  .tag(
+    'singleTag',
+    '<img src="//analytics.twitter.com/i/adsct?txn_id={{ pixelId }}&p_id=Twitter&tw_sale_amount={{ revenue }}&tw_order_quantity={{ quantity }}"/>'
+  )
   .tag('universalTag', '<script src="//static.ads-twitter.com/uwt.js">')
-  .mapping('events');
+  .mapping('events'));
 
 /**
  * Initialize.

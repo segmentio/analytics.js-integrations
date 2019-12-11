@@ -29,9 +29,12 @@ describe('Autosend', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Autosend, integration('Autosend')
-      .global('_autosend')
-      .option('appKey', ''));
+    analytics.compare(
+      Autosend,
+      integration('Autosend')
+        .global('_autosend')
+        .option('appKey', '')
+    );
   });
 
   describe('before loading', function() {

@@ -11,12 +11,14 @@ var push = require('global-queue')('__nls');
  * Expose `Navilytics` integration.
  */
 
-var Navilytics = module.exports = integration('Navilytics')
+var Navilytics = (module.exports = integration('Navilytics')
   .assumesPageview()
   .global('__nls')
   .option('memberId', '')
   .option('projectId', '')
-  .tag('<script src="//www.navilytics.com/nls.js?mid={{ memberId }}&pid={{ projectId }}">');
+  .tag(
+    '<script src="//www.navilytics.com/nls.js?mid={{ memberId }}&pid={{ projectId }}">'
+  ));
 
 /**
  * Initialize.

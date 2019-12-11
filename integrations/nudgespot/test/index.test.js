@@ -29,10 +29,13 @@ describe('Nudgespot', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Nudgespot, integration('Nudgespot')
-      .assumesPageview()
-      .global('nudgespot')
-      .option('clientApiKey', ''));
+    analytics.compare(
+      Nudgespot,
+      integration('Nudgespot')
+        .assumesPageview()
+        .global('nudgespot')
+        .option('clientApiKey', '')
+    );
   });
 
   describe('before loading', function() {
@@ -90,7 +93,10 @@ describe('Nudgespot', function() {
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.called(window.nudgespot.identify, 'id', { id: 'id', trait: true });
+        analytics.called(window.nudgespot.identify, 'id', {
+          id: 'id',
+          trait: true
+        });
       });
 
       it('should alias created to created_at', function() {

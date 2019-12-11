@@ -29,31 +29,34 @@ describe('UserVoice', function() {
   });
 
   it('should store the right settings', function() {
-    analytics.compare(UserVoice, integration('UserVoice')
-      .assumesPageview()
-      .global('UserVoice')
-      .option('apiKey', '')
-      .option('classic', false)
-      .option('forumId', null)
-      .option('showWidget', true)
-      .option('mode', 'contact')
-      .option('accentColor', '#448dd6')
-      .option('smartvote', true)
-      .option('trigger', null)
-      .option('triggerPosition', 'bottom-right')
-      .option('triggerColor', '#ffffff')
-      .option('triggerBackgroundColor', 'rgba(46, 49, 51, 0.6)')
-      // BACKWARDS COMPATIBILITY: classic options
-      .option('classicMode', 'full')
-      .option('primaryColor', '#cc6d00')
-      .option('linkColor', '#007dbf')
-      .option('defaultMode', 'support')
-      .option('tabLabel', 'Feedback & Support')
-      .option('tabColor', '#cc6d00')
-      .option('tabPosition', 'middle-right')
-      .option('tabInverted', false)
-      .option('screenshotEnabled', true)
-      .option('customTicketFields', {}));
+    analytics.compare(
+      UserVoice,
+      integration('UserVoice')
+        .assumesPageview()
+        .global('UserVoice')
+        .option('apiKey', '')
+        .option('classic', false)
+        .option('forumId', null)
+        .option('showWidget', true)
+        .option('mode', 'contact')
+        .option('accentColor', '#448dd6')
+        .option('smartvote', true)
+        .option('trigger', null)
+        .option('triggerPosition', 'bottom-right')
+        .option('triggerColor', '#ffffff')
+        .option('triggerBackgroundColor', 'rgba(46, 49, 51, 0.6)')
+        // BACKWARDS COMPATIBILITY: classic options
+        .option('classicMode', 'full')
+        .option('primaryColor', '#cc6d00')
+        .option('linkColor', '#007dbf')
+        .option('defaultMode', 'support')
+        .option('tabLabel', 'Feedback & Support')
+        .option('tabColor', '#cc6d00')
+        .option('tabPosition', 'middle-right')
+        .option('tabInverted', false)
+        .option('screenshotEnabled', true)
+        .option('customTicketFields', {})
+    );
   });
 
   describe('Non-Classic', function() {
@@ -152,10 +155,7 @@ describe('UserVoice', function() {
 
         it('should send an id', function() {
           analytics.identify('id');
-          analytics.called(window.UserVoice.push, [
-            'identify',
-            { id: 'id' }
-          ]);
+          analytics.called(window.UserVoice.push, ['identify', { id: 'id' }]);
         });
 
         it('should send traits', function() {

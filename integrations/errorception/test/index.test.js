@@ -32,11 +32,14 @@ describe('Errorception', function() {
   });
 
   it('should have the right settings', function() {
-    analytics.compare(Errorception, integration('Errorception')
-      .assumesPageview()
-      .global('_errs')
-      .option('projectId', '')
-      .option('meta', true));
+    analytics.compare(
+      Errorception,
+      integration('Errorception')
+        .assumesPageview()
+        .global('_errs')
+        .option('projectId', '')
+        .option('meta', true)
+    );
   });
 
   describe('before loading', function() {
