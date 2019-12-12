@@ -12,7 +12,8 @@ var when = require('do-when');
 var Tracktor = (module.exports = integration('Visual Tagger')
   .global('Tracktor')
   .option('workspaceId', '')
-  .option('sourceId', '')).option('instrumentationSpec', []);
+  .option('sourceId', '')
+  .option('instrumentationSpec', []));
 
 /**
  * Initialize.
