@@ -165,22 +165,6 @@ describe('ShareASale', function() {
         );
       });
 
-      it('should add products', function() {
-        analytics.track('order completed', {
-          orderId: 123,
-          shipping: 10,
-          tax: 3.5,
-          total: 55.5,
-          products: [
-            { sku: 'sku1', quantity: 4, price: 5 },
-            { sku: 'sku2', quantity: 2, price: 11 }
-          ]
-        });
-        analytics.loaded(
-          '<img src="https://shareasale.com/sale.cfm?amount=42.00&tracking=123&transtype=sale&merchantID=bonobos&skulist=sku1,sku2&quantitylist=4,2&pricelist=5,11&currency=USD&couponcode=">'
-        );
-      });
-
       it('should track with right amount', function() {
         analytics.track('order completed', {
           affiliation: 'Subscription, Subscription First Order',
