@@ -165,6 +165,53 @@ describe('ShareASale', function() {
         );
       });
 
+      it('should add products', function() {
+        analytics.track('order completed', {
+          orderId: 123,
+          shipping: 10,
+          tax: 3.5,
+          total: 55.5,
+          products: [
+            { sku: 'sku1', quantity: 4, price: 5 },
+            { sku: 'sku2', quantity: 2, price: 11 }
+          ]
+        });
+        analytics.loaded(
+          '<img src="https://shareasale.com/sale.cfm?amount=42.00&tracking=123&transtype=sale&merchantID=bonobos&skulist=sku1,sku2&quantitylist=4,2&pricelist=5,11&currency=USD&couponcode=">'
+        );
+      });
+
+      it('should track with right amount', function() {
+        analytics.track('order completed', {
+          affiliation: 'Subscription, Subscription First Order',
+          category: 'EnhancedEcommerce',
+          checkoutId: null,
+          coupon: '',
+          currency: 'USD',
+          discount: 0,
+          orderId: 1284,
+          products: [
+            {
+              brand: "Z's&co.",
+              category: 'orangebrightyellow',
+              name: 'Off The Clock 28 day subscription (Ships every 28 Days)',
+              price: '59.00',
+              productId: 'SUPCAP-OFFT-1M',
+              quantity: 1,
+              variant: 'A'
+            }
+          ],
+          revenue: 64.01,
+          sentFrom: 'Littledata app',
+          shipping: 0,
+          tax: 5.01,
+          total: 69.02000000000001
+        });
+        analytics.loaded(
+          '<img src="https://shareasale.com/sale.cfm?amount=64.01&tracking=1284&transtype=sale&merchantID=bonobos&skulist=&quantitylist=1&pricelist=59.00&currency=USD&couponcode=">'
+        );
+      });
+
       it('should identify leads', function() {
         analytics.identify(123);
         analytics.loaded(
