@@ -91,4 +91,38 @@ describe('Hotjar Unit', function() {
       analytics.didNotCall(hotjar.ready);
     }
   });
+
+  describe('after loading', function() {
+    beforeEach(function(done) {
+      analytics.once('ready', done);
+      analytics.initialize();
+    });
+
+    describe('#identify', function() {
+      beforeEach(function() {
+        analytics.stub(hotjar, 'debug');
+        analytics.stub(window, 'hj');
+      });
+
+      afterEach(function() {
+        analytics.reset();
+      });
+
+      it('should send and id and traits', function() {
+        analytics.stub(window, 'hj');
+        var id = 'id';
+        var traits = { a: 'a', b: 'b', c: [] };
+        analytics.identify(id, traits);
+        analytics.called(window.hj, 'identify', id, traits);
+      });
+
+      it('should not send attributes when user is anonymous', function() {
+        var traits = { a: 'a', b: 'b', c: [] };
+        analytics.identify(undefined, traits);
+
+        analytics.called(hotjar.debug, 'user id is required');
+        analytics.didNotCall(window.hj);
+      });
+    });
+  });
 });
