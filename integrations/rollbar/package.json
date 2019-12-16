@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-rollbar",
   "description": "The Rollbar analytics.js integration.",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

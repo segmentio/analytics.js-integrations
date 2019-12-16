@@ -33,6 +33,11 @@ var RollbarIntegration = (module.exports = integration('Rollbar')
  */
 
 RollbarIntegration.prototype.initialize = function() {
+  /**
+   * Configuration option available.
+   * https://docs.rollbar.com/docs/rollbarjs-configuration-reference#section-reference
+   *
+   */
   window._rollbarConfig = this.config = {
     accessToken: this.options.accessToken,
     captureUncaught: this.options.captureUncaught,
