@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build_and_test:
+  build:
     docker:
       - image: circleci/node:8-browsers
     steps:
@@ -52,4 +52,4 @@ workflows:
   version: 2
   test:
     jobs:
-      - build_and_test
+      - build
