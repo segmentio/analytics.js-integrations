@@ -19,10 +19,10 @@ jobs:
             git diff --name-only $COMMITS | cut -d/ -f1 | sort -u > projects
             echo -e "Modified directories:\n`cat projects`\n"
 
-            # If modified directories contain yarn, or buildkite directories
+            # If modified directories contain yarn, buildkite, or circleci directories
             buildall=0
             for project in `cat projects`; do
-              if [[ ${project} =~ "yarn" || ${project} =~ ".buildkite" ]]; then
+              if [[ ${project} =~ "yarn" || ${project} =~ ".buildkite" || ${project} =~ ".circleci" ]]; then
                 buildall=1
                 echo -e "Warning. Dependencies or internal configs have change detected."
                 exit 1
