@@ -16,7 +16,8 @@
     "consistent-return": "warn",
     "no-shadow": "warn",
     "no-plusplus": "off",
-    "no-template-curly-in-string": "warn"
+    "no-template-curly-in-string": "warn",
+    "no-useless-escape": "warn"
   },
   "overrides": [
     {
