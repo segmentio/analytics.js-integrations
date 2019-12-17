@@ -625,12 +625,12 @@ describe('Google Analytics', function() {
           analytics.assert(window.ga.args.length === 4);
           analytics.assert(window.ga.args[0][0] === 'set');
           analytics.deepEqual(window.ga.args[0][1], {
-            fruit: null
+            dimension1: null
           });
           analytics.assert(window.ga.args[1][0] === 'set');
           analytics.deepEqual(window.ga.args[1][1], {
-            CD1: 'Apple',
-            CD2: 'Red'
+            dimension1: 'Apple',
+            dimension2: 'Red'
           });
           analytics.assert(window.ga.args[3][0] === 'send');
         });
