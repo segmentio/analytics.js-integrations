@@ -107,7 +107,8 @@ async function context(integrationVersions, coreVersion, writeKey) {
   const availableIntegrations = readIntegrationsPackages()
   ctx.enabled = await getEnabledIntegrations(settings, availableIntegrations)
   ctx.integrations = pick(integrations, keys(ctx.enabled));
-  ctx.versions = {
+
+  const versions = {
     core: coreVersion,
     cdn: settings.cdnVersion || null,
     integrations: pick(integrationVersions, keys(ctx.enabled))
@@ -115,7 +116,7 @@ async function context(integrationVersions, coreVersion, writeKey) {
 
   ctx.plan = JSON.stringify({});
   ctx.integrations = JSON.stringify(ctx.integrations);
-  ctx.versions = JSON.stringify(ctx.versions);
+  ctx.versions = JSON.stringify(versions);
   ctx.writeKey = get(integrations['Segment.io'], 'apiKey', '');
   return ctx;
 }
@@ -125,9 +126,9 @@ module.exports = async function ({ ajs, integrationVersions, coreVersion, writeK
   let ctx
 
   try {
-    await context(integrationVersions, version, writeKey)
+    ctx = await context(integrationVersions, version, writeKey)
   } catch(err) {
-    console.error('Error:', err)
+    console.error('Error: ', err)
     return
   }
 
