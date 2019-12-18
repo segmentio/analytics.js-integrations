@@ -16,7 +16,7 @@ var fs = require('fs')
 async function getSourceSettings(writeKey) {
   var url = `http://cdn.segment.com/v1/projects/${writeKey}/settings`;
   return new Promise((resolve, reject) => {
-    request.get({ url: url, gzip: true }, (err, _, body) => {
+    request.get({ url: url, gzip: true, headers:{ 'Cache-Control':'no-cache' } }, (err, _, body) => {
       if (err) {
         reject(err);
       } else if (body && body.includes('Invalid path or write key provided.')) {
