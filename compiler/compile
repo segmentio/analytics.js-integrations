@@ -25,27 +25,44 @@ if (!program.writeKey) {
   process.exit(1)
 }
 
-// run `yarn install --no-lockfile` before each build to pull in any updates made in the /integrations directory
-spawnSync('yarn install --no-lockfile', {
+const opts = {
   shell: true,
-  cwd: __dirname,
-  stdio: 'inherit'
-})
+  cwd: __dirname
+}
+
+// check if any files have changed since most recent `git add`
+const diff = spawnSync('git diff --name-only', opts)
+if (diff.stdout && (diff.stdout).toString().length) {
+  opts.stdio = 'inherit'
+  // if not, run `yarn install --no-lockfile` to pull in any updates made in the /integrations directory
+  spawnSync('yarn install --no-lockfile', opts)
+}
 
 const writeKey = program.writeKey
 const port = program.port || 3000
 
 buildIntegrations()
 build(async (ajs, integrationVersions, coreVersion) => {
-  const compiled = await addSettings({
-    ajs,
-    integrationVersions,
-    coreVersion,
-    writeKey
-  })
+  let compiled
+
+  try {
+    compiled = await addSettings({
+      ajs,
+      integrationVersions,
+      coreVersion,
+      writeKey
+    })
+  } catch(err) {
+    console.error('Error:', err)
+    return
+  }
+
+  if (!compiled) {
+    console.error('Looks like we couldn\'t compile A.js! Please read the error output above and try again.')
+    process.exit(1)
+  }
 
   fs.writeFileSync(fileName, compiled)
-  
   generateFile(program.writeKey, port)
   server(compiled, filePath, port)
   open(`http://localhost:${port}`)
