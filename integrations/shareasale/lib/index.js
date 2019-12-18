@@ -16,6 +16,7 @@ var ShareASale = (module.exports = integration('ShareASale')
   .option('merchantId', '')
   .option('currency', 'USD')
   .option('createLeads', false)
+  .option('useTotalAsAmount', false)
   .tag(
     'orderCompleted',
     '<img src="https://shareasale.com/sale.cfm?amount={{ orderTotal }}&tracking={{ orderId }}&transtype=sale&merchantID={{ merchantId }}{{ repeat }}&skulist={{ skulist }}&quantitylist={{ quantitylist }}&pricelist={{ pricelist }}&currency={{ currency }}&couponcode={{ couponcode }}">'
@@ -36,7 +37,10 @@ ShareASale.prototype.orderCompleted = function(track) {
   var isRepeat = track.proxy('properties.repeat');
   var subtotal = (track.subtotal() || 0).toFixed(2);
   var discount = (track.discount() || 0).toFixed(2);
-  var orderTotal = (subtotal - discount).toFixed(2);
+  var orderTotal =
+    this.options.useTotalAsAmount && track.total()
+      ? track.total().toFixed(2)
+      : (subtotal - discount).toFixed(2);
   var products = track.products();
   var currency = track.currency() || this.options.currency;
   var coupon = track.coupon() || '';
