@@ -11,7 +11,8 @@ describe('ShareASale', function() {
   var shareasale;
   var options = {
     merchantId: 'bonobos',
-    createLeads: true
+    createLeads: true,
+    useTotalAsAmount: false
   };
 
   beforeEach(function() {
@@ -58,6 +59,20 @@ describe('ShareASale', function() {
         });
         analytics.loaded(
           '<img src="https://shareasale.com/sale.cfm?amount=42.00&tracking=123&transtype=sale&merchantID=bonobos&skulist=&quantitylist=&pricelist=&currency=USD&couponcode=">'
+        );
+      });
+
+      it('should use total as amount if enabled', function() {
+        shareasale.options.useTotalAsAmount = true;
+        analytics.track('order completed', {
+          orderId: 123,
+          subtotal: 42,
+          shipping: 10,
+          tax: 3.5,
+          total: 55.5
+        });
+        analytics.loaded(
+          '<img src="https://shareasale.com/sale.cfm?amount=55.50&tracking=123&transtype=sale&merchantID=bonobos&skulist=&quantitylist=&pricelist=&currency=USD&couponcode=">'
         );
       });
 
