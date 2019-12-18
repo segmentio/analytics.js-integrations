@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-google-adwords-new",
   "description": "The google-adwords-new analytics.js integration.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -33,7 +33,6 @@
     "@segment/analytics.js-core": "^3.0.0",
     "@segment/analytics.js-integration-tester": "^3.1.0",
     "@segment/clear-env": "^2.0.0",
-    "@segment/eslint-config": "^3.1.1",
     "browserify": "^16.2.3",
     "eslint": "^5.16.0",
     "karma": "^4.1.0",

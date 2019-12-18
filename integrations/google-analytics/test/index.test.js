@@ -58,6 +58,7 @@ describe('Google Analytics', function() {
         .option('optimize', '')
         .option('nameTracker', false)
         .option('sampleRate', 100)
+        .option('resetCustomDimensionsOnPage', [])
     );
   });
 
@@ -615,18 +616,21 @@ describe('Google Analytics', function() {
         });
 
         it('should reset custom dimensions before set', function() {
-          ga.options.dimensions = { fruit: 'CD1' };
+          ga.options.resetCustomDimensionsOnPage = ['fruit'];
+          ga.options.dimensions = { fruit: 'dimension1', color: 'dimension2' };
           analytics.page({
-            fruit: 'Apple'
+            fruit: 'Apple',
+            color: 'Red'
           });
           analytics.assert(window.ga.args.length === 4);
           analytics.assert(window.ga.args[0][0] === 'set');
           analytics.deepEqual(window.ga.args[0][1], {
-            fruit: ''
+            dimension1: null
           });
           analytics.assert(window.ga.args[1][0] === 'set');
           analytics.deepEqual(window.ga.args[1][1], {
-            CD1: 'Apple'
+            dimension1: 'Apple',
+            dimension2: 'Red'
           });
           analytics.assert(window.ga.args[3][0] === 'send');
         });
