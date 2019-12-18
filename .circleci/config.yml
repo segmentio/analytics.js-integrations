@@ -5,9 +5,7 @@ jobs:
       - image: circleci/node:8-browsers
     steps:
       - checkout
-      - run: git checkout master
-      - run: git reset --hard origin/master
-      - run: git checkout -
+      - run: git branch -f master origin/master
       - run:
           name: Determine which projects have changed and trigger the builds
           command: |
