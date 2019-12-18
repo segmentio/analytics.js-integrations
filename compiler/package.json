@@ -156,6 +156,7 @@
     "@segment/analytics.js-integration-youbora": "file:../integrations/youbora",
     "@segment/analytics.js-integration-zopim": "file:../integrations/zopim",
     "browserify": "^16.5.0",
+    "commander": "^4.0.1",
     "ejs": "^2.7.1",
     "express": "^4.17.1",
     "open": "^7.0.0",
