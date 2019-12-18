@@ -69,7 +69,8 @@ describe('ShareASale', function() {
           subtotal: 42,
           shipping: 10,
           tax: 3.5,
-          total: 55.5
+          total: 55.5,
+          revenue: 15
         });
         analytics.loaded(
           '<img src="https://shareasale.com/sale.cfm?amount=55.50&tracking=123&transtype=sale&merchantID=bonobos&skulist=&quantitylist=&pricelist=&currency=USD&couponcode=">'
