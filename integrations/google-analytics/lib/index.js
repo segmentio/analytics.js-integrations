@@ -62,6 +62,7 @@ var GA = (exports.Integration = integration('Google Analytics')
   .option('trackingId', '')
   .option('optimize', '')
   .option('nameTracker', false)
+  .option('resetCustomDimensionsOnPage', [])
   .tag('library', '<script src="//www.google-analytics.com/analytics.js">')
   .tag('double click', '<script src="//stats.g.doubleclick.net/dc.js">')
   .tag('http', '<script src="http://www.google-analytics.com/ga.js">')
@@ -229,12 +230,18 @@ GA.prototype.page = function(page) {
   };
 
   // Reset custom dimension which are previously set.
-  var customDimension = {};
-  var dimensionsKeys = Object.keys(opts.dimensions);
-  for (var i = 0; i < dimensionsKeys.length; i++) {
-    customDimension[dimensionsKeys[i]] = '';
+  // Uses the configured dimensions as:
+  // opts.dimensions: { "fruit": "dimension1" }
+  // opts.resetCustomDimensions: [ "fruit" ]
+  // --> resetCustomDimensions: { "dimension1": null }
+  var resetCustomDimensions = {};
+  for (var i = 0; i < opts.resetCustomDimensionsOnPage.length; i++) {
+    var property = opts.resetCustomDimensionsOnPage[i];
+    if (opts.dimensions[property]) {
+      resetCustomDimensions[opts.dimensions[property]] = null;
+    }
   }
-  window.ga(self._trackerName + 'set', customDimension);
+  window.ga(self._trackerName + 'set', resetCustomDimensions);
 
   pageview = extend(
     pageview,

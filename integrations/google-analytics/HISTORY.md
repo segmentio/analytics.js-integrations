@@ -1,3 +1,8 @@
+2.18.0 / 2019-12-17
+===================
+
+  * Reset custom dimensions before send if configured.
+
 2.17.1 / 2019-11-04
 ===================
 
