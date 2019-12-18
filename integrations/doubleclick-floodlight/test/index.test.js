@@ -349,14 +349,14 @@ describe('DoubleClick Floodlight', function() {
           analytics.spy(floodlight, 'load');
         });
 
-        var sandbox;
+        var sandboxPage;
         beforeEach(function() {
           // stubbing cachebuster logic
-          sandbox = sinon.sandbox.create();
+          sandboxPage = sinon.sandbox.create();
         });
 
         afterEach(function() {
-          sandbox.restore();
+          sandboxPage.restore();
         });
 
         it('should fire a floodlight tag for named pages mapped as events', function() {
