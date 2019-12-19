@@ -1431,10 +1431,10 @@
     component-cookie "^1.1.2"
     component-url "^0.2.1"
 
-"@segment/tracktor@0.8.0-beta.2":
-  version "0.8.0-beta.2"
-  resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.8.0-beta.2.tgz#81919ab366270f17acc24c4386070aaedb9120ce"
-  integrity sha512-FAAM+LPBmg/L4bVdIVRzdvIvSx1NVsOqvm6ehFMjc26SsECenz8r+Leoj2E7Hylnaf9XzSLR1hvg/lsGefaIuw==
+"@segment/tracktor@0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.8.0.tgz#c8393ab56e1427955a1df8dbbc1b1e1bd1eba3dc"
+  integrity sha512-0To91MT7pJLb02bu52clcp8yUGlFkpYlHxtjHCfpbp82B0uTdkuyLf0x91HC63rIXA8toC4VTDIda+v6cDA5kA==
   dependencies:
     element-matches-polyfill "^1.0.0"
     whatwg-fetch "^3.0.0"
