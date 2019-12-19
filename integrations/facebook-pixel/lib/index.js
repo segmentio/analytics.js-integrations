@@ -29,6 +29,7 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('blacklistPiiProperties', [])
   .option('standardEventsCustomProperties', [])
   .option('keyForExternalId', '')
+  .option('userIdAsExternalId', false)
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -625,6 +626,9 @@ FacebookPixel.prototype.formatTraits = function formatTraits(analytics) {
   var external_id; // eslint-disable-line
   if (this.options.keyForExternalId) {
     external_id = traits[this.options.keyForExternalId]; // eslint-disable-line
+  }
+  if (!external_id && this.options.userIdAsExternalId && analytics) { // eslint-disable-line
+    external_id = analytics.user().id() || analytics.user().anonymousId(); // eslint-disable-line
   }
   return reject({
     em: traits.email,

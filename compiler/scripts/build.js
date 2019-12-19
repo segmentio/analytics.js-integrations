@@ -6,10 +6,9 @@
 
 var browserify = require('browserify');
 var fs = require('fs');
-var minify = require('uglify-js').minify;
-var mkdirp = require('mkdirp');
 var path = require('path');
 var through = require('through2');
+var nameRegex = /integration\(\s*['"]([^'"]+)['"]\s*\)/;
 
 var coreVersion = require('@segment/analytics.js-core/package').version;
 
@@ -52,7 +51,7 @@ function bundle(entry, fn) {
   b.pipeline.get('emit-deps').push(through.obj(function (dep, enc, next) {
     // Wrap all integration entrypoints in a template conditional
     if (lookup[dep.file]) {
-      var matches = (/integration\(['"]([^'"]+)['"]\)/).exec(dep.source);
+      var matches = nameRegex.exec(dep.source);
       var name = matches[1];
 
       if (!name) {
