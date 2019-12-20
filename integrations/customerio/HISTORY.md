@@ -1,9 +1,13 @@
+2.2.0 / 2019-12-20
+==================
+
+  * Date support for ISO 8601 for the dates below 1st Jan 1970.
 
 2.1.0 / 2017-05-10
 ==================
 
   * page() implementation + tests
-  
+
 2.0.0 / 2016-06-21
 ==================
 
