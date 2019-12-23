@@ -13,6 +13,9 @@ describe('DoubleClick Floodlight', function() {
     source: '654757884637545',
     activityTag: 'sourceLevelTagCat',
     groupTag: 'sourceLevelTagType',
+    getDoubleClickId: false,
+    googleNetworkId: '',
+    segmentWriteKey: '',
     events: [
       {
         key: 'Watched Westworld',
@@ -116,6 +119,31 @@ describe('DoubleClick Floodlight', function() {
       Floodlight,
       integration('DoubleClick Floodlight').option('source', '')
     );
+  });
+
+  describe('before loading', function() {
+    beforeEach(function() {
+      analytics.spy(floodlight, 'load');
+    });
+
+    describe('initialize', function() {
+      it('should not load the doubleclick id if getDoubleClickId is disabled', function() {
+        analytics.initialize();
+        analytics.didNotCall(floodlight.load);
+      });
+
+      it('should not load the doubleclick id if googleNetworkId is not defined', function() {
+        analytics.initialize();
+        analytics.didNotCall(floodlight.load);
+      });
+
+      it('should not load the doubleclick id if googleNetworkId is defined and getDoubleClickId is true', function() {
+        floodlight.options.getDoubleClickId = true;
+        floodlight.options.googleNetworkId = 'foobar';
+        analytics.initialize();
+        analytics.called(floodlight.load);
+      });
+    });
   });
 
   describe('after loading', function() {
@@ -321,14 +349,14 @@ describe('DoubleClick Floodlight', function() {
           analytics.spy(floodlight, 'load');
         });
 
-        var sandbox;
+        var sandboxPage;
         beforeEach(function() {
           // stubbing cachebuster logic
-          sandbox = sinon.sandbox.create();
+          sandboxPage = sinon.sandbox.create();
         });
 
         afterEach(function() {
-          sandbox.restore();
+          sandboxPage.restore();
         });
 
         it('should fire a floodlight tag for named pages mapped as events', function() {

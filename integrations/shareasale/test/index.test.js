@@ -11,7 +11,8 @@ describe('ShareASale', function() {
   var shareasale;
   var options = {
     merchantId: 'bonobos',
-    createLeads: true
+    createLeads: true,
+    useTotalAsAmount: false
   };
 
   beforeEach(function() {
@@ -58,6 +59,21 @@ describe('ShareASale', function() {
         });
         analytics.loaded(
           '<img src="https://shareasale.com/sale.cfm?amount=42.00&tracking=123&transtype=sale&merchantID=bonobos&skulist=&quantitylist=&pricelist=&currency=USD&couponcode=">'
+        );
+      });
+
+      it('should use total as amount if enabled', function() {
+        shareasale.options.useTotalAsAmount = true;
+        analytics.track('order completed', {
+          orderId: 123,
+          subtotal: 42,
+          shipping: 10,
+          tax: 3.5,
+          total: 55.5,
+          revenue: 15
+        });
+        analytics.loaded(
+          '<img src="https://shareasale.com/sale.cfm?amount=55.50&tracking=123&transtype=sale&merchantID=bonobos&skulist=&quantitylist=&pricelist=&currency=USD&couponcode=">'
         );
       });
 
@@ -162,6 +178,37 @@ describe('ShareASale', function() {
         });
         analytics.loaded(
           '<img src="https://shareasale.com/sale.cfm?amount=42.00&tracking=123&transtype=sale&merchantID=bonobos&skulist=sku1,sku2&quantitylist=4,2&pricelist=5,11&currency=USD&couponcode=">'
+        );
+      });
+
+      it('should track with right amount', function() {
+        analytics.track('order completed', {
+          affiliation: 'Subscription, Subscription First Order',
+          category: 'EnhancedEcommerce',
+          checkoutId: null,
+          coupon: '',
+          currency: 'USD',
+          discount: 0,
+          orderId: 1284,
+          products: [
+            {
+              brand: "Z's&co.",
+              category: 'orangebrightyellow',
+              name: 'Off The Clock 28 day subscription (Ships every 28 Days)',
+              price: '59.00',
+              productId: 'SUPCAP-OFFT-1M',
+              quantity: 1,
+              variant: 'A'
+            }
+          ],
+          revenue: 64.01,
+          sentFrom: 'Littledata app',
+          shipping: 0,
+          tax: 5.01,
+          total: 69.02000000000001
+        });
+        analytics.loaded(
+          '<img src="https://shareasale.com/sale.cfm?amount=64.01&tracking=1284&transtype=sale&merchantID=bonobos&skulist=&quantitylist=1&pricelist=59.00&currency=USD&couponcode=">'
         );
       });
 

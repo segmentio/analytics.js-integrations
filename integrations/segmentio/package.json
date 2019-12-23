@@ -44,7 +44,6 @@
     "@segment/analytics.js-core": "^3.8.0",
     "@segment/analytics.js-integration-tester": "^2.0.0",
     "@segment/clear-env": "^2.0.0",
-    "@segment/eslint-config": "^3.1.1",
     "browserify": "^16.2.3",
     "eslint": "^5.16.0",
     "karma": "^4.1.0",

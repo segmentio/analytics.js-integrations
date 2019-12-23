@@ -17,6 +17,9 @@ var toNoCase = require('to-no-case');
 
 var Floodlight = (module.exports = integration('DoubleClick Floodlight')
   .option('source', '')
+  .option('getDoubleClickId', false)
+  .option('googleNetworkId', '')
+  .option('segmentWriteKey', '')
   .tag(
     'counter',
     '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">'
@@ -24,6 +27,10 @@ var Floodlight = (module.exports = integration('DoubleClick Floodlight')
   .tag(
     'sales',
     '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};qty={{ qty }};cost={{ cost }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">'
+  )
+  .tag(
+    'doubleclick id',
+    '<img src="//cm.g.doubleclick.net/pixel?google_cm&google_nid={{ googleNetworkId }}&segment_write_key={{ segmentWriteKey }}&user_id={{ userId }}&anonymous_id={{ anonymousId }}"/>'
   ));
 
 /**
@@ -34,6 +41,18 @@ var Floodlight = (module.exports = integration('DoubleClick Floodlight')
  */
 
 Floodlight.prototype.initialize = function() {
+  // In the initialize method:
+  // Check if we should load the DoubleClick ID pixel (and only proceed if we haven't already done so).
+  if (this.options.getDoubleClickId && this.options.googleNetworkId) {
+    // Load the doubleclick pixel.
+    this.load('doubleclick id', {
+      googleNetworkId: this.options.googleNetworkId,
+      segmentWriteKey: this.options.segmentWriteKey,
+      // TODO: handle userId being nulls/undefined.
+      userId: this.analytics.user().id(),
+      anonymousId: this.analytics.user().anonymousId()
+    });
+  }
   this.ready();
 };
 
@@ -52,7 +71,7 @@ Floodlight.prototype.track = function(track) {
   if (!this.options.events || !this.options.events.length) return;
 
   // retrieve event mappings that match the current event
-  for (var i = 0; i < this.options.events.length; i += 1) {
+  for (var i = 0; i < this.options.events.length; i++) {
     var item = this.options.events[i];
     if (item.value) {
       if (toNoCase(item.key) === toNoCase(track.event()))
