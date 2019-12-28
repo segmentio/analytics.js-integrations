@@ -176,7 +176,8 @@ describe('Optimizely', function() {
   var options = {
     listen: false,
     variations: false,
-    nonInteraction: false
+    nonInteraction: false,
+    customProps: {}
   };
 
   beforeEach(function() {
@@ -596,6 +597,62 @@ describe('Optimizely', function() {
               experimentName: 'Test',
               variationId: '123',
               variationName: 'Variation #123'
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should map custom properties and send each standard active experiment data via `.track()`', function(done) {
+        optimizely.options.customProps = {
+          experimentId: 'experiment_id',
+          experimentName: 'experiment_name',
+          variationId: 'variation_id',
+          variationName: 'variation_name'
+        };
+
+        window.optimizely.data.experiment_id = '124';
+        window.optimizely.data.experiment_name = 'custom experiment name';
+        window.optimizely.data.variation_id = '421';
+        window.optimizely.data.variation_name = 'custom variation name';
+
+        window.optimizely.data.state.activeExperiments = ['0'];
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          analytics.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              experimentId: '124',
+              experimentName: 'custom experiment name',
+              variationId: '421',
+              variationName: 'custom variation name'
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should map existing properties if custom properties not specified`', function(done) {
+        optimizely.options.customProps = {
+          variationId: 'variation_id',
+          variationName: 'variation_name'
+        };
+
+        window.optimizely.data.experiment_id = '124';
+        window.optimizely.data.experiment_name = 'custom experiment name';
+        window.optimizely.data.variation_id = '421';
+        window.optimizely.data.variation_name = 'custom variation name';
+
+        window.optimizely.data.state.activeExperiments = ['0'];
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          analytics.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              experimentId: '0',
+              experimentName: 'Test',
+              variationId: '421',
+              variationName: 'custom variation name'
             },
             { integration: optimizelyContext }
           ]);
