@@ -22,7 +22,8 @@ var Optimizely = (module.exports = integration('Optimizely')
   .option('variations', false) // send data via `.identify()`
   .option('listen', true) // send data via `.track()`
   .option('nonInteraction', false)
-  .option('sendRevenueOnlyForOrderCompleted', true));
+  .option('sendRevenueOnlyForOrderCompleted', true)
+  .option('customProps', {}));
 
 /**
  * The name and version for this integration.
@@ -212,6 +213,20 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
       variationId: variationIds.join(), // eg. '123' or '123,455'
       variationName: variationNames.join(', ') // eg. 'Variation X' or 'Variation 1, Variation 2'
     };
+
+    var customProps = this.options.customProps;
+    var customPropsKeys = Object.keys(customProps);
+    var data = window.optimizely && window.optimizely.data;
+
+    if (data && customPropsKeys.length) {
+      for (var index = 0; index < customPropsKeys.length; index++) {
+        var segmentProp = customPropsKeys[index];
+        var optimizelyProp = customProps[segmentProp];
+        if (data[optimizelyProp] !== 'undefined') {
+          props[segmentProp] = data[optimizelyProp];
+        }
+      }
+    }
 
     // If this was a redirect experiment and the effective referrer is different from document.referrer,
     // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
