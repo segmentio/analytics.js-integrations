@@ -214,6 +214,8 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
       variationName: variationNames.join(', ') // eg. 'Variation X' or 'Variation 1, Variation 2'
     };
 
+    // If customProps is provided overide the props with it.
+    // If valid customProps present it will override existing props.
     var customProps = this.options.customProps;
     var customPropsKeys = Object.keys(customProps);
     var data = window.optimizely && window.optimizely.data;
