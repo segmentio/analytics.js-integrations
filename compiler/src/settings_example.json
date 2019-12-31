@@ -1,0 +1,7 @@
+{
+  "integrations": {
+    "Integration Name": {
+      "settingsSlug": "value"
+    }
+  }
+}

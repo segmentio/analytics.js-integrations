@@ -99,13 +99,13 @@ function getSlug(name) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-async function context(integrationVersions, coreVersion, writeKey) {
-  const settings = await getSourceSettings(writeKey)
+async function context(integrationVersions, coreVersion, writeKey, customSettings) {
+  const settings = customSettings || await getSourceSettings(writeKey);
   const integrations = settings.integrations;
 
   const ctx = {};
-  const availableIntegrations = readIntegrationsPackages()
-  ctx.enabled = await getEnabledIntegrations(settings, availableIntegrations)
+  const availableIntegrations = readIntegrationsPackages();
+  ctx.enabled = await getEnabledIntegrations(settings, availableIntegrations);
   ctx.integrations = pick(integrations, keys(ctx.enabled));
 
   const versions = {
@@ -121,12 +121,12 @@ async function context(integrationVersions, coreVersion, writeKey) {
   return ctx;
 }
 
-module.exports = async function ({ ajs, integrationVersions, coreVersion, writeKey }) {
+module.exports = async function ({ ajs, integrationVersions, coreVersion, writeKey, customSettings }) {
   const { version } = coreVersion
   let ctx
 
   try {
-    ctx = await context(integrationVersions, version, writeKey)
+    ctx = await context(integrationVersions, version, writeKey, customSettings)
   } catch(err) {
     console.error('Error: ', err)
     return
