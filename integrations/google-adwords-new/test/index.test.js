@@ -94,6 +94,7 @@ describe('Google AdWords New', function() {
         .option('clickConversions', {})
         .option('pageLoadConversions', {})
         .option('defaultPageConversion', '')
+        .option('disableAdPersonalization', false)
         .tag(
           '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
         )
