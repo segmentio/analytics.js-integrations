@@ -34,6 +34,7 @@ Alexa.prototype.initialize = function() {
   this.load(function() {
     window.atrk();
     self.ready();
+    console.log('here');
   });
 };
 
