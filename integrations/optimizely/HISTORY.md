@@ -2,7 +2,7 @@
 3.5.0 / 2019-12-28
 ==================
 
-  * Added support for setting custom props field mapping via option `customProps`. Its a mapping of key(segment property) and value(optimizely property).
+  * Added support for setting custom props field mapping via option `customExperimentProperties` & `customCampaignProperties`. Its a mapping of key(segment property) and value(optimizely property).
 
 3.4.1 / 2018-04-05
 ==================
