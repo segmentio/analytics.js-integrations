@@ -214,22 +214,6 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
       variationName: variationNames.join(', ') // eg. 'Variation X' or 'Variation 1, Variation 2'
     };
 
-    // If customExperimentProperties is provided overide the props with it.
-    // If valid customExperimentProperties present it will override existing props.
-    var customExperimentProperties = this.options.customExperimentProperties;
-    var customPropsKeys = Object.keys(customExperimentProperties);
-    var data = window.optimizely && window.optimizely.data;
-
-    if (data && customPropsKeys.length) {
-      for (var index = 0; index < customPropsKeys.length; index++) {
-        var segmentProp = customPropsKeys[index];
-        var optimizelyProp = customExperimentProperties[segmentProp];
-        if (typeof data[optimizelyProp] !== 'undefined') {
-          props[segmentProp] = data[optimizelyProp];
-        }
-      }
-    }
-
     // If this was a redirect experiment and the effective referrer is different from document.referrer,
     // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
     // `experiment.referrer` would be google.com/ad here NOT `tb12.com`.
@@ -274,6 +258,22 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
 
     // For Google's nonInteraction flag
     if (this.options.nonInteraction) props.nonInteraction = 1;
+
+    // If customExperimentProperties is provided overide the props with it.
+    // If valid customExperimentProperties present it will override existing props.
+    var customExperimentProperties = this.options.customExperimentProperties;
+    var customPropsKeys = Object.keys(customExperimentProperties);
+    var data = window.optimizely && window.optimizely.data;
+
+    if (data && customPropsKeys.length) {
+      for (var index = 0; index < customPropsKeys.length; index++) {
+        var segmentProp = customPropsKeys[index];
+        var optimizelyProp = customExperimentProperties[segmentProp];
+        if (typeof data[optimizelyProp] !== 'undefined') {
+          props[segmentProp] = data[optimizelyProp];
+        }
+      }
+    }
 
     // Send to Segment
     this.analytics.track('Experiment Viewed', props, context);
