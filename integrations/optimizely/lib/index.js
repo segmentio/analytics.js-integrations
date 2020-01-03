@@ -23,7 +23,8 @@ var Optimizely = (module.exports = integration('Optimizely')
   .option('listen', true) // send data via `.track()`
   .option('nonInteraction', false)
   .option('sendRevenueOnlyForOrderCompleted', true)
-  .option('customExperimentProperties', {}));
+  .option('customExperimentProperties', {})
+  .option('customCampaignProperties', {}));
 
 /**
  * The name and version for this integration.
@@ -369,6 +370,21 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
 
     // For Google's nonInteraction flag
     if (this.options.nonInteraction) props.nonInteraction = 1;
+
+    // If customCampaignProperties is provided overide the props with it.
+    // If valid customCampaignProperties present it will override existing props.
+    var customCampaignProperties = this.options.customCampaignProperties;
+    var customPropsKeys = Object.keys(customCampaignProperties);
+    var data = window.optimizely && window.optimizely.newMockData;
+    if (data && customPropsKeys.length) {
+      for (var index = 0; index < customPropsKeys.length; index++) {
+        var segmentProp = customPropsKeys[index];
+        var optimizelyProp = customCampaignProperties[segmentProp];
+        if (typeof data[optimizelyProp] !== 'undefined') {
+          props[segmentProp] = data[optimizelyProp];
+        }
+      }
+    }
 
     // Send to Segment
     this.analytics.track('Experiment Viewed', props, context);

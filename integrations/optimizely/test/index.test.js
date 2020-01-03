@@ -177,7 +177,8 @@ describe('Optimizely', function() {
     listen: false,
     variations: false,
     nonInteraction: false,
-    customExperimentProperties: {}
+    customExperimentProperties: {},
+    customCampaignProperties: {}
   };
 
   beforeEach(function() {
@@ -632,7 +633,7 @@ describe('Optimizely', function() {
         });
       });
 
-      it('should map existing properties if custom properties not specified`', function(done) {
+      it('should not map existing properties if custom properties not specified`', function(done) {
         optimizely.options.customExperimentProperties = {
           variationId: 'variation_id',
           variationName: 'variation_name'
@@ -906,6 +907,74 @@ describe('Optimizely', function() {
             {
               campaignName: 'URF',
               campaignId: '7547101713',
+              experimentId: '7547682694',
+              experimentName: 'Worlds Group Stage',
+              variationId: '7557950020',
+              variationName: 'Variation #1',
+              audienceId: '7527565438',
+              audienceName: 'Trust Tree',
+              isInCampaignHoldback: true
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should map custom properties and send campaign data via `.track()`', function(done) {
+        optimizely.options.customCampaignProperties = {
+          campaignName: 'campaign_name',
+          campaignId: 'campaign_id',
+          experimentId: 'experiment_id',
+          experimentName: 'experiment_name'
+        };
+
+        window.optimizely.newMockData.experiment_id = '124';
+        window.optimizely.newMockData.experiment_name =
+          'custom experiment name';
+        window.optimizely.newMockData.campaign_id = '421';
+        window.optimizely.newMockData.campaign_name = 'custom campaign name';
+
+        window.optimizely.newMockData[2542102702].isActive = false;
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          analytics.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              campaignName: 'custom campaign name',
+              campaignId: '421',
+              experimentId: '124',
+              experimentName: 'custom experiment name',
+              variationId: '7557950020',
+              variationName: 'Variation #1',
+              audienceId: '7527565438',
+              audienceName: 'Trust Tree',
+              isInCampaignHoldback: true
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should not map existing properties if custom properties not specified`', function(done) {
+        optimizely.options.customCampaignProperties = {
+          campaignName: 'campaign_name',
+          campaignId: 'campaign_id'
+        };
+
+        window.optimizely.newMockData.experiment_id = '124';
+        window.optimizely.newMockData.experiment_name =
+          'custom experiment name';
+        window.optimizely.newMockData.campaign_id = '421';
+        window.optimizely.newMockData.campaign_name = 'custom campaign name';
+
+        window.optimizely.newMockData[2542102702].isActive = false;
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          analytics.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              campaignName: 'custom campaign name',
+              campaignId: '421',
               experimentId: '7547682694',
               experimentName: 'Worlds Group Stage',
               variationId: '7557950020',
