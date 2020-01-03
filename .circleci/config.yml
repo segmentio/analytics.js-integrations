@@ -49,15 +49,17 @@ jobs:
             mkdir -p /home/circleci/project
             cd /home/circleci/project
             git clone "$CIRCLE_REPOSITORY_URL" .
-            if [ "CIRCLE_BRANCH" != "master" ]
+            if [ "CIRCLE_BRANCH" == "master" ]
             then
-              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+              git fetch --force origin "master:remotes/origin/master"
             fi
 
             if [ -n "$CIRCLE_BRANCH" ]
             then
               git reset --hard "$CIRCLE_SHA1"
               git checkout -q -B "$CIRCLE_BRANCH"
+            else
+              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
 
             git reset --hard "$CIRCLE_SHA1"
