@@ -51,7 +51,6 @@ jobs:
             git clone "$CIRCLE_REPOSITORY_URL" .
             if [ "CIRCLE_BRANCH" != "master" ]
             then
-              echo "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
 
