@@ -23,7 +23,7 @@ var Optimizely = (module.exports = integration('Optimizely')
   .option('listen', true) // send data via `.track()`
   .option('nonInteraction', false)
   .option('sendRevenueOnlyForOrderCompleted', true)
-  .option('customProps', {}));
+  .option('customExperimentProperties', {}));
 
 /**
  * The name and version for this integration.
@@ -214,17 +214,17 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
       variationName: variationNames.join(', ') // eg. 'Variation X' or 'Variation 1, Variation 2'
     };
 
-    // If customProps is provided overide the props with it.
-    // If valid customProps present it will override existing props.
-    var customProps = this.options.customProps;
-    var customPropsKeys = Object.keys(customProps);
+    // If customExperimentProperties is provided overide the props with it.
+    // If valid customExperimentProperties present it will override existing props.
+    var customExperimentProperties = this.options.customExperimentProperties;
+    var customPropsKeys = Object.keys(customExperimentProperties);
     var data = window.optimizely && window.optimizely.data;
 
     if (data && customPropsKeys.length) {
       for (var index = 0; index < customPropsKeys.length; index++) {
         var segmentProp = customPropsKeys[index];
-        var optimizelyProp = customProps[segmentProp];
-        if (data[optimizelyProp] !== 'undefined') {
+        var optimizelyProp = customExperimentProperties[segmentProp];
+        if (typeof data[optimizelyProp] !== 'undefined') {
           props[segmentProp] = data[optimizelyProp];
         }
       }

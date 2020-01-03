@@ -177,7 +177,7 @@ describe('Optimizely', function() {
     listen: false,
     variations: false,
     nonInteraction: false,
-    customProps: {}
+    customExperimentProperties: {}
   };
 
   beforeEach(function() {
@@ -604,7 +604,7 @@ describe('Optimizely', function() {
       });
 
       it('should map custom properties and send each standard active experiment data via `.track()`', function(done) {
-        optimizely.options.customProps = {
+        optimizely.options.customExperimentProperties = {
           experimentId: 'experiment_id',
           experimentName: 'experiment_name',
           variationId: 'variation_id',
@@ -633,7 +633,7 @@ describe('Optimizely', function() {
       });
 
       it('should map existing properties if custom properties not specified`', function(done) {
-        optimizely.options.customProps = {
+        optimizely.options.customExperimentProperties = {
           variationId: 'variation_id',
           variationName: 'variation_name'
         };
