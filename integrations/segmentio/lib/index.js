@@ -283,8 +283,8 @@ Segment.prototype.normalize = function(message) {
   delete msg.options;
   msg.writeKey = this.options.apiKey;
   ctx.userAgent = navigator.userAgent;
-  const locale = navigator.userLanguage || navigator.language
-  if (locale != undefined) {
+  var locale = navigator.userLanguage || navigator.language
+  if (!ctx.locale && locale != undefined) {
     ctx.locale = locale
   }
   if (!ctx.library)
