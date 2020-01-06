@@ -118,7 +118,7 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
       this.previousEvent.proxy('properties.livestream') === true &&
       date instanceof Date
     ) {
-      time = Math.floor(event.timestamp().getTime() / 1000);
+      time = Math.floor(date.getTime() / 1000);
     } else if (this.previousEvent.proxy('properties.position')) {
       time = this.previousEvent.proxy('properties.position');
     }

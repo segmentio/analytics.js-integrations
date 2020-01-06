@@ -245,6 +245,27 @@ describe('NielsenDTVR', function() {
           });
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
         });
+
+        it('should call end before starting a new content stream if the previous stream was not ended correctly', function() {
+          var previousEvent = {
+            asset_id: '123',
+            ad_asset_id: null,
+            channel: 'segment',
+            load_type: 'dynamic',
+            position: 1,
+            id3: '1',
+            livestream: true
+          };
+          var currentEvent = props;
+          var timestamp = new Date();
+          // when live streams end, we need to pass the Unix timestamp in seconds per Nielsen
+          var unixTime = Math.floor(timestamp.getTime() / 1000);
+          analytics.track('Video Content Started', previousEvent, {
+            timestamp: timestamp
+          });
+          analytics.track('Video Content Started', currentEvent);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', unixTime);
+        });
       });
 
       describe('#persisted data', function() {
