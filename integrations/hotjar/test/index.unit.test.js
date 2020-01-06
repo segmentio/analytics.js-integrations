@@ -108,7 +108,7 @@ describe('Hotjar Unit', function() {
         analytics.reset();
       });
 
-      it('should send and id and traits', function() {
+      it('should send id and traits', function() {
         analytics.stub(window, 'hj');
         var id = 'id';
         var traits = { a: 'a', b: 'b', c: [] };
