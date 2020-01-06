@@ -1,7 +1,7 @@
 {
   "integrations": {
-    "Integration Name": {
-      "settingsSlug": "value"
+    "Google Analytics": {
+      "serversideTrackingId": "foobar"
     }
   }
 }
