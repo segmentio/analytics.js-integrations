@@ -283,9 +283,9 @@ Segment.prototype.normalize = function(message) {
   delete msg.options;
   msg.writeKey = this.options.apiKey;
   ctx.userAgent = navigator.userAgent;
-  var locale = navigator.userLanguage || navigator.language
-  if (!ctx.locale && locale != undefined) {
-    ctx.locale = locale
+  var locale = navigator.userLanguage || navigator.language;
+  if (!ctx.locale && locale !== undefined) {
+    ctx.locale = locale;
   }
   if (!ctx.library)
     ctx.library = { name: 'analytics.js', version: this.analytics.VERSION };
