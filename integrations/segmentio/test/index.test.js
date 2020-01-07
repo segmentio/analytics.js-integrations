@@ -210,6 +210,11 @@ describe('Segment.io', function() {
         analytics.assert(object.context.userAgent === navigator.userAgent);
       });
 
+      it('should add .locale', function() {
+        segment.normalize(object);
+        analytics.assert(object.context.locale === navigator.language);
+      });
+
       it('should add .campaign', function() {
         Segment.global = { navigator: {}, location: {} };
         Segment.global.location.search =
