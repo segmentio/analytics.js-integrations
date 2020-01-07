@@ -118,7 +118,7 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
       this.previousEvent.proxy('properties.livestream') === true &&
       date instanceof Date
     ) {
-      time = this.previousEvent.timestamp().getUTCDate();
+      time = Math.floor(date.getTime() / 1000);
     } else if (this.previousEvent.proxy('properties.position')) {
       time = this.previousEvent.proxy('properties.position');
     }
@@ -282,7 +282,7 @@ NielsenDTVR.prototype.end = function(event) {
   var position = event.proxy('properties.position');
   var time;
   if (livestream) {
-    time = Date.now(event.timestamp());
+    time = Math.floor(event.timestamp().getTime() / 1000);
   } else if (position) {
     time = position;
   }
