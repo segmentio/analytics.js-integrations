@@ -39,6 +39,7 @@ var Mixpanel = (module.exports = integration('Mixpanel')
   .option('trackCategorizedPages', false)
   .option('groupIdentifierTraits', [])
   .option('sourceName', '')
+  .option('enableEuropeanUnionEndpoint', false)
   .tag('<script src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">'));
 
 /**
@@ -69,6 +70,10 @@ for(h=0;h<k.length;h++)e(d,k[h]);a._i.push([b,c,f])};a.__SV=1.2;}})(document,win
   this.options.eventIncrements = lowercase(this.options.eventIncrements);
   this.options.propIncrements = lowercase(this.options.propIncrements);
   var options = alias(this.options, optionsAliases);
+  if (this.options.enableEuropeanUnionEndpoint) {
+    // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
+    options.api_host = 'api-eu.mixpanel.com';
+  }
   // tag ajs requests with Segment by request from Mixpanel team for better mutual debugging
   options.loaded = function(mixpanel) {
     mixpanel.register({ mp_lib: 'Segment: web' });
