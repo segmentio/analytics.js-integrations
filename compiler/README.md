@@ -75,8 +75,8 @@ must be defined as JSON in this format:
 ```json
 {
   "integrations": {
-    "Integration Name": {
-      "settingsSlug": "value"
+    "Google Analytics": {
+      "serversideTrackingId": "foobar"
     }
   }
 }
