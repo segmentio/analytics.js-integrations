@@ -72,7 +72,7 @@ for(h=0;h<k.length;h++)e(d,k[h]);a._i.push([b,c,f])};a.__SV=1.2;}})(document,win
   var options = alias(this.options, optionsAliases);
   if (this.options.enableEuropeanUnionEndpoint) {
     // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
-    options.api_host = 'api-eu.mixpanel.com';
+    options.api_host = 'https://api-eu.mixpanel.com';
   }
   // tag ajs requests with Segment by request from Mixpanel team for better mutual debugging
   options.loaded = function(mixpanel) {
