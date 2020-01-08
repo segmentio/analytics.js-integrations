@@ -5,7 +5,6 @@ var integrationTester = require('@segment/analytics.js-integration-tester');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var NielsenDTVR = require('../lib/');
-var sinon = require('sinon');
 var Track = require('segmentio-facade').Track;
 var assert = require('assert');
 
@@ -205,18 +204,16 @@ describe('NielsenDTVR', function() {
         });
 
         it('should send video playback completed livestream', function() {
-          var timestamp = new Date();
-          var currentUTC = +Date.now(timestamp);
-          var newSandbox = sinon.sandbox.create();
-          newSandbox.stub(Date, 'now').returns(currentUTC);
-
           props.livestream = true;
+
+          var timestamp = new Date();
+          // when live streams end, we need to pass the Unix timestamp in seconds per Nielsen
+          var unixTime = Math.floor(timestamp.getTime() / 1000);
 
           analytics.track('Video Playback Completed', props, {
             timestamp: timestamp
           });
-          analytics.called(nielsenDTVR.client.ggPM, 'end', currentUTC);
-          newSandbox.restore();
+          analytics.called(nielsenDTVR.client.ggPM, 'end', unixTime);
         });
       });
 
@@ -247,6 +244,27 @@ describe('NielsenDTVR', function() {
             adModel: '2'
           });
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
+        });
+
+        it('should call end before starting a new content stream if the previous stream was not ended correctly', function() {
+          var previousEvent = {
+            asset_id: '123',
+            ad_asset_id: null,
+            channel: 'segment',
+            load_type: 'dynamic',
+            position: 1,
+            id3: '1',
+            livestream: true
+          };
+          var currentEvent = props;
+          var timestamp = new Date();
+          // when live streams end, we need to pass the Unix timestamp in seconds per Nielsen
+          var unixTime = Math.floor(timestamp.getTime() / 1000);
+          analytics.track('Video Content Started', previousEvent, {
+            timestamp: timestamp
+          });
+          analytics.track('Video Content Started', currentEvent);
+          analytics.called(nielsenDTVR.client.ggPM, 'end', unixTime);
         });
       });
 
