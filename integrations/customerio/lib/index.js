@@ -9,6 +9,7 @@ var alias = require('@segment/alias');
 var convertDates = require('@segment/convert-dates');
 var integration = require('@segment/analytics.js-integration');
 
+var MAX_YEAR_SUPPORTED_AS_UNIX = 1970;
 /**
  * Expose `Customerio` integration.
  */
@@ -125,5 +126,8 @@ Customerio.prototype.track = function(track) {
  */
 
 function convertDate(date) {
+  if (date.getFullYear() < MAX_YEAR_SUPPORTED_AS_UNIX) {
+    return date.toISOString();
+  }
   return Math.floor(date.getTime() / 1000);
 }
