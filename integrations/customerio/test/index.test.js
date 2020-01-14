@@ -131,7 +131,7 @@ describe('Customer.io', function() {
       });
 
       it('should convert dates before 1970 to ISO 8601 timestamps', function() {
-        var date = new Date('11-25-1069');
+        var date = new Date('1069-11-25');
         analytics.identify('id', { date: date });
         analytics.called(window._cio.identify, {
           id: 'id',
@@ -190,7 +190,7 @@ describe('Customer.io', function() {
       });
 
       it('should convert dates before 1970 to ISO 8601 timestamps', function() {
-        var date = new Date('11-25-1069');
+        var date = new Date('1069-11-25');
         analytics.group({ date: date });
         analytics.called(window._cio.identify, {
           id: 'id',
@@ -223,7 +223,7 @@ describe('Customer.io', function() {
       });
 
       it('should convert dates before 1970 to ISO 8601 timestamps', function() {
-        var date = new Date('11-25-1069');
+        var date = new Date('1069-11-25');
         analytics.track('event', { date: date });
         analytics.called(window._cio.track, 'event', {
           date: date.toISOString()
