@@ -1,4 +1,9 @@
 
+3.5.0 / 2019-12-28
+==================
+
+  * Added support for setting custom props field mapping via option `customExperimentProperties` & `customCampaignProperties`. Its a mapping of key(segment property) and value(optimizely property).
+
 3.4.1 / 2018-04-05
 ==================
 
@@ -21,7 +26,7 @@
 3.3.0 / 2017-04-17
 ==================
 
-  * Adds option `onlySendRevenueOnOrderCompleted` to send revenue only on `Order Completed` events, which will default to `true` for new users  
+  * Adds option `onlySendRevenueOnOrderCompleted` to send revenue only on `Order Completed` events, which will default to `true` for new users
 
 3.2.1 / 2017-03-23
 ==================
