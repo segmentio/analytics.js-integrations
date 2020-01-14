@@ -130,6 +130,15 @@ describe('Customer.io', function() {
         });
       });
 
+      it('should convert dates before 1970 to ISO 8601 timestamps', function() {
+        var date = new Date('1069-11-25');
+        analytics.identify('id', { date: date });
+        analytics.called(window._cio.identify, {
+          id: 'id',
+          date: date.toISOString()
+        });
+      });
+
       it('should alias created to created_at', function() {
         var date = new Date();
         analytics.identify('id', { created: date });
@@ -179,6 +188,15 @@ describe('Customer.io', function() {
           'Group date': Math.floor(date / 1000)
         });
       });
+
+      it('should convert dates before 1970 to ISO 8601 timestamps', function() {
+        var date = new Date('1069-11-25');
+        analytics.group({ date: date });
+        analytics.called(window._cio.identify, {
+          id: 'id',
+          'Group date': date.toISOString()
+        });
+      });
     });
 
     describe('#track', function() {
@@ -201,6 +219,14 @@ describe('Customer.io', function() {
         analytics.track('event', { date: date });
         analytics.called(window._cio.track, 'event', {
           date: Math.floor(date / 1000)
+        });
+      });
+
+      it('should convert dates before 1970 to ISO 8601 timestamps', function() {
+        var date = new Date('1069-11-25');
+        analytics.track('event', { date: date });
+        analytics.called(window._cio.track, 'event', {
+          date: date.toISOString()
         });
       });
     });
