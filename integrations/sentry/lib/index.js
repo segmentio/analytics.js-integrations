@@ -12,7 +12,7 @@ var foldl = require('@ndhoule/foldl');
  */
 
 var Sentry = (module.exports = integration('Sentry')
-  .global('Sentry') // do we need a global here?
+  .global('Sentry')
   .option('config', '')
   .option('serverName', null)
   .option('release', null)
@@ -26,7 +26,7 @@ var Sentry = (module.exports = integration('Sentry')
   .option('level', '')
   .option('debug', false)
   .tag(
-    '<script src="https://browser.sentry-cdn.com/5.7.1/bundle.min.js" integrity="sha384-KMv6bBTABABhv0NI+rVWly6PIRvdippFEgjpKyxUcpEmDWZTkDOiueL5xW+cztZZ" crossorigin="anonymous"></script>'
+    '<script src="https://browser.sentry-cdn.com/5.11.0/bundle.min.js" integrity="sha384-jbFinqIbKkHNg+QL+yxB4VrBC0EAPTuaLGeRT0T+NfEV89YC6u1bKxHLwoo+/xxY" crossorigin="anonymous"></script>'
   ));
 
 /**
@@ -52,15 +52,14 @@ Sentry.prototype.initialize = function() {
     debug: this.options.debug
   };
 
-  var level = this.options.level;
-  if (level) {
-    window.Sentry.configureScope(function(scope) {
-      scope.setLevel(level);
+  var self = this;
+  this.load(function() {
+    window.Sentry.onLoad(function() {
+      window.Sentry.init(reject(options));
     });
-  }
 
-  window.Sentry.init(reject(options));
-  this.load(this.ready);
+    self.ready();
+  });
 };
 
 /**
@@ -82,9 +81,7 @@ Sentry.prototype.loaded = function() {
  */
 
 Sentry.prototype.identify = function(identify) {
-  window.Sentry.configureScope(function(scope) {
-    scope.setUser(identify.traits());
-  });
+  window.Sentry.setUser(identify.traits());
 };
 
 /**
