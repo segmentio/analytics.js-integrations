@@ -30,7 +30,6 @@ describe('Sentry', function() {
     whitelistUrls: ['/getsentry.com/', 'segment.com'],
     logger: 'development', // Sentry: environment
     customVersionProperty: null, // Sentry: release
-    level: 'warning',
     debug: false
   };
 
@@ -64,7 +63,6 @@ describe('Sentry', function() {
         .option('maxMessageLength', null)
         .option('logger', null)
         .option('customVersionProperty', null)
-        .option('level')
         .option('debug', false)
     );
   });
@@ -80,76 +78,6 @@ describe('Sentry', function() {
         analytics.page();
         analytics.called(sentry.load);
       });
-
-      it('should respect UI settings', function() {
-        var config = {
-          dsn: options.config,
-          environment: options.logger,
-          release: options.release,
-          serverName: options.serverName,
-          whitelistUrls: options.whitelistUrls,
-          blacklistUrls: options.ignoreUrls,
-          debug: options.debug
-        };
-        analytics.initialize();
-        analytics.assert(window.SentryConfig.dsn === options.config);
-        analytics.assert.deepEqual(window.SentryConfig.config, config);
-      });
-
-      it('should allow and set custom versions', function() {
-        var config = {
-          logger: options.logger,
-          serverName: options.serverName,
-          whitelistUrls: options.whitelistUrls,
-          ignoreErrors: options.ignoreErrors,
-          ignoreUrls: options.ignoreUrls,
-          includePaths: options.includePaths,
-          maxMessageLength: options.maxMessageLength,
-          release: '2.4.0'
-        };
-
-        sentry.options.customVersionProperty = 'my_custom_version_property';
-        window.my_custom_version_property = '2.4.0';
-        analytics.initialize();
-
-        // Need to delete before asserts to prevent leaking effects in case of failure.
-        delete window.my_custom_version_property;
-
-        analytics.assert(window.SentryConfig.dsn === options.config);
-        analytics.assert.deepEqual(window.SentryConfig.config, config);
-      });
-
-      it('should reject null settings', function() {
-        sentry.options.release = null;
-        analytics.initialize();
-        analytics.assert(!window.SentryConfig.config.release);
-      });
-
-      it('should reject empty strings', function() {
-        sentry.options.release = '';
-        analytics.initialize();
-        analytics.assert(!window.SentryConfig.config.release);
-      });
-
-      it('should reject empty array settings', function() {
-        sentry.options.ignoreUrls = [];
-        analytics.initialize();
-        analytics.assert(!window.SentryConfig.config.ignoreUrls);
-      });
-
-      it('should reject arrays that have empty strings', function() {
-        sentry.options.ignoreUrls = [''];
-        analytics.initialize();
-        analytics.assert(!window.SentryConfig.config.ignoreUrls);
-      });
-
-      it('should clean arrays', function() {
-        sentry.options.ignoreUrls = ['', 'foo'];
-        sentry.options.includePaths = ['', ''];
-        analytics.initialize();
-        analytics.assert(window.SentryConfig.config.ignoreUrls[0] === 'foo');
-        analytics.assert(!window.SentryConfig.config.includePaths);
-      });
     });
   });
 
@@ -164,6 +92,18 @@ describe('Sentry', function() {
       analytics.once('ready', done);
       analytics.initialize();
       analytics.page();
+    });
+
+    it('should capture error event', function() {
+      analytics.stub(window.Sentry, 'captureException');
+
+      try {
+        // eslint-disable-next-line no-undef
+        aFunctionThatMightFail();
+      } catch (err) {
+        window.Sentry.captureException(err);
+      }
+      analytics.called(window.Sentry.captureException);
     });
 
     describe('#identify', function() {
