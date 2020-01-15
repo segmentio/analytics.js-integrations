@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-sentry",
   "description": "The Sentry analytics.js integration.",
-  "version": "2.6.2",
+  "version": "3.0.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

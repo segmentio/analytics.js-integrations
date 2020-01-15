@@ -12,20 +12,21 @@ var foldl = require('@ndhoule/foldl');
  */
 
 var Sentry = (module.exports = integration('Sentry')
-  .global('Raven')
-  .global('RavenConfig')
+  .global('Sentry') // do we need a global here?
   .option('config', '')
   .option('serverName', null)
   .option('release', null)
-  .option('ignoreErrors', [])
+  .option('ignoreErrors', []) // deprecated
   .option('ignoreUrls', [])
   .option('whitelistUrls', [])
-  .option('includePaths', [])
-  .option('maxMessageLength', null)
+  .option('includePaths', []) // deprecated
+  .option('maxMessageLength', null) // deprecated
   .option('logger', null)
   .option('customVersionProperty', null)
+  .option('level', '')
+  .option('debug', false)
   .tag(
-    '<script src="https://cdn.ravenjs.com/3.17.0/raven.min.js" crossorigin="anonymous">'
+    '<script src="https://browser.sentry-cdn.com/5.7.1/bundle.min.js" integrity="sha384-KMv6bBTABABhv0NI+rVWly6PIRvdippFEgjpKyxUcpEmDWZTkDOiueL5xW+cztZZ" crossorigin="anonymous"></script>'
   ));
 
 /**
@@ -37,26 +38,28 @@ var Sentry = (module.exports = integration('Sentry')
  */
 
 Sentry.prototype.initialize = function() {
-  var dsnPublic = this.options.config;
   var customRelease = this.options.customVersionProperty
     ? window[this.options.customVersionProperty]
     : null;
+
   var options = {
-    logger: this.options.logger,
+    dsn: this.options.config,
+    environment: this.options.logger,
     release: customRelease || this.options.release,
     serverName: this.options.serverName,
     whitelistUrls: this.options.whitelistUrls,
-    ignoreErrors: this.options.ignoreErrors,
-    ignoreUrls: this.options.ignoreUrls,
-    includePaths: this.options.includePaths,
-    maxMessageLength: this.options.maxMessageLength
+    blacklistUrls: this.options.ignoreUrls,
+    debug: this.options.debug
   };
 
-  window.RavenConfig = {
-    dsn: dsnPublic,
-    config: reject(options)
-  };
+  var level = this.options.level;
+  if (level) {
+    window.Sentry.configureScope(function(scope) {
+      scope.setLevel(level);
+    });
+  }
 
+  window.Sentry.init(reject(options));
   this.load(this.ready);
 };
 
@@ -68,7 +71,7 @@ Sentry.prototype.initialize = function() {
  */
 
 Sentry.prototype.loaded = function() {
-  return is.object(window.Raven);
+  return is.object(window.Sentry);
 };
 
 /**
@@ -79,7 +82,9 @@ Sentry.prototype.loaded = function() {
  */
 
 Sentry.prototype.identify = function(identify) {
-  window.Raven.setUserContext(identify.traits());
+  window.Sentry.configureScope(function(scope) {
+    scope.setUser(identify.traits());
+  });
 };
 
 /**
