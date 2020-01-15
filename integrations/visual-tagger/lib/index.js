@@ -24,6 +24,7 @@ Tracktor.prototype.initialize = function() {
   var tracktor = new TracktorLib(
     this.options.workspaceId,
     this.options.sourceId,
+    this.options.instrumentationSpec,
     window.document
   );
   window.Tracktor = TracktorLib;

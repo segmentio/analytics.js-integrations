@@ -193,7 +193,10 @@ function matchConversion(mappedConversions, segmentEvent) {
     var conversion = setting.value || setting;
 
     // to prevent common casing mistakes in our UI
-    if (segmentEvent.toLowerCase() === conversion.event.toLowerCase()) {
+    if (
+      typeof segmentEvent === 'string' &&
+      segmentEvent.toLowerCase() === conversion.event.toLowerCase()
+    ) {
       var con = { id: conversion.id };
       if (conversion.accountId) con.override = conversion.accountId;
 

@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics.js-integration-visual-tagger",
-  "version": "0.1.5",
+  "version": "0.2.1",
   "description": "The Visual Tagger analyticsjs integration",
   "main": "lib/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@segment/tracktor": "0.6.2",
+    "@segment/tracktor": "0.8.1",
     "do-when": "^1.0.0"
   }
 }
