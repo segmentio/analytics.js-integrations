@@ -18,7 +18,8 @@ describe('Mixpanel', function() {
     consolidatedPageCalls: false,
     trackCategorizedPages: true,
     trackNamedPages: true,
-    groupIdentifierTraits: []
+    groupIdentifierTraits: [],
+    enableEuropeanUnionEndpoint: false
   };
 
   beforeEach(function() {
@@ -56,6 +57,7 @@ describe('Mixpanel', function() {
         .option('trackCategorizedPages', false)
         .option('groupIdentifierTraits', [])
         .option('sourceName', '')
+        .option('enableEuropeanUnionEndpoint', false)
     );
   });
 
