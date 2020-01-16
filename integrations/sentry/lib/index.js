@@ -14,6 +14,7 @@ var foldl = require('@ndhoule/foldl');
 var Sentry = (module.exports = integration('Sentry')
   .global('Sentry')
   .option('config', '')
+  .option('environment', null)
   .option('serverName', null)
   .option('release', null)
   .option('ignoreErrors', []) // deprecated
@@ -23,7 +24,6 @@ var Sentry = (module.exports = integration('Sentry')
   .option('maxMessageLength', null) // deprecated
   .option('logger', null)
   .option('customVersionProperty', null)
-  .option('level', '')
   .option('debug', false)
   .tag(
     '<script src="https://browser.sentry-cdn.com/5.11.0/bundle.min.js" integrity="sha384-jbFinqIbKkHNg+QL+yxB4VrBC0EAPTuaLGeRT0T+NfEV89YC6u1bKxHLwoo+/xxY" crossorigin="anonymous"></script>'
@@ -31,9 +31,8 @@ var Sentry = (module.exports = integration('Sentry')
 
 /**
  * Initialize.
+ * https://docs.sentry.io/error-reporting/quickstart/?platform=browser
  *
- * https://docs.sentry.io/clients/javascript/config/
- * https://github.com/getsentry/raven-js/blob/3.12.1/src/raven.js#L646-L649
  * @api public
  */
 
@@ -44,7 +43,7 @@ Sentry.prototype.initialize = function() {
 
   var options = {
     dsn: this.options.config,
-    environment: this.options.logger,
+    environment: this.options.environment,
     release: customRelease || this.options.release,
     serverName: this.options.serverName,
     whitelistUrls: this.options.whitelistUrls,
@@ -52,10 +51,15 @@ Sentry.prototype.initialize = function() {
     debug: this.options.debug
   };
 
+  var logger = this.options.logger;
   var self = this;
   this.load(function() {
     window.Sentry.onLoad(function() {
       window.Sentry.init(reject(options));
+
+      if (logger) {
+        window.Sentry.setTag('logger', logger);
+      }
     });
 
     self.ready();

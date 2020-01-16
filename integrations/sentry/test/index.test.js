@@ -13,22 +13,24 @@ var Sentry = require('../lib/');
  *
  * Segment setting - Sentry config option
  * config - dsn
+ * customVersionProperty || release - release
  * ignoreUrls - blacklistUrls
- * logger - environment (if release is not specified)
- * customVersionProperty - release (fallback if `release` is not specified)
+ * logger - logger (type `tag`, NOT actual config option)
+ * customVersionProperty - release
  */
 
 describe('Sentry', function() {
   var sentry;
   var analytics;
   var options = {
-    config: 'https://8152fdb57e8c4ec1b60d27745bda8cbd@sentry.io/52723', // Sentry: dsn
+    config: 'https://ee3da278a59448c9866f7099b81249ac@sentry.io/1883422', // Sentry: dsn
+    environment: 'development',
     serverName: 'B5372DB0-C21E-11E4-8DFC-AA07A5B093DB',
     release: '721e41770371db95eee98ca2707686226b993eda',
     ignoreErrors: ['fb_xd_fragment'],
     ignoreUrls: ['/graph.facebook.com/', 'http://example.com/script2.js'], // Sentry: blacklistUrls
     whitelistUrls: ['/getsentry.com/', 'segment.com'],
-    logger: 'development', // Sentry: environment
+    logger: 'javascript', // Sentry: type `tag`, key "logger"
     customVersionProperty: null, // Sentry: release
     debug: false
   };
@@ -54,6 +56,7 @@ describe('Sentry', function() {
       integration('Sentry')
         .global('Sentry')
         .option('config', '')
+        .option('environment', null)
         .option('serverName', null)
         .option('release', null)
         .option('ignoreErrors', [])
@@ -99,7 +102,7 @@ describe('Sentry', function() {
 
       try {
         // eslint-disable-next-line no-undef
-        aFunctionThatMightFail();
+        myUndefinedFunction();
       } catch (err) {
         window.Sentry.captureException(err);
       }
