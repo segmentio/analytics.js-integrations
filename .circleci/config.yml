@@ -52,17 +52,16 @@ jobs:
             if [ "CIRCLE_BRANCH" == "master" ]
             then
               git fetch --force origin "master:remotes/origin/master"
+            else
+              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
 
             if [ -n "$CIRCLE_BRANCH" ]
             then
               git reset --hard "$CIRCLE_SHA1"
               git checkout -q -B "$CIRCLE_BRANCH"
-            else
-              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
 
-            git reset --hard "$CIRCLE_SHA1"
       - run:
           name: Determine which projects have changed and trigger the builds
           command: |
