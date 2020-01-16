@@ -63,9 +63,6 @@ jobs:
               echo "$CIRCLE_SHA1"
               git checkout -q -B "$CIRCLE_BRANCH"
               echo "$CIRCLE_BRANCH"
-            # else
-            #   echo "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            #   git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
 
             git reset --hard "$CIRCLE_SHA1"
