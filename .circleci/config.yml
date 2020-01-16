@@ -54,8 +54,8 @@ jobs:
             then
               git fetch --force origin "master:remotes/origin/master"
             else
-              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
               echo "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
 
             if [ -n "$CIRCLE_BRANCH" ]
