@@ -56,15 +56,16 @@ jobs:
               git fetch --force origin "master:remotes/origin/master"
             fi
 
+            git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             if [ -n "$CIRCLE_BRANCH" ]
             then
-              git reset --hard "$CIRCLE_SHA1"s
+              git reset --hard "$CIRCLE_SHA1"
               echo "$CIRCLE_SHA1"
               git checkout -q -B "$CIRCLE_BRANCH"
               echo "$CIRCLE_BRANCH"
-            else
-              echo "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+            # else
+            #   echo "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+            #   git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
 
             git reset --hard "$CIRCLE_SHA1"
