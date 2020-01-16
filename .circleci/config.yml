@@ -52,9 +52,13 @@ jobs:
             git clone "$CIRCLE_REPOSITORY_URL" .
 
             if [ "CIRCLE_BRANCH" == "master" ]
+            then
               git fetch --force origin "master:remotes/origin/master"
-            else if [ -n "$CIRCLE_BRANCH" ]
-              git reset --hard "$CIRCLE_SHA1"
+            fi
+
+            if [ -n "$CIRCLE_BRANCH" ]
+            then
+              git reset --hard "$CIRCLE_SHA1"s
               echo "$CIRCLE_SHA1"
               git checkout -q -B "$CIRCLE_BRANCH"
               echo "$CIRCLE_BRANCH"
