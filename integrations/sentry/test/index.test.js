@@ -8,8 +8,7 @@ var Sentry = require('../lib/');
 
 /**
  * Segment settings slugs do not always match the configuration option name
- * in Senty. Here are the relevant mappings that may cause confusion:
- * https://docs.sentry.io/error-reporting/configuration/?platform=browser
+ * in Sentry. Below are the relevant mappings that may cause confusion.
  *
  * Segment setting - Sentry config option
  * config - dsn
@@ -17,6 +16,8 @@ var Sentry = require('../lib/');
  * ignoreUrls - blacklistUrls
  * logger - logger (type `tag`, NOT actual config option)
  * customVersionProperty - release
+ *
+ * Sentry configuration docs: https://docs.sentry.io/error-reporting/configuration/?platform=browser
  */
 
 describe('Sentry', function() {
@@ -30,7 +31,7 @@ describe('Sentry', function() {
     ignoreErrors: ['fb_xd_fragment'],
     ignoreUrls: ['/graph.facebook.com/', 'http://example.com/script2.js'], // Sentry: blacklistUrls
     whitelistUrls: ['/getsentry.com/', 'segment.com'],
-    logger: 'javascript', // Sentry: type `tag`, key "logger"
+    logger: 'javascript', // Sentry: type `tag`, key "logger" https://docs.sentry.io/enriching-error-data/context/?platform=browser#tagging-events
     customVersionProperty: null, // Sentry: release
     debug: false
   };
@@ -97,7 +98,7 @@ describe('Sentry', function() {
       analytics.page();
     });
 
-    it('should capture error event', function() {
+    it('should capture error events', function() {
       analytics.stub(window.Sentry, 'captureException');
 
       try {
