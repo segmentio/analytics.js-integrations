@@ -53,12 +53,7 @@ jobs:
             if [ "CIRCLE_BRANCH" == "master" ]
             then
               git fetch --force origin "master:remotes/origin/master"
-            # else
-            #   echo "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            #   git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            fi
-
-            if [ -n "$CIRCLE_BRANCH" ]
+            else if [ -n "$CIRCLE_BRANCH" ]
             then
               git reset --hard "$CIRCLE_SHA1"
               echo "$CIRCLE_SHA1"
