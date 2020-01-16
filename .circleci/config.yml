@@ -62,6 +62,8 @@ jobs:
               git checkout -q -B "$CIRCLE_BRANCH"
             fi
 
+            git reset --hard "$CIRCLE_SHA1"
+
       - run:
           name: Determine which projects have changed and trigger the builds
           command: |
