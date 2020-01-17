@@ -322,11 +322,7 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   // because nielsen ties ad attribution to the content not playback session
   if (type === 'preroll') {
     contentMetadata = this.getContentMetadata(track, 'contentEvent');
-
-    this._client.ggPM(
-      'loadMetadata',
-      this.getContentMetadata(track, 'contentEvent')
-    );
+    this._client.ggPM('loadMetadata', contentMetadata);
   }
 
   var adMetadata = {
@@ -335,7 +331,7 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   };
 
   this._client.ggPM('loadMetadata', adMetadata);
-  // contentMetadata may be an empty object here, but that's ok
+  // contentMetadata may be an empty object below, but that's ok
   // in this case, the assetId will be passed as `undefined` to the `heartbeat` method, b/c we only
   // need an assetid if a content assetid is set in properties or content.properties
   this.heartbeat(contentMetadata.assetid, position);
