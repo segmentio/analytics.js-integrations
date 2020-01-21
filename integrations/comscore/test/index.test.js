@@ -58,7 +58,7 @@ describe('comScore', function() {
         analytics.assert(window._comscore instanceof Array);
       });
 
-      it.only('should push values if window._comscore already exists', function() {
+      it('should push values if window._comscore already exists', function() {
         window._comscore = ['test value'];
         analytics.initialize();
         analytics.page('testing', { exampleParam: 'testing' });
