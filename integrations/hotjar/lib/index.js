@@ -7,7 +7,9 @@ var is = require('is');
  * Expose `HotJar` integration
  */
 
-var Hotjar = (module.exports = integration('Hotjar').option('hjid', null));
+var Hotjar = (module.exports = integration('Hotjar')
+  .option('hjid', null)
+  .option('hjPlaceholderPolyfill', true));
 
 /**
  * Initialize HotJar
@@ -18,7 +20,8 @@ Hotjar.prototype.initialize = function() {
   function areOptionsValid(options) {
     var validators = {
       isHjidValid:
-        is.number(options.hjid) && !is.nan(options.hjid) && options.hjid !== 0 // Make sure that HJID is a number (and isn't NaN)
+        is.number(options.hjid) && !is.nan(options.hjid) && options.hjid !== 0, // Make sure that HJID is a number (and isn't NaN)
+      isPlaceholderPolyfillValid: is.bool(options.hjPlaceholderPolyfill) // Make sure we received a boolean.
     };
 
     for (var validator in validators) {
@@ -50,7 +53,8 @@ Hotjar.prototype.initialize = function() {
       };
     h._hjSettings = {
       hjid: h._hjSelf.options.hjid,
-      hjsv: 6
+      hjsv: 6,
+      hjPlaceholderPolyfill: h._hjSelf.options.hjPlaceholderPolyfill
     };
     a = o.getElementsByTagName('head')[0];
     r = o.createElement('script');
