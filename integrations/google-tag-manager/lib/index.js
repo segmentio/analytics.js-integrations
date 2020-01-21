@@ -5,26 +5,25 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var push = require('global-queue')('dataLayer', { wrap: false });
 
 /**
  * Expose `GTM`.
  */
 
 var GTM = (module.exports = integration('Google Tag Manager')
-  .global('dataLayer')
   .global('google_tag_manager')
   .option('containerId', '')
   .option('environment', '')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
+  .option('dataLayer', '')
   .tag(
     'no-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer">'
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ dataLayer }}">'
   )
   .tag(
     'with-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">'
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ dataLayer }}&gtm_preview={{ environment }}">'
   ));
 
 /**
@@ -36,7 +35,16 @@ var GTM = (module.exports = integration('Google Tag Manager')
  */
 
 GTM.prototype.initialize = function() {
-  push({ 'gtm.start': Number(new Date()), event: 'gtm.js' });
+  if (!this.options.dataLayer) {
+    // hard-coding default dataLayer key here to avoid a settings backfill via destinations config service
+    this.options.dataLayer = 'dataLayer';
+  }
+
+  window[this.options.dataLayer] = window[this.options.dataLayer] || [];
+  window[this.options.dataLayer].push({
+    'gtm.start': Number(new Date()),
+    event: 'gtm.js'
+  });
 
   if (this.options.environment.length) {
     this.load('with-env', this.options, this.ready);
@@ -53,7 +61,10 @@ GTM.prototype.initialize = function() {
  */
 
 GTM.prototype.loaded = function() {
-  return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+  return !!(
+    window[this.options.dataLayer] &&
+    Array.prototype.push !== window[this.options.dataLayer].push
+  );
 };
 
 /**
@@ -101,5 +112,5 @@ GTM.prototype.track = function(track) {
   if (anonymousId) props.segmentAnonymousId = anonymousId;
   props.event = track.event();
 
-  push(props);
+  window[this.options.dataLayer].push(props);
 };
