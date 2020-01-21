@@ -63,6 +63,7 @@ var GA = (exports.Integration = integration('Google Analytics')
   .option('optimize', '')
   .option('nameTracker', false)
   .option('resetCustomDimensionsOnPage', [])
+  .option('trackerName', null)
   .tag('library', '<script src="//www.google-analytics.com/analytics.js">')
   .tag('double click', '<script src="//stats.g.doubleclick.net/dc.js">')
   .tag('http', '<script src="http://www.google-analytics.com/ga.js">')
@@ -131,7 +132,11 @@ GA.prototype.initialize = function() {
   };
 
   // set tracker name to avoid collisions with unnamed third party trackers
-  if (opts.nameTracker) {
+  // trackerName is prioritized so when `nameTracker: true`, the trackerName can still be set
+  if (opts.trackerName) {
+    config.name = opts.trackerName;
+    this._trackerName = opts.trackerName; // tracker name must be prepended to all ga method calls with format [name].[method]
+  } else if (opts.nameTracker) {
     config.name = 'segmentGATracker';
     this._trackerName = 'segmentGATracker.'; // tracker name must be prepended to all ga method calls with format [name].[method]
   } else {
