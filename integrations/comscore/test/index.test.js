@@ -57,6 +57,17 @@ describe('comScore', function() {
         analytics.page();
         analytics.assert(window._comscore instanceof Array);
       });
+
+      it.only('should push values if window._comscore already exists', function() {
+        window._comscore = ['test value'];
+        analytics.initialize();
+        analytics.page('testing', { exampleParam: 'testing' });
+        analytics.assert(window._comscore instanceof Array);
+        analytics.assert(window._comscore, [
+          'test value',
+          { c5: 'testing', c1: '2', c2: 'x', comscorekw: 'test' }
+        ]);
+      });
     });
   });
 
