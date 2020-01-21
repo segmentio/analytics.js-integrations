@@ -134,7 +134,7 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
   if (livestream) {
     // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
     this.currentPosition = getOffsetTime(position);
-  } else if (position) {
+  } else if (position >= 0) {
     // this.currentPosition defaults to 0 upon initialization
     this.currentPosition = position;
   }
@@ -310,6 +310,7 @@ NielsenDCR.prototype.videoContentCompleted = function(track) {
 NielsenDCR.prototype.videoAdStarted = function(track) {
   clearInterval(this.heartbeatId);
 
+  var contentMetadata = {};
   var adAssetId = this.options.adAssetIdPropertyName
     ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
     : track.proxy('properties.asset_id');
@@ -320,10 +321,8 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   // edge case: if pre-roll, you must load the content metadata first
   // because nielsen ties ad attribution to the content not playback session
   if (type === 'preroll') {
-    this._client.ggPM(
-      'loadMetadata',
-      this.getContentMetadata(track, 'contentEvent')
-    );
+    contentMetadata = this.getContentMetadata(track, 'contentEvent');
+    this._client.ggPM('loadMetadata', contentMetadata);
   }
 
   var adMetadata = {
@@ -332,7 +331,10 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   };
 
   this._client.ggPM('loadMetadata', adMetadata);
-  this.heartbeat(adAssetId, position);
+  // contentMetadata may be an empty object below, but that's ok
+  // in this case, the assetId will be passed as `undefined` to the `heartbeat` method, b/c we only
+  // need an assetid if a content assetid is set in properties or content.properties
+  this.heartbeat(contentMetadata.assetid, position);
 };
 
 /**
