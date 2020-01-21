@@ -66,3 +66,14 @@ Hotjar.prototype.initialize = function() {
 
   this.ready();
 };
+
+Hotjar.prototype.identify = function(identify) {
+  if (!identify.userId()) {
+    return this.debug('user id is required');
+  }
+
+  var traits = identify.traits();
+  delete traits.id;
+
+  window.hj('identify', identify.userId(), traits);
+};
