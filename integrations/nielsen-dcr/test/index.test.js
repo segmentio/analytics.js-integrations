@@ -527,11 +527,7 @@ describe('NielsenDCR', function() {
             assetid: props.asset_id,
             type: 'midroll'
           });
-          analytics.called(
-            nielsenDCR.heartbeat,
-            props.asset_id,
-            props.position
-          );
+          analytics.called(nielsenDCR.heartbeat, undefined, props.position);
         });
 
         it('video ad started with custom asset id', function() {
@@ -542,11 +538,7 @@ describe('NielsenDCR', function() {
             assetid: props.custom_asset_id_prop,
             type: 'midroll'
           });
-          analytics.called(
-            nielsenDCR.heartbeat,
-            props.custom_asset_id_prop,
-            props.position
-          );
+          analytics.called(nielsenDCR.heartbeat, undefined, props.position);
         });
 
         it('video ad started — preroll', function() {
@@ -599,7 +591,7 @@ describe('NielsenDCR', function() {
           ]);
           analytics.called(
             nielsenDCR.heartbeat,
-            props.asset_id,
+            props.content.asset_id,
             props.position
           );
         });
@@ -656,7 +648,7 @@ describe('NielsenDCR', function() {
           ]);
           analytics.called(
             nielsenDCR.heartbeat,
-            props.asset_id,
+            props.content.custom_asset_id_prop,
             props.position
           );
         });
@@ -717,7 +709,7 @@ describe('NielsenDCR', function() {
           ]);
           analytics.called(
             nielsenDCR.heartbeat,
-            props.asset_id,
+            props.content.asset_id,
             props.position
           );
         });
