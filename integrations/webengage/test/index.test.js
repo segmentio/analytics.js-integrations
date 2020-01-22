@@ -10,7 +10,9 @@ describe('WebEngage', function() {
   var analytics;
   var webengage;
   var options = {
-    licenseCode: '~2024c003'
+    licenseCode: '~2024c003',
+    region: 'IN',
+    isSpa: true
   };
 
   beforeEach(function() {
