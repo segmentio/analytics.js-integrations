@@ -65,7 +65,12 @@ Comscore.prototype.page = function(page) {
 };
 
 Comscore.prototype._initialize = function() {
-  window._comscore = window._comscore || [this.comScoreParams];
+  window._comscore = window._comscore || [];
+
+  if (Object.keys(this.comScoreParams).length > 0) {
+    window._comscore.push(this.comScoreParams);
+  }
+
   var tagName = useHttps() ? 'https' : 'http';
   this.load(tagName, this.ready);
 };
