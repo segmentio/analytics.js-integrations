@@ -415,9 +415,12 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
   // if properly implemented, the point in which the playback is resumed
   // you should _only_ be sending the asset_id of whatever you are resuming in: content or ad
   var type = contentAssetId ? 'content' : 'ad';
-  var assetId = contentAssetId;
 
-  if (this.currentAssetId && assetId && this.currentAssetId !== assetId) {
+  if (
+    this.currentAssetId &&
+    contentAssetId &&
+    this.currentAssetId !== contentAssetId
+  ) {
     // first, call `end` because we assume the user has buffered/seeked into new content if the assetId has changed
     this._client.ggPM('end', this.currentPosition);
 
@@ -431,7 +434,7 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
     }
   }
 
-  this.heartbeat(assetId, position, livestream);
+  this.heartbeat(contentAssetId, position, livestream);
 };
 
 /**
