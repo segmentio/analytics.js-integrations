@@ -16,14 +16,14 @@ var GTM = (module.exports = integration('Google Tag Manager')
   .option('environment', '')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .option('dataLayer', '')
+  .option('dataLayerName', '')
   .tag(
     'no-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ dataLayer }}">'
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ dataLayerName }}">'
   )
   .tag(
     'with-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ dataLayer }}&gtm_preview={{ environment }}">'
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ dataLayerName }}&gtm_preview={{ environment }}">'
   ));
 
 /**
@@ -35,13 +35,13 @@ var GTM = (module.exports = integration('Google Tag Manager')
  */
 
 GTM.prototype.initialize = function() {
-  if (!this.options.dataLayer) {
-    // hard-coding default dataLayer key here to avoid a settings backfill via destinations config service
-    this.options.dataLayer = 'dataLayer';
+  if (!this.options.dataLayerName) {
+    // hard-coding default dataLayerName key here to avoid a settings backfill via destinations config service
+    this.options.dataLayerName = 'dataLayer';
   }
 
-  window[this.options.dataLayer] = window[this.options.dataLayer] || [];
-  window[this.options.dataLayer].push({
+  window[this.options.dataLayerName] = window[this.options.dataLayerName] || [];
+  window[this.options.dataLayerName].push({
     'gtm.start': Number(new Date()),
     event: 'gtm.js'
   });
@@ -62,8 +62,8 @@ GTM.prototype.initialize = function() {
 
 GTM.prototype.loaded = function() {
   return !!(
-    window[this.options.dataLayer] &&
-    Array.prototype.push !== window[this.options.dataLayer].push
+    window[this.options.dataLayerName] &&
+    Array.prototype.push !== window[this.options.dataLayerName].push
   );
 };
 
@@ -112,5 +112,5 @@ GTM.prototype.track = function(track) {
   if (anonymousId) props.segmentAnonymousId = anonymousId;
   props.event = track.event();
 
-  window[this.options.dataLayer].push(props);
+  window[this.options.dataLayerName].push(props);
 };

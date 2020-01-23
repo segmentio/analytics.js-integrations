@@ -12,7 +12,7 @@ describe('Google Tag Manager', function() {
   var options = {
     containerId: 'GTM-M8M29T',
     environment: '',
-    dataLayer: ''
+    dataLayerName: ''
   };
 
   beforeEach(function() {
@@ -36,7 +36,7 @@ describe('Google Tag Manager', function() {
       integration('Google Tag Manager')
         .option('containerId', '')
         .option('environment', '')
-        .option('dataLayer', '')
+        .option('dataLayerName', '')
         .option('trackNamedPages', true)
         .option('trackCategorizedPages', true)
     );
@@ -218,14 +218,14 @@ describe('Google Tag Manager', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: 'test',
-        dataLayer: 'dataLayer'
+        dataLayerName: 'dataLayer'
       };
 
       var tag =
         '<script src="http://www.googletagmanager.com/gtm.js?id=' +
         gtm.options.containerId +
         '&l=' +
-        gtm.options.dataLayer +
+        gtm.options.dataLayerName +
         '&gtm_preview=' +
         gtm.options.environment +
         '">';
@@ -241,14 +241,14 @@ describe('Google Tag Manager', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: 'test',
-        dataLayer: 'customDataLayer'
+        dataLayerName: 'customDataLayer'
       };
 
       var tag =
         '<script src="http://www.googletagmanager.com/gtm.js?id=' +
         gtm.options.containerId +
         '&l=' +
-        gtm.options.dataLayer +
+        gtm.options.dataLayerName +
         '&gtm_preview=' +
         gtm.options.environment +
         '">';
