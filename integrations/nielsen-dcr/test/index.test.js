@@ -718,11 +718,7 @@ describe('NielsenDCR', function() {
         it('video ad playing', function() {
           analytics.track('Video Ad Playing', props);
           analytics.called(window.clearInterval);
-          analytics.called(
-            nielsenDCR.heartbeat,
-            props.asset_id,
-            props.position
-          );
+          analytics.called(nielsenDCR.heartbeat, null, props.position);
         });
 
         it('video ad completed', function() {
