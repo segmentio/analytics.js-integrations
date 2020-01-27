@@ -177,10 +177,7 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     mediaURL: track.proxy('context.page.url'),
     airdate: formatAirdate(track.proxy(propertiesPath + 'airdate')),
     // `adLoadType` may be set in int opts, falling back to `load_type` property per our video spec
-    adloadtype: formatLoadType(
-      integrationOpts,
-      track.proxy(propertiesPath + 'load_type')
-    ),
+    adloadtype: formatLoadType(integrationOpts, track, propertiesPath),
     // below metadata fields must all be set in event's integrations opts object
     crossId1: find(integrationOpts, 'crossId1'),
     crossId2: find(integrationOpts, 'crossId2'),
@@ -487,8 +484,11 @@ function formatAirdate(airdate) {
  * @api private
  */
 
-function formatLoadType(integrationOpts, loadTypeProperty) {
-  var loadType = find(integrationOpts, 'ad_load_type') || loadTypeProperty;
+function formatLoadType(integrationOpts, track, propertiesPath) {
+  var loadType =
+    find(integrationOpts, 'ad_load_type') ||
+    track.proxy(propertiesPath + 'load_type') ||
+    track.proxy('properties.load_type');
   // linear or dynamic
   // linear means original ads that were broadcasted with tv airing. much less common use case
   loadType = loadType === 'dynamic' ? '2' : '1';

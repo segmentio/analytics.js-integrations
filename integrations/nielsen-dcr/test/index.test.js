@@ -567,6 +567,7 @@ describe('NielsenDCR', function() {
             page: { url: 'segment.com' }
           });
           analytics.called(window.clearInterval);
+
           analytics.assert.deepEqual(nielsenDCR._client.ggPM.args[0], [
             'loadMetadata',
             {
@@ -578,7 +579,7 @@ describe('NielsenDCR', function() {
               isfullepisode: 'y',
               mediaURL: 'segment.com',
               airdate: '19910813 12:00:00',
-              adloadtype: '1',
+              adloadtype: '2',
               hasAds: '0'
             }
           ]);
@@ -635,7 +636,7 @@ describe('NielsenDCR', function() {
               isfullepisode: 'y',
               mediaURL: 'segment.com',
               airdate: '19910813 12:00:00',
-              adloadtype: '1',
+              adloadtype: '2',
               hasAds: '0'
             }
           ]);
@@ -694,7 +695,7 @@ describe('NielsenDCR', function() {
               isfullepisode: 'y',
               mediaURL: 'segment.com',
               airdate: '19910813 12:00:00',
-              adloadtype: '1',
+              adloadtype: '2',
               hasAds: '0',
               clientid: props.content.nielsen_client_id,
               subbrand: props.content.nielsen_subbrand
