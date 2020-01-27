@@ -44,14 +44,26 @@ SalesforceLiveAgent.prototype.track = function(track) {
   var accountMappings = options.accountMappings || [];
   var findOrCreate;
 
+  function addCustomDetail(mapping, value) {
+    var label = mapping.label;
+    var displayToAgent = !!mapping.displayToAgent;
+    var fieldName = mapping.fieldName;
+    var doFind = !!mapping.doFind;
+    var isExactMatch = !!mapping.isExactMatch;
+    var doCreate = !!mapping.doCreate;
+    window.liveagent.addCustomDetail(label, value, displayToAgent);
+    findOrCreate.map(fieldName, label, doFind, isExactMatch, doCreate);
+  }
+
   // Lookup user traits
   if (Object.keys(traits).length && contactMappings.length) {
     findOrCreate = window.liveagent.findOrCreate('Contact');
     contactMappings.forEach(function(mapping) {
-      mapping = mapping.value || mapping;
-      var trait = mapping.trait;
+      var m = mapping;
+      m = m.value || m;
+      var trait = m.trait;
       var value = traits[trait];
-      addCustomDetail(mapping, value);
+      addCustomDetail(m, value);
     });
 
     if (traits.firstName && traits.lastName) {
@@ -63,10 +75,10 @@ SalesforceLiveAgent.prototype.track = function(track) {
   if (Object.keys(properties).length && caseMappings.length) {
     findOrCreate = window.liveagent.findOrCreate('Case');
     caseMappings.forEach(function(mapping) {
-      mapping = mapping.value || mapping;
-      var propertyName = mapping.property;
+      var m = mapping.value || mapping;
+      var propertyName = m.property;
       var value = properties[propertyName];
-      addCustomDetail(mapping, value);
+      addCustomDetail(m, value);
     });
   }
 
@@ -74,22 +86,11 @@ SalesforceLiveAgent.prototype.track = function(track) {
   if (Object.keys(group).length && accountMappings.length) {
     findOrCreate = window.liveagent.findOrCreate('Account');
     accountMappings.forEach(function(mapping) {
-      mapping = mapping.value || mapping;
-      var propertyName = mapping.property;
+      var m = mapping.value || mapping;
+      var propertyName = m.property;
       var value = group[propertyName];
-      addCustomDetail(mapping, value);
+      addCustomDetail(m, value);
     });
-  }
-
-  function addCustomDetail(mapping, value) {
-    var label = mapping.label;
-    var displayToAgent = !!mapping.displayToAgent;
-    var fieldName = mapping.fieldName;
-    var doFind = !!mapping.doFind;
-    var isExactMatch = !!mapping.isExactMatch;
-    var doCreate = !!mapping.doCreate;
-    window.liveagent.addCustomDetail(label, value, displayToAgent);
-    findOrCreate.map(fieldName, label, doFind, isExactMatch, doCreate);
   }
 
   var endpoint =
