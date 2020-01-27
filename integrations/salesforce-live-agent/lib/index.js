@@ -21,7 +21,7 @@ var SalesforceLiveAgent = (module.exports = integration('Salesforce Live Agent')
   .option('caseMappings', [])
   .option('accountMappings', [])
   .tag(
-    '<script src="https://{{ hostname }}.salesforceliveagent.com/content/g/js/29.0/deployment.js">'
+    '<script src="https://{{ hostname }}.salesforceliveagent.com/content/g/js/36.0/deployment.js">'
   ));
 
 SalesforceLiveAgent.prototype.initialize = function() {
