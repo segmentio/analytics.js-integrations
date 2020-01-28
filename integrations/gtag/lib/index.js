@@ -37,12 +37,29 @@ var GTAG = (module.exports = integration('Gtag')
  */
 
 GTAG.prototype.initialize = function() {
+  var tagPrefix = '';
+  var config = [];
+  var that = this;
   if (this.options.GA_MEASUREMENT_ID) {
-    this.load('ga', this.options, this.ready);
+    tagPrefix = 'ga';
+    config.push(['config', this.options.GA_MEASUREMENT_ID]);
   } else if (this.options.AW_CONVERSION_ID) {
-    this.load('aw', this.options, this.ready);
+    tagPrefix = 'aw';
+    config.push(['config', this.options.AW_CONVERSION_ID]);
   } else if (this.options.DC_FLOODLIGHT_ID) {
-    this.load('dc', this.options, this.ready);
+    tagPrefix = 'dc';
+    config.push(['config', this.options.DC_FLOODLIGHT_ID]);
+  }
+  if (tagPrefix) {
+    this.load(tagPrefix, this.options, function() {
+      that.ready();
+      // Default routing.
+      for (var i = 0; i < config.length; i++) {
+        window.dataLayer.push(config[i]);
+      }
+    });
+  } else {
+    // Error case where not any of the ID specified
   }
 };
 

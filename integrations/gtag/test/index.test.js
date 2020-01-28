@@ -10,7 +10,7 @@ describe('Gtag', function() {
   var analytics;
   var gtag;
   var options = {
-    GA_MEASUREMENT_ID: 'GTM-M8M29T'
+    GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID'
   };
 
   beforeEach(function() {
