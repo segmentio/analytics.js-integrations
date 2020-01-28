@@ -17,15 +17,15 @@ var GTAG = (module.exports = integration('Gtag')
   .option('DC_FLOODLIGHT_ID', '')
   .tag(
     'ga',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}">'
+    '<script src="//www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}&l=dataLayer">'
   )
   .tag(
     'aw',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ AW_CONVERSION_ID }}">'
+    '<script src="//www.googletagmanager.com/gtag/js?id={{ AW_CONVERSION_ID }}&l=dataLayer">'
   )
   .tag(
     'dc',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ DC_FLOODLIGHT_ID }}">'
+    '<script src="//www.googletagmanager.com/gtag/js?id={{ DC_FLOODLIGHT_ID }}&l=dataLayer">'
   ));
 
 /**
