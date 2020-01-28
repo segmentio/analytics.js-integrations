@@ -76,7 +76,7 @@ describe('MoEngage', function() {
         analytics.stub(moengage._client, 'destroy_session');
       });
 
-      it('should send identify', function() {
+      it('should send identify with camelCase', function() {
         var traits = {
           firstName: 'han',
           lastName: 'solo',
@@ -91,6 +91,33 @@ describe('MoEngage', function() {
         analytics.called(moengage._client.add_unique_user_id, 'han123');
         analytics.called(moengage._client.add_first_name, traits.firstName);
         analytics.called(moengage._client.add_last_name, traits.lastName);
+        analytics.called(moengage._client.add_email, traits.email);
+        analytics.called(moengage._client.add_mobile, traits.phone);
+        analytics.called(moengage._client.add_user_name, traits.name);
+        analytics.called(moengage._client.add_gender, traits.gender);
+        analytics.called(moengage._client.add_birthday, traits.birthday);
+        analytics.called(
+          moengage._client.add_user_attribute,
+          'customTrait',
+          traits.customTrait
+        );
+      });
+
+      it('should send identify with snake_case', function() {
+        var traits = {
+          first_name: 'han',
+          last_name: 'solo',
+          email: 'han@segment.com',
+          phone: '4012229047',
+          name: 'han solo',
+          gender: 'male',
+          birthday: '08/13/1991',
+          customTrait: true
+        };
+        analytics.identify('han123', traits);
+        analytics.called(moengage._client.add_unique_user_id, 'han123');
+        analytics.called(moengage._client.add_first_name, traits.first_name);
+        analytics.called(moengage._client.add_last_name, traits.last_name);
         analytics.called(moengage._client.add_email, traits.email);
         analytics.called(moengage._client.add_mobile, traits.phone);
         analytics.called(moengage._client.add_user_name, traits.name);
@@ -204,7 +231,7 @@ describe('MoEngage', function() {
             'MoEngange anonymous ID should be equal after an identify call'
           );
         }
-        1;
+
         analytics.called(moengage._client.destroy_session);
       });
 
