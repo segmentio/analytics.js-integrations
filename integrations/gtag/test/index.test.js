@@ -44,4 +44,18 @@ describe('Gtag', function() {
       analytics.load(gtag, done);
     });
   });
+
+  describe('after loading', function() {
+    beforeEach(function(done) {
+      options = {
+        GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID'
+      };
+      analytics.once('ready', done);
+      analytics.initialize();
+    });
+    it('should set default routing', function() {
+      analytics.assert(window.dataLayer[0] === 'config');
+      analytics.assert(window.dataLayer[1] === 'GA_MEASUREMENT_ID');
+    });
+  });
 });

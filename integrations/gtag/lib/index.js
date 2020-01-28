@@ -5,6 +5,7 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
+var push = require('global-queue')('dataLayer', { wrap: false });
 
 /**
  * Expose `GTAG`.
@@ -52,11 +53,11 @@ GTAG.prototype.initialize = function() {
   }
   if (tagPrefix) {
     this.load(tagPrefix, this.options, function() {
-      that.ready();
       // Default routing.
       for (var i = 0; i < config.length; i++) {
-        window.dataLayer.push(config[i]);
+        push(config[i][0], config[i][1]);
       }
+      that.ready();
     });
   } else {
     // Error case where not any of the ID specified
