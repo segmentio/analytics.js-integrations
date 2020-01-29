@@ -47,15 +47,36 @@ describe('Gtag', function() {
 
   describe('after loading', function() {
     beforeEach(function(done) {
-      options = {
-        GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID'
+      gtag.options = {
+        GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID',
+        AW_CONVERSION_ID: 'AW_CONVERSION_ID'
       };
       analytics.once('ready', done);
       analytics.initialize();
     });
+
     it('should set default routing', function() {
       analytics.assert(window.gtagDataLayer[0] === 'config');
       analytics.assert(window.gtagDataLayer[1] === 'GA_MEASUREMENT_ID');
+      analytics.assert(window.gtagDataLayer[2] === 'config');
+      analytics.assert(window.gtagDataLayer[3] === 'AW_CONVERSION_ID');
+    });
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.stub(window.gtagDataLayer, 'push');
+      });
+
+      it('should call track', function() {
+        analytics.track();
+        analytics.called(window.gtagDataLayer.push);
+      });
+
+      it('should call track with passed event', function() {
+        analytics.track('test event');
+        analytics.called(window.gtagDataLayer.push, {
+          event: 'test event'
+        });
+      });
     });
   });
 });

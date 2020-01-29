@@ -46,10 +46,12 @@ GTAG.prototype.initialize = function() {
   if (this.options.GA_MEASUREMENT_ID) {
     tagPrefix = 'ga';
     config.push(['config', this.options.GA_MEASUREMENT_ID]);
-  } else if (this.options.AW_CONVERSION_ID) {
+  }
+  if (this.options.AW_CONVERSION_ID) {
     tagPrefix = 'aw';
     config.push(['config', this.options.AW_CONVERSION_ID]);
-  } else if (this.options.DC_FLOODLIGHT_ID) {
+  }
+  if (this.options.DC_FLOODLIGHT_ID) {
     tagPrefix = 'dc';
     config.push(['config', this.options.DC_FLOODLIGHT_ID]);
   }
@@ -77,4 +79,17 @@ GTAG.prototype.loaded = function() {
   return !!(
     window.gtagDataLayer && Array.prototype.push !== window.gtagDataLayer.push
   );
+};
+
+/**
+ * Track
+ *
+ * @api public
+ * @param {Track} track
+ */
+
+GTAG.prototype.track = function(track) {
+  var props = track.properties();
+  props.event = track.event() || '';
+  push(props);
 };
