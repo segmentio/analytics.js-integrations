@@ -32,7 +32,7 @@ describe('Gtag', function() {
     analytics.compare(
       GTAG,
       integration('Gtag')
-        .global('dataLayer')
+        .global('gtagDataLayer')
         .option('GA_MEASUREMENT_ID', '')
         .option('AW_CONVERSION_ID', '')
         .option('DC_FLOODLIGHT_ID', '')
@@ -54,8 +54,8 @@ describe('Gtag', function() {
       analytics.initialize();
     });
     it('should set default routing', function() {
-      analytics.assert(window.dataLayer[0] === 'config');
-      analytics.assert(window.dataLayer[1] === 'GA_MEASUREMENT_ID');
+      analytics.assert(window.gtagDataLayer[0] === 'config');
+      analytics.assert(window.gtagDataLayer[1] === 'GA_MEASUREMENT_ID');
     });
   });
 });

@@ -5,28 +5,30 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var push = require('global-queue')('dataLayer', { wrap: false });
+var push = require('global-queue')('gtagDataLayer', { wrap: false });
 
 /**
  * Expose `GTAG`.
+ *  Purposely using different data-layer name to avoid conflicts
+ *  with any other tool.
  */
 
 var GTAG = (module.exports = integration('Gtag')
-  .global('dataLayer')
+  .global('gtagDataLayer')
   .option('GA_MEASUREMENT_ID', '')
   .option('AW_CONVERSION_ID', '')
   .option('DC_FLOODLIGHT_ID', '')
   .tag(
     'ga',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}&l=dataLayer">'
+    '<script src="//www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}&l=gtagDataLayer">'
   )
   .tag(
     'aw',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ AW_CONVERSION_ID }}&l=dataLayer">'
+    '<script src="//www.googletagmanager.com/gtag/js?id={{ AW_CONVERSION_ID }}&l=gtagDataLayer">'
   )
   .tag(
     'dc',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ DC_FLOODLIGHT_ID }}&l=dataLayer">'
+    '<script src="//www.googletagmanager.com/gtag/js?id={{ DC_FLOODLIGHT_ID }}&l=gtagDataLayer">'
   ));
 
 /**
@@ -72,5 +74,7 @@ GTAG.prototype.initialize = function() {
  */
 
 GTAG.prototype.loaded = function() {
-  return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+  return !!(
+    window.gtagDataLayer && Array.prototype.push !== window.gtagDataLayer.push
+  );
 };
