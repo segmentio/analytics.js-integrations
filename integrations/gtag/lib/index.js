@@ -93,3 +93,14 @@ GTAG.prototype.track = function(track) {
   props.event = track.event() || '';
   push(props);
 };
+
+/**
+ * Page
+ *
+ * @api public
+ * @param {Page} page
+ */
+
+GTAG.prototype.page = function(page) {
+  this.track(page.track());
+};

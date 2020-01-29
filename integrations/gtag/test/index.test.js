@@ -61,6 +61,7 @@ describe('Gtag', function() {
       analytics.assert(window.gtagDataLayer[2] === 'config');
       analytics.assert(window.gtagDataLayer[3] === 'AW_CONVERSION_ID');
     });
+
     describe('#track', function() {
       beforeEach(function() {
         analytics.stub(window.gtagDataLayer, 'push');
@@ -75,6 +76,30 @@ describe('Gtag', function() {
         analytics.track('test event');
         analytics.called(window.gtagDataLayer.push, {
           event: 'test event'
+        });
+      });
+    });
+
+    describe('#page', function() {
+      beforeEach(function() {
+        analytics.stub(window.gtagDataLayer, 'push');
+      });
+
+      it('should track page', function() {
+        analytics.page();
+        analytics.called(window.gtagDataLayer.push);
+      });
+
+      it('should track named page', function() {
+        analytics.page('Pagename');
+        analytics.called(window.gtagDataLayer.push, {
+          name: 'Pagename',
+          event: 'Loaded a Page',
+          path: window.location.pathname,
+          referrer: document.referrer,
+          title: document.title,
+          search: window.location.search,
+          url: window.location.href
         });
       });
     });
