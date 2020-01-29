@@ -17,7 +17,7 @@ var Sentry = (module.exports = integration('Sentry')
   .option('environment', null)
   .option('serverName', null)
   .option('release', null)
-  .option('ignoreErrors', []) // deprecated
+  .option('ignoreErrors', []) // still exists, but not documented on Sentry's website
   .option('ignoreUrls', [])
   .option('whitelistUrls', [])
   .option('includePaths', []) // deprecated
@@ -48,6 +48,9 @@ Sentry.prototype.initialize = function() {
     serverName: this.options.serverName,
     whitelistUrls: this.options.whitelistUrls,
     blacklistUrls: this.options.ignoreUrls,
+    // ignoreErrors still exists, but is not documented on Sentry's website
+    // https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/integrations/inboundfilters.ts#L12
+    ignoreErrors: this.options.ignoreErrors,
     debug: this.options.debug
   };
 

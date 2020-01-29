@@ -13,6 +13,7 @@ var Sentry = require('../lib/');
  * Segment setting - Sentry config option
  * config - dsn
  * customVersionProperty || release - release
+ * ignoreErrors - ignoreErrors (this setting still exists, but for some reason is not included in Sentry's documentation)
  * ignoreUrls - blacklistUrls
  * logger - logger (type `tag`, NOT actual config option)
  * customVersionProperty - release
@@ -109,6 +110,8 @@ describe('Sentry', function() {
       }
       analytics.called(window.Sentry.captureException);
     });
+
+    it('should ignore errors defined in settings', function() {});
 
     describe('#identify', function() {
       beforeEach(function() {
