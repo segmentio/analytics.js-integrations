@@ -210,6 +210,20 @@ describe('Segment.io', function() {
         analytics.assert(object.context.userAgent === navigator.userAgent);
       });
 
+      it('should add .locale', function() {
+        segment.normalize(object);
+        analytics.assert(object.context.locale === navigator.language);
+      });
+
+      it('should not replace .locale if provided', function() {
+        var ctx = {
+          locale: 'foobar'
+        };
+        var object = { context: ctx };
+        segment.normalize(object);
+        analytics.assert(object.context.locale === 'foobar');
+      });
+
       it('should add .campaign', function() {
         Segment.global = { navigator: {}, location: {} };
         Segment.global.location.search =

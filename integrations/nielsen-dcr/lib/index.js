@@ -128,13 +128,15 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
     return;
   }
 
-  // we need to map the current position to the asset id to handle content/ad changes during the same playback session
-  if (!this.currentAssetId) this.currentAssetId = assetId;
+  // we need to map the current position to the content asset id to handle content changes during the same playback session
+  if (assetId && this.currentAssetId !== assetId) {
+    this.currentAssetId = assetId;
+  }
 
   if (livestream) {
     // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
     this.currentPosition = getOffsetTime(position);
-  } else if (position) {
+  } else if (position >= 0) {
     // this.currentPosition defaults to 0 upon initialization
     this.currentPosition = position;
   }
@@ -175,10 +177,7 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     mediaURL: track.proxy('context.page.url'),
     airdate: formatAirdate(track.proxy(propertiesPath + 'airdate')),
     // `adLoadType` may be set in int opts, falling back to `load_type` property per our video spec
-    adloadtype: formatLoadType(
-      integrationOpts,
-      track.proxy(propertiesPath + 'load_type')
-    ),
+    adloadtype: formatLoadType(integrationOpts, track, propertiesPath),
     // below metadata fields must all be set in event's integrations opts object
     crossId1: find(integrationOpts, 'crossId1'),
     crossId2: find(integrationOpts, 'crossId2'),
@@ -257,7 +256,11 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
   // Nielsen requires that you call `end` if you need to load new content during the same session.
   // Since we always keep track of the current last seen asset to the instance, if this event has a different assetId, we assume that it is content switch during the same session
   // Segment video spec states that if you are switching between videos, you should be properly calling this event at the start of each of those switches (ie. two video players on the same page), meaning we only have to check this for this event
-  if (this.currentAssetId && this.currentAssetId !== contentMetadata.assetid) {
+  if (
+    this.currentAssetId &&
+    contentMetadata.assetid &&
+    this.currentAssetId !== contentMetadata.assetid
+  ) {
     this._client.ggPM('end', this.currentPosition);
   }
 
@@ -310,6 +313,7 @@ NielsenDCR.prototype.videoContentCompleted = function(track) {
 NielsenDCR.prototype.videoAdStarted = function(track) {
   clearInterval(this.heartbeatId);
 
+  var contentMetadata = {};
   var adAssetId = this.options.adAssetIdPropertyName
     ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
     : track.proxy('properties.asset_id');
@@ -320,10 +324,8 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   // edge case: if pre-roll, you must load the content metadata first
   // because nielsen ties ad attribution to the content not playback session
   if (type === 'preroll') {
-    this._client.ggPM(
-      'loadMetadata',
-      this.getContentMetadata(track, 'contentEvent')
-    );
+    contentMetadata = this.getContentMetadata(track, 'contentEvent');
+    this._client.ggPM('loadMetadata', contentMetadata);
   }
 
   var adMetadata = {
@@ -332,7 +334,10 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
   };
 
   this._client.ggPM('loadMetadata', adMetadata);
-  this.heartbeat(adAssetId, position);
+  // contentMetadata may be an empty object below, but that's ok
+  // in this case, the assetId will be passed as `undefined` to the `heartbeat` method, b/c we only
+  // need an assetid if a content assetid is set in properties or content.properties
+  this.heartbeat(contentMetadata.assetid, position);
 };
 
 /**
@@ -344,12 +349,10 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
 NielsenDCR.prototype.videoAdPlaying = function(track) {
   clearInterval(this.heartbeatId);
 
-  var assetId = this.options.adAssetIdPropertyName
-    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
-    : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
-
-  this.heartbeat(assetId, position);
+  // first argument below is "null" b/c `heartbeat` doesn't need to keep track of ad asset ids
+  // BUT we do still want to keep track of "position"
+  this.heartbeat(null, position);
 };
 
 /**
@@ -404,17 +407,20 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
   var contentAssetId = this.options.contentAssetIdPropertyName
     ? track.proxy('properties.' + this.options.contentAssetIdPropertyName)
     : track.proxy('properties.content_asset_id');
-  var adAssetId = this.options.adAssetIdPropertyName
-    ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
-    : track.proxy('properties.ad_asset_id');
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
   // if properly implemented, the point in which the playback is resumed
   // you should _only_ be sending the asset_id of whatever you are resuming in: content or ad
   var type = contentAssetId ? 'content' : 'ad';
-  var assetId = contentAssetId || adAssetId;
 
-  if (this.currentAssetId && this.currentAssetId !== assetId) {
+  if (
+    this.currentAssetId &&
+    contentAssetId &&
+    this.currentAssetId !== contentAssetId
+  ) {
+    // first, call `end` because we assume the user has buffered/seeked into new content if the assetId has changed
+    this._client.ggPM('end', this.currentPosition);
+
     if (type === 'ad') {
       this._client.ggPM('loadMetadata', this.getAdMetadata(track));
     } else if (type === 'content') {
@@ -425,7 +431,7 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
     }
   }
 
-  this.heartbeat(assetId, position, livestream);
+  this.heartbeat(contentAssetId, position, livestream);
 };
 
 /**
@@ -478,8 +484,11 @@ function formatAirdate(airdate) {
  * @api private
  */
 
-function formatLoadType(integrationOpts, loadTypeProperty) {
-  var loadType = find(integrationOpts, 'ad_load_type') || loadTypeProperty;
+function formatLoadType(integrationOpts, track, propertiesPath) {
+  var loadType =
+    find(integrationOpts, 'ad_load_type') ||
+    track.proxy(propertiesPath + 'load_type') ||
+    track.proxy('properties.load_type');
   // linear or dynamic
   // linear means original ads that were broadcasted with tv airing. much less common use case
   loadType = loadType === 'dynamic' ? '2' : '1';

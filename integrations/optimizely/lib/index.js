@@ -22,7 +22,9 @@ var Optimizely = (module.exports = integration('Optimizely')
   .option('variations', false) // send data via `.identify()`
   .option('listen', true) // send data via `.track()`
   .option('nonInteraction', false)
-  .option('sendRevenueOnlyForOrderCompleted', true));
+  .option('sendRevenueOnlyForOrderCompleted', true)
+  .option('customExperimentProperties', {})
+  .option('customCampaignProperties', {}));
 
 /**
  * The name and version for this integration.
@@ -258,6 +260,22 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
     // For Google's nonInteraction flag
     if (this.options.nonInteraction) props.nonInteraction = 1;
 
+    // If customExperimentProperties is provided overide the props with it.
+    // If valid customExperimentProperties present it will override existing props.
+    var customExperimentProperties = this.options.customExperimentProperties;
+    var customPropsKeys = Object.keys(customExperimentProperties);
+    var data = window.optimizely && window.optimizely.data;
+
+    if (data && customPropsKeys.length) {
+      for (var index = 0; index < customPropsKeys.length; index++) {
+        var segmentProp = customPropsKeys[index];
+        var optimizelyProp = customExperimentProperties[segmentProp];
+        if (typeof data[optimizelyProp] !== 'undefined') {
+          props[segmentProp] = data[optimizelyProp];
+        }
+      }
+    }
+
     // Send to Segment
     this.analytics.track('Experiment Viewed', props, context);
   }
@@ -352,6 +370,21 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
 
     // For Google's nonInteraction flag
     if (this.options.nonInteraction) props.nonInteraction = 1;
+
+    // If customCampaignProperties is provided overide the props with it.
+    // If valid customCampaignProperties present it will override existing props.
+    var customCampaignProperties = this.options.customCampaignProperties;
+    var customPropsKeys = Object.keys(customCampaignProperties);
+    var data = window.optimizely && window.optimizely.newMockData;
+    if (data && customPropsKeys.length) {
+      for (var index = 0; index < customPropsKeys.length; index++) {
+        var segmentProp = customPropsKeys[index];
+        var optimizelyProp = customCampaignProperties[segmentProp];
+        if (typeof data[optimizelyProp] !== 'undefined') {
+          props[segmentProp] = data[optimizelyProp];
+        }
+      }
+    }
 
     // Send to Segment
     this.analytics.track('Experiment Viewed', props, context);

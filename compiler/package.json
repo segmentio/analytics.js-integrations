@@ -42,6 +42,7 @@
     "@segment/analytics.js-integration-chartbeat": "file:../integrations/chartbeat",
     "@segment/analytics.js-integration-clevertap": "file:../integrations/clevertap",
     "@segment/analytics.js-integration-clicky": "file:../integrations/clicky",
+    "@segment/analytics.js-integration-comscore": "file:../integrations/comscore",
     "@segment/analytics.js-integration-convertro": "file:../integrations/convertro",
     "@segment/analytics.js-integration-crazy-egg": "file:../integrations/crazy-egg",
     "@segment/analytics.js-integration-criteo": "file:../integrations/criteo",
