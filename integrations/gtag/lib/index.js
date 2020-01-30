@@ -18,6 +18,8 @@ var GTAG = (module.exports = integration('Gtag')
   .option('GA_MEASUREMENT_ID', '')
   .option('AW_CONVERSION_ID', '')
   .option('DC_FLOODLIGHT_ID', '')
+  .option('trackAllPages', false)
+  .option('trackNamedPages', true)
   .tag(
     'ga',
     '<script src="//www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}&l=gtagDataLayer">'
@@ -102,5 +104,12 @@ GTAG.prototype.track = function(track) {
  */
 
 GTAG.prototype.page = function(page) {
-  this.track(page.track());
+  var name = page.fullName();
+
+  if (this.options.trackAllPages) {
+    this.track(page.track());
+  }
+  if (name && this.options.trackNamedPages) {
+    this.track(page.track(name));
+  }
 };

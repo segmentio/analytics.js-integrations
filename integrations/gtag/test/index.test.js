@@ -10,7 +10,9 @@ describe('Gtag', function() {
   var analytics;
   var gtag;
   var options = {
-    GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID'
+    GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID',
+    trackNamedPages: true,
+    trackAllPages: false
   };
 
   beforeEach(function() {
@@ -36,6 +38,8 @@ describe('Gtag', function() {
         .option('GA_MEASUREMENT_ID', '')
         .option('AW_CONVERSION_ID', '')
         .option('DC_FLOODLIGHT_ID', '')
+        .option('trackNamedPages', true)
+        .option('trackAllPages', false)
     );
   });
 
@@ -86,11 +90,13 @@ describe('Gtag', function() {
       });
 
       it('should track page', function() {
+        gtag.options.trackAllPages = true;
         analytics.page();
         analytics.called(window.gtagDataLayer.push);
       });
 
       it('should track named page', function() {
+        gtag.options.trackAllPages = true;
         analytics.page('Pagename');
         analytics.called(window.gtagDataLayer.push, {
           name: 'Pagename',
@@ -101,6 +107,12 @@ describe('Gtag', function() {
           search: window.location.search,
           url: window.location.href
         });
+      });
+
+      it('should not track named page if option turned off ', function() {
+        gtag.options.trackNamedPages = false;
+        analytics.page('Pagename');
+        analytics.didNotCall(window.gtagDataLayer.push);
       });
     });
   });
