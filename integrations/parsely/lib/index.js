@@ -21,7 +21,9 @@ var Parsely = (module.exports = integration('Parsely')
   .option('dynamicTracking', false)
   .option('trackEvents', false)
   .option('inPixelMetadata', false)
-  .tag('<script src="//d1z2jf7jlzjs58.cloudfront.net/p.js">'));
+  .tag(
+    '<script id="parsely-cfg" src="//cdn.parsely.com/keys/{{ apikey }}/p.js">'
+  ));
 
 /**
  * Initialize.
@@ -32,14 +34,6 @@ Parsely.prototype.initialize = function() {
   // Set autoload to false to trigger pageviews on deliberate `page calls`
   if (this.options.dynamicTracking) window.PARSELY.autotrack = false;
   var self = this;
-
-  // append the meta tag we need first before JS fires
-  var meta = document.createElement('meta');
-  meta.id = 'parsely-cfg';
-  meta.setAttribute('data-parsely-site', this.options.apiKey);
-  var head = document.getElementsByTagName('head')[0];
-  if (!head) return;
-  head.appendChild(meta);
 
   this.load(function() {
     when(self.loaded, self.ready);
