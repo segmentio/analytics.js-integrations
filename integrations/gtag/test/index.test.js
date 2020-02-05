@@ -79,7 +79,7 @@ describe('Gtag', function() {
 
       it('should call track with passed event', function() {
         analytics.track('test event');
-        analytics.called(window.gtagDataLayer.push, {
+        analytics.called(window.gtagDataLayer.push, 'event', 'test event', {
           event: 'test event'
         });
       });
@@ -99,7 +99,7 @@ describe('Gtag', function() {
       it('should track named page', function() {
         gtag.options.trackAllPages = true;
         analytics.page('Pagename');
-        analytics.called(window.gtagDataLayer.push, {
+        analytics.called(window.gtagDataLayer.push, 'event', 'Loaded a Page', {
           name: 'Pagename',
           event: 'Loaded a Page',
           path: window.location.pathname,

@@ -102,7 +102,7 @@ GTAG.prototype.loaded = function() {
 GTAG.prototype.track = function(track) {
   var props = track.properties();
   props.event = track.event() || '';
-  push(props);
+  push('event', props.event, props);
 };
 
 /**
