@@ -40,6 +40,7 @@ describe('Gtag', function() {
         .option('DC_FLOODLIGHT_ID', '')
         .option('trackNamedPages', true)
         .option('trackAllPages', false)
+        .option('gaOptions', {})
     );
   });
 
@@ -113,6 +114,35 @@ describe('Gtag', function() {
         gtag.options.trackNamedPages = false;
         analytics.page('Pagename');
         analytics.didNotCall(window.gtagDataLayer.push);
+      });
+
+      it('should not set custom dimensions', function() {
+        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        gtag.options.trackNamedPages = true;
+        gtag.options.gaOptions = {
+          dimensions: {
+            company: 'dimension2'
+          },
+          metrics: {
+            age: 'metric1'
+          }
+        };
+        analytics.page('Page1', {
+          loadTime: '100',
+          levelAchieved: '5',
+          company: 'Google'
+        });
+        analytics.called(
+          window.gtagDataLayer.push,
+          'config',
+          'GA_MEASUREMENT_ID',
+          {
+            custom_map: GTAG.merge(
+              gtag.options.gaOptions.dimensions,
+              gtag.options.gaOptions.metrics
+            )
+          }
+        );
       });
     });
   });
