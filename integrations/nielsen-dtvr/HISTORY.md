@@ -1,7 +1,7 @@
 1.0.0 / 2020-02-05
 ==================
 
-  * Updates logic so that events are mapped to Nielsen DTVR only when `load_type` property is 'dynamic'.
+  * Events are mapped to Nielsen DTVR only when `load_type` property is 'linear'.
 
 0.0.4 / 2020-01-07
 ==================
