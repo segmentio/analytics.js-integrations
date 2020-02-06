@@ -74,6 +74,7 @@ NielsenDCR.prototype.initialize = function() {
   // for the currently viewing ad or content so that we can handle video switches in the same session
   this.currentAssetId = null;
   this.currentPosition = 0;
+  this.isDCRStream = false;
   this.heartbeatId = null; // reference to setTimeout
   this.load(protocol, this.ready);
 };
@@ -157,6 +158,14 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
   var propertiesPath = 'properties.';
   if (type && type === 'contentEvent') propertiesPath = 'properties.content.';
 
+  var integrationOpts = track.options(this.name);
+  var adLoadType = formatLoadType(integrationOpts, track, propertiesPath);
+  // adLoadType will be falsy if the `load_type` is NOT 'dynamic' (i.e. it IS 'linear' instead)
+  // we bubble up false to the calling content/playback method so we can early return, as
+  // DCR should not be tracking ratings for content of `load_type` 'linear'
+  if (!adLoadType) return;
+  this.isDCRStream = true;
+
   var customAssetId;
   if (this.options.contentAssetIdPropertyName) {
     customAssetId = track.proxy(
@@ -167,7 +176,6 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     track.proxy(propertiesPath + 'content_asset_id') ||
     track.proxy(propertiesPath + 'asset_id');
   var assetId = customAssetId || assetIdProp;
-  var integrationOpts = track.options(this.name);
   var contentMetadata = {
     type: 'content',
     assetid: assetId,
@@ -176,8 +184,7 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     isfullepisode: track.proxy(propertiesPath + 'full_episode') ? 'y' : 'n',
     mediaURL: track.proxy('context.page.url'),
     airdate: formatAirdate(track.proxy(propertiesPath + 'airdate')),
-    // `adLoadType` may be set in int opts, falling back to `load_type` property per our video spec
-    adloadtype: formatLoadType(integrationOpts, track, propertiesPath),
+    adloadtype: adLoadType,
     // below metadata fields must all be set in event's integrations opts object
     crossId1: find(integrationOpts, 'crossId1'),
     crossId2: find(integrationOpts, 'crossId2'),
@@ -219,8 +226,11 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
  */
 
 NielsenDCR.prototype.getAdMetadata = function(track) {
-  var type = track.proxy('properties.type');
+  var integrationOpts = track.options(this.name);
+  var adLoadType = formatLoadType(integrationOpts, track, 'properties');
+  if (!adLoadType) return;
 
+  var type = track.proxy('properties.type');
   if (typeof type === 'string') type = type.replace('-', '');
 
   var customAssetId;
@@ -250,6 +260,7 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
   clearInterval(this.heartbeatId);
 
   var contentMetadata = this.getContentMetadata(track);
+  if (!contentMetadata) return;
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
@@ -276,6 +287,7 @@ NielsenDCR.prototype.videoContentStarted = function(track) {
 
 NielsenDCR.prototype.videoContentPlaying = function(track) {
   clearInterval(this.heartbeatId);
+  if (!this.isDCRStream) return;
 
   var assetId = this.options.contentAssetIdPropertyName
     ? track.proxy('properties.' + this.options.contentAssetIdPropertyName)
@@ -294,6 +306,7 @@ NielsenDCR.prototype.videoContentPlaying = function(track) {
 
 NielsenDCR.prototype.videoContentCompleted = function(track) {
   clearInterval(this.heartbeatId);
+  if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
@@ -313,20 +326,23 @@ NielsenDCR.prototype.videoContentCompleted = function(track) {
 NielsenDCR.prototype.videoAdStarted = function(track) {
   clearInterval(this.heartbeatId);
 
+  var type = track.proxy('properties.type');
+  if (typeof type === 'string') type = type.replace('-', '');
+  // edge case: if pre-roll, you must load the content metadata first
+  // because nielsen ties ad attribution to the content not playback session
   var contentMetadata = {};
+  if (type === 'preroll') {
+    contentMetadata = this.getContentMetadata(track, 'contentEvent');
+    if (!contentMetadata) return;
+    this._client.ggPM('loadMetadata', contentMetadata);
+  }
+
+  if (!this.isDCRStream) return;
+
   var adAssetId = this.options.adAssetIdPropertyName
     ? track.proxy('properties.' + this.options.adAssetIdPropertyName)
     : track.proxy('properties.asset_id');
   var position = track.proxy('properties.position');
-  var type = track.proxy('properties.type');
-
-  if (typeof type === 'string') type = type.replace('-', '');
-  // edge case: if pre-roll, you must load the content metadata first
-  // because nielsen ties ad attribution to the content not playback session
-  if (type === 'preroll') {
-    contentMetadata = this.getContentMetadata(track, 'contentEvent');
-    this._client.ggPM('loadMetadata', contentMetadata);
-  }
 
   var adMetadata = {
     assetid: adAssetId,
@@ -348,6 +364,7 @@ NielsenDCR.prototype.videoAdStarted = function(track) {
 
 NielsenDCR.prototype.videoAdPlaying = function(track) {
   clearInterval(this.heartbeatId);
+  if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
   // first argument below is "null" b/c `heartbeat` doesn't need to keep track of ad asset ids
@@ -363,6 +380,7 @@ NielsenDCR.prototype.videoAdPlaying = function(track) {
 
 NielsenDCR.prototype.videoAdCompleted = function(track) {
   clearInterval(this.heartbeatId);
+  if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
 
@@ -382,6 +400,7 @@ NielsenDCR.prototype.videoPlaybackPaused = NielsenDCR.prototype.videoPlaybackSee
   track
 ) {
   clearInterval(this.heartbeatId);
+  if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
@@ -403,6 +422,7 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
   track
 ) {
   clearInterval(this.heartbeatId);
+  if (!this.isDCRStream) return;
 
   var contentAssetId = this.options.contentAssetIdPropertyName
     ? track.proxy('properties.' + this.options.contentAssetIdPropertyName)
@@ -422,12 +442,13 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
     this._client.ggPM('end', this.currentPosition);
 
     if (type === 'ad') {
-      this._client.ggPM('loadMetadata', this.getAdMetadata(track));
+      var adMetadata = this.getAdMetadata(track);
+      if (!adMetadata) return;
+      this._client.ggPM('loadMetadata', adMetadata);
     } else if (type === 'content') {
-      this._client.ggPM(
-        'loadMetadata',
-        this.getContentMetadata(track, 'contentEvent')
-      );
+      var contentMetadata = this.getContentMetadata(track, 'contentEvent');
+      if (!contentMetadata) return;
+      this._client.ggPM('loadMetadata', contentMetadata);
     }
   }
 
@@ -438,6 +459,7 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
  * Video Playback Completed
  * Video Playback Interrupted
  *
+ *
  * @api public
  */
 
@@ -445,6 +467,7 @@ NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlayback
   track
 ) {
   clearInterval(this.heartbeatId);
+  if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
@@ -454,9 +477,12 @@ NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlayback
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('end', position);
 
-  // reset state
+  // reset state because "Video Playback Completed/Interrupted" are "non-recoverable events"
+  // e.g. they should always be followed by the start of a new video session with either
+  // "Video Content Started" or "Video Ad Started" events
   this.currentPosition = 0;
   this.currentAssetId = null;
+  this.isDCRStream = false;
   this.heartbeatId = null;
 };
 
@@ -488,10 +514,10 @@ function formatLoadType(integrationOpts, track, propertiesPath) {
   var loadType =
     find(integrationOpts, 'ad_load_type') ||
     track.proxy(propertiesPath + 'load_type') ||
-    track.proxy('properties.load_type');
-  // linear or dynamic
-  // linear means original ads that were broadcasted with tv airing. much less common use case
-  loadType = loadType === 'dynamic' ? '2' : '1';
+    track.proxy(propertiesPath + 'loadType');
+  // DCR is meant to track videos with ad `load_type` dynamic only
+  // otherwise, we return `false` so we can easily early return in the calling method
+  loadType = loadType === 'dynamic' ? '2' : false;
   return loadType;
 }
 
