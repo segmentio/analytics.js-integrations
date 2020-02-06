@@ -12,7 +12,8 @@ describe('Gtag', function() {
   var options = {
     GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID',
     trackNamedPages: true,
-    trackAllPages: false
+    trackAllPages: false,
+    sendTo: []
   };
 
   beforeEach(function() {
@@ -40,6 +41,7 @@ describe('Gtag', function() {
         .option('DC_FLOODLIGHT_ID', '')
         .option('trackNamedPages', true)
         .option('trackAllPages', false)
+        .option('sendTo', [])
         .option('gaOptions', {})
     );
   });
@@ -116,7 +118,7 @@ describe('Gtag', function() {
         analytics.didNotCall(window.gtagDataLayer.push);
       });
 
-      it('should not set custom dimensions', function() {
+      it('should set custom dimensions', function() {
         gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
@@ -143,6 +145,41 @@ describe('Gtag', function() {
             )
           }
         );
+      });
+
+      it('should send event to specified destination only', function() {
+        gtag.options.sendTo = ['GA_MEASUREMENT_ID'];
+        gtag.options.trackAllPages = true;
+        analytics.page('Pagename');
+        analytics.called(window.gtagDataLayer.push, 'event', 'Loaded a Page', {
+          name: 'Pagename',
+          event: 'Loaded a Page',
+          path: window.location.pathname,
+          referrer: document.referrer,
+          title: document.title,
+          search: window.location.search,
+          url: window.location.href,
+          send_to: gtag.options.sendTo
+        });
+      });
+
+      it('should take higher precedence for sendTo for specific event over option', function() {
+        var sendTo = ['GA_MEASUREMENT_ID', 'AW_CONVERSION_ID'];
+        gtag.options.sendTo = ['GA_MEASUREMENT_ID'];
+        gtag.options.trackAllPages = true;
+        analytics.page('Pagename', {
+          sendTo: sendTo
+        });
+        analytics.called(window.gtagDataLayer.push, 'event', 'Loaded a Page', {
+          name: 'Pagename',
+          event: 'Loaded a Page',
+          path: window.location.pathname,
+          referrer: document.referrer,
+          title: document.title,
+          search: window.location.search,
+          url: window.location.href,
+          send_to: sendTo
+        });
       });
     });
   });

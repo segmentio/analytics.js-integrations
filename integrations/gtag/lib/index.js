@@ -20,6 +20,7 @@ var GTAG = (module.exports = integration('Gtag')
   .option('DC_FLOODLIGHT_ID', '')
   .option('trackAllPages', false)
   .option('trackNamedPages', true)
+  .option('sendTo', [])
   .option('gaOptions', {})
   .tag(
     'ga',
@@ -102,6 +103,15 @@ GTAG.prototype.loaded = function() {
 GTAG.prototype.track = function(track) {
   var props = track.properties();
   props.event = track.event() || '';
+  if (this.options.sendTo && this.options.sendTo.length) {
+    props.send_to = this.options.sendTo;
+  }
+
+  if (props.sendTo && props.sendTo.length) {
+    // override the sendTo if provided event specific
+    props.send_to = props.sendTo;
+    delete props.sendTo;
+  }
   push('event', props.event, props);
 };
 
