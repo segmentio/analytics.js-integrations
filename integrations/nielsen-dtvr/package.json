@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-nielsen-dtvr",
   "description": "The Nielsen DTVR analytics.js integration.",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
