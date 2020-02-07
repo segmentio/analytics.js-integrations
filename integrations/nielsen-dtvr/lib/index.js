@@ -163,7 +163,7 @@ NielsenDTVR.prototype.videoPlaybackInterrupted = NielsenDTVR.prototype.videoPlay
 ) {
   if (!this.isDTVRStream) return;
   this.sendID3(track);
-  this.end(track);
+  this.end(track, 'recoverable');
 };
 
 /**
@@ -223,7 +223,7 @@ NielsenDTVR.prototype.sendID3 = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype.end = function(event) {
+NielsenDTVR.prototype.end = function(event, interruptType) {
   var livestream = event.proxy('properties.livestream');
   var position = event.proxy('properties.position');
   var time;
@@ -237,9 +237,11 @@ NielsenDTVR.prototype.end = function(event) {
     this.client.ggPM('end', time);
   }
 
-  this.ID3 = null;
-  this.previousEvent = null;
-  this.isDTVRStream = null;
+  if (interruptType !== 'recoverable') {
+    this.ID3 = null;
+    this.previousEvent = null;
+    this.isDTVRStream = null;
+  }
 };
 
 /**
