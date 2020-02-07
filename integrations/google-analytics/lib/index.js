@@ -732,7 +732,7 @@ GA.prototype.orderUpdatedEnhanced = function(track) {
 GA.prototype.checkoutStepViewedEnhanced = function(track) {
   var products = track.products();
   var props = track.properties();
-  var options = extractCheckoutOptions(props);
+  var options = extractCheckoutOptions(track);
   var self = this;
   var opts = this.options;
 
@@ -761,7 +761,7 @@ GA.prototype.checkoutStepViewedEnhanced = function(track) {
 
 GA.prototype.checkoutStepCompletedEnhanced = function(track) {
   var props = track.properties();
-  var options = extractCheckoutOptions(props);
+  var options = extractCheckoutOptions(track);
   var self = this;
 
   // Only send an event if we have step and options to update
@@ -1151,17 +1151,20 @@ function enhancedEcommerceProductAction(
  * Extracts checkout options.
  *
  * @api private
- * @param {Object} props
+ * @param {Facade.Track} msg
  * @return {string|null}
  */
 
-function extractCheckoutOptions(props) {
-  var options = [props.paymentMethod, props.shippingMethod];
+var extractCheckoutOptions = function extractCheckoutOptions(msg) {
+  var options = [
+    msg.proxy('properties.paymentMethod'),
+    msg.proxy('properties.shippingMethod')
+  ];
 
   // Remove all nulls, and join with commas.
   var valid = reject(options);
   return valid.length > 0 ? valid.join(', ') : null;
-}
+};
 
 /**
  * Creates a track out of product properties.
