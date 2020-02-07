@@ -94,6 +94,21 @@ GTAG.prototype.loaded = function() {
 };
 
 /**
+ * Identify.
+ *
+ * @api public
+ * @param {Identify} event
+ */
+
+GTAG.prototype.identify = function(identify) {
+  if (this.options.GA_MEASUREMENT_ID && identify.userId()) {
+    push('config', this.options.GA_MEASUREMENT_ID, {
+      user_id: identify.userId()
+    });
+  }
+};
+
+/**
  * Track
  *
  * @api public

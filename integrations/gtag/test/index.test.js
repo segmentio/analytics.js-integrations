@@ -87,6 +87,37 @@ describe('Gtag', function() {
       });
     });
 
+    describe('#identify', function() {
+      beforeEach(function() {
+        analytics.stub(window.gtagDataLayer, 'push');
+      });
+
+      it('should set user id if GA is configured', function() {
+        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        analytics.identify('userId');
+        analytics.called(
+          window.gtagDataLayer.push,
+          'config',
+          'GA_MEASUREMENT_ID',
+          {
+            user_id: 'userId'
+          }
+        );
+      });
+
+      it('should not set user id if GA is not configured', function() {
+        gtag.options.GA_MEASUREMENT_ID = '';
+        analytics.identify('userId');
+        analytics.didNotCall(window.gtagDataLayer.push);
+      });
+
+      it('should not set user id if GA is configured but empty user id', function() {
+        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        analytics.identify('');
+        analytics.didNotCall(window.gtagDataLayer.push);
+      });
+    });
+
     describe('#page', function() {
       beforeEach(function() {
         analytics.stub(window.gtagDataLayer, 'push');
