@@ -13,7 +13,8 @@ describe('Gtag', function() {
     GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID',
     trackNamedPages: true,
     trackAllPages: false,
-    sendTo: []
+    sendTo: [],
+    setAllMappedProps: true
   };
 
   beforeEach(function() {
@@ -43,6 +44,7 @@ describe('Gtag', function() {
         .option('trackAllPages', false)
         .option('sendTo', [])
         .option('gaOptions', {})
+        .option('setAllMappedProps', true)
     );
   });
 
@@ -149,8 +151,9 @@ describe('Gtag', function() {
         analytics.didNotCall(window.gtagDataLayer.push);
       });
 
-      it('should set custom dimensions', function() {
+      it('should set custom dimensions if setAllMappedProps set to true', function() {
         gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        gtag.options.setAllMappedProps = true;
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
           dimensions: {
@@ -175,6 +178,41 @@ describe('Gtag', function() {
               gtag.options.gaOptions.metrics
             )
           }
+        );
+      });
+
+      it('should not set custom dimensions if setAllMappedProps set to false', function() {
+        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        gtag.options.setAllMappedProps = false;
+        gtag.options.trackNamedPages = true;
+        gtag.options.gaOptions = {
+          dimensions: {
+            company: 'dimension2'
+          },
+          metrics: {
+            age: 'metric1'
+          }
+        };
+        analytics.page('Page1', {
+          loadTime: '100',
+          levelAchieved: '5',
+          company: 'Google'
+        });
+        analytics.didNotCall(
+          window.gtagDataLayer.push,
+          'config',
+          'GA_MEASUREMENT_ID',
+          {
+            custom_map: GTAG.merge(
+              gtag.options.gaOptions.dimensions,
+              gtag.options.gaOptions.metrics
+            )
+          }
+        );
+        analytics.called(
+          window.gtagDataLayer.push,
+          'event',
+          'Viewed Page1 Page'
         );
       });
 
