@@ -21,8 +21,7 @@ var GTAG = (module.exports = integration('Gtag')
   .option('trackAllPages', false)
   .option('trackNamedPages', true)
   .option('sendTo', [])
-  .option('gaOptions', {})
-  .option('setAllMappedProps', true)
+  .option('gaOptions', { setAllMappedProps: true })
   .tag(
     'ga',
     '<script src="//www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}&l=gtagDataLayer">'
@@ -143,7 +142,7 @@ GTAG.prototype.page = function(page) {
   var name = page.fullName();
   var gaOptions = this.options.gaOptions || {};
   if (gaOptions && Object.keys(gaOptions).length) {
-    if (options.GA_MEASUREMENT_ID && options.setAllMappedProps) {
+    if (options.GA_MEASUREMENT_ID && gaOptions.setAllMappedProps) {
       // set custom dimension and metrics if present
       // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
       push('config', this.options.GA_MEASUREMENT_ID, {

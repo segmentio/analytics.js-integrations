@@ -14,7 +14,7 @@ describe('Gtag', function() {
     trackNamedPages: true,
     trackAllPages: false,
     sendTo: [],
-    setAllMappedProps: true
+    gaOptions: {}
   };
 
   beforeEach(function() {
@@ -43,8 +43,7 @@ describe('Gtag', function() {
         .option('trackNamedPages', true)
         .option('trackAllPages', false)
         .option('sendTo', [])
-        .option('gaOptions', {})
-        .option('setAllMappedProps', true)
+        .option('gaOptions', { setAllMappedProps: true })
     );
   });
 
@@ -153,9 +152,9 @@ describe('Gtag', function() {
 
       it('should set custom dimensions if setAllMappedProps set to true', function() {
         gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
-        gtag.options.setAllMappedProps = true;
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
+          setAllMappedProps: true,
           dimensions: {
             company: 'dimension2'
           },
@@ -183,9 +182,9 @@ describe('Gtag', function() {
 
       it('should not set custom dimensions if setAllMappedProps set to false', function() {
         gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
-        gtag.options.setAllMappedProps = false;
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
+          setAllMappedProps: false,
           dimensions: {
             company: 'dimension2'
           },
