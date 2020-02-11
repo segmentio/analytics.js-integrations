@@ -10,7 +10,7 @@ describe('Gtag', function() {
   var analytics;
   var gtag;
   var options = {
-    GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID',
+    GA_WEB_APP_MEASUREMENT_ID: 'G_12345678',
     trackNamedPages: true,
     trackAllPages: false,
     sendTo: [],
@@ -37,7 +37,8 @@ describe('Gtag', function() {
       GTAG,
       integration('Gtag')
         .global('gtagDataLayer')
-        .option('GA_MEASUREMENT_ID', '')
+        .option('GA_WEB_MEASUREMENT_ID', '')
+        .option('GA_WEB_APP_MEASUREMENT_ID', '')
         .option('AW_CONVERSION_ID', '')
         .option('DC_FLOODLIGHT_ID', '')
         .option('trackNamedPages', true)
@@ -56,7 +57,7 @@ describe('Gtag', function() {
   describe('after loading', function() {
     beforeEach(function(done) {
       gtag.options = {
-        GA_MEASUREMENT_ID: 'GA_MEASUREMENT_ID',
+        GA_WEB_MEASUREMENT_ID: 'GA_WEB_MEASUREMENT_ID',
         AW_CONVERSION_ID: 'AW_CONVERSION_ID'
       };
       analytics.once('ready', done);
@@ -65,7 +66,7 @@ describe('Gtag', function() {
 
     it('should set default routing', function() {
       analytics.assert(window.gtagDataLayer[0] === 'config');
-      analytics.assert(window.gtagDataLayer[1] === 'GA_MEASUREMENT_ID');
+      analytics.assert(window.gtagDataLayer[1] === 'GA_WEB_MEASUREMENT_ID');
       analytics.assert(window.gtagDataLayer[2] === 'config');
       analytics.assert(window.gtagDataLayer[3] === 'AW_CONVERSION_ID');
     });
@@ -94,12 +95,12 @@ describe('Gtag', function() {
       });
 
       it('should set user id if GA is configured', function() {
-        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
         analytics.identify('userId');
         analytics.called(
           window.gtagDataLayer.push,
           'config',
-          'GA_MEASUREMENT_ID',
+          'GA_WEB_MEASUREMENT_ID',
           {
             user_id: 'userId'
           }
@@ -107,13 +108,13 @@ describe('Gtag', function() {
       });
 
       it('should not set user id if GA is not configured', function() {
-        gtag.options.GA_MEASUREMENT_ID = '';
+        gtag.options.GA_WEB_MEASUREMENT_ID = '';
         analytics.identify('userId');
         analytics.didNotCall(window.gtagDataLayer.push);
       });
 
       it('should not set user id if GA is configured but empty user id', function() {
-        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
         analytics.identify('');
         analytics.didNotCall(window.gtagDataLayer.push);
       });
@@ -151,7 +152,7 @@ describe('Gtag', function() {
       });
 
       it('should set custom dimensions if setAllMappedProps set to true', function() {
-        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
           setAllMappedProps: true,
@@ -170,7 +171,7 @@ describe('Gtag', function() {
         analytics.called(
           window.gtagDataLayer.push,
           'config',
-          'GA_MEASUREMENT_ID',
+          'GA_WEB_MEASUREMENT_ID',
           {
             custom_map: GTAG.merge(
               gtag.options.gaOptions.dimensions,
@@ -181,7 +182,7 @@ describe('Gtag', function() {
       });
 
       it('should not set custom dimensions if setAllMappedProps set to false', function() {
-        gtag.options.GA_MEASUREMENT_ID = 'GA_MEASUREMENT_ID';
+        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
           setAllMappedProps: false,
@@ -200,7 +201,7 @@ describe('Gtag', function() {
         analytics.didNotCall(
           window.gtagDataLayer.push,
           'config',
-          'GA_MEASUREMENT_ID',
+          'GA_WEB_MEASUREMENT_ID',
           {
             custom_map: GTAG.merge(
               gtag.options.gaOptions.dimensions,
@@ -216,7 +217,7 @@ describe('Gtag', function() {
       });
 
       it('should send event to specified destination only', function() {
-        gtag.options.sendTo = ['GA_MEASUREMENT_ID'];
+        gtag.options.sendTo = ['GA_WEB_MEASUREMENT_ID'];
         gtag.options.trackAllPages = true;
         analytics.page('Pagename');
         analytics.called(window.gtagDataLayer.push, 'event', 'Loaded a Page', {
@@ -232,8 +233,8 @@ describe('Gtag', function() {
       });
 
       it('should take higher precedence for sendTo for specific event over option', function() {
-        var sendTo = ['GA_MEASUREMENT_ID', 'AW_CONVERSION_ID'];
-        gtag.options.sendTo = ['GA_MEASUREMENT_ID'];
+        var sendTo = ['GA_WEB_MEASUREMENT_ID', 'AW_CONVERSION_ID'];
+        gtag.options.sendTo = ['GA_WEB_MEASUREMENT_ID'];
         gtag.options.trackAllPages = true;
         analytics.page('Pagename', {
           sendTo: sendTo

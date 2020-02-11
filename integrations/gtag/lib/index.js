@@ -15,7 +15,8 @@ var push = require('global-queue')('gtagDataLayer', { wrap: false });
 
 var GTAG = (module.exports = integration('Gtag')
   .global('gtagDataLayer')
-  .option('GA_MEASUREMENT_ID', '')
+  .option('GA_WEB_MEASUREMENT_ID', '')
+  .option('GA_WEB_APP_MEASUREMENT_ID', '')
   .option('AW_CONVERSION_ID', '')
   .option('DC_FLOODLIGHT_ID', '')
   .option('trackAllPages', false)
@@ -23,16 +24,7 @@ var GTAG = (module.exports = integration('Gtag')
   .option('sendTo', [])
   .option('gaOptions', { setAllMappedProps: true })
   .tag(
-    'ga',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}&l=gtagDataLayer">'
-  )
-  .tag(
-    'aw',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ AW_CONVERSION_ID }}&l=gtagDataLayer">'
-  )
-  .tag(
-    'dc',
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ DC_FLOODLIGHT_ID }}&l=gtagDataLayer">'
+    '<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}&l=gtagDataLayer">'
   ));
 
 /**
@@ -44,31 +36,49 @@ var GTAG = (module.exports = integration('Gtag')
  */
 
 GTAG.prototype.initialize = function() {
-  var tagPrefix = '';
   var config = [];
   var that = this;
   var gaOptions = this.options.gaOptions;
+  var GA_WEB_MEASUREMENT_ID = this.options.GA_WEB_MEASUREMENT_ID;
+  var GA_WEB_APP_MEASUREMENT_ID = this.options.GA_WEB_APP_MEASUREMENT_ID;
+  var AW_CONVERSION_ID = this.options.AW_CONVERSION_ID;
+  var DC_FLOODLIGHT_ID = this.options.DC_FLOODLIGHT_ID;
+  var accountId =
+    GA_WEB_MEASUREMENT_ID ||
+    GA_WEB_APP_MEASUREMENT_ID ||
+    AW_CONVERSION_ID ||
+    DC_FLOODLIGHT_ID;
 
-  if (this.options.GA_MEASUREMENT_ID) {
-    tagPrefix = 'ga';
-    config.push(['config', this.options.GA_MEASUREMENT_ID]);
+  if (GA_WEB_MEASUREMENT_ID) {
+    config.push(['config', GA_WEB_MEASUREMENT_ID]);
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
-      push('config', this.options.GA_MEASUREMENT_ID, {
+      push('config', GA_WEB_MEASUREMENT_ID, {
         custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
       });
     }
   }
-  if (this.options.AW_CONVERSION_ID) {
-    tagPrefix = 'aw';
-    config.push(['config', this.options.AW_CONVERSION_ID]);
+
+  if (GA_WEB_APP_MEASUREMENT_ID) {
+    config.push(['config', GA_WEB_APP_MEASUREMENT_ID]);
+    if (gaOptions && Object.keys(gaOptions).length) {
+      // set custom dimension and metrics if present
+      push('config', GA_WEB_APP_MEASUREMENT_ID, {
+        custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
+      });
+    }
   }
-  if (this.options.DC_FLOODLIGHT_ID) {
-    tagPrefix = 'dc';
-    config.push(['config', this.options.DC_FLOODLIGHT_ID]);
+
+  if (AW_CONVERSION_ID) {
+    config.push(['config', AW_CONVERSION_ID]);
   }
-  if (tagPrefix) {
-    this.load(tagPrefix, this.options, function() {
+
+  if (DC_FLOODLIGHT_ID) {
+    config.push(['config', DC_FLOODLIGHT_ID]);
+  }
+
+  if (accountId) {
+    this.load({ accountId: accountId }, function() {
       // Default routing.
       for (var i = 0; i < config.length; i++) {
         push(config[i][0], config[i][1]);
@@ -101,10 +111,18 @@ GTAG.prototype.loaded = function() {
  */
 
 GTAG.prototype.identify = function(identify) {
-  if (this.options.GA_MEASUREMENT_ID && identify.userId()) {
-    push('config', this.options.GA_MEASUREMENT_ID, {
-      user_id: identify.userId()
-    });
+  var userId = identify.userId();
+  if (userId) {
+    if (this.options.GA_WEB_MEASUREMENT_ID) {
+      push('config', this.options.GA_WEB_MEASUREMENT_ID, {
+        user_id: userId
+      });
+    }
+    if (this.options.GA_WEB_APP_MEASUREMENT_ID) {
+      push('config', this.options.GA_WEB_APP_MEASUREMENT_ID, {
+        user_id: userId
+      });
+    }
   }
 };
 
@@ -142,12 +160,21 @@ GTAG.prototype.page = function(page) {
   var name = page.fullName();
   var gaOptions = this.options.gaOptions || {};
   if (gaOptions && Object.keys(gaOptions).length) {
-    if (options.GA_MEASUREMENT_ID && gaOptions.setAllMappedProps) {
+    if (gaOptions.setAllMappedProps) {
       // set custom dimension and metrics if present
       // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
-      push('config', this.options.GA_MEASUREMENT_ID, {
-        custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
-      });
+
+      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
+      if (options.GA_WEB_MEASUREMENT_ID) {
+        push('config', this.options.GA_WEB_MEASUREMENT_ID, {
+          custom_map: customMap
+        });
+      }
+      if (options.GA_WEB_APP_MEASUREMENT_ID) {
+        push('config', this.options.GA_WEB_APP_MEASUREMENT_ID, {
+          custom_map: customMap
+        });
+      }
     }
   }
   if (this.options.trackAllPages) {
