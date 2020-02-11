@@ -31,6 +31,7 @@ describe('Sentry', function() {
     release: '721e41770371db95eee98ca2707686226b993eda',
     ignoreErrors: ['fb_xd_fragment'],
     ignoreUrls: ['/graph.facebook.com/', 'http://example.com/script2.js'], // Sentry: blacklistUrls
+    includePaths: ['/https?://getsentry.com/', '/https?://cdn.getsentry.com/'], // maps to Sentry.Integrations.RewriteFrames plugin
     whitelistUrls: ['/getsentry.com/', 'segment.com'],
     logger: 'javascript', // Sentry: type `tag`, key "logger" https://docs.sentry.io/enriching-error-data/context/?platform=browser#tagging-events
     customVersionProperty: null, // Sentry: release

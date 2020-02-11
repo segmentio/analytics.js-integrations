@@ -7,6 +7,7 @@
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
 var foldl = require('@ndhoule/foldl');
+
 /**
  * Expose `Sentry` integration.
  */
@@ -20,13 +21,19 @@ var Sentry = (module.exports = integration('Sentry')
   .option('ignoreErrors', []) // still exists, but not documented on Sentry's website
   .option('ignoreUrls', [])
   .option('whitelistUrls', [])
-  .option('includePaths', []) // deprecated
+  .option('includePaths', []) // maps to Sentry.Integrations.RewriteFrames plugin
   .option('maxMessageLength', null) // deprecated
   .option('logger', null)
   .option('customVersionProperty', null)
   .option('debug', false)
   .tag(
-    '<script src="https://browser.sentry-cdn.com/5.11.0/bundle.min.js" integrity="sha384-jbFinqIbKkHNg+QL+yxB4VrBC0EAPTuaLGeRT0T+NfEV89YC6u1bKxHLwoo+/xxY" crossorigin="anonymous"></script>'
+    'sentry',
+    '<script src="https://browser.sentry-cdn.com/5.12.1/bundle.min.js" integrity="sha384-y+an4eARFKvjzOivf/Z7JtMJhaN6b+lLQ5oFbBbUwZNNVir39cYtkjW1r6Xjbxg3" crossorigin="anonymous"></script>'
+  )
+  // Sentry.Integrations.RewriteFrames plugin: https://docs.sentry.io/platforms/javascript/#rewriteframes
+  .tag(
+    'plugin',
+    '<script src="https://browser.sentry-cdn.com/5.12.1/rewriteframes.min.js" crossorigin="anonymous"></script>'
   ));
 
 /**
@@ -41,7 +48,7 @@ Sentry.prototype.initialize = function() {
     ? window[this.options.customVersionProperty]
     : null;
 
-  var options = {
+  var config = {
     dsn: this.options.config,
     environment: this.options.environment,
     release: customRelease || this.options.release,
@@ -51,21 +58,48 @@ Sentry.prototype.initialize = function() {
     // ignoreErrors still exists, but is not documented on Sentry's website
     // https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/integrations/inboundfilters.ts#L12
     ignoreErrors: this.options.ignoreErrors,
+    integrations: [],
     debug: this.options.debug
   };
 
   var logger = this.options.logger;
+  var includePaths = this.options.includePaths;
+
   var self = this;
-  this.load(function() {
-    window.Sentry.onLoad(function() {
-      window.Sentry.init(reject(options));
+  this.load('sentry', function() {
+    self.load('plugin', function() {
+      // values from `includePaths` tells the Sentry app which frames in a StackTrace to display in the user's
+      // dashboard. we use the Sentry.Integrations.RewriteFrames plugin to check each frame in a stacktrace and reassign
+      // the value of frame.in_app to true/false depending on whether we find a match: https://docs.sentry.io/platforms/javascript/#rewriteframes
+      if (includePaths.length > 0) {
+        config.integrations.push(
+          new window.Sentry.Integrations.RewriteFrames({
+            iteratee: function(frame) {
+              for (var i = 0; i < includePaths.length; i++) {
+                try {
+                  if (frame.filename.match(new RegExp(includePaths[i]))) {
+                    frame.in_app = true; // eslint-disable-line
+                    return frame;
+                  }
+                } catch (e) {
+                  // do nothing
+                }
+              }
+              frame.in_app = false; // eslint-disable-line
+              return frame;
+            }
+          })
+        );
+      }
+
+      window.Sentry.init(reject(config));
 
       if (logger) {
         window.Sentry.setTag('logger', logger);
       }
-    });
 
-    self.ready();
+      self.ready();
+    });
   });
 };
 
