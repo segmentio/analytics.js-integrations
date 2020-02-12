@@ -21,6 +21,7 @@ var GTAG = (module.exports = integration('Gtag')
   .option('DC_FLOODLIGHT_ID', '')
   .option('trackAllPages', false)
   .option('trackNamedPages', true)
+  .option('trackCategorizedPages', true)
   .option('sendTo', [])
   .option('gaOptions', { setAllMappedProps: true })
   .tag(
@@ -158,6 +159,7 @@ GTAG.prototype.track = function(track) {
 GTAG.prototype.page = function(page) {
   var options = this.options;
   var name = page.fullName();
+  var category = page.category();
   var gaOptions = this.options.gaOptions || {};
   if (gaOptions && Object.keys(gaOptions).length) {
     if (gaOptions.setAllMappedProps) {
@@ -182,6 +184,9 @@ GTAG.prototype.page = function(page) {
   }
   if (name && this.options.trackNamedPages) {
     this.track(page.track(name));
+  }
+  if (category && this.options.trackCategorizedPages) {
+    this.track(page.track(category));
   }
 };
 

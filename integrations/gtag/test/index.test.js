@@ -13,6 +13,7 @@ describe('Gtag', function() {
     GA_WEB_APP_MEASUREMENT_ID: 'G_12345678',
     trackNamedPages: true,
     trackAllPages: false,
+    trackCategorizedPages: true,
     sendTo: [],
     gaOptions: {}
   };
@@ -43,6 +44,7 @@ describe('Gtag', function() {
         .option('DC_FLOODLIGHT_ID', '')
         .option('trackNamedPages', true)
         .option('trackAllPages', false)
+        .option('trackCategorizedPages', true)
         .option('sendTo', [])
         .option('gaOptions', { setAllMappedProps: true })
     );
@@ -149,6 +151,30 @@ describe('Gtag', function() {
         gtag.options.trackNamedPages = false;
         analytics.page('Pagename');
         analytics.didNotCall(window.gtagDataLayer.push);
+      });
+
+      it('should not track page if set to false', function() {
+        gtag.options.trackNamedPages = false;
+        gtag.options.trackCategorizedPages = false;
+        analytics.page('Pagename');
+        analytics.page('Category', 'name');
+        analytics.didNotCall(window.gtagDataLayer.push);
+      });
+
+      it('should not track page if trackCategorizedPages set to true', function() {
+        gtag.options.trackNamedPages = false;
+        gtag.options.trackCategorizedPages = true;
+        analytics.page('Pagename');
+        analytics.page('Category', 'name');
+        analytics.called(window.gtagDataLayer.push);
+      });
+
+      it('should not track page if trackNamedPages & trackCategorizedPages set to true', function() {
+        gtag.options.trackNamedPages = true;
+        gtag.options.trackCategorizedPages = true;
+        analytics.page('Pagename');
+        analytics.page('Category', 'Pagename');
+        analytics.calledThrice(window.gtagDataLayer.push);
       });
 
       it('should set custom dimensions if setAllMappedProps set to true', function() {
