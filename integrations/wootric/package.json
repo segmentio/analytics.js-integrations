@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-wootric",
   "description": "The Wootric analytics.js integration.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@ndhoule/foldl": "^2.0.1",
-    "@segment/analytics.js-integration": "^2.1.0",
+    "@segment/analytics.js-integration": "^3.x",
     "is": "^3.1.0",
     "omit": "harrietgrace/omit"
   },
