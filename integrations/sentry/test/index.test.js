@@ -15,7 +15,7 @@ var Sentry = require('../lib/');
  * customVersionProperty || release - release
  * ignoreErrors - ignoreErrors (this setting still exists, but for some reason is not included in Sentry's documentation)
  * ignoreUrls - blacklistUrls
- * ignorePaths - // now maps to Sentry.Integrations.RewriteFrames plugin
+ * ignorePaths - now maps to Sentry.Integrations.RewriteFrames plugin
  * logger - logger (type `tag`, NOT actual config option)
  * customVersionProperty - release
  *

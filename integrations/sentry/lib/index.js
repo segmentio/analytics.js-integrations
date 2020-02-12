@@ -63,7 +63,18 @@ Sentry.prototype.initialize = function() {
   };
 
   var logger = this.options.logger;
-  var includePaths = this.options.includePaths;
+  var includePaths = [];
+  if (this.options.includePaths.length > 0) {
+    includePaths = this.options.includePaths.map(function(path) {
+      var regex;
+      try {
+        regex = new RegExp(path);
+      } catch (e) {
+        // do nothing
+      }
+      return regex;
+    });
+  }
 
   var self = this;
   this.load('sentry', function() {
@@ -77,7 +88,7 @@ Sentry.prototype.initialize = function() {
             iteratee: function(frame) {
               for (var i = 0; i < includePaths.length; i++) {
                 try {
-                  if (frame.filename.match(new RegExp(includePaths[i]))) {
+                  if (frame.filename.match(includePaths[i])) {
                     frame.in_app = true; // eslint-disable-line
                     return frame;
                   }
