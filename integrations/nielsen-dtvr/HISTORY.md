@@ -1,4 +1,4 @@
-1.0.0 / 2020-02-05
+1.0.0-beta / 2020-02-13
 ==================
 
   * Events are mapped to Nielsen DTVR only when `load_type` property is 'linear'.
