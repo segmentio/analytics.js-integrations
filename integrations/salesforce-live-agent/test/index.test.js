@@ -168,13 +168,13 @@ describe('Salesforce Live Agent', function() {
         analytics.track('Live Chat Conversation Started', {});
 
         contactMappings.forEach(function(mapping) {
-          mapping = mapping.value;
-          var trait = traits[mapping.trait];
+          var m = mapping.value;
+          var trait = traits[m.trait];
           analytics.called(
             window.liveagent.addCustomDetail,
-            mapping.label,
+            m.label,
             trait,
-            mapping.displayToAgent
+            m.displayToAgent
           );
         });
       });
@@ -212,13 +212,13 @@ describe('Salesforce Live Agent', function() {
         var props = { caseStatus: 'Pending', subject: 'New shoes' };
         analytics.track('Live Chat Conversation Started', props);
         caseMappings.forEach(function(mapping) {
-          mapping = mapping.value;
-          var prop = props[mapping.property];
+          var m = mapping.value;
+          var prop = props[m.property];
           analytics.called(
             window.liveagent.addCustomDetail,
-            mapping.label,
+            m.label,
             prop,
-            mapping.displayToAgent
+            m.displayToAgent
           );
         });
       });
@@ -229,13 +229,13 @@ describe('Salesforce Live Agent', function() {
         analytics.group(props);
         analytics.track('Live Chat Conversation Started', {});
         accountMappings.forEach(function(mapping) {
-          mapping = mapping.value;
-          var prop = props[mapping.property];
+          var m = mapping.value;
+          var prop = props[m.property];
           analytics.called(
             window.liveagent.addCustomDetail,
-            mapping.label,
+            m.label,
             prop,
-            mapping.displayToAgent
+            m.displayToAgent
           );
         });
       });
