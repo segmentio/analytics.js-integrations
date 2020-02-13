@@ -1,7 +1,3 @@
-1.16.0 / 2020-02-12
-===================
-
-  * Support sending custom Context Data Variables on `Video Playback Started`, `Video Playback Resumed`, and `Video Content Started` when using Adobe Heartbeat Tracking URL
 
 1.15.0 / 2019-10-21
 ===================

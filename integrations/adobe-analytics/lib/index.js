@@ -1229,9 +1229,8 @@ function heartbeatSessionStart(track) {
     props.total_length || 0,
     streamType
   );
+  var contextData = {}; // This might be a custom object for the user.
 
-  // Assign custom context data using the Context Data Variables settings and properties in payload.
-  var contextData = createCustomVideoMetadataContext(track, this.options); // This might be a custom object for the user.
   createStandardVideoMetadata(track, mediaObj);
 
   this.mediaHeartbeats[
@@ -1247,11 +1246,6 @@ function heartbeatVideoStart(track) {
   var props = track.properties();
 
   this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackPlay();
-  // Assign custom metadata using the Context Data Variables settings and properties in payload.
-  var chapterCustomMetadata = createCustomVideoMetadataContext(
-    track,
-    this.options
-  );
 
   if (!this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress) {
     var chapterObj = videoAnalytics.MediaHeartbeat.createChapterObject(
@@ -1272,7 +1266,7 @@ function heartbeatVideoStart(track) {
     this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
       videoAnalytics.MediaHeartbeat.Event.ChapterStart,
       chapterObj,
-      chapterCustomMetadata
+      {}
     );
     this.mediaHeartbeats[
       props.session_id || 'default'
@@ -1460,19 +1454,6 @@ function createStandardVideoMetadata(track, mediaObj) {
     videoAnalytics.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata,
     stdVidMeta
   );
-}
-
-function createCustomVideoMetadataContext(track, options) {
-  var contextData = {};
-
-  var properties = extractProperties(trample(track.properties()), options);
-  each(function(value, key) {
-    if (!key || value === undefined || value === null || value === '') {
-      return;
-    }
-    contextData[key] = value;
-  }, properties);
-  return contextData;
 }
 
 function createStandardAdMetadata(track, adObj) {
