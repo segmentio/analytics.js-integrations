@@ -6,6 +6,7 @@
 
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('gtagDataLayer', { wrap: false });
+var Track = require('segmentio-facade').Track;
 
 /**
  * Expose `GTAG`.
@@ -23,10 +24,39 @@ var GTAG = (module.exports = integration('Gtag')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
   .option('sendTo', [])
-  .option('gaOptions', { setAllMappedProps: true })
+  .option('gaOptions', {
+    classic: false,
+    enhancedEcommerce: false,
+    setAllMappedProps: true
+  })
   .tag(
     '<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}&l=gtagDataLayer">'
   ));
+
+GTAG.on('construct', function(Integration) {
+  /* eslint-disable */
+  if (Integration.options.gaOptions.classic) {
+      Integration.page = Integration.pageClassic;
+      Integration.orderCompleted = Integration.orderCompletedClassic;
+    } else if (Integration.options.gaOptions.enhancedEcommerce) {
+      Integration.productViewed = Integration.productViewedEnhanced;
+      Integration.productClicked = Integration.productClickedEnhanced;
+      Integration.productAdded = Integration.productAddedEnhanced;
+      Integration.productRemoved = Integration.productRemovedEnhanced;
+      Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
+      Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
+      Integration.checkoutStepCompleted =
+        Integration.checkoutStepCompletedEnhanced;
+      Integration.orderUpdated = Integration.orderUpdatedEnhanced;
+      Integration.orderCompleted = Integration.orderCompletedEnhanced;
+      Integration.orderRefunded = Integration.orderRefundedEnhanced;
+      Integration.promotionViewed = Integration.promotionViewedEnhanced;
+      Integration.promotionClicked = Integration.promotionClickedEnhanced;
+      Integration.productListViewed = Integration.productListViewedEnhanced;
+      Integration.productListFiltered = Integration.productListFilteredEnhanced;
+    }
+    /* eslint-enable */
+});
 
 /**
  * Initialize.
@@ -189,6 +219,93 @@ GTAG.prototype.page = function(page) {
     this.track(page.track(category));
   }
 };
+
+/**
+ * Page (classic).
+ *
+ * @param {Page} page
+ */
+
+GTAG.prototype.pageClassic = function(page) {
+  var name = page.fullName();
+  var category = page.category();
+  if (this.options.trackAllPages) {
+    this.track(page.track());
+  }
+  if (name && this.options.trackNamedPages) {
+    this.track(page.track(name));
+  }
+  if (category && this.options.trackCategorizedPages) {
+    this.track(page.track(category));
+  }
+};
+
+/**
+ * Completed order.
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.orderCompletedClassic = function(track) {
+  var total = track.total() || track.revenue() || 0;
+  var orderId = track.orderId();
+  var products = track.products();
+  var currency = track.currency();
+  var props = track.properties();
+
+  // orderId is required.
+  if (!orderId) {
+    return;
+  }
+
+  var productArray = [];
+
+  for (var i = 0; i < products.length; i++) {
+    var product = new Track({ properties: products[i] });
+    var productId = product.id() || product.productId();
+    if (productId) {
+      productArray.push({
+        id: productId,
+        name: product.name(),
+        list_name: props.list_id || track.category() || 'Search Results',
+        category: product.category(),
+        list_position: getProductPosition(product, products),
+        quantity: product.quantity(),
+        price: product.price()
+      });
+    }
+  }
+
+  push('event', 'purchase', {
+    transaction_id: orderId,
+    affiliation: props.affiliation,
+    value: total,
+    currency: currency,
+    tax: track.tax(),
+    shipping: track.shipping(),
+    items: productArray
+  });
+};
+
+function getProductPosition(item, products) {
+  var position = item.properties().position;
+  if (
+    typeof position !== 'undefined' &&
+    !Number.isNaN(Number(position)) &&
+    Number(position) > -1
+  ) {
+    // If position passed and is valid positive number.
+    return Number(position);
+  }
+  return (
+    products
+      .map(function(x) {
+        return x.product_id;
+      })
+      .indexOf(item.productId()) + 1
+  );
+}
 
 /**
  * Merge two javascript objects. This works similarly to `Object.assign({}, obj1, obj2)`

@@ -46,7 +46,11 @@ describe('Gtag', function() {
         .option('trackAllPages', false)
         .option('trackCategorizedPages', true)
         .option('sendTo', [])
-        .option('gaOptions', { setAllMappedProps: true })
+        .option('gaOptions', {
+          classic: false,
+          enhancedEcommerce: false,
+          setAllMappedProps: true
+        })
     );
   });
 
@@ -277,5 +281,191 @@ describe('Gtag', function() {
         });
       });
     });
+  });
+});
+
+describe('GA Classic', function() {
+  var analyticsClassic;
+  var gtagClassic;
+  var settings = {
+    gaOptions: {
+      classic: true
+    },
+    GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+  };
+
+  beforeEach(function() {
+    analyticsClassic = new Analytics();
+    gtagClassic = new GTAG(settings);
+    analyticsClassic.use(GTAG);
+    analyticsClassic.use(tester);
+    analyticsClassic.add(gtagClassic);
+  });
+
+  afterEach(function() {
+    analyticsClassic.restore();
+    analyticsClassic.reset();
+    gtagClassic.reset();
+    sandbox();
+  });
+
+  describe('loading', function() {
+    it('should load', function(done) {
+      analyticsClassic.load(gtagClassic, done);
+    });
+  });
+
+  describe('after loading', function() {
+    beforeEach(function(done) {
+      gtagClassic.options = {
+        gaOptions: {
+          classic: true
+        },
+        GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+      };
+      analyticsClassic.once('ready', done);
+      analyticsClassic.initialize();
+    });
+
+    describe('# page', function() {
+      beforeEach(function() {
+        analyticsClassic.stub(window.gtagDataLayer, 'push');
+      });
+
+      it('should track page', function() {
+        gtagClassic.options.trackAllPages = true;
+        analyticsClassic.page();
+        analyticsClassic.called(window.gtagDataLayer.push);
+      });
+
+      it('should track named page', function() {
+        gtagClassic.options.trackAllPages = true;
+        analyticsClassic.page('Pagename');
+        analyticsClassic.called(
+          window.gtagDataLayer.push,
+          'event',
+          'Loaded a Page',
+          {
+            name: 'Pagename',
+            event: 'Loaded a Page',
+            path: window.location.pathname,
+            referrer: document.referrer,
+            title: document.title,
+            search: window.location.search,
+            url: window.location.href
+          }
+        );
+      });
+    });
+
+    describe('ecommerce', function() {
+      beforeEach(function() {
+        analyticsClassic.stub(window.gtagDataLayer, 'push');
+      });
+
+      it('should call order completed', function() {
+        analyticsClassic.track('Order Completed', {
+          checkout_id: 'fksdjfsdjfisjf9sdfjsd9f',
+          order_id: '24.031608523954162',
+          affiliation: 'Whole Foods',
+          total: 27.5,
+          subtotal: 22.5,
+          revenue: 25.0,
+          shipping: 3,
+          tax: 2,
+          currency: 'USD',
+          products: [
+            {
+              product_id: 'P12345',
+              name: 'Birthday Cake',
+              price: 19,
+              quantity: 1,
+              category: 'Bakery',
+              position: '1'
+            },
+            {
+              product_id: 'P67890',
+              name: 'Apple',
+              price: 3,
+              quantity: 2,
+              category: 'Fruit',
+              position: '2'
+            }
+          ]
+        });
+
+        analyticsClassic.called(
+          window.gtagDataLayer.push,
+          'event',
+          'purchase',
+          {
+            transaction_id: '24.031608523954162',
+            affiliation: 'Whole Foods',
+            value: 27.5,
+            currency: 'USD',
+            tax: 2,
+            shipping: 3,
+            items: [
+              {
+                id: 'P12345',
+                name: 'Birthday Cake',
+                list_name: 'Search Results',
+                category: 'Bakery',
+                list_position: 1,
+                quantity: 1,
+                price: 19
+              },
+              {
+                id: 'P67890',
+                name: 'Apple',
+                list_name: 'Search Results',
+                category: 'Fruit',
+                list_position: 2,
+                quantity: 2,
+                price: 3
+              }
+            ]
+          }
+        );
+      });
+
+      it('should not track order completed if order id is missing', function() {
+        analyticsClassic.track('Order Completed', {
+          checkout_id: 'fksdjfsdjfisjf9sdfjsd9f',
+          total: 27.5
+        });
+        analyticsClassic.didNotCall(
+          window.gtagDataLayer.push,
+          'event',
+          'purchase'
+        );
+      });
+    });
+  });
+});
+
+describe('Enhanced Ecommerce', function() {
+  var analyticsEnhanced;
+  var gtagEnhanced;
+  var settings = {
+    gaOptions: {
+      enhancedEcommerce: true
+    },
+    GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+  };
+
+  beforeEach(function() {
+    analyticsEnhanced = new Analytics();
+    gtagEnhanced = new GTAG(settings);
+    analyticsEnhanced.use(GTAG);
+    analyticsEnhanced.use(tester);
+    analyticsEnhanced.add(gtagEnhanced);
+  });
+
+  afterEach(function() {
+    analyticsEnhanced.restore();
+    analyticsEnhanced.reset();
+    gtagEnhanced.reset();
+    sandbox();
   });
 });
