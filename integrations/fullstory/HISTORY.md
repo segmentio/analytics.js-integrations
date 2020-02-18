@@ -2,6 +2,7 @@
 ==================
 
   * Update fs.js source to CDN at edge.fullstory.com
+  * Update snippet code to latest version
 
 2.2.2 / 2019-11-26
 ==================
