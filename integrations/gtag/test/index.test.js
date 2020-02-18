@@ -774,6 +774,58 @@ describe('Enhanced Ecommerce', function() {
           }
         );
       });
+
+      it('should track complete order refunded', function() {
+        analyticsEnhanced.track('order refunded', {
+          orderId: '780bc55'
+        });
+        analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'refund', {
+          transaction_id: '780bc55'
+        });
+      });
+
+      it('should track partial order refunded', function() {
+        analyticsEnhanced.track('order refunded', {
+          orderId: '780bc55',
+          products: [
+            {
+              quantity: 1,
+              sku: 'p-298'
+            },
+            {
+              quantity: 2,
+              sku: 'p-299'
+            }
+          ]
+        });
+        analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'refund', {
+          transaction_id: '780bc55',
+          items: [
+            {
+              id: 'p-298',
+              name: undefined,
+              category: undefined,
+              list_name: 'products',
+              brand: undefined,
+              variant: undefined,
+              quantity: 1,
+              price: undefined,
+              list_position: 1
+            },
+            {
+              id: 'p-299',
+              name: undefined,
+              category: undefined,
+              list_name: 'products',
+              brand: undefined,
+              variant: undefined,
+              quantity: 2,
+              price: undefined,
+              list_position: 2
+            }
+          ]
+        });
+      });
     });
   });
 });

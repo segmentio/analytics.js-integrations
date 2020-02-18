@@ -47,13 +47,13 @@ GTAG.on('construct', function(Integration) {
       Integration.promotionViewed = Integration.promotionViewedEnhanced;
       Integration.promotionClicked = Integration.promotionClickedEnhanced;
       Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
+      Integration.orderRefunded = Integration.orderRefundedEnhanced;
 
       // Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
       // Integration.checkoutStepCompleted =
       //   Integration.checkoutStepCompletedEnhanced;
       // Integration.orderUpdated = Integration.orderUpdatedEnhanced;
       // Integration.orderCompleted = Integration.orderCompletedEnhanced;
-      // Integration.orderRefunded = Integration.orderRefundedEnhanced;
       // Integration.productListFiltered = Integration.productListFilteredEnhanced;
     }
     /* eslint-enable */
@@ -377,6 +377,24 @@ GTAG.prototype.checkoutStartedEnhanced = function(track) {
     items: getFormattedProductList(track),
     coupon: coupon
   });
+};
+
+/**
+ * Order Refunded - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.orderRefundedEnhanced = function(track) {
+  var products = track.products();
+  var eventData = {
+    transaction_id: track.orderId()
+  };
+  if (products.length) {
+    eventData.items = getFormattedProductList(track);
+  }
+  push('event', 'refund', eventData);
 };
 
 /**
