@@ -52,6 +52,8 @@ FullStory.prototype.initialize = function() {
     g.consent=function(a){g("consent",!arguments.length||a)};
     g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
     g.clearUserCookie=function(){};
+    g._w={};y='XMLHttpRequest';g._w[y]=m[y];y='fetch';g._w[y]=m[y];
+    if(m[y])m[y]=function(){return g._w[y].apply(this,arguments)};
   })(window,document,window['_fs_namespace'],'script','user');
   /* eslint-enable */
 
