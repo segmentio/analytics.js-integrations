@@ -46,8 +46,8 @@ GTAG.on('construct', function(Integration) {
       Integration.productRemoved = Integration.productRemovedEnhanced;
       Integration.promotionViewed = Integration.promotionViewedEnhanced;
       Integration.promotionClicked = Integration.promotionClickedEnhanced;
+      Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
 
-      // Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
       // Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
       // Integration.checkoutStepCompleted =
       //   Integration.checkoutStepCompletedEnhanced;
@@ -364,6 +364,22 @@ GTAG.prototype.promotionClickedEnhanced = function(track) {
 };
 
 /**
+ * Checkout Started - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.checkoutStartedEnhanced = function(track) {
+  var coupon = track.proxy('properties.coupon');
+
+  push('event', 'begin_checkout', {
+    items: getFormattedProductList(track),
+    coupon: coupon
+  });
+};
+
+/**
  * Enhanced ecommerce format data for promotion.
  *
  *
@@ -423,7 +439,7 @@ function getFormattedProductList(track) {
 
   for (var i = 0; i < products.length; i++) {
     var product = new Track({ properties: products[i] });
-    var productId = product.id() || product.productId();
+    var productId = product.id() || product.productId() || product.sku();
     if (productId) {
       productList.push({
         id: productId,
@@ -451,13 +467,18 @@ function getProductPosition(item, products) {
     // If position passed and is valid positive number.
     return Number(position);
   }
-  return (
-    products
-      .map(function(x) {
-        return x.product_id;
-      })
-      .indexOf(item.productId()) + 1
-  );
+  var productIds = products
+    .map(function(x) {
+      return x.product_id;
+    })
+    .filter(Boolean);
+  if (productIds.length === 0) {
+    productIds = products.map(function(x) {
+      return x.sku;
+    });
+    return productIds.indexOf(item.sku()) + 1;
+  }
+  return productIds.indexOf(item.productId()) + 1;
 }
 
 /**

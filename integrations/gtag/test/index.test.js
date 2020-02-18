@@ -675,9 +675,7 @@ describe('Enhanced Ecommerce', function() {
           promotion_id: 'PROMO_1234',
           name: 'Summer Sale',
           creative: 'summer_banner2',
-          position: 'banner_slot1',
-          testDimension: true,
-          testMetric: true
+          position: 'banner_slot1'
         });
         analyticsEnhanced.called(
           window.gtagDataLayer.push,
@@ -702,9 +700,7 @@ describe('Enhanced Ecommerce', function() {
           promotion_id: 'PROMO_1234',
           name: 'Summer Sale',
           creative: 'summer_banner2',
-          position: 'banner_slot1',
-          testDimension: true,
-          testMetric: true
+          position: 'banner_slot1'
         });
         analyticsEnhanced.called(
           window.gtagDataLayer.push,
@@ -719,6 +715,62 @@ describe('Enhanced Ecommerce', function() {
                 position: 'banner_slot1'
               }
             ]
+          }
+        );
+      });
+
+      it('should track checkout started', function() {
+        analyticsEnhanced.track('checkout started', {
+          currency: 'USD',
+          products: [
+            {
+              quantity: 1,
+              price: 24.75,
+              name: 'my product',
+              sku: 'p-298'
+            },
+            {
+              quantity: 3,
+              price: 24.75,
+              name: 'other product',
+              sku: 'p-299'
+            }
+          ],
+          step: 1,
+          paymentMethod: 'Visa',
+          testDimension: true,
+          testMetric: true
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'begin_checkout',
+          {
+            items: [
+              {
+                id: 'p-298',
+                name: 'my product',
+                category: undefined,
+                list_name: 'products',
+                brand: undefined,
+                variant: undefined,
+                quantity: 1,
+                price: 24.75,
+                list_position: 1
+              },
+              {
+                id: 'p-299',
+                name: 'other product',
+                category: undefined,
+                list_name: 'products',
+                brand: undefined,
+                variant: undefined,
+                quantity: 3,
+                price: 24.75,
+                list_position: 2
+              }
+            ],
+            coupon: undefined
           }
         );
       });
