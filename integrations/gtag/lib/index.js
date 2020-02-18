@@ -41,10 +41,12 @@ GTAG.on('construct', function(Integration) {
     } else if (Integration.options.gaOptions.enhancedEcommerce) {
       Integration.productListViewed = Integration.productListViewedEnhanced;
       Integration.productClicked = Integration.productClickedEnhanced;
+      Integration.productViewed = Integration.productViewedEnhanced;
+      Integration.productAdded = Integration.productAddedEnhanced;
+      Integration.productRemoved = Integration.productRemovedEnhanced;
+      Integration.promotionViewed = Integration.promotionViewedEnhanced;
+      Integration.promotionClicked = Integration.promotionClickedEnhanced;
 
-      // Integration.productViewed = Integration.productViewedEnhanced;
-      // Integration.productAdded = Integration.productAddedEnhanced;
-      // Integration.productRemoved = Integration.productRemovedEnhanced;
       // Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
       // Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
       // Integration.checkoutStepCompleted =
@@ -52,8 +54,6 @@ GTAG.on('construct', function(Integration) {
       // Integration.orderUpdated = Integration.orderUpdatedEnhanced;
       // Integration.orderCompleted = Integration.orderCompletedEnhanced;
       // Integration.orderRefunded = Integration.orderRefundedEnhanced;
-      // Integration.promotionViewed = Integration.promotionViewedEnhanced;
-      // Integration.promotionClicked = Integration.promotionClickedEnhanced;
       // Integration.productListFiltered = Integration.productListFilteredEnhanced;
     }
     /* eslint-enable */
@@ -294,19 +294,102 @@ GTAG.prototype.productListViewedEnhanced = function(track) {
 GTAG.prototype.productClickedEnhanced = function(track) {
   push('event', 'select_content', {
     content_type: 'product',
-    items: [enhancedEcommerceTrackProduct(track)]
+    items: [getFormattedProduct(track)]
   });
 };
 
 /**
- * Enhanced ecommerce track product.
+ * Product Viewed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.productViewedEnhanced = function(track) {
+  push('event', 'view_item', {
+    items: [getFormattedProduct(track)]
+  });
+};
+
+/**
+ * Product Added - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.productAddedEnhanced = function(track) {
+  push('event', 'add_to_cart', {
+    items: [getFormattedProduct(track)]
+  });
+};
+
+/**
+ * Product Removed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.productRemovedEnhanced = function(track) {
+  push('event', 'remove_from_cart', {
+    items: [getFormattedProduct(track)]
+  });
+};
+
+/**
+ * Promotion Viewed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.promotionViewedEnhanced = function(track) {
+  push('event', 'view_promotion', {
+    promotions: [getFormattedPromotion(track)]
+  });
+};
+
+/**
+ * Promotion Clicked - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.promotionClickedEnhanced = function(track) {
+  push('event', 'select_content', {
+    promotions: [getFormattedPromotion(track)]
+  });
+};
+
+/**
+ * Enhanced ecommerce format data for promotion.
  *
  *
  * @api private
  * @param {Track} track
  */
 
-function enhancedEcommerceTrackProduct(track) {
+function getFormattedPromotion(track) {
+  var props = track.properties();
+  return {
+    id: track.promotionId() || track.id(),
+    name: track.name(),
+    creative: props.creative,
+    position: props.position
+  };
+}
+
+/**
+ * Enhanced ecommerce format data for product.
+ *
+ *
+ * @api private
+ * @param {Track} track
+ */
+
+function getFormattedProduct(track) {
   var props = track.properties();
   var product = {
     id: track.productId() || track.id() || track.sku(),

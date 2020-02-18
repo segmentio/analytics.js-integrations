@@ -575,6 +575,153 @@ describe('Enhanced Ecommerce', function() {
           }
         );
       });
+
+      it('should track product viewed', function() {
+        analyticsEnhanced.track('product viewed', {
+          currency: 'CAD',
+          quantity: 1,
+          price: 24.75,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          list: 'search results'
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'view_item',
+          {
+            items: [
+              {
+                id: 'p-298',
+                name: 'my product',
+                category: 'cat 1',
+                quantity: 1,
+                price: 24.75,
+                brand: undefined,
+                variant: undefined,
+                currency: 'CAD'
+              }
+            ]
+          }
+        );
+      });
+
+      it('should track product added', function() {
+        analyticsEnhanced.track('product added', {
+          currency: 'CAD',
+          quantity: 1,
+          price: 24.75,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          list: 'search results'
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'add_to_cart',
+          {
+            items: [
+              {
+                id: 'p-298',
+                name: 'my product',
+                category: 'cat 1',
+                quantity: 1,
+                price: 24.75,
+                brand: undefined,
+                variant: undefined,
+                currency: 'CAD'
+              }
+            ]
+          }
+        );
+      });
+
+      it('should track product removed', function() {
+        analyticsEnhanced.track('product removed', {
+          currency: 'CAD',
+          quantity: 1,
+          price: 24.75,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          list: 'search results'
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'remove_from_cart',
+          {
+            items: [
+              {
+                id: 'p-298',
+                name: 'my product',
+                category: 'cat 1',
+                quantity: 1,
+                price: 24.75,
+                brand: undefined,
+                variant: undefined,
+                currency: 'CAD'
+              }
+            ]
+          }
+        );
+      });
+
+      it('should track promotion viewed', function() {
+        analyticsEnhanced.track('promotion viewed', {
+          currency: 'CAD',
+          promotion_id: 'PROMO_1234',
+          name: 'Summer Sale',
+          creative: 'summer_banner2',
+          position: 'banner_slot1',
+          testDimension: true,
+          testMetric: true
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'view_promotion',
+          {
+            promotions: [
+              {
+                id: 'PROMO_1234',
+                name: 'Summer Sale',
+                creative: 'summer_banner2',
+                position: 'banner_slot1'
+              }
+            ]
+          }
+        );
+      });
+
+      it('should track promotion clicked', function() {
+        analyticsEnhanced.track('promotion clicked', {
+          currency: 'CAD',
+          promotion_id: 'PROMO_1234',
+          name: 'Summer Sale',
+          creative: 'summer_banner2',
+          position: 'banner_slot1',
+          testDimension: true,
+          testMetric: true
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'select_content',
+          {
+            promotions: [
+              {
+                id: 'PROMO_1234',
+                name: 'Summer Sale',
+                creative: 'summer_banner2',
+                position: 'banner_slot1'
+              }
+            ]
+          }
+        );
+      });
     });
   });
 });
