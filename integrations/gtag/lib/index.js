@@ -39,21 +39,22 @@ GTAG.on('construct', function(Integration) {
       Integration.page = Integration.pageClassic;
       Integration.orderCompleted = Integration.orderCompletedClassic;
     } else if (Integration.options.gaOptions.enhancedEcommerce) {
-      Integration.productViewed = Integration.productViewedEnhanced;
-      Integration.productClicked = Integration.productClickedEnhanced;
-      Integration.productAdded = Integration.productAddedEnhanced;
-      Integration.productRemoved = Integration.productRemovedEnhanced;
-      Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
-      Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
-      Integration.checkoutStepCompleted =
-        Integration.checkoutStepCompletedEnhanced;
-      Integration.orderUpdated = Integration.orderUpdatedEnhanced;
-      Integration.orderCompleted = Integration.orderCompletedEnhanced;
-      Integration.orderRefunded = Integration.orderRefundedEnhanced;
-      Integration.promotionViewed = Integration.promotionViewedEnhanced;
-      Integration.promotionClicked = Integration.promotionClickedEnhanced;
       Integration.productListViewed = Integration.productListViewedEnhanced;
-      Integration.productListFiltered = Integration.productListFilteredEnhanced;
+      Integration.productClicked = Integration.productClickedEnhanced;
+
+      // Integration.productViewed = Integration.productViewedEnhanced;
+      // Integration.productAdded = Integration.productAddedEnhanced;
+      // Integration.productRemoved = Integration.productRemovedEnhanced;
+      // Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
+      // Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
+      // Integration.checkoutStepCompleted =
+      //   Integration.checkoutStepCompletedEnhanced;
+      // Integration.orderUpdated = Integration.orderUpdatedEnhanced;
+      // Integration.orderCompleted = Integration.orderCompletedEnhanced;
+      // Integration.orderRefunded = Integration.orderRefundedEnhanced;
+      // Integration.promotionViewed = Integration.promotionViewedEnhanced;
+      // Integration.promotionClicked = Integration.promotionClickedEnhanced;
+      // Integration.productListFiltered = Integration.productListFilteredEnhanced;
     }
     /* eslint-enable */
 });
@@ -165,8 +166,29 @@ GTAG.prototype.identify = function(identify) {
  */
 
 GTAG.prototype.track = function(track) {
+  var options = this.options;
   var props = track.properties();
   props.event = track.event() || '';
+
+  var gaOptions = this.options.gaOptions || {};
+  if (gaOptions && Object.keys(gaOptions).length) {
+    if (gaOptions.setAllMappedProps) {
+      // set custom dimension and metrics if present
+      // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
+
+      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
+      if (options.GA_WEB_MEASUREMENT_ID) {
+        push('config', this.options.GA_WEB_MEASUREMENT_ID, {
+          custom_map: customMap
+        });
+      }
+      if (options.GA_WEB_APP_MEASUREMENT_ID) {
+        push('config', this.options.GA_WEB_APP_MEASUREMENT_ID, {
+          custom_map: customMap
+        });
+      }
+    }
+  }
   if (this.options.sendTo && this.options.sendTo.length) {
     props.send_to = this.options.sendTo;
   }
@@ -187,28 +209,8 @@ GTAG.prototype.track = function(track) {
  */
 
 GTAG.prototype.page = function(page) {
-  var options = this.options;
   var name = page.fullName();
   var category = page.category();
-  var gaOptions = this.options.gaOptions || {};
-  if (gaOptions && Object.keys(gaOptions).length) {
-    if (gaOptions.setAllMappedProps) {
-      // set custom dimension and metrics if present
-      // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
-
-      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
-      if (options.GA_WEB_MEASUREMENT_ID) {
-        push('config', this.options.GA_WEB_MEASUREMENT_ID, {
-          custom_map: customMap
-        });
-      }
-      if (options.GA_WEB_APP_MEASUREMENT_ID) {
-        push('config', this.options.GA_WEB_APP_MEASUREMENT_ID, {
-          custom_map: customMap
-        });
-      }
-    }
-  }
   if (this.options.trackAllPages) {
     this.track(page.track());
   }
@@ -250,31 +252,12 @@ GTAG.prototype.pageClassic = function(page) {
 GTAG.prototype.orderCompletedClassic = function(track) {
   var total = track.total() || track.revenue() || 0;
   var orderId = track.orderId();
-  var products = track.products();
   var currency = track.currency();
   var props = track.properties();
 
   // orderId is required.
   if (!orderId) {
     return;
-  }
-
-  var productArray = [];
-
-  for (var i = 0; i < products.length; i++) {
-    var product = new Track({ properties: products[i] });
-    var productId = product.id() || product.productId();
-    if (productId) {
-      productArray.push({
-        id: productId,
-        name: product.name(),
-        list_name: props.list_id || track.category() || 'Search Results',
-        category: product.category(),
-        list_position: getProductPosition(product, products),
-        quantity: product.quantity(),
-        price: product.price()
-      });
-    }
   }
 
   push('event', 'purchase', {
@@ -284,9 +267,96 @@ GTAG.prototype.orderCompletedClassic = function(track) {
     currency: currency,
     tax: track.tax(),
     shipping: track.shipping(),
-    items: productArray
+    items: getFormattedProductList(track)
   });
 };
+
+/**
+ * Product List Viewed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.productListViewedEnhanced = function(track) {
+  push('event', 'view_item_list', {
+    items: getFormattedProductList(track)
+  });
+};
+
+/**
+ * Product Clicked - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.productClickedEnhanced = function(track) {
+  push('event', 'select_content', {
+    content_type: 'product',
+    items: [enhancedEcommerceTrackProduct(track)]
+  });
+};
+
+/**
+ * Enhanced ecommerce track product.
+ *
+ *
+ * @api private
+ * @param {Track} track
+ */
+
+function enhancedEcommerceTrackProduct(track) {
+  var props = track.properties();
+  var product = {
+    id: track.productId() || track.id() || track.sku(),
+    name: track.name(),
+    category: track.category(),
+    quantity: track.quantity(),
+    price: track.price(),
+    brand: props.brand,
+    variant: props.variant,
+    currency: track.currency()
+  };
+
+  // https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#product-data
+  // GA requires an integer but our specs says "Number", so it could be a float.
+  if (props.position != null) {
+    product.position = Math.round(props.position);
+  }
+
+  // append coupon if it set
+  // https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#measuring-transactions
+  var coupon = track.proxy('properties.coupon');
+  if (coupon) product.coupon = coupon;
+
+  return product;
+}
+
+function getFormattedProductList(track) {
+  var productList = [];
+  var products = track.products();
+  var props = track.properties();
+
+  for (var i = 0; i < products.length; i++) {
+    var product = new Track({ properties: products[i] });
+    var productId = product.id() || product.productId();
+    if (productId) {
+      productList.push({
+        id: productId,
+        name: product.name(),
+        category: product.category() || track.category(),
+        list_name: props.list_id || track.category() || 'products',
+        brand: product.properties().brand,
+        variant: product.properties().variant,
+        quantity: product.quantity(),
+        price: product.price(),
+        list_position: getProductPosition(product, products)
+      });
+    }
+  }
+  return productList;
+}
 
 function getProductPosition(item, products) {
   var position = item.properties().position;

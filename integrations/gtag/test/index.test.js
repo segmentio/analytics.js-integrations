@@ -319,7 +319,8 @@ describe('GA Classic', function() {
     beforeEach(function(done) {
       gtagClassic.options = {
         gaOptions: {
-          classic: true
+          classic: true,
+          enhancedEcommerce: false
         },
         GA_WEB_MEASUREMENT_ID: 'GA-120399404'
       };
@@ -409,18 +410,22 @@ describe('GA Classic', function() {
               {
                 id: 'P12345',
                 name: 'Birthday Cake',
-                list_name: 'Search Results',
+                list_name: 'products',
                 category: 'Bakery',
                 list_position: 1,
+                brand: undefined,
+                variant: undefined,
                 quantity: 1,
                 price: 19
               },
               {
                 id: 'P67890',
                 name: 'Apple',
-                list_name: 'Search Results',
+                list_name: 'products',
                 category: 'Fruit',
                 list_position: 2,
+                brand: undefined,
+                variant: undefined,
                 quantity: 2,
                 price: 3
               }
@@ -467,5 +472,109 @@ describe('Enhanced Ecommerce', function() {
     analyticsEnhanced.reset();
     gtagEnhanced.reset();
     sandbox();
+  });
+
+  describe('after loading', function() {
+    beforeEach(function(done) {
+      gtagEnhanced.options = {
+        gaOptions: {
+          classic: false,
+          enhancedEcommerce: true
+        },
+        GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+      };
+      analyticsEnhanced.once('ready', done);
+      analyticsEnhanced.initialize();
+    });
+    describe('enhanced ecommerce', function() {
+      beforeEach(function() {
+        analyticsEnhanced.stub(window.gtagDataLayer, 'push');
+      });
+
+      it('should track product list viewed', function() {
+        analyticsEnhanced.track('Product List Viewed', {
+          category: 'cat 1',
+          list_id: '1234',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              name: 'Product1',
+              price: 101,
+              position: 10
+            },
+            {
+              product_id: '507f1f77bcf86cd799439012',
+              name: 'Product2',
+              price: 50,
+              position: 12
+            }
+          ]
+        });
+
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'view_item_list',
+          {
+            items: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                name: 'Product1',
+                list_name: '1234',
+                category: 'cat 1',
+                list_position: 10,
+                brand: undefined,
+                variant: undefined,
+                quantity: 1,
+                price: 101
+              },
+              {
+                id: '507f1f77bcf86cd799439012',
+                name: 'Product2',
+                list_name: '1234',
+                category: 'cat 1',
+                list_position: 12,
+                brand: undefined,
+                variant: undefined,
+                quantity: 1,
+                price: 50
+              }
+            ]
+          }
+        );
+      });
+
+      it('should track product clicked', function() {
+        analyticsEnhanced.track('product clicked', {
+          currency: 'CAD',
+          quantity: 1,
+          price: 24.75,
+          name: 'my product',
+          category: 'cat 1',
+          sku: 'p-298',
+          list: 'search results'
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'select_content',
+          {
+            content_type: 'product',
+            items: [
+              {
+                id: 'p-298',
+                name: 'my product',
+                category: 'cat 1',
+                quantity: 1,
+                price: 24.75,
+                brand: undefined,
+                variant: undefined,
+                currency: 'CAD'
+              }
+            ]
+          }
+        );
+      });
+    });
   });
 });
