@@ -63,6 +63,7 @@ var GA = (exports.Integration = integration('Google Analytics')
   .option('optimize', '')
   .option('nameTracker', false)
   .option('resetCustomDimensionsOnPage', [])
+  .option('sendEventCategoryEcommerce', false)
   .tag('library', '<script src="//www.google-analytics.com/analytics.js">')
   .tag('double click', '<script src="//stats.g.doubleclick.net/dc.js">')
   .tag('http', '<script src="http://www.google-analytics.com/ga.js">')
@@ -689,6 +690,18 @@ GA.prototype.pushEnhancedEcommerce = function(track, opts, trackerName) {
       setCustomDimenionsAndMetrics(track.properties(), opts, trackerName)
     )
   ]);
+
+  // Send an event level category for events with top level `category` fields per Segment Ecommerce Spec.
+  // This field should be generic and not scoped to product level category: https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#product-click.
+  if (
+    opts.sendEventCategoryEcommerce &&
+    (track.event().toLowerCase() === 'product clicked' ||
+      'product added' ||
+      'product viewed' ||
+      'product removed')
+  ) {
+    args[2] = 'EnhancedEcommerce';
+  }
   window.ga.apply(window, args);
 };
 
