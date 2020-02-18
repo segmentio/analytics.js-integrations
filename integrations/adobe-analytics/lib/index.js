@@ -50,14 +50,14 @@ AdobeAnalytics.sOption = function(field, value) {
   var s = window.s;
   var isValid = s && has.call(s, field) && !isEmptyString(field);
 
-  value = isValid ? s[field] : value;
+  var newValue = isValid ? s[field] : value;
 
   // TODO: Consider removing this. Not sure why we are doing this since it has no future reference
   this.prototype.sOptions = this.prototype.sOptions || {};
-  this.prototype.sOptions[field] = value;
+  this.prototype.sOptions[field] = newValue;
 
   // Set field and value to this.options
-  return this.option(field, value);
+  return this.option(field, newValue);
 };
 
 /**
@@ -435,9 +435,10 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var eVarEvent = dot(this.options.eVars, msg.event());
   update(msg.event(), eVarEvent);
 
-  if (productVariables) update(productVariables, 'products');
+  if (productVariables) update(productVariables, 'products'); //eslint-disable-line
 
   updateEvents(msg.event(), this.options.events, adobeEvent);
+
   updateCommonVariables(msg, this.options);
 
   calculateTimestamp(msg, this.options);
@@ -654,7 +655,7 @@ function clearKeys(keys) {
     delete window.s[linkVar];
   }, keys);
   // Clears the array passed in
-  keys.length = 0;
+  keys.length = 0; //eslint-disable-line
 }
 
 /**
@@ -735,6 +736,7 @@ function isFunction(fn) {
  * @return {Object}
  */
 
+/* eslint-disable */
 function lowercaseKeys(obj) {
   obj = obj || {};
   each(function(value, key) {
@@ -743,6 +745,7 @@ function lowercaseKeys(obj) {
   }, obj);
   return obj;
 }
+/* eslint-disable */
 
 /**
  * Return whether `str` is an empty string.
@@ -843,8 +846,9 @@ function heartbeatSessionStart(track) {
     props.total_length || 0,
     streamType
   );
-  var contextData = {}; // This might be a custom object for the user.
 
+  // Assign custom context data using the Context Data Variables settings and properties in payload.
+  var contextData = createCustomVideoMetadataContext(track, this.options); // This might be a custom object for the user.
   createStandardVideoMetadata(track, mediaObj);
 
   this.mediaHeartbeats[
@@ -860,6 +864,11 @@ function heartbeatVideoStart(track) {
   var props = track.properties();
 
   this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackPlay();
+  // Assign custom metadata using the Context Data Variables settings and properties in payload.
+  var chapterCustomMetadata = createCustomVideoMetadataContext(
+    track,
+    this.options
+  );
 
   if (!this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress) {
     var chapterObj = videoAnalytics.MediaHeartbeat.createChapterObject(
@@ -880,7 +889,7 @@ function heartbeatVideoStart(track) {
     this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
       videoAnalytics.MediaHeartbeat.Event.ChapterStart,
       chapterObj,
-      {}
+      chapterCustomMetadata
     );
     this.mediaHeartbeats[
       props.session_id || 'default'
@@ -927,9 +936,11 @@ function heartbeatAdStarted(track) {
   var props = track.properties();
   var adSessionCount = this.adBreakCounts[props.session_id || 'default'];
 
+  /* eslint-disable */
   adSessionCount
     ? (adSessionCount = ++this.adBreakCounts[props.session_id || 'default'])
     : (adSessionCount = this.adBreakCounts[props.session_id || 'default'] = 1);
+  /* eslint-disable */
 
   var adBreakObj = videoAnalytics.MediaHeartbeat.createAdBreakObject(
     props.type || 'unknown',
@@ -1066,6 +1077,19 @@ function createStandardVideoMetadata(track, mediaObj) {
     videoAnalytics.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata,
     stdVidMeta
   );
+}
+
+function createCustomVideoMetadataContext(track, options) {
+  var contextData = {};
+
+  var properties = extractProperties(trample(track.properties()), options);
+  each(function(value, key) {
+    if (!key || value === undefined || value === null || value === '') {
+      return;
+    }
+    contextData[key] = value;
+  }, properties);
+  return contextData;
 }
 
 function createStandardAdMetadata(track, adObj) {
