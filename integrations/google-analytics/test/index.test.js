@@ -2071,7 +2071,7 @@ describe('Google Analytics', function() {
             currency: 'CAD',
             step: 2,
             paymentMethod: 'Visa',
-            shipping_method: 'FedEx'
+            shippingMethod: 'FedEx'
           });
 
           analytics.assert(window.ga.args.length === 4);
