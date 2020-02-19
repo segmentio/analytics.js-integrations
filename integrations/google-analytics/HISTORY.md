@@ -1,9 +1,3 @@
-2.18.1 / 2020-02-07
-===================
-
-  * Add support for all casing types for enhanced ecommerce checkout options.
-
-
 2.18.0 / 2019-12-17
 ===================
 
