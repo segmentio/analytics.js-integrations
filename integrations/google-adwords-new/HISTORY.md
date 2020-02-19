@@ -1,3 +1,8 @@
+1.2.0 / 2020-02-18
+==================
+
+  * Introduces a new setting `disableAdPersonalization` to disable collection of remarketing data for users who do not wish to view personalized ads. When this settiing is `true`, Segment will set `allow_ad_personalization_signals` to false. 
+
 1.1.1 / 2019-12-09
 ==================
 

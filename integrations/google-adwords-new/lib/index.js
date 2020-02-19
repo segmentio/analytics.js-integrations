@@ -21,6 +21,7 @@ var GoogleAdWordsNew = (module.exports = integration('Google AdWords New')
   .option('clickConversions', [])
   .option('pageLoadConversions', [])
   .option('defaultPageConversion', '')
+  .option('disableAdPersonalization', false)
   // The ID in this line (i.e. the gtag.js ID) does not determine which account(s) will receive data from the tag; rather, it is used to uniquely identify your global site tag. Which account(s) receive data from the tag is determined by calling the config command (and by using the send_to parameter on an event). For instance, if you use Google Analytics, you may already have the gtag.js global site tag installed on your site. In that case, the gtag.js ID may be that of the Google Analytics property where you first obtained the snippet.
   .tag(
     '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
@@ -48,6 +49,12 @@ GoogleAdWordsNew.prototype.initialize = function() {
 
   this.load(function() {
     window.gtag('js', new Date());
+
+    // ad personalization must be disabled before any 'config' statements
+    // https://support.google.com/analytics/answer/9050852?hl=en
+    if (self.options.disableAdPersonalization)
+      window.gtag('set', 'allow_ad_personalization_signals', false);
+
     window.gtag('config', self.options.accountId, config);
     self.ready();
   });
