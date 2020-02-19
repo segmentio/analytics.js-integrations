@@ -690,15 +690,17 @@ GA.prototype.pushEnhancedEcommerce = function(track, opts, trackerName) {
     )
   ]);
 
-  // Send an event level category for events with top level `category` fields per Segment Ecommerce Spec.
-  // This field should be generic and not scoped to product level category: https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#product-click.
+  // Google expects an event level category. This field should be generic and not scoped to product level category: https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#product-click.
+  // These 4 events have a top level `category` field per Segment Ecommerce Spec referencing the product not event.
+  // For these events we will default to set the event category to 'EnhancedEcommerce'
   var event = track.event().toLowerCase();
-  if (
-    event === 'product clicked' ||
-    event === 'product added' ||
-    event === 'product viewed' ||
-    event === 'product removed'
-  ) {
+  var eventsWithCategoryFieldProductScoped = [
+    'product clicked',
+    'product added',
+    'product viewed',
+    'product removed'
+  ];
+  if (eventsWithCategoryFieldProductScoped.includes(event)) {
     args[2] = 'EnhancedEcommerce';
   }
   window.ga.apply(window, args);
