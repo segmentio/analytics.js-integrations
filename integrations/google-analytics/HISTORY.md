@@ -1,7 +1,7 @@
 2.18.2  / 2020-02-18
 ===================
-  * Adds a new setting `sendEventCategoryEcommerce` that defaults to false. When the setting is enabled we will send Google Analytics an event category of `'EnhancedEcommerce'` for the following events: `'product clicked'`, `product removed`, `product added` and `product viewed`.
-  
+  * Fix a bug where we are sending a product level category for the event category. We will send Google Analytics an event category of `'EnhancedEcommerce'` for the following events: `'product clicked'`, `product removed`, `product added` and `product viewed`.
+
 2.18.1 / 2020-02-07
 ===================
 
