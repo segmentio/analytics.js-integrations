@@ -49,6 +49,7 @@
     "@segment/analytics.js-integration-curebit": "file:../integrations/curebit",
     "@segment/analytics.js-integration-customerio": "file:../integrations/customerio",
     "@segment/analytics.js-integration-cxense": "file:../integrations/cxense",
+    "@segment/analytics.js-integration-dashly": "file:../integrations/dashly",
     "@segment/analytics.js-integration-doubleclick-floodlight": "file:../integrations/doubleclick-floodlight",
     "@segment/analytics.js-integration-drip": "file:../integrations/drip",
     "@segment/analytics.js-integration-elevio": "file:../integrations/elevio",
