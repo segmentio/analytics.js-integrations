@@ -55,6 +55,11 @@ GTAG.on('construct', function(Integration) {
         Integration.checkoutStepCompletedEnhanced;
       Integration.orderUpdated = Integration.orderUpdatedEnhanced;
 
+      // Additional event on top og GA destination
+      Integration.productAddedToWishlist = Integration.productAddedToWishlistEnhanced;
+      Integration.leadGenerated = Integration.leadGeneratedEnhanced;
+      Integration.productShared = Integration.productSharedEnhanced;
+
       // Integration.productListFiltered = Integration.productListFilteredEnhanced;
     }
     /* eslint-enable */
@@ -247,7 +252,6 @@ GTAG.prototype.pageClassic = function(page) {
  * Completed order.
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.orderCompletedClassic = function(track) {
@@ -276,7 +280,6 @@ GTAG.prototype.orderCompletedClassic = function(track) {
  * Product List Viewed - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.productListViewedEnhanced = function(track) {
@@ -289,7 +292,6 @@ GTAG.prototype.productListViewedEnhanced = function(track) {
  * Product Clicked - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.productClickedEnhanced = function(track) {
@@ -303,7 +305,6 @@ GTAG.prototype.productClickedEnhanced = function(track) {
  * Product Viewed - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.productViewedEnhanced = function(track) {
@@ -316,7 +317,6 @@ GTAG.prototype.productViewedEnhanced = function(track) {
  * Product Added - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.productAddedEnhanced = function(track) {
@@ -329,7 +329,6 @@ GTAG.prototype.productAddedEnhanced = function(track) {
  * Product Removed - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.productRemovedEnhanced = function(track) {
@@ -342,7 +341,6 @@ GTAG.prototype.productRemovedEnhanced = function(track) {
  * Promotion Viewed - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.promotionViewedEnhanced = function(track) {
@@ -355,7 +353,6 @@ GTAG.prototype.promotionViewedEnhanced = function(track) {
  * Promotion Clicked - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.promotionClickedEnhanced = function(track) {
@@ -368,7 +365,6 @@ GTAG.prototype.promotionClickedEnhanced = function(track) {
  * Checkout Started - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.checkoutStartedEnhanced = function(track) {
@@ -386,7 +382,6 @@ GTAG.prototype.checkoutStartedEnhanced = function(track) {
  * Order Updated - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.orderUpdatedEnhanced = function(track) {
@@ -398,7 +393,6 @@ GTAG.prototype.orderUpdatedEnhanced = function(track) {
  * Checkout Step Viewed - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
@@ -409,7 +403,6 @@ GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
  * Checkout Step Completed - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
@@ -420,7 +413,6 @@ GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
  * Order Refunded - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.orderRefundedEnhanced = function(track) {
@@ -438,7 +430,6 @@ GTAG.prototype.orderRefundedEnhanced = function(track) {
  * Order Completed - Enhanced Ecommerce
  *
  * @param {Track} track
- * @api private
  */
 
 GTAG.prototype.orderCompletedEnhanced = function(track) {
@@ -454,6 +445,53 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
     tax: track.tax(),
     shipping: track.shipping(),
     items: getFormattedProductList(track)
+  });
+};
+
+/**
+ * Product Added to Wishlist - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.productAddedToWishlistEnhanced = function(track) {
+  push('event', 'add_to_wishlist', {
+    value: track.price(),
+    currency: track.currency(),
+    items: [getFormattedProduct(track)]
+  });
+};
+
+/**
+ * Lead Generated - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.leadGeneratedEnhanced = function(track) {
+  push('event', 'generate_lead', {
+    transaction_id: track.id(),
+    value: track.price(),
+    currency: track.currency()
+  });
+};
+
+/**
+ * Product Shared - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.productSharedEnhanced = function(track) {
+  var id = track.productId() || track.id() || track.sku();
+  var props = track.properties();
+  if (!id) {
+    return;
+  }
+  push('event', 'share', {
+    method: props.share_via,
+    content_type: track.category(),
+    content_id: id
   });
 };
 

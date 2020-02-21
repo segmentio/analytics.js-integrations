@@ -952,6 +952,88 @@ describe('Enhanced Ecommerce', function() {
           }
         );
       });
+
+      it('should track product added t wishlist', function() {
+        analyticsEnhanced.track('Product Added to Wishlist', {
+          wishlist_id: 'skdjsidjsdkdj29j',
+          wishlist_name: 'Loved Games',
+          product_id: '507f1f77bcf86cd799439011',
+          sku: 'G-32',
+          category: 'Games',
+          name: 'Monopoly: 3rd Edition',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.99,
+          quantity: 1,
+          coupon: 'MAYDEALS',
+          position: 3
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'add_to_wishlist',
+          {
+            value: 18.99,
+            currency: 'USD',
+            items: [
+              {
+                id: '507f1f77bcf86cd799439011',
+                name: 'Monopoly: 3rd Edition',
+                category: 'Games',
+                quantity: 1,
+                price: 18.99,
+                brand: 'Hasbro',
+                variant: '200 pieces',
+                currency: 'USD',
+                position: 3,
+                coupon: 'MAYDEALS'
+              }
+            ]
+          }
+        );
+      });
+
+      xit('should track lead generated', function() {
+        analyticsEnhanced.track('lead generated', {
+          id: '1234',
+          price: 2,
+          currency: 'USD'
+        });
+
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'generate_lead',
+          {
+            id: '1234',
+            value: 2,
+            currency: 'USD'
+          }
+        );
+      });
+
+      it('should track product shared', function() {
+        analyticsEnhanced.track('Product Shared', {
+          share_via: 'email',
+          share_message: 'Hey, check out this item',
+          recipient: 'friend@example.com',
+          product_id: '507f1f77bcf86cd799439011',
+          sku: 'G-32',
+          category: 'Games',
+          name: 'Monopoly: 3rd Edition',
+          brand: 'Hasbro',
+          variant: '200 pieces',
+          price: 18.99,
+          url: 'https://www.example.com/product/path',
+          image_url: 'https://www.example.com/product/path.jpg'
+        });
+
+        analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'share', {
+          method: 'email',
+          content_type: 'Games',
+          content_id: '507f1f77bcf86cd799439011'
+        });
+      });
     });
   });
 });
