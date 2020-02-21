@@ -7,6 +7,7 @@
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('gtagDataLayer', { wrap: false });
 var Track = require('segmentio-facade').Track;
+var reject = require('reject');
 
 /**
  * Expose `GTAG`.
@@ -48,12 +49,12 @@ GTAG.on('construct', function(Integration) {
       Integration.promotionClicked = Integration.promotionClickedEnhanced;
       Integration.checkoutStarted = Integration.checkoutStartedEnhanced;
       Integration.orderRefunded = Integration.orderRefundedEnhanced;
+      Integration.orderCompleted = Integration.orderCompletedEnhanced;
+      Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
+      Integration.checkoutStepCompleted =
+        Integration.checkoutStepCompletedEnhanced;
+      Integration.orderUpdated = Integration.orderUpdatedEnhanced;
 
-      // Integration.checkoutStepViewed = Integration.checkoutStepViewedEnhanced;
-      // Integration.checkoutStepCompleted =
-      //   Integration.checkoutStepCompletedEnhanced;
-      // Integration.orderUpdated = Integration.orderUpdatedEnhanced;
-      // Integration.orderCompleted = Integration.orderCompletedEnhanced;
       // Integration.productListFiltered = Integration.productListFilteredEnhanced;
     }
     /* eslint-enable */
@@ -374,9 +375,45 @@ GTAG.prototype.checkoutStartedEnhanced = function(track) {
   var coupon = track.proxy('properties.coupon');
 
   push('event', 'begin_checkout', {
+    value: track.total() || track.revenue() || 0,
+    currency: track.currency(),
     items: getFormattedProductList(track),
     coupon: coupon
   });
+};
+
+/**
+ * Order Updated - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.orderUpdatedEnhanced = function(track) {
+  // Same event as started order - will override
+  this.checkoutStartedEnhanced(track);
+};
+
+/**
+ * Checkout Step Viewed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
+  push('event', 'checkout_progress', extractCheckoutOptions(track));
+};
+
+/**
+ * Checkout Step Completed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
+  push('event', 'checkout_progress', extractCheckoutOptions(track));
 };
 
 /**
@@ -396,6 +433,56 @@ GTAG.prototype.orderRefundedEnhanced = function(track) {
   }
   push('event', 'refund', eventData);
 };
+
+/**
+ * Order Completed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+GTAG.prototype.orderCompletedEnhanced = function(track) {
+  var total = track.total() || track.revenue() || 0;
+  var orderId = track.orderId();
+  var props = track.properties();
+
+  push('event', 'purchace', {
+    transaction_id: orderId,
+    affiliation: props.affiliation,
+    value: total,
+    currency: track.currency(),
+    tax: track.tax(),
+    shipping: track.shipping(),
+    items: getFormattedProductList(track)
+  });
+};
+
+/**
+ * Enhanced ecommerce format data for checkout.
+ *
+ * @api private
+ * @param {Track} track
+ */
+function extractCheckoutOptions(track) {
+  var props = track.properties();
+  var total = track.total() || track.revenue() || 0;
+  var coupon = track.proxy('properties.coupon');
+  var options = [
+    track.proxy('properties.paymentMethod'),
+    track.proxy('properties.shippingMethod')
+  ];
+  // Remove all nulls, and join with commas.
+  options = reject(options);
+
+  return {
+    currency: track.currency(),
+    checkout_step: props.step || 1,
+    value: total,
+    items: getFormattedProductList(track),
+    coupon: coupon,
+    checkout_option: options.length ? options.join(', ') : null
+  };
+}
 
 /**
  * Enhanced ecommerce format data for promotion.

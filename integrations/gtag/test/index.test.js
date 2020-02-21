@@ -746,6 +746,8 @@ describe('Enhanced Ecommerce', function() {
           'event',
           'begin_checkout',
           {
+            value: 0,
+            currency: 'USD',
             items: [
               {
                 id: 'p-298',
@@ -771,6 +773,105 @@ describe('Enhanced Ecommerce', function() {
               }
             ],
             coupon: undefined
+          }
+        );
+      });
+
+      it('should track order updated', function() {
+        analyticsEnhanced.track('order updated', {
+          currency: 'USD',
+          products: [
+            {
+              quantity: 1,
+              price: 24.75,
+              name: 'my product',
+              sku: 'p-298'
+            },
+            {
+              quantity: 3,
+              price: 24.75,
+              name: 'other product',
+              sku: 'p-299'
+            }
+          ],
+          step: 1,
+          paymentMethod: 'Visa',
+          testDimension: true,
+          testMetric: true
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'begin_checkout',
+          {
+            value: 0,
+            currency: 'USD',
+            items: [
+              {
+                id: 'p-298',
+                name: 'my product',
+                category: undefined,
+                list_name: 'products',
+                brand: undefined,
+                variant: undefined,
+                quantity: 1,
+                price: 24.75,
+                list_position: 1
+              },
+              {
+                id: 'p-299',
+                name: 'other product',
+                category: undefined,
+                list_name: 'products',
+                brand: undefined,
+                variant: undefined,
+                quantity: 3,
+                price: 24.75,
+                list_position: 2
+              }
+            ],
+            coupon: undefined
+          }
+        );
+      });
+
+      it('should track checkout step viewed', function() {
+        analyticsEnhanced.track('checkout step viewed', {
+          currency: 'CAD',
+          step: 2
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'checkout_progress',
+          {
+            currency: 'CAD',
+            checkout_step: 2,
+            value: 0,
+            items: [],
+            coupon: undefined,
+            checkout_option: null
+          }
+        );
+      });
+
+      it('should send checkout step completed data', function() {
+        analyticsEnhanced.track('checkout step completed', {
+          currency: 'CAD',
+          step: 2,
+          shippingMethod: 'FedEx'
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'checkout_progress',
+          {
+            currency: 'CAD',
+            checkout_step: 2,
+            value: 0,
+            items: [],
+            coupon: undefined,
+            checkout_option: 'FedEx'
           }
         );
       });
@@ -825,6 +926,31 @@ describe('Enhanced Ecommerce', function() {
             }
           ]
         });
+      });
+
+      it('should track order completed', function() {
+        analyticsEnhanced.track('order completed', {
+          orderId: '5d4c7cb5',
+          revenue: 99.9,
+          shipping: 13.99,
+          tax: 20.99,
+          products: []
+        });
+
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'purchace',
+          {
+            transaction_id: '5d4c7cb5',
+            affiliation: undefined,
+            value: 99.9,
+            currency: 'USD',
+            tax: 20.99,
+            shipping: 13.99,
+            items: []
+          }
+        );
       });
     });
   });
