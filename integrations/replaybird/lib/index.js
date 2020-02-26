@@ -51,17 +51,17 @@ ReplayBird.prototype.loaded = function() {
  */
 ReplayBird.prototype.identify = function(identify) {
   if (!identify.userId()) {
-    return this.debug('user id is required');
+    return this.debug('User id is required!');
   }
 
-  var traits = identify.traits({ name: 'name' });
+  var traits = identify.traits({ name: 'displayName' });
 
   var newTraits = foldl(
     function(results, value, key) {
       var rs = results;
       if (key !== 'id') {
         rs[
-          key === 'name' || key === 'email' ? key : camelCaseField(key)
+          key === 'displayName' || key === 'email' ? key : camelCaseField(key)
         ] = value;
       }
       return rs;
@@ -70,9 +70,8 @@ ReplayBird.prototype.identify = function(identify) {
     traits
   );
 
-  if (identify.userId()) {
-    window.ReplayBird.identify(String(identify.userId()), newTraits);
-  }
+  newTraits.id = String(identify.userId());
+  window._rb('identify', newTraits);
 };
 
 /**
@@ -81,7 +80,11 @@ ReplayBird.prototype.identify = function(identify) {
  * @param {Track} track
  */
 ReplayBird.prototype.track = function(track) {
-  window.ReplayBird.event(track.event(), track.properties());
+  if (window.ReplayBird) {
+    window.ReplayBird.event(track.event(), track.properties());
+  } else {
+    window._rb('event', { name: track.event(), properties: track.properties() });
+  }
 };
 
 /**
