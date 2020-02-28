@@ -419,10 +419,16 @@ GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
 
 GTAG.prototype.orderRefundedEnhanced = function(track) {
   var products = track.products();
+
   var eventData = {
     transaction_id: track.orderId()
   };
   if (products.length) {
+    eventData.value = track.total() || track.revenue() || 0;
+    eventData.currency = track.currency();
+    eventData.tax = track.tax();
+    eventData.shipping = track.shipping();
+    eventData.affiliation = track.properties().affiliation;
     eventData.items = getFormattedProductList(track);
   }
   push('event', 'refund', eventData);

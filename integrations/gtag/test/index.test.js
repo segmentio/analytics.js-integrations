@@ -907,6 +907,11 @@ describe('Enhanced Ecommerce', function() {
         });
         analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'refund', {
           transaction_id: '780bc55',
+          value: 0,
+          currency: 'USD',
+          tax: undefined,
+          shipping: undefined,
+          affiliation: undefined,
           items: [
             {
               id: 'p-298',
