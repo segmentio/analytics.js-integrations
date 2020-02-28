@@ -8,6 +8,7 @@ var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('gtagDataLayer', { wrap: false });
 var Track = require('segmentio-facade').Track;
 var reject = require('reject');
+var defaults = require('@ndhoule/defaults');
 
 /**
  * Expose `GTAG`.
@@ -17,14 +18,13 @@ var reject = require('reject');
 
 var GTAG = (module.exports = integration('Gtag')
   .global('gtagDataLayer')
-  .option('GA_WEB_MEASUREMENT_ID', '')
-  .option('GA_WEB_APP_MEASUREMENT_ID', '')
-  .option('AW_CONVERSION_ID', '')
-  .option('DC_FLOODLIGHT_ID', '')
+  .option('gaWebMeasurementId', '')
+  .option('gaWebAppMeasurementId', '')
+  .option('awConversionId', '')
+  .option('dcFloodLightId', '')
   .option('trackAllPages', false)
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .option('sendTo', [])
   .option('gaOptions', {
     classic: false,
     enhancedEcommerce: false,
@@ -77,55 +77,55 @@ GTAG.prototype.initialize = function() {
   var config = [];
   var that = this;
   var gaOptions = this.options.gaOptions;
-  var GA_WEB_MEASUREMENT_ID = this.options.GA_WEB_MEASUREMENT_ID;
-  var GA_WEB_APP_MEASUREMENT_ID = this.options.GA_WEB_APP_MEASUREMENT_ID;
-  var AW_CONVERSION_ID = this.options.AW_CONVERSION_ID;
-  var DC_FLOODLIGHT_ID = this.options.DC_FLOODLIGHT_ID;
+  var gaWebMeasurementId = this.options.gaWebMeasurementId;
+  var gaWebAppMeasurementId = this.options.gaWebAppMeasurementId;
+  var awConversionId = this.options.awConversionId;
+  var dcFloodLightId = this.options.dcFloodLightId;
   var accountId =
-    GA_WEB_MEASUREMENT_ID ||
-    GA_WEB_APP_MEASUREMENT_ID ||
-    AW_CONVERSION_ID ||
-    DC_FLOODLIGHT_ID;
+    gaWebMeasurementId ||
+    gaWebAppMeasurementId ||
+    awConversionId ||
+    dcFloodLightId;
 
-  if (GA_WEB_MEASUREMENT_ID) {
-    config.push(['config', GA_WEB_MEASUREMENT_ID]);
+  if (gaWebMeasurementId) {
+    config.push(['config', gaWebMeasurementId]);
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
-      push('config', GA_WEB_MEASUREMENT_ID, {
+      push('config', gaWebMeasurementId, {
         custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
       });
     }
   }
 
-  if (GA_WEB_APP_MEASUREMENT_ID) {
-    config.push(['config', GA_WEB_APP_MEASUREMENT_ID]);
+  if (gaWebAppMeasurementId) {
+    config.push(['config', gaWebAppMeasurementId]);
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
-      push('config', GA_WEB_APP_MEASUREMENT_ID, {
+      push('config', gaWebAppMeasurementId, {
         custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
       });
     }
   }
 
-  if (AW_CONVERSION_ID) {
-    config.push(['config', AW_CONVERSION_ID]);
+  if (awConversionId) {
+    config.push(['config', awConversionId]);
   }
 
-  if (DC_FLOODLIGHT_ID) {
-    config.push(['config', DC_FLOODLIGHT_ID]);
+  if (dcFloodLightId) {
+    config.push(['config', dcFloodLightId]);
   }
 
-  if (accountId) {
-    this.load({ accountId: accountId }, function() {
-      // Default routing.
-      for (var i = 0; i < config.length; i++) {
-        push(config[i][0], config[i][1]);
-      }
-      that.ready();
-    });
-  } else {
-    // Error case where not any of the ID specified
+  if (!accountId) {
+    return;
   }
+
+  this.load({ accountId: accountId }, function() {
+    // Default routing.
+    for (var i = 0; i < config.length; i++) {
+      push(config[i][0], config[i][1]);
+    }
+    that.ready();
+  });
 };
 
 /**
@@ -150,17 +150,18 @@ GTAG.prototype.loaded = function() {
 
 GTAG.prototype.identify = function(identify) {
   var userId = identify.userId();
-  if (userId) {
-    if (this.options.GA_WEB_MEASUREMENT_ID) {
-      push('config', this.options.GA_WEB_MEASUREMENT_ID, {
-        user_id: userId
-      });
-    }
-    if (this.options.GA_WEB_APP_MEASUREMENT_ID) {
-      push('config', this.options.GA_WEB_APP_MEASUREMENT_ID, {
-        user_id: userId
-      });
-    }
+  if (!userId) {
+    return;
+  }
+  if (this.options.gaWebMeasurementId) {
+    push('config', this.options.gaWebMeasurementId, {
+      user_id: userId
+    });
+  }
+  if (this.options.gaWebAppMeasurementId) {
+    push('config', this.options.gaWebAppMeasurementId, {
+      user_id: userId
+    });
   }
 };
 
@@ -171,8 +172,10 @@ GTAG.prototype.identify = function(identify) {
  * @param {Track} track
  */
 
-GTAG.prototype.track = function(track) {
+GTAG.prototype.track = function(track, params) {
+  var contextOpts = track.options(this.name);
   var options = this.options;
+  var opts = defaults(params || {}, contextOpts);
   var props = track.properties();
   props.event = track.event() || '';
 
@@ -183,27 +186,26 @@ GTAG.prototype.track = function(track) {
       // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
 
       var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
-      if (options.GA_WEB_MEASUREMENT_ID) {
-        push('config', this.options.GA_WEB_MEASUREMENT_ID, {
+      if (options.gaWebMeasurementId) {
+        push('config', this.options.gaWebMeasurementId, {
           custom_map: customMap
         });
       }
-      if (options.GA_WEB_APP_MEASUREMENT_ID) {
-        push('config', this.options.GA_WEB_APP_MEASUREMENT_ID, {
+      if (options.gaWebAppMeasurementId) {
+        push('config', this.options.gaWebAppMeasurementId, {
           custom_map: customMap
         });
       }
     }
   }
-  if (this.options.sendTo && this.options.sendTo.length) {
-    props.send_to = this.options.sendTo;
-  }
 
-  if (props.sendTo && props.sendTo.length) {
-    // override the sendTo if provided event specific
-    props.send_to = props.sendTo;
-    delete props.sendTo;
-  }
+  props.non_interaction =
+    props.nonInteraction !== undefined
+      ? !!props.nonInteraction
+      : !!opts.nonInteraction;
+
+  delete props.nonInteraction;
+
   push('event', props.event, props);
 };
 
@@ -221,10 +223,10 @@ GTAG.prototype.page = function(page) {
     this.track(page.track());
   }
   if (name && this.options.trackNamedPages) {
-    this.track(page.track(name));
+    this.track(page.track(name), { nonInteraction: 1 });
   }
   if (category && this.options.trackCategorizedPages) {
-    this.track(page.track(category));
+    this.track(page.track(category), { nonInteraction: 1 });
   }
 };
 

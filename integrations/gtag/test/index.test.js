@@ -10,11 +10,10 @@ describe('Gtag', function() {
   var analytics;
   var gtag;
   var options = {
-    GA_WEB_APP_MEASUREMENT_ID: 'G_12345678',
+    gaWebAppMeasurementId: 'G_12345678',
     trackNamedPages: true,
     trackAllPages: false,
     trackCategorizedPages: true,
-    sendTo: [],
     gaOptions: {}
   };
 
@@ -38,14 +37,13 @@ describe('Gtag', function() {
       GTAG,
       integration('Gtag')
         .global('gtagDataLayer')
-        .option('GA_WEB_MEASUREMENT_ID', '')
-        .option('GA_WEB_APP_MEASUREMENT_ID', '')
-        .option('AW_CONVERSION_ID', '')
-        .option('DC_FLOODLIGHT_ID', '')
+        .option('gaWebMeasurementId', '')
+        .option('gaWebAppMeasurementId', '')
+        .option('awConversionId', '')
+        .option('dcFloodLightId', '')
         .option('trackNamedPages', true)
         .option('trackAllPages', false)
         .option('trackCategorizedPages', true)
-        .option('sendTo', [])
         .option('gaOptions', {
           classic: false,
           enhancedEcommerce: false,
@@ -63,8 +61,8 @@ describe('Gtag', function() {
   describe('after loading', function() {
     beforeEach(function(done) {
       gtag.options = {
-        GA_WEB_MEASUREMENT_ID: 'GA_WEB_MEASUREMENT_ID',
-        AW_CONVERSION_ID: 'AW_CONVERSION_ID'
+        gaWebMeasurementId: 'GA_WEB_MEASUREMENT_ID',
+        awConversionId: 'AW_CONVERSION_ID'
       };
       analytics.once('ready', done);
       analytics.initialize();
@@ -90,7 +88,8 @@ describe('Gtag', function() {
       it('should call track with passed event', function() {
         analytics.track('test event');
         analytics.called(window.gtagDataLayer.push, 'event', 'test event', {
-          event: 'test event'
+          event: 'test event',
+          non_interaction: false
         });
       });
     });
@@ -101,7 +100,7 @@ describe('Gtag', function() {
       });
 
       it('should set user id if GA is configured', function() {
-        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
+        gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
         analytics.identify('userId');
         analytics.called(
           window.gtagDataLayer.push,
@@ -114,13 +113,13 @@ describe('Gtag', function() {
       });
 
       it('should not set user id if GA is not configured', function() {
-        gtag.options.GA_WEB_MEASUREMENT_ID = '';
+        gtag.options.gaWebMeasurementId = '';
         analytics.identify('userId');
         analytics.didNotCall(window.gtagDataLayer.push);
       });
 
       it('should not set user id if GA is configured but empty user id', function() {
-        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
+        gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
         analytics.identify('');
         analytics.didNotCall(window.gtagDataLayer.push);
       });
@@ -147,7 +146,8 @@ describe('Gtag', function() {
           referrer: document.referrer,
           title: document.title,
           search: window.location.search,
-          url: window.location.href
+          url: window.location.href,
+          non_interaction: false
         });
       });
 
@@ -155,6 +155,46 @@ describe('Gtag', function() {
         gtag.options.trackNamedPages = false;
         analytics.page('Pagename');
         analytics.didNotCall(window.gtagDataLayer.push);
+      });
+
+      it('should track named page if option turned on', function() {
+        gtag.options.trackNamedPages = true;
+        analytics.page('Pagename');
+        analytics.called(
+          window.gtagDataLayer.push,
+          'event',
+          'Viewed Pagename Page',
+          {
+            name: 'Pagename',
+            path: window.location.pathname,
+            referrer: document.referrer,
+            title: document.title,
+            search: window.location.search,
+            url: window.location.href,
+            event: 'Viewed Pagename Page',
+            non_interaction: true
+          }
+        );
+      });
+
+      it('should track named page if option turned on and nonInteraction passed', function() {
+        gtag.options.trackNamedPages = true;
+        analytics.page('Pagename', { nonInteraction: 1 });
+        analytics.called(
+          window.gtagDataLayer.push,
+          'event',
+          'Viewed Pagename Page',
+          {
+            name: 'Pagename',
+            path: window.location.pathname,
+            referrer: document.referrer,
+            title: document.title,
+            search: window.location.search,
+            url: window.location.href,
+            event: 'Viewed Pagename Page',
+            non_interaction: true
+          }
+        );
       });
 
       it('should not track page if set to false', function() {
@@ -182,7 +222,7 @@ describe('Gtag', function() {
       });
 
       it('should set custom dimensions if setAllMappedProps set to true', function() {
-        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
+        gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
           setAllMappedProps: true,
@@ -212,7 +252,7 @@ describe('Gtag', function() {
       });
 
       it('should not set custom dimensions if setAllMappedProps set to false', function() {
-        gtag.options.GA_WEB_MEASUREMENT_ID = 'GA_WEB_MEASUREMENT_ID';
+        gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
         gtag.options.trackNamedPages = true;
         gtag.options.gaOptions = {
           setAllMappedProps: false,
@@ -245,41 +285,6 @@ describe('Gtag', function() {
           'Viewed Page1 Page'
         );
       });
-
-      it('should send event to specified destination only', function() {
-        gtag.options.sendTo = ['GA_WEB_MEASUREMENT_ID'];
-        gtag.options.trackAllPages = true;
-        analytics.page('Pagename');
-        analytics.called(window.gtagDataLayer.push, 'event', 'Loaded a Page', {
-          name: 'Pagename',
-          event: 'Loaded a Page',
-          path: window.location.pathname,
-          referrer: document.referrer,
-          title: document.title,
-          search: window.location.search,
-          url: window.location.href,
-          send_to: gtag.options.sendTo
-        });
-      });
-
-      it('should take higher precedence for sendTo for specific event over option', function() {
-        var sendTo = ['GA_WEB_MEASUREMENT_ID', 'AW_CONVERSION_ID'];
-        gtag.options.sendTo = ['GA_WEB_MEASUREMENT_ID'];
-        gtag.options.trackAllPages = true;
-        analytics.page('Pagename', {
-          sendTo: sendTo
-        });
-        analytics.called(window.gtagDataLayer.push, 'event', 'Loaded a Page', {
-          name: 'Pagename',
-          event: 'Loaded a Page',
-          path: window.location.pathname,
-          referrer: document.referrer,
-          title: document.title,
-          search: window.location.search,
-          url: window.location.href,
-          send_to: sendTo
-        });
-      });
     });
   });
 });
@@ -291,7 +296,7 @@ describe('GA Classic', function() {
     gaOptions: {
       classic: true
     },
-    GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+    gaWebMeasurementId: 'GA-120399404'
   };
 
   beforeEach(function() {
@@ -322,7 +327,7 @@ describe('GA Classic', function() {
           classic: true,
           enhancedEcommerce: false
         },
-        GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+        gaWebMeasurementId: 'GA-120399404'
       };
       analyticsClassic.once('ready', done);
       analyticsClassic.initialize();
@@ -353,7 +358,8 @@ describe('GA Classic', function() {
             referrer: document.referrer,
             title: document.title,
             search: window.location.search,
-            url: window.location.href
+            url: window.location.href,
+            non_interaction: false
           }
         );
       });
@@ -456,7 +462,7 @@ describe('Enhanced Ecommerce', function() {
     gaOptions: {
       enhancedEcommerce: true
     },
-    GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+    gaWebMeasurementId: 'GA-120399404'
   };
 
   beforeEach(function() {
@@ -481,7 +487,7 @@ describe('Enhanced Ecommerce', function() {
           classic: false,
           enhancedEcommerce: true
         },
-        GA_WEB_MEASUREMENT_ID: 'GA-120399404'
+        gaWebMeasurementId: 'GA-120399404'
       };
       analyticsEnhanced.once('ready', done);
       analyticsEnhanced.initialize();
