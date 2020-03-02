@@ -91,6 +91,9 @@ GTAG.prototype.initialize = function() {
     config.push(['config', gaWebMeasurementId]);
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
+      // To Set persistent values we need to use set instead of config
+      // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
+
       push('config', gaWebMeasurementId, {
         custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
       });
@@ -101,6 +104,9 @@ GTAG.prototype.initialize = function() {
     config.push(['config', gaWebAppMeasurementId]);
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
+      // To Set persistent values we need to use set instead of config
+      // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
+
       push('config', gaWebAppMeasurementId, {
         custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
       });
