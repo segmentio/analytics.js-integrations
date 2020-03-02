@@ -20,6 +20,7 @@ describe('Appboy', function() {
     trackNamedPages: false,
     customEndpoint: '',
     version: 1,
+    onlyTrackKnownUsers: false, // Default off.
     logPurchaseWhenRevenuePresent: false
   };
 
@@ -270,6 +271,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype,
           'setCustomUserAttribute'
         );
+        analytics.stub(window.appboy, 'openSession');
       });
 
       it('should call each Appboy method for standard traits', function() {
@@ -314,6 +316,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype.setPhoneNumber,
           '555-555-5555'
         );
+        analytics.didNotCall(window.appboy.openSession);
       });
 
       it('should set gender to male when passed male gender', function() {
@@ -325,6 +328,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype.setGender,
           window.appboy.ab.User.Genders.MALE
         );
+        analytics.didNotCall(window.appboy.openSession);
       });
 
       it('should set gender to other when passed other gender', function() {
@@ -336,6 +340,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype.setGender,
           window.appboy.ab.User.Genders.OTHER
         );
+        analytics.didNotCall(window.appboy.openSession);
       });
 
       it('should handle custom traits of valid types and exclude nested objects', function() {
@@ -367,6 +372,7 @@ describe('Appboy', function() {
           'date',
           'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)'
         );
+        analytics.didNotCall(window.appboy.openSession);
       });
 
       it('should handle custom traits of valid types and including date object', function() {
@@ -380,6 +386,7 @@ describe('Appboy', function() {
           'date',
           date
         );
+        analytics.didNotCall(window.appboy.openSession);
       });
 
       it('should not let you set reserved keys as custom attributes', function() {
@@ -390,6 +397,60 @@ describe('Appboy', function() {
         analytics.didNotCall(
           window.appboy.ab.User.prototype.setCustomUserAttribute
         );
+        analytics.didNotCall(window.appboy.openSession);
+      });
+
+      it('with onlyTrackKnownUsersOnWeb enabled should call each Appboy method for standard traits and openSession', function() {
+        // Setup
+        appboy.options.onlyTrackKnownUsersOnWeb = true;
+
+        // Action
+        analytics.identify('userId', {
+          firstName: 'Alex',
+          lastName: 'Noonan',
+          phone: '555-555-5555',
+          email: 'alex@email.com',
+          avatar:
+            'https://s-media-cache-ak0.pinimg.com/736x/39/b9/75/39b9757ac27c6eabba292d71a63def2c.jpg',
+          gender: 'woman',
+          birthday: '1991-09-16T00:00:00.000Z',
+          address: {
+            city: 'Dublin',
+            country: 'Ireland'
+          }
+        });
+
+        // Verify
+        // Regression testing.
+        analytics.called(window.appboy.changeUser, 'userId');
+        analytics.called(
+          window.appboy.ab.User.prototype.setAvatarImageUrl,
+          'https://s-media-cache-ak0.pinimg.com/736x/39/b9/75/39b9757ac27c6eabba292d71a63def2c.jpg'
+        );
+        analytics.called(window.appboy.ab.User.prototype.setCountry, 'Ireland');
+        analytics.called(
+          window.appboy.ab.User.prototype.setDateOfBirth,
+          1991,
+          9,
+          16
+        );
+        analytics.called(
+          window.appboy.ab.User.prototype.setEmail,
+          'alex@email.com'
+        );
+        analytics.called(window.appboy.ab.User.prototype.setFirstName, 'Alex');
+        analytics.called(window.appboy.ab.User.prototype.setHomeCity, 'Dublin');
+        analytics.called(
+          window.appboy.ab.User.prototype.setGender,
+          window.appboy.ab.User.Genders.FEMALE
+        );
+        analytics.called(window.appboy.ab.User.prototype.setLastName, 'Noonan');
+        analytics.called(
+          window.appboy.ab.User.prototype.setPhoneNumber,
+          '555-555-5555'
+        );
+        // Verify new functionality.
+        analytics.called(window.appboy.openSession);
       });
     });
 

@@ -9,6 +9,7 @@ var Track = require('segmentio-facade').Track;
 var each = require('@ndhoule/each');
 var del = require('obj-case').del;
 var clone = require('@ndhoule/clone');
+var appboyUtil = require('./appboyUtil');
 
 /**
  * Expose `Appboy` integration.
@@ -34,6 +35,7 @@ var Appboy = (module.exports = integration('Appboy')
   .option('customEndpoint', '')
   .option('version', 1)
   .option('logPurchaseWhenRevenuePresent', false)
+  .option('onlyTrackKnownUsersOnWeb', false)
   .tag(
     'v1',
     '<script src="https://js.appboycdn.com/web-sdk/1.6/appboy.min.js">'
@@ -142,7 +144,10 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
       window.appboy.display.automaticallyShowNewInAppMessages();
     if (userId) window.appboy.changeUser(userId);
 
-    window.appboy.openSession();
+    if (appboyUtil.shouldOpenSession(userId, options)) {
+      window.appboy.openSession();
+    }
+
     self.ready();
   });
 };
@@ -217,7 +222,9 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
     window.appboy.display.automaticallyShowNewInAppMessages();
   if (userId) window.appboy.changeUser(userId);
 
-  window.appboy.openSession();
+  if (appboyUtil.shouldOpenSession(userId, options)) {
+    window.appboy.openSession();
+  }
 
   this.load('v2', this.ready);
 };
@@ -256,6 +263,16 @@ Appboy.prototype.identify = function(identify) {
   var lastName = identify.lastName();
   var phone = identify.phone();
   var traits = clone(identify.traits());
+
+  if (this.options.onlyTrackKnownUsersOnWeb && userId) {
+    // If onlyTrackKnownUsers is enabled and there was not a `userId` upon
+    // initialization then we have not yet called `appboy.openSession()`.
+    // Let's do that now.
+    // Note: if there multiple `identify` calls, this could result in
+    // `appboy.openSession()` multiple times. Calling openSession extends
+    // existing sessions or starts new session.
+    window.appboy.openSession();
+  }
 
   if (userId) {
     window.appboy.changeUser(userId);
