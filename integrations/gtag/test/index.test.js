@@ -951,7 +951,7 @@ describe('Enhanced Ecommerce', function() {
         analyticsEnhanced.called(
           window.gtagDataLayer.push,
           'event',
-          'purchace',
+          'purchase',
           {
             transaction_id: '5d4c7cb5',
             affiliation: undefined,

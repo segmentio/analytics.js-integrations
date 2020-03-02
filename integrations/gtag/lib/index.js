@@ -445,7 +445,7 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
   var orderId = track.orderId();
   var props = track.properties();
 
-  push('event', 'purchace', {
+  push('event', 'purchase', {
     transaction_id: orderId,
     affiliation: props.affiliation,
     value: total,
