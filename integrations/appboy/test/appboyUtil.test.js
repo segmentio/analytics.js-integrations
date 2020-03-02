@@ -9,7 +9,7 @@ describe('appboyUtil', function() {
     var invalidUserIds = [undefined, null, '', 0, false];
     var validUserIds = ['  ', 'abc', 1];
 
-    it('should open if option is disabled', function() {
+    it('should open if option is disabled regardless of userId', function() {
       invalidUserIds.forEach(
         (invalidUserIds,
         function(userId) {
@@ -30,7 +30,7 @@ describe('appboyUtil', function() {
       );
     });
 
-    it('should conditionally open if option is enabled', function() {
+    it('should conditionally open if option is enabled and userId is valid', function() {
       invalidUserIds.forEach(
         (invalidUserIds,
         function(userId) {
