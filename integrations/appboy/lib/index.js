@@ -266,11 +266,11 @@ Appboy.prototype.identify = function(identify) {
 
   if (this.options.onlyTrackKnownUsersOnWeb && userId) {
     // If onlyTrackKnownUsers is enabled and there was not a `userId` upon
-    // initialization then we have not yet called `appboy.openSession()`.
+    // initialization then we have not yet called `window.appboy.openSession()`.
     // Let's do that now.
     // Note: if there multiple `identify` calls, this could result in
-    // `appboy.openSession()` multiple times. Calling openSession extends
-    // existing sessions or starts new session.
+    // `window.appboy.openSession()` multiple times. Calling openSession extends
+    // existing sessions or starts a new session so this should be safe.
     window.appboy.openSession();
   }
 
