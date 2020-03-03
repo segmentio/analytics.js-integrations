@@ -22,7 +22,15 @@ program
   .option('-s, --settings <settings>', 'Relative path to custom integrations settings file')
   .parse(process.argv)
 
-if (!program.writeKey) {
+// Get program parameters.
+const {
+  cdnDomain = 'http://cdn.segment.com',
+  port = 3000,
+  settings,
+  writeKey,
+} = program
+
+if (!writeKey) {
   console.error('Error: --writeKey required')
   process.exit(1)
 }
@@ -40,16 +48,10 @@ if (diff.stdout && (diff.stdout).toString().length) {
   spawnSync('yarn install --no-lockfile', opts)
 }
 
-const {
-  cdnDomain = 'http://cdn.segment.com',
-  port = 3000,
-  settings,
-  writeKey,
-} = program
 let customSettings
 
 if (settings) {
-  const settingsPath = path.join(__dirname, `${program.settings}`)
+  const settingsPath = path.join(__dirname, settings)
   customSettings = JSON.parse(fs.readFileSync(settingsPath))
 } else {
   console.info('**No custom settings file specified. Retrieving settings from Segment\'s CDN.**')
@@ -59,7 +61,6 @@ buildIntegrations()
 build(async (ajs, integrationVersions, coreVersion) => {
   let compiled
 
-  console.log('cdnDomain', cdnDomain)
   try {
     compiled = await addSettings({
       ajs,
@@ -80,7 +81,7 @@ build(async (ajs, integrationVersions, coreVersion) => {
   }
 
   fs.writeFileSync(fileName, compiled)
-  generateFile(program.writeKey, port)
+  generateFile(writeKey, port)
   server(compiled, filePath, port)
   open(`http://localhost:${port}`)
 })
