@@ -68,3 +68,6 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# Local settings.json files for testing.
+*.settings.json

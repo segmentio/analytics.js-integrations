@@ -22,7 +22,6 @@
     "@segment/analytics.js-integration-adroll": "file:../integrations/adroll",
     "@segment/analytics.js-integration-adwords": "file:../integrations/adwords",
     "@segment/analytics.js-integration-alexa": "file:../integrations/alexa",
-    "@segment/analytics.js-integration-ambassador": "file:../integrations/ambassador",
     "@segment/analytics.js-integration-amplitude": "file:../integrations/amplitude",
     "@segment/analytics.js-integration-appboy": "file:../integrations/appboy",
     "@segment/analytics.js-integration-appcues": "file:../integrations/appcues",

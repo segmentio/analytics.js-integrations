@@ -45,8 +45,7 @@ var Appboy = (module.exports = integration('Appboy')
     '<script src="https://js.appboycdn.com/web-sdk/2.4/appboy.min.js">'
   ));
 
-Appboy.prototype.initialize = function() {
-  var options = this.options;
+function getCustomEndpoint(options) {
   var customEndpoint;
   // Setup custom endpoints
   if (options.customEndpoint) {
@@ -57,20 +56,80 @@ Appboy.prototype.initialize = function() {
   } else if (options.datacenter === 'eu') {
     customEndpoint = 'https://sdk.fra-01.braze.eu/api/v3';
   }
+  return customEndpoint;
+}
 
-  if (Number(options.version) === 2) {
-    this.initializeV2(customEndpoint);
+function isVersionTwo(options) {
+  return Number(options.version) === 2;
+}
+
+function getConfig(options) {
+  var config = {};
+  if (isVersionTwo(options)) {
+    // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
+    config = {
+      safariWebsitePushId: options.safariWebsitePushId,
+      enableHtmlInAppMessages: options.enableHtmlInAppMessages,
+      allowCrawlerActivity: options.allowCrawlerActivity,
+      doNotLoadFontAwesome: options.doNotLoadFontAwesome,
+      enableLogging: options.enableLogging,
+      localization: options.localization,
+      minimumIntervalBetweenTriggerActionsInSeconds:
+        Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
+      openInAppMessagesInNewTab: options.openInAppMessagesInNewTab,
+      openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
+      requireExplicitInAppMessageDismissal:
+        options.requireExplicitInAppMessageDismissal,
+      serviceWorkerLocation: options.serviceWorkerLocation,
+      sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
+    };
   } else {
-    this.initializeV1(customEndpoint);
+    var datacenterMappings = {
+      us: 'https://sdk.iad-01.braze.com',
+      us02: 'https://sdk.iad-02.braze.com',
+      us03: 'https://sdk.iad-03.braze.com',
+      eu: 'https://sdk.fra-01.braze.eu'
+    };
+    if (options.safariWebsitePushId)
+      config.safariWebsitePushId = options.safariWebsitePushId;
+    if (options.enableHtmlInAppMessages) config.enableHtmlInAppMessages = true;
+
+    // Setup custom endpoints
+    if (options.customEndpoint) {
+      var endpoint = options.customEndpoint;
+      var regex = new RegExp('^(http|https)://', 'i');
+      config.baseUrl =
+        (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
+    } else {
+      config.baseUrl =
+        (datacenterMappings[options.datacenter] ||
+          'https://sdk.iad-01.braze.com') + '/api/v3';
+    }
+  }
+  var customEndpoint = getCustomEndpoint(options);
+  if (customEndpoint) config.baseUrl = customEndpoint;
+  return config;
+}
+
+function appboyInitialize(userId, options, config) {
+  window.appboy.initialize(options.apiKey, config);
+
+  if (options.automaticallyDisplayMessages)
+    window.appboy.display.automaticallyShowNewInAppMessages();
+  if (userId) window.appboy.changeUser(userId);
+
+  window.appboy.openSession();
+}
+
+Appboy.prototype.initialize = function() {
+  if (isVersionTwo(this.options)) {
+    this.initializeV2();
+  } else {
+    this.initializeV1();
   }
 };
-/**
- * Initialize v1.
- *
- * @api public
- */
 
-Appboy.prototype.initializeV1 = function(customEndpoint) {
+Appboy.prototype.initializeV1 = function() {
   var options = this.options;
   var self = this;
   var userId = this.analytics.user().id();
@@ -112,40 +171,11 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
   this._shim = window.appboy.initialize;
 
   this.load('v1', function() {
-    var config = {};
-    var datacenterMappings = {
-      us: 'https://sdk.iad-01.braze.com',
-      us02: 'https://sdk.iad-02.braze.com',
-      us03: 'https://sdk.iad-03.braze.com',
-      eu: 'https://sdk.fra-01.braze.eu'
-    };
-    if (options.safariWebsitePushId)
-      config.safariWebsitePushId = options.safariWebsitePushId;
-    if (options.enableHtmlInAppMessages) config.enableHtmlInAppMessages = true;
-
-    // Setup custom endpoints
-    if (options.customEndpoint) {
-      var endpoint = options.customEndpoint;
-      var regex = new RegExp('^(http|https)://', 'i');
-      config.baseUrl =
-        (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
-    } else {
-      config.baseUrl =
-        (datacenterMappings[options.datacenter] ||
-          'https://sdk.iad-01.braze.com') + '/api/v3';
-    }
-
-    if (customEndpoint) config.baseUrl = customEndpoint;
-
-    self.initializeTester(options.apiKey, config);
-    window.appboy.initialize(options.apiKey, config);
-
-    if (options.automaticallyDisplayMessages)
-      window.appboy.display.automaticallyShowNewInAppMessages();
-    if (userId) window.appboy.changeUser(userId);
-
     if (appboyUtil.shouldOpenSession(userId, options)) {
-      window.appboy.openSession();
+      self.hasBeenInitialized = true;
+      var config = getConfig(options);
+      self.initializeTester(options.apiKey, config);
+      appboyInitialize(userId, options, config);
     }
 
     self.ready();
@@ -158,7 +188,7 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
  * @api public
  */
 
-Appboy.prototype.initializeV2 = function(customEndpoint) {
+Appboy.prototype.initializeV2 = function() {
   var options = this.options;
   var userId = this.analytics.user().id();
 
@@ -195,35 +225,11 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
   })(window, document, 'script');
   /* eslint-enable */
 
-  // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
-  var config = {
-    safariWebsitePushId: options.safariWebsitePushId,
-    enableHtmlInAppMessages: options.enableHtmlInAppMessages,
-    allowCrawlerActivity: options.allowCrawlerActivity,
-    doNotLoadFontAwesome: options.doNotLoadFontAwesome,
-    enableLogging: options.enableLogging,
-    localization: options.localization,
-    minimumIntervalBetweenTriggerActionsInSeconds:
-      Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
-    openInAppMessagesInNewTab: options.openInAppMessagesInNewTab,
-    openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
-    requireExplicitInAppMessageDismissal:
-      options.requireExplicitInAppMessageDismissal,
-    serviceWorkerLocation: options.serviceWorkerLocation,
-    sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
-  };
-
-  if (customEndpoint) config.baseUrl = customEndpoint;
-
-  this.initializeTester(options.apiKey, config);
-  window.appboy.initialize(options.apiKey, config);
-
-  if (options.automaticallyDisplayMessages)
-    window.appboy.display.automaticallyShowNewInAppMessages();
-  if (userId) window.appboy.changeUser(userId);
-
   if (appboyUtil.shouldOpenSession(userId, options)) {
-    window.appboy.openSession();
+    this.hasBeenInitialized = true;
+    var config = getConfig(options);
+    this.initializeTester(options.apiKey, config);
+    appboyInitialize(userId, options, config);
   }
 
   this.load('v2', this.ready);
@@ -264,14 +270,18 @@ Appboy.prototype.identify = function(identify) {
   var phone = identify.phone();
   var traits = clone(identify.traits());
 
-  if (this.options.onlyTrackKnownUsersOnWeb && userId) {
-    // If onlyTrackKnownUsers is enabled and there was not a `userId` upon
-    // initialization then we have not yet called `window.appboy.openSession()`.
-    // Let's do that now.
-    // Note: if there multiple `identify` calls, this could result in
-    // `window.appboy.openSession()` multiple times. Calling openSession extends
-    // existing sessions or starts a new session so this should be safe.
-    window.appboy.openSession();
+  var options = this.options;
+
+  if (
+    this.options.onlyTrackKnownUsersOnWeb &&
+    userId &&
+    !this.hasBeenInitialized
+  ) {
+    // Rerun initial initialization.
+    this.hasBeenInitialized = true;
+    var config = getConfig(options);
+    this.initializeTester(options.apiKey, config);
+    appboyInitialize(userId, options, config);
   }
 
   if (userId) {

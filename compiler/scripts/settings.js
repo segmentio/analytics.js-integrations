@@ -1,5 +1,5 @@
-const ejs = require('ejs');
-const { keys, pick, get } = require('lodash')
+var ejs = require('ejs');
+var { keys, pick, get } = require('lodash')
 var request = require('request');
 var path = require('path')
 var fs = require('fs')
@@ -69,11 +69,14 @@ function readIntegrationsPackages() {
  * @returns {Object} A map containing the package of each enabled integration.
  */
 function getEnabledIntegrations(settings, availableIntegrations) {
+  console.log('settings', settings)
   var integrations = settings.integrations || {};
   var enabledIntegrations = {};
 
   for (var name in integrations) {
+    console.log('name', name)
     var slug = getSlug(name);
+    console.log('slug', slug)
     if (availableIntegrations[slug]) {
       enabledIntegrations[name] = availableIntegrations[slug];
     }
@@ -82,6 +85,7 @@ function getEnabledIntegrations(settings, availableIntegrations) {
   // This destination does not exist anymore.
   // delete enabledIntegrations['Tell Apart'];
 
+  console.log(enabledIntegrations)
   return enabledIntegrations;
 }
 
@@ -114,7 +118,7 @@ async function context(integrationVersions, coreVersion, writeKey, customSetting
 
   const ctx = {};
   const availableIntegrations = readIntegrationsPackages();
-  ctx.enabled = await getEnabledIntegrations(settings, availableIntegrations);
+  ctx.enabled = getEnabledIntegrations(settings, availableIntegrations);
   ctx.integrations = pick(integrations, keys(ctx.enabled));
 
   const versions = {
@@ -124,6 +128,7 @@ async function context(integrationVersions, coreVersion, writeKey, customSetting
   };
 
   ctx.plan = JSON.stringify({});
+  console.log('ctx.integrations', ctx.integrations)
   ctx.integrations = JSON.stringify(ctx.integrations);
   ctx.versions = JSON.stringify(versions);
   ctx.writeKey = get(integrations['Segment.io'], 'apiKey', '');

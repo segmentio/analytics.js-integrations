@@ -16,10 +16,11 @@ const buildName = `${Math.floor(new Date() / 1000)}`;
 const fileName = path.join(__dirname, 'builds', `analytics-${buildName}.js`)
 
 program
-  .option('-c, --cdnDomain <cdnDomain>', 'Segment cdn domain', 'http://cdn.segment.com')
   .option('-w, --writeKey <writeKey>', 'Segment writeKey to for viewing events in the debugger')
-  .option('-p, --port <port>', 'Set a port to serve the local ajs file from', 3000)
+  .option('-c, --cdnDomain <cdnDomain>', 'Segment cdn domain', 'http://cdn.segment.com')
   .option('-s, --settings <settings>', '(Optional) Relative path to custom integrations settings file')
+  .option('-n, --skipRebuild <skipRebuild>', 'Skips yarn rebuild', false)
+  .option('-p, --port <port>', 'Set a port to serve the local ajs file from', 3000)
   .parse(process.argv)
 
 // Get program parameters.
@@ -27,6 +28,7 @@ const {
   cdnDomain,
   port,
   settings,
+  skipRebuild,
   writeKey,
 } = program
 
@@ -40,12 +42,14 @@ const opts = {
   cwd: __dirname
 }
 
-// check if any files have changed since most recent `git add`
-const diff = spawnSync('git diff --name-only', opts)
-if (diff.stdout && (diff.stdout).toString().length) {
-  opts.stdio = 'inherit'
-  // if not, run `yarn install --no-lockfile` to pull in any updates made in the /integrations directory
-  spawnSync('yarn install --no-lockfile', opts)
+if (skipRebuild !== 'true') {
+  // check if any files have changed since most recent `git add`
+  const diff = spawnSync('git diff --name-only', opts)
+  if (diff.stdout && (diff.stdout).toString().length) {
+    opts.stdio = 'inherit'
+    // if not, run `yarn install --no-lockfile` to pull in any updates made in the /integrations directory
+    spawnSync('yarn install --no-lockfile', opts)
+  }
 }
 
 let customSettings
