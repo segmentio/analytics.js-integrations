@@ -83,7 +83,6 @@ jobs:
               if [[ ${project} =~ "yarn" || ${project} =~ ".buildkite" || ${project} =~ ".circleci" ]]; then
                 buildall=1
                 echo -e "Warning. Dependencies or internal configs have change detected."
-                exit 1
               fi
             done
       - restore_cache:
