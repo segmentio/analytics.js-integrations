@@ -45,72 +45,6 @@ var Appboy = (module.exports = integration('Appboy')
     '<script src="https://js.appboycdn.com/web-sdk/2.4/appboy.min.js">'
   ));
 
-function getCustomEndpoint(options) {
-  var customEndpoint;
-  // Setup custom endpoints
-  if (options.customEndpoint) {
-    var endpoint = options.customEndpoint;
-    var regex = new RegExp('^(http|https)://', 'i');
-    customEndpoint =
-      (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
-  } else if (options.datacenter === 'eu') {
-    customEndpoint = 'https://sdk.fra-01.braze.eu/api/v3';
-  }
-  return customEndpoint;
-}
-
-function isVersionTwo(options) {
-  return Number(options.version) === 2;
-}
-
-function getConfig(options) {
-  var config = {};
-  if (isVersionTwo(options)) {
-    // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
-    config = {
-      safariWebsitePushId: options.safariWebsitePushId,
-      enableHtmlInAppMessages: options.enableHtmlInAppMessages,
-      allowCrawlerActivity: options.allowCrawlerActivity,
-      doNotLoadFontAwesome: options.doNotLoadFontAwesome,
-      enableLogging: options.enableLogging,
-      localization: options.localization,
-      minimumIntervalBetweenTriggerActionsInSeconds:
-        Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
-      openInAppMessagesInNewTab: options.openInAppMessagesInNewTab,
-      openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
-      requireExplicitInAppMessageDismissal:
-        options.requireExplicitInAppMessageDismissal,
-      serviceWorkerLocation: options.serviceWorkerLocation,
-      sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
-    };
-  } else {
-    var datacenterMappings = {
-      us: 'https://sdk.iad-01.braze.com',
-      us02: 'https://sdk.iad-02.braze.com',
-      us03: 'https://sdk.iad-03.braze.com',
-      eu: 'https://sdk.fra-01.braze.eu'
-    };
-    if (options.safariWebsitePushId)
-      config.safariWebsitePushId = options.safariWebsitePushId;
-    if (options.enableHtmlInAppMessages) config.enableHtmlInAppMessages = true;
-
-    // Setup custom endpoints
-    if (options.customEndpoint) {
-      var endpoint = options.customEndpoint;
-      var regex = new RegExp('^(http|https)://', 'i');
-      config.baseUrl =
-        (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
-    } else {
-      config.baseUrl =
-        (datacenterMappings[options.datacenter] ||
-          'https://sdk.iad-01.braze.com') + '/api/v3';
-    }
-  }
-  var customEndpoint = getCustomEndpoint(options);
-  if (customEndpoint) config.baseUrl = customEndpoint;
-  return config;
-}
-
 function appboyInitialize(userId, options, config) {
   window.appboy.initialize(options.apiKey, config);
 
@@ -122,7 +56,7 @@ function appboyInitialize(userId, options, config) {
 }
 
 Appboy.prototype.initialize = function() {
-  if (isVersionTwo(this.options)) {
+  if (appboyUtil.isVersionTwo(this.options)) {
     this.initializeV2();
   } else {
     this.initializeV1();
@@ -173,7 +107,7 @@ Appboy.prototype.initializeV1 = function() {
   this.load('v1', function() {
     if (appboyUtil.shouldOpenSession(userId, options)) {
       self.hasBeenInitialized = true;
-      var config = getConfig(options);
+      var config = appboyUtil.getConfig(options);
       self.initializeTester(options.apiKey, config);
       appboyInitialize(userId, options, config);
     }
@@ -181,12 +115,6 @@ Appboy.prototype.initializeV1 = function() {
     self.ready();
   });
 };
-
-/**
- * Initialize v2.
- *
- * @api public
- */
 
 Appboy.prototype.initializeV2 = function() {
   var options = this.options;
@@ -227,7 +155,7 @@ Appboy.prototype.initializeV2 = function() {
 
   if (appboyUtil.shouldOpenSession(userId, options)) {
     this.hasBeenInitialized = true;
-    var config = getConfig(options);
+    var config = appboyUtil.getConfig(options);
     this.initializeTester(options.apiKey, config);
     appboyInitialize(userId, options, config);
   }
@@ -244,19 +172,11 @@ Appboy.prototype.initializeTester = function() {};
  * @api private
  * @return {boolean}
  */
-
 Appboy.prototype.loaded = function() {
   var options = this.options;
   if (Number(options.version) === 2) return window.appboyQueue === null;
   return window.appboy && window.appboy.initialize !== this._shim;
 };
-
-/**
- * Identify.
- *
- * @api public
- * @param {Identify} identify
- */
 
 Appboy.prototype.identify = function(identify) {
   var userId = identify.userId();
@@ -279,9 +199,13 @@ Appboy.prototype.identify = function(identify) {
   ) {
     // Rerun initial initialization.
     this.hasBeenInitialized = true;
-    var config = getConfig(options);
+    var config = appboyUtil.getConfig(options);
     this.initializeTester(options.apiKey, config);
     appboyInitialize(userId, options, config);
+  }
+
+  if (!this.hasBeenInitialized) {
+    return;
   }
 
   if (userId) {
@@ -382,6 +306,9 @@ Appboy.prototype.identify = function(identify) {
  */
 
 Appboy.prototype.group = function(group) {
+  if (!this.hasBeenInitialized) {
+    return;
+  }
   var userId = group.userId();
   var groupIdKey = 'ab_segment_group_' + group.groupId();
 
@@ -401,6 +328,9 @@ Appboy.prototype.group = function(group) {
  */
 
 Appboy.prototype.track = function(track) {
+  if (!this.hasBeenInitialized) {
+    return;
+  }
   var userId = track.userId();
   var eventName = track.event();
   var properties = track.properties();
@@ -435,6 +365,9 @@ Appboy.prototype.track = function(track) {
  */
 
 Appboy.prototype.page = function(page) {
+  if (!this.hasBeenInitialized) {
+    return;
+  }
   var settings = this.options;
   if (!settings.trackAllPages && !settings.trackNamedPages) return;
   if (settings.trackNamedPages && !page.name()) return;
@@ -462,6 +395,9 @@ Appboy.prototype.page = function(page) {
  */
 
 Appboy.prototype.orderCompleted = function(track) {
+  if (!this.hasBeenInitialized) {
+    return;
+  }
   var userId = track.userId();
   var products = track.products();
   var currencyCode = track.currency();
