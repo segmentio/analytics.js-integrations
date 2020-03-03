@@ -57,8 +57,21 @@ GTAG.on('construct', function(Integration) {
 
       // Additional event on top og GA destination
       Integration.productAddedToWishlist = Integration.productAddedToWishlistEnhanced;
-      Integration.leadGenerated = Integration.leadGeneratedEnhanced;
       Integration.productShared = Integration.productSharedEnhanced;
+
+      // There is no corrosponding event present for following in segment like
+      // loggedIn, timingCompleted, leadGenerated
+
+      // Integration.loggedIn = Integration.loggedInEnhanced;
+      // Integration.signedUp = Integration.signedUpEnhanced;
+      // Integration.exceptionOccured = Integration.exceptionOccuredEnhanced;
+      // Integration.timingCompleted = Integration.timingCompletedEnhanced;
+      // Integration.leadGenerated = Integration.leadGeneratedEnhanced;
+      // Integration.setCheckoutOption = Integration.setCheckoutOptionEnhanced;
+
+
+      // There is no corrosponding event present for this in gtagjs
+      // REF: https://developers.google.com/gtagjs/reference/event
 
       // Integration.productListFiltered = Integration.productListFilteredEnhanced;
     }
@@ -477,20 +490,6 @@ GTAG.prototype.productAddedToWishlistEnhanced = function(track) {
 };
 
 /**
- * Lead Generated - Enhanced Ecommerce
- *
- * @param {Track} track
- */
-
-GTAG.prototype.leadGeneratedEnhanced = function(track) {
-  push('event', 'generate_lead', {
-    transaction_id: track.id(),
-    value: track.price(),
-    currency: track.currency()
-  });
-};
-
-/**
  * Product Shared - Enhanced Ecommerce
  *
  * @param {Track} track
@@ -506,6 +505,87 @@ GTAG.prototype.productSharedEnhanced = function(track) {
     method: props.share_via,
     content_type: track.category(),
     content_id: id
+  });
+};
+
+/**
+ * User Logged In - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.loggedInEnhanced = function(track) {
+  var props = track.properties();
+  push('event', 'login', { method: props.method });
+};
+
+/**
+ * User signed Up - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.signedUpEnhanced = function(track) {
+  var props = track.properties();
+  push('event', 'sign_up', { method: props.method });
+};
+
+/**
+ * Lead Generated - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.leadGeneratedEnhanced = function(track) {
+  push('event', 'generate_lead', {
+    transaction_id: track.id(),
+    value: track.price(),
+    currency: track.currency()
+  });
+};
+
+/**
+ * Exception - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.exceptionOccuredEnhanced = function(track) {
+  var props = track.properties();
+  push('event', 'exception', {
+    description: props.description,
+    fatal: props.fatal
+  });
+};
+
+/**
+ * Timing Completed - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.timingCompletedEnhanced = function(track) {
+  push('event', 'timing_complete', {
+    name: track.name(),
+    value: track.value()
+  });
+};
+
+/**
+ * Set Checkout Options - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.setCheckoutOptionEnhanced = function(track) {
+  var props = track.properties();
+  var options = [
+    track.proxy('properties.paymentMethod'),
+    track.proxy('properties.shippingMethod')
+  ];
+  push('event', 'set_checkout_option', {
+    checkout_step: props.step || 1,
+    checkout_option: options.length ? options.join(', ') : null
   });
 };
 
