@@ -16,6 +16,7 @@ const buildName = `${Math.floor(new Date() / 1000)}`;
 const fileName = path.join(__dirname, 'builds', `analytics-${buildName}.js`)
 
 program
+  .option('-c, --cdnDomain <cdnDomain>', 'Segment cdn domain, defaults to http://cdn.segment.com')
   .option('-w, --writeKey <writeKey>', 'Segment writeKey to for viewing events in the debugger')
   .option('-p, --port [port]', 'Set a port to serve the local ajs file from', 3000)
   .option('-s, --settings <settings>', 'Relative path to custom integrations settings file')
@@ -39,11 +40,15 @@ if (diff.stdout && (diff.stdout).toString().length) {
   spawnSync('yarn install --no-lockfile', opts)
 }
 
-const writeKey = program.writeKey
-const port = program.port || 3000
+const {
+  cdnDomain = 'http://cdn.segment.com',
+  port = 3000,
+  settings,
+  writeKey,
+} = program
 let customSettings
 
-if (program.settings) {
+if (settings) {
   const settingsPath = path.join(__dirname, `${program.settings}`)
   customSettings = JSON.parse(fs.readFileSync(settingsPath))
 } else {
@@ -54,9 +59,11 @@ buildIntegrations()
 build(async (ajs, integrationVersions, coreVersion) => {
   let compiled
 
+  console.log('cdnDomain', cdnDomain)
   try {
     compiled = await addSettings({
       ajs,
+      cdnDomain,
       integrationVersions,
       coreVersion,
       writeKey,
