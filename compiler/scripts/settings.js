@@ -9,12 +9,13 @@ var fs = require('fs')
  *
  * @async
  * @param {String} writeKey A valid Segment Write Key (ex. dhLxf5GwJwaDHt7MBo80V7Yb0PV6FT5H)
+ * @param {String} cdnDomain Base domain for cdn e.g. 'http://cdn.segment.com'
  *
  * @throws {Error} for any network/request error.
  * @returns {Object} Source settings.
  */
-async function getSourceSettings(writeKey) {
-  var url = `http://cdn.segment.com/v1/projects/${writeKey}/settings`;
+async function getSourceSettings(writeKey, cdnDomain) {
+  const url = `${cdnDomain}/v1/projects/${writeKey}/settings`;
   return new Promise((resolve, reject) => {
     request.get({ url: url, gzip: true, headers:{ 'Cache-Control':'no-cache' } }, (err, _, body) => {
       if (err) {
@@ -99,8 +100,16 @@ function getSlug(name) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-async function context(integrationVersions, coreVersion, writeKey, customSettings) {
-  const settings = customSettings || await getSourceSettings(writeKey);
+/**
+ * @param integrationVersions
+ * @param coreVersion
+ * @param writeKey
+ * @param customSettings
+ * @param {String} cdnDomain
+ * @returns {Promise<{}>}
+ */
+async function context(integrationVersions, coreVersion, writeKey, customSettings, cdnDomain) {
+  const settings = customSettings || await getSourceSettings(writeKey, cdnDomain);
   const integrations = settings.integrations;
 
   const ctx = {};
@@ -121,12 +130,21 @@ async function context(integrationVersions, coreVersion, writeKey, customSetting
   return ctx;
 }
 
-module.exports = async function ({ ajs, integrationVersions, coreVersion, writeKey, customSettings }) {
+/**
+ * @param ajs
+ * @param {String} cdnDomain
+ * @param integrationVersions
+ * @param coreVersion
+ * @param writeKey
+ * @param customSettings
+ * @returns {Promise<*>}
+ */
+module.exports = async function ({ ajs, cdnDomain, integrationVersions, coreVersion, writeKey, customSettings }) {
   const { version } = coreVersion
   let ctx
 
   try {
-    ctx = await context(integrationVersions, version, writeKey, customSettings)
+    ctx = await context(integrationVersions, version, writeKey, customSettings, cdnDomain)
   } catch(err) {
     console.error('Error: ', err)
     return
