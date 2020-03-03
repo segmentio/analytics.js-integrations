@@ -16,16 +16,16 @@ const buildName = `${Math.floor(new Date() / 1000)}`;
 const fileName = path.join(__dirname, 'builds', `analytics-${buildName}.js`)
 
 program
-  .option('-c, --cdnDomain <cdnDomain>', 'Segment cdn domain, defaults to http://cdn.segment.com')
+  .option('-c, --cdnDomain <cdnDomain>', 'Segment cdn domain', 'http://cdn.segment.com')
   .option('-w, --writeKey <writeKey>', 'Segment writeKey to for viewing events in the debugger')
-  .option('-p, --port [port]', 'Set a port to serve the local ajs file from', 3000)
-  .option('-s, --settings <settings>', 'Relative path to custom integrations settings file')
+  .option('-p, --port <port>', 'Set a port to serve the local ajs file from', 3000)
+  .option('-s, --settings <settings>', '(Optional) Relative path to custom integrations settings file')
   .parse(process.argv)
 
 // Get program parameters.
 const {
-  cdnDomain = 'http://cdn.segment.com',
-  port = 3000,
+  cdnDomain,
+  port,
   settings,
   writeKey,
 } = program
