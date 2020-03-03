@@ -2,8 +2,9 @@
 ===================
 
 * Add support for new setting `onlyTrackKnownUsersOnWeb`.
-  * If enabled, this new setting delays calling of `window.appboy.openSession` until there is a valid `userId`.
-  * This functionality was added to support customers who want to limit loggina anonymous users to Braze.
+  * If enabled, this new setting delays calling of `window.appboy.initialize` until there is an `identify` call
+    that supplies a valid `userId`.
+  * This functionality was added to support customers who want to stop logging anonymous users to Braze.
 
 1.13.1 / 2019-11-27
 ===================

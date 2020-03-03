@@ -45,8 +45,7 @@ var Appboy = (module.exports = integration('Appboy')
     '<script src="https://js.appboycdn.com/web-sdk/2.4/appboy.min.js">'
   ));
 
-Appboy.prototype.initialize = function() {
-  var options = this.options;
+function getCustomEndpoint(options) {
   var customEndpoint;
   // Setup custom endpoints
   if (options.customEndpoint) {
@@ -57,62 +56,34 @@ Appboy.prototype.initialize = function() {
   } else if (options.datacenter === 'eu') {
     customEndpoint = 'https://sdk.fra-01.braze.eu/api/v3';
   }
+  return customEndpoint;
+}
 
-  if (Number(options.version) === 2) {
-    this.initializeV2(customEndpoint);
+function isVersionTwo(options) {
+  return Number(options.version) === 2;
+}
+
+function getConfig(options) {
+  var config = {};
+  if (isVersionTwo(options)) {
+    // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
+    config = {
+      safariWebsitePushId: options.safariWebsitePushId,
+      enableHtmlInAppMessages: options.enableHtmlInAppMessages,
+      allowCrawlerActivity: options.allowCrawlerActivity,
+      doNotLoadFontAwesome: options.doNotLoadFontAwesome,
+      enableLogging: options.enableLogging,
+      localization: options.localization,
+      minimumIntervalBetweenTriggerActionsInSeconds:
+        Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
+      openInAppMessagesInNewTab: options.openInAppMessagesInNewTab,
+      openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
+      requireExplicitInAppMessageDismissal:
+        options.requireExplicitInAppMessageDismissal,
+      serviceWorkerLocation: options.serviceWorkerLocation,
+      sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
+    };
   } else {
-    this.initializeV1(customEndpoint);
-  }
-};
-/**
- * Initialize v1.
- *
- * @api public
- */
-
-Appboy.prototype.initializeV1 = function(customEndpoint) {
-  var options = this.options;
-  var self = this;
-  var userId = this.analytics.user().id();
-
-  // stub out function
-  /* eslint-disable */
-  +(function(a, p, P, b, y) {
-    window.appboy = {};
-    for (
-      var s = 'destroy toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib'.split(
-          ' '
-        ),
-        i = 0;
-      i < s.length;
-      i++
-    ) {
-      for (var k = appboy, l = s[i].split('.'), j = 0; j < l.length - 1; j++)
-        k = k[l[j]];
-      k[l[j]] = function() {
-        console && console.error('The Appboy SDK has not yet been loaded.');
-      };
-    }
-    appboy.initialize = function() {
-      console &&
-        console.error(
-          'Appboy cannot be loaded - this is usually due to strict corporate firewalls or ad blockers.'
-        );
-    };
-    appboy.getUser = function() {
-      return new appboy.ab.User();
-    };
-    appboy.getCachedFeed = function() {
-      return new appboy.ab.Feed();
-    };
-  })(document, 'script', 'link');
-  /* eslint-enable */
-
-  // this is used to test this.loaded
-  this._shim = window.appboy.initialize;
-
-  this.load('v1', function() {
-    var config = {};
     var datacenterMappings = {
       us: 'https://sdk.iad-01.braze.com',
       us02: 'https://sdk.iad-02.braze.com',
@@ -134,18 +105,77 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
         (datacenterMappings[options.datacenter] ||
           'https://sdk.iad-01.braze.com') + '/api/v3';
     }
+  }
+  var customEndpoint = getCustomEndpoint(options);
+  if (customEndpoint) config.baseUrl = customEndpoint;
+  return config;
+}
 
-    if (customEndpoint) config.baseUrl = customEndpoint;
+function appboyInitialize(userId, options, config) {
+  window.appboy.initialize(options.apiKey, config);
 
-    self.initializeTester(options.apiKey, config);
-    window.appboy.initialize(options.apiKey, config);
+  if (options.automaticallyDisplayMessages)
+    window.appboy.display.automaticallyShowNewInAppMessages();
+  if (userId) window.appboy.changeUser(userId);
 
-    if (options.automaticallyDisplayMessages)
-      window.appboy.display.automaticallyShowNewInAppMessages();
-    if (userId) window.appboy.changeUser(userId);
+  window.appboy.openSession();
+}
 
+Appboy.prototype.initialize = function() {
+  if (isVersionTwo(this.options)) {
+    this.initializeV2();
+  } else {
+    this.initializeV1();
+  }
+};
+
+Appboy.prototype.initializeV1 = function() {
+  var options = this.options;
+  var self = this;
+  var userId = this.analytics.user().id();
+
+  // stub out function
+  /* eslint-disable */
+  +(function(a, p, P, b, y) {
+    window.appboy = {};
+    for (
+      var s = 'destroy toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib'.split(
+        ' '
+        ),
+        i = 0;
+      i < s.length;
+      i++
+    ) {
+      for (var k = appboy, l = s[i].split('.'), j = 0; j < l.length - 1; j++)
+        k = k[l[j]];
+      k[l[j]] = function() {
+        console && console.error('The Appboy SDK has not yet been loaded.');
+      };
+    }
+    appboy.initialize = function() {
+      console &&
+      console.error(
+        'Appboy cannot be loaded - this is usually due to strict corporate firewalls or ad blockers.'
+      );
+    };
+    appboy.getUser = function() {
+      return new appboy.ab.User();
+    };
+    appboy.getCachedFeed = function() {
+      return new appboy.ab.Feed();
+    };
+  })(document, 'script', 'link');
+  /* eslint-enable */
+
+  // this is used to test this.loaded
+  this._shim = window.appboy.initialize;
+
+  this.load('v1', function() {
     if (appboyUtil.shouldOpenSession(userId, options)) {
-      window.appboy.openSession();
+      self.hasBeenInitialized = true;
+      var config = getConfig(options);
+      self.initializeTester(options.apiKey, config);
+      appboyInitialize(userId, options, config);
     }
 
     self.ready();
@@ -158,7 +188,7 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
  * @api public
  */
 
-Appboy.prototype.initializeV2 = function(customEndpoint) {
+Appboy.prototype.initializeV2 = function() {
   var options = this.options;
   var userId = this.analytics.user().id();
 
@@ -168,7 +198,7 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
     window.appboyQueue = [];
     for (
       var s = 'initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback trackLocation stopWebTracking resumeWebTracking wipeData ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib'.split(
-          ' '
+        ' '
         ),
         i = 0;
       i < s.length;
@@ -182,8 +212,8 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
         k = k[l[j]];
       k[l[j]] = new Function(
         'return function ' +
-          m.replace(/\./g, '_') +
-          '(){appboyQueue.push(arguments); return true}'
+        m.replace(/\./g, '_') +
+        '(){appboyQueue.push(arguments); return true}'
       )();
     }
     appboy.getUser = function() {
@@ -195,35 +225,11 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
   })(window, document, 'script');
   /* eslint-enable */
 
-  // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
-  var config = {
-    safariWebsitePushId: options.safariWebsitePushId,
-    enableHtmlInAppMessages: options.enableHtmlInAppMessages,
-    allowCrawlerActivity: options.allowCrawlerActivity,
-    doNotLoadFontAwesome: options.doNotLoadFontAwesome,
-    enableLogging: options.enableLogging,
-    localization: options.localization,
-    minimumIntervalBetweenTriggerActionsInSeconds:
-      Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
-    openInAppMessagesInNewTab: options.openInAppMessagesInNewTab,
-    openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
-    requireExplicitInAppMessageDismissal:
-      options.requireExplicitInAppMessageDismissal,
-    serviceWorkerLocation: options.serviceWorkerLocation,
-    sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
-  };
-
-  if (customEndpoint) config.baseUrl = customEndpoint;
-
-  this.initializeTester(options.apiKey, config);
-  window.appboy.initialize(options.apiKey, config);
-
-  if (options.automaticallyDisplayMessages)
-    window.appboy.display.automaticallyShowNewInAppMessages();
-  if (userId) window.appboy.changeUser(userId);
-
   if (appboyUtil.shouldOpenSession(userId, options)) {
-    window.appboy.openSession();
+    this.hasBeenInitialized = true;
+    var config = getConfig(options);
+    this.initializeTester(options.apiKey, config);
+    appboyInitialize(userId, options, config);
   }
 
   this.load('v2', this.ready);
@@ -264,14 +270,18 @@ Appboy.prototype.identify = function(identify) {
   var phone = identify.phone();
   var traits = clone(identify.traits());
 
-  if (this.options.onlyTrackKnownUsersOnWeb && userId) {
-    // If onlyTrackKnownUsers is enabled and there was not a `userId` upon
-    // initialization then we have not yet called `window.appboy.openSession()`.
-    // Let's do that now.
-    // Note: if there multiple `identify` calls, this could result in
-    // `window.appboy.openSession()` multiple times. Calling openSession extends
-    // existing sessions or starts a new session so this should be safe.
-    window.appboy.openSession();
+  var options = this.options;
+
+  if (
+    this.options.onlyTrackKnownUsersOnWeb &&
+    userId &&
+    !this.hasBeenInitialized // To avoid calling this more than once.
+  ) {
+    // Rerun initial initialization.
+    this.hasBeenInitialized = true;
+    var config = getConfig(options);
+    this.initializeTester(options.apiKey, config);
+    appboyInitialize(userId, options, config);
   }
 
   if (userId) {
