@@ -1004,8 +1004,8 @@ describe('Enhanced Ecommerce', function() {
         );
       });
 
-      xit('should track lead generated', function() {
-        analyticsEnhanced.track('lead generated', {
+      it('should track lead generated', function() {
+        analyticsEnhanced.track('generate_lead', {
           id: '1234',
           price: 2,
           currency: 'USD'
@@ -1016,7 +1016,7 @@ describe('Enhanced Ecommerce', function() {
           'event',
           'generate_lead',
           {
-            id: '1234',
+            transaction_id: '1234',
             value: 2,
             currency: 'USD'
           }

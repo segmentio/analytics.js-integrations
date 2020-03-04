@@ -69,6 +69,16 @@ GTAG.on('construct', function(Integration) {
       // Integration.leadGenerated = Integration.leadGeneratedEnhanced;
       // Integration.setCheckoutOption = Integration.setCheckoutOptionEnhanced;
 
+      // This mapping is for events which are not supported by segment and will
+      // be tracked by track method.
+      Integration.customEventsMapping = {
+        login: Integration.loggedInEnhanced,
+        sign_up: Integration.signedUpEnhanced,
+        exception: Integration.exceptionOccuredEnhanced,
+        timing_complete: Integration.timingCompletedEnhanced,
+        generate_lead: Integration.leadGeneratedEnhanced,
+        set_checkout_option :Integration.setCheckoutOptionEnhanced
+      };
 
       // There is no corrosponding event present for this in gtagjs
       // REF: https://developers.google.com/gtagjs/reference/event
@@ -192,11 +202,19 @@ GTAG.prototype.identify = function(identify) {
  */
 
 GTAG.prototype.track = function(track, params) {
+  var event = track.event() || '';
+  if (
+    this.customEventsMapping &&
+    typeof this.customEventsMapping[event] === 'function'
+  ) {
+    this.customEventsMapping[event](track);
+    return;
+  }
   var contextOpts = track.options(this.name);
   var options = this.options;
   var opts = defaults(params || {}, contextOpts);
   var props = track.properties();
-  props.event = track.event() || '';
+  props.event = event;
 
   var gaOptions = this.options.gaOptions || {};
   if (gaOptions && Object.keys(gaOptions).length) {
