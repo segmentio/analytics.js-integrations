@@ -1023,6 +1023,83 @@ describe('Enhanced Ecommerce', function() {
         );
       });
 
+      it('should track login', function() {
+        analyticsEnhanced.track('login', {
+          method: 'google'
+        });
+
+        analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'login', {
+          method: 'google'
+        });
+      });
+
+      it('should track sign up', function() {
+        analyticsEnhanced.track('sign_up', {
+          method: 'google'
+        });
+
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'sign_up',
+          {
+            method: 'google'
+          }
+        );
+      });
+
+      it('should track exception occured', function() {
+        analyticsEnhanced.track('exception', {
+          description: 'Some Description',
+          fatal: false
+        });
+
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'exception',
+          {
+            description: 'Some Description',
+            fatal: false
+          }
+        );
+      });
+
+      it('should track timing completed', function() {
+        analyticsEnhanced.track('timing_complete', {
+          name: 'Name',
+          value: 10
+        });
+
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'timing_complete',
+          {
+            name: 'Name',
+            value: 10
+          }
+        );
+      });
+
+      it('should track checkout options', function() {
+        analyticsEnhanced.track('set_checkout_option', {
+          step: 2,
+          paymentMethod: 'Visa',
+          shippingMethod: 'FedEx'
+        });
+
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'set_checkout_option',
+          {
+            checkout_step: 2,
+            checkout_option: 'Visa, FedEx'
+          }
+        );
+      });
+
       it('should track product shared', function() {
         analyticsEnhanced.track('Product Shared', {
           share_via: 'email',

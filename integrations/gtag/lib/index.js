@@ -597,10 +597,10 @@ GTAG.prototype.timingCompletedEnhanced = function(track) {
 
 GTAG.prototype.setCheckoutOptionEnhanced = function(track) {
   var props = track.properties();
-  var options = [
+  var options = reject([
     track.proxy('properties.paymentMethod'),
     track.proxy('properties.shippingMethod')
-  ];
+  ]);
   push('event', 'set_checkout_option', {
     checkout_step: props.step || 1,
     checkout_option: options.length ? options.join(', ') : null
