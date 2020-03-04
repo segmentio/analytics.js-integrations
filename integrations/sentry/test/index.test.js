@@ -6,20 +6,37 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var Sentry = require('../lib/');
 
+/**
+ * Segment settings slugs do not always match the configuration option name
+ * in Sentry. Below are the relevant mappings that may cause confusion.
+ *
+ * Segment setting - Sentry config option
+ * config - dsn
+ * customVersionProperty || release - release
+ * ignoreErrors - ignoreErrors (this setting still exists, but for some reason is not included in Sentry's documentation)
+ * ignoreUrls - blacklistUrls
+ * ignorePaths - now maps to Sentry.Integrations.RewriteFrames plugin
+ * logger - logger (type `tag`, NOT actual config option)
+ * customVersionProperty - release
+ *
+ * Sentry configuration docs: https://docs.sentry.io/error-reporting/configuration/?platform=browser
+ */
+
 describe('Sentry', function() {
   var sentry;
   var analytics;
   var options = {
-    config: 'https://8152fdb57e8c4ec1b60d27745bda8cbd@app.getsentry.com/52723',
-    logger: 'development',
-    release: '721e41770371db95eee98ca2707686226b993eda',
+    config: 'https://ee3da278a59448c9866f7099b81249ac@sentry.io/1883422', // Sentry: dsn
+    environment: 'development',
     serverName: 'B5372DB0-C21E-11E4-8DFC-AA07A5B093DB',
-    whitelistUrls: ['/getsentry.com/', 'segment.com'],
+    release: '721e41770371db95eee98ca2707686226b993eda',
     ignoreErrors: ['fb_xd_fragment'],
-    ignoreUrls: ['/graph.facebook.com/', 'http://example.com/script2.js'],
-    includePaths: ['/https?://getsentry.com/', '/https?://cdn.getsentry.com/'],
-    maxMessageLength: 50,
-    customVersionProperty: null
+    ignoreUrls: ['/graph.facebook.com/', 'http://example.com/script2.js'], // Sentry: blacklistUrls
+    includePaths: ['/https?://getsentry.com/', '/https?://cdn.getsentry.com/'], // maps to Sentry.Integrations.RewriteFrames plugin
+    whitelistUrls: ['/getsentry.com/', 'segment.com'],
+    logger: 'javascript', // Sentry: type `tag`, key "logger" https://docs.sentry.io/enriching-error-data/context/?platform=browser#tagging-events
+    customVersionProperty: null, // Sentry: release
+    debug: false
   };
 
   beforeEach(function() {
@@ -41,9 +58,9 @@ describe('Sentry', function() {
     analytics.compare(
       Sentry,
       integration('Sentry')
-        .global('Raven')
-        .global('RavenConfig')
+        .global('Sentry')
         .option('config', '')
+        .option('environment', null)
         .option('serverName', null)
         .option('release', null)
         .option('ignoreErrors', [])
@@ -53,6 +70,7 @@ describe('Sentry', function() {
         .option('maxMessageLength', null)
         .option('logger', null)
         .option('customVersionProperty', null)
+        .option('debug', false)
     );
   });
 
@@ -66,78 +84,6 @@ describe('Sentry', function() {
         analytics.initialize();
         analytics.page();
         analytics.called(sentry.load);
-      });
-
-      it('should respect UI settings', function() {
-        // https://github.com/getsentry/raven-js/blob/3.0.2/src/raven.js#L135-L138
-        var config = {
-          logger: options.logger,
-          release: options.release,
-          serverName: options.serverName,
-          whitelistUrls: options.whitelistUrls,
-          ignoreErrors: options.ignoreErrors,
-          ignoreUrls: options.ignoreUrls,
-          includePaths: options.includePaths,
-          maxMessageLength: options.maxMessageLength
-        };
-        analytics.initialize();
-        analytics.assert(window.RavenConfig.dsn === options.config);
-        analytics.assert.deepEqual(window.RavenConfig.config, config);
-      });
-
-      it('should allow and set custom versions', function() {
-        var config = {
-          logger: options.logger,
-          serverName: options.serverName,
-          whitelistUrls: options.whitelistUrls,
-          ignoreErrors: options.ignoreErrors,
-          ignoreUrls: options.ignoreUrls,
-          includePaths: options.includePaths,
-          maxMessageLength: options.maxMessageLength,
-          release: '2.4.0'
-        };
-
-        sentry.options.customVersionProperty = 'my_custom_version_property';
-        window.my_custom_version_property = '2.4.0';
-        analytics.initialize();
-
-        // Need to delete before asserts to prevent leaking effects in case of failure.
-        delete window.my_custom_version_property;
-
-        analytics.assert(window.RavenConfig.dsn === options.config);
-        analytics.assert.deepEqual(window.RavenConfig.config, config);
-      });
-
-      it('should reject null settings', function() {
-        sentry.options.release = null;
-        analytics.initialize();
-        analytics.assert(!window.RavenConfig.config.release);
-      });
-
-      it('should reject empty strings', function() {
-        sentry.options.release = '';
-        analytics.initialize();
-        analytics.assert(!window.RavenConfig.config.release);
-      });
-
-      it('should reject empty array settings', function() {
-        sentry.options.ignoreUrls = [];
-        analytics.initialize();
-        analytics.assert(!window.RavenConfig.config.ignoreUrls);
-      });
-
-      it('should reject arrays that have empty strings', function() {
-        sentry.options.ignoreUrls = [''];
-        analytics.initialize();
-        analytics.assert(!window.RavenConfig.config.ignoreUrls);
-      });
-
-      it('should clean arrays', function() {
-        sentry.options.ignoreUrls = ['', 'foo'];
-        sentry.options.includePaths = ['', ''];
-        analytics.initialize();
-        analytics.assert(window.RavenConfig.config.ignoreUrls[0] === 'foo');
-        analytics.assert(!window.RavenConfig.config.includePaths);
       });
     });
   });
@@ -155,24 +101,38 @@ describe('Sentry', function() {
       analytics.page();
     });
 
+    it('should capture error events', function() {
+      analytics.stub(window.Sentry, 'captureException');
+
+      try {
+        // eslint-disable-next-line no-undef
+        myUndefinedFunction();
+      } catch (err) {
+        window.Sentry.captureException(err);
+      }
+      analytics.called(window.Sentry.captureException);
+    });
+
+    it('should ignore errors defined in settings', function() {});
+
     describe('#identify', function() {
       beforeEach(function() {
-        analytics.stub(window.Raven, 'setUserContext');
+        analytics.stub(window.Sentry, 'setUser');
       });
 
       it('should send an id', function() {
         analytics.identify('id');
-        analytics.called(window.Raven.setUserContext, { id: 'id' });
+        analytics.called(window.Sentry.setUser, { id: 'id' });
       });
 
       it('should send traits', function() {
         analytics.identify({ trait: true });
-        analytics.called(window.Raven.setUserContext, { trait: true });
+        analytics.called(window.Sentry.setUser, { trait: true });
       });
 
       it('should send an id and traits', function() {
         analytics.identify('id', { trait: true });
-        analytics.called(window.Raven.setUserContext, {
+        analytics.called(window.Sentry.setUser, {
           id: 'id',
           trait: true
         });
