@@ -1,8 +1,8 @@
 const ejs = require('ejs');
 const { keys, pick, get } = require('lodash')
-var request = require('request');
-var path = require('path')
-var fs = require('fs')
+const request = require('request');
+const path = require('path')
+const fs = require('fs')
 
 /**
  * Retrieves the settings for the provided Segment Write Key.
@@ -114,7 +114,7 @@ async function context(integrationVersions, coreVersion, writeKey, customSetting
 
   const ctx = {};
   const availableIntegrations = readIntegrationsPackages();
-  ctx.enabled = await getEnabledIntegrations(settings, availableIntegrations);
+  ctx.enabled = getEnabledIntegrations(settings, availableIntegrations);
   ctx.integrations = pick(integrations, keys(ctx.enabled));
 
   const versions = {
