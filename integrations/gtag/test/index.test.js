@@ -861,6 +861,28 @@ describe('Enhanced Ecommerce', function() {
         );
       });
 
+      it('should track checkout step viewed and set checkout options', function() {
+        analyticsEnhanced.track('checkout step viewed', {
+          currency: 'CAD',
+          step: 2,
+          paymentMethod: 'Visa',
+          shippingMethod: 'FedEx'
+        });
+        analyticsEnhanced.called(
+          window.gtagDataLayer.push,
+          'event',
+          'checkout_progress',
+          {
+            currency: 'CAD',
+            checkout_step: 2,
+            value: 0,
+            items: [],
+            coupon: undefined,
+            checkout_option: 'Visa, FedEx'
+          }
+        );
+      });
+
       it('should send checkout step completed data', function() {
         analyticsEnhanced.track('checkout step completed', {
           currency: 'CAD',
@@ -1084,6 +1106,7 @@ describe('Enhanced Ecommerce', function() {
 
       it('should track checkout options', function() {
         analyticsEnhanced.track('set_checkout_option', {
+          value: 10,
           step: 2,
           paymentMethod: 'Visa',
           shippingMethod: 'FedEx'
@@ -1094,6 +1117,7 @@ describe('Enhanced Ecommerce', function() {
           'event',
           'set_checkout_option',
           {
+            value: 10,
             checkout_step: 2,
             checkout_option: 'Visa, FedEx'
           }

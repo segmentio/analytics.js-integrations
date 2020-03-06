@@ -449,6 +449,25 @@ GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
 };
 
 /**
+ * Set Checkout Options - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.setCheckoutOptionEnhanced = function(track) {
+  var props = track.properties();
+  var options = reject([
+    track.proxy('properties.paymentMethod'),
+    track.proxy('properties.shippingMethod')
+  ]);
+  push('event', 'set_checkout_option', {
+    value: track.value() || 0,
+    checkout_step: props.step || 1,
+    checkout_option: options.length ? options.join(', ') : null
+  });
+};
+
+/**
  * Order Refunded - Enhanced Ecommerce
  *
  * @param {Track} track
@@ -590,24 +609,6 @@ GTAG.prototype.timingCompletedEnhanced = function(track) {
 };
 
 /**
- * Set Checkout Options - Enhanced Ecommerce
- *
- * @param {Track} track
- */
-
-GTAG.prototype.setCheckoutOptionEnhanced = function(track) {
-  var props = track.properties();
-  var options = reject([
-    track.proxy('properties.paymentMethod'),
-    track.proxy('properties.shippingMethod')
-  ]);
-  push('event', 'set_checkout_option', {
-    checkout_step: props.step || 1,
-    checkout_option: options.length ? options.join(', ') : null
-  });
-};
-
-/**
  * Enhanced ecommerce format data for checkout.
  *
  * @api private
@@ -617,12 +618,10 @@ function extractCheckoutOptions(track) {
   var props = track.properties();
   var total = track.total() || track.revenue() || 0;
   var coupon = track.proxy('properties.coupon');
-  var options = [
+  var options = reject([
     track.proxy('properties.paymentMethod'),
     track.proxy('properties.shippingMethod')
-  ];
-  // Remove all nulls, and join with commas.
-  options = reject(options);
+  ]);
 
   return {
     currency: track.currency(),
