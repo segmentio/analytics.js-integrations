@@ -625,10 +625,10 @@ function extractCheckoutOptions(track) {
 
   return {
     currency: track.currency(),
-    checkout_step: props.step || 1,
     value: total,
     items: getFormattedProductList(track),
     coupon: coupon,
+    checkout_step: props.step || 1,
     checkout_option: options.length ? options.join(', ') : null
   };
 }
