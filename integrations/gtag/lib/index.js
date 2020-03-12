@@ -58,6 +58,7 @@ GTAG.on('construct', function(Integration) {
       // Additional event on top og GA destination
       Integration.productAddedToWishlist = Integration.productAddedToWishlistEnhanced;
       Integration.productShared = Integration.productSharedEnhanced;
+      Integration.productsSearched = Integration.productsSearchedEnhanced;
 
       // This mapping is for events which are not supported by segment and will
       // be tracked by track method.
@@ -527,6 +528,23 @@ GTAG.prototype.productSharedEnhanced = function(track) {
     method: props.share_via,
     content_type: track.category(),
     content_id: id
+  });
+};
+
+/**
+ * Product Searched - Enhanced Ecommerce
+ *
+ * @param {Track} track
+ */
+
+GTAG.prototype.productsSearchedEnhanced = function(track) {
+  var searchQuery = track.proxy('properties.query');
+
+  if (!searchQuery) {
+    return;
+  }
+  push('event', 'search', {
+    search_term: searchQuery
   });
 };
 

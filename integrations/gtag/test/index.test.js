@@ -1146,6 +1146,24 @@ describe('Enhanced Ecommerce', function() {
           content_id: '507f1f77bcf86cd799439011'
         });
       });
+
+      it('should track product searched', function() {
+        analyticsEnhanced.track('Products Searched', {
+          query: 'blue hotpants'
+        });
+
+        analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'search', {
+          search_term: 'blue hotpants'
+        });
+      });
+
+      it('should not track product searched if query not specified', function() {
+        analyticsEnhanced.track('Products Searched', {
+          query: ''
+        });
+
+        analyticsEnhanced.didNotCall(window.gtagDataLayer.push);
+      });
     });
   });
 });
