@@ -59,16 +59,6 @@ GTAG.on('construct', function(Integration) {
       Integration.productAddedToWishlist = Integration.productAddedToWishlistEnhanced;
       Integration.productShared = Integration.productSharedEnhanced;
 
-      // There is no corrosponding event present for following in segment like
-      // loggedIn, timingCompleted, leadGenerated
-
-      // Integration.loggedIn = Integration.loggedInEnhanced;
-      // Integration.signedUp = Integration.signedUpEnhanced;
-      // Integration.exceptionOccured = Integration.exceptionOccuredEnhanced;
-      // Integration.timingCompleted = Integration.timingCompletedEnhanced;
-      // Integration.leadGenerated = Integration.leadGeneratedEnhanced;
-      // Integration.setCheckoutOption = Integration.setCheckoutOptionEnhanced;
-
       // This mapping is for events which are not supported by segment and will
       // be tracked by track method.
       Integration.customEventsMapping = {
@@ -77,13 +67,8 @@ GTAG.on('construct', function(Integration) {
         exception: Integration.exceptionOccuredEnhanced,
         timing_complete: Integration.timingCompletedEnhanced,
         generate_lead: Integration.leadGeneratedEnhanced,
-        set_checkout_option :Integration.setCheckoutOptionEnhanced
+        set_checkout_option: Integration.setCheckoutOptionEnhanced
       };
-
-      // There is no corrosponding event present for this in gtagjs
-      // REF: https://developers.google.com/gtagjs/reference/event
-
-      // Integration.productListFiltered = Integration.productListFilteredEnhanced;
     }
     /* eslint-enable */
 });
