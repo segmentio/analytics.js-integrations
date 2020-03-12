@@ -1140,7 +1140,7 @@ describe('Google Analytics', function() {
           analytics.deepEqual(toArray(window.ga.args[4]), [
             'send',
             'event',
-            'cat 1',
+            'EnhancedEcommerce',
             'product added',
             {
               dimension1: 'true',
@@ -1197,7 +1197,7 @@ describe('Google Analytics', function() {
           analytics.deepEqual(toArray(window.ga.args[4]), [
             'send',
             'event',
-            'cat 1',
+            'EnhancedEcommerce',
             'product added',
             {
               dimension1: 'true',
@@ -1245,7 +1245,7 @@ describe('Google Analytics', function() {
           analytics.deepEqual(toArray(window.ga.args[4]), [
             'send',
             'event',
-            'cat 1',
+            'EnhancedEcommerce',
             'product added',
             'sample label',
             { nonInteraction: 1 }
@@ -1297,7 +1297,7 @@ describe('Google Analytics', function() {
           analytics.deepEqual(toArray(window.ga.args[4]), [
             'send',
             'event',
-            'cat 1',
+            'EnhancedEcommerce',
             'product removed',
             {
               dimension1: 'true',
@@ -1353,7 +1353,7 @@ describe('Google Analytics', function() {
           analytics.deepEqual(toArray(window.ga.args[4]), [
             'send',
             'event',
-            'cat 1',
+            'EnhancedEcommerce',
             'product viewed',
             {
               dimension1: 'true',
@@ -1747,7 +1747,7 @@ describe('Google Analytics', function() {
           analytics.deepEqual(toArray(window.ga.args[4]), [
             'send',
             'event',
-            'cat 1',
+            'EnhancedEcommerce',
             'product clicked',
             {
               dimension1: 'true',
@@ -2071,7 +2071,7 @@ describe('Google Analytics', function() {
             currency: 'CAD',
             step: 2,
             paymentMethod: 'Visa',
-            shipping_method: 'FedEx'
+            shippingMethod: 'FedEx'
           });
 
           analytics.assert(window.ga.args.length === 4);

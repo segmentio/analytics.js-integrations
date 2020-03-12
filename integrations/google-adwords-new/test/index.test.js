@@ -94,6 +94,7 @@ describe('Google AdWords New', function() {
         .option('clickConversions', {})
         .option('pageLoadConversions', {})
         .option('defaultPageConversion', '')
+        .option('disableAdPersonalization', false)
         .tag(
           '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
         )
@@ -116,6 +117,20 @@ describe('Google AdWords New', function() {
   describe('loading', function() {
     it('should load', function(done) {
       analytics.load(googleadwordsnew, done);
+    });
+
+    it('should disable ad personalization before `config` statements when settings enabled', function(done) {
+      googleadwordsnew.options.disableAdPersonalization = true;
+      analytics.once('ready', function() {
+        analytics.deepEqual(window.gtag.args[1], [
+          'set',
+          'allow_ad_personalization_signals',
+          false
+        ]);
+        done();
+      });
+      analytics.initialize();
+      analytics.spy(window, 'gtag');
     });
 
     it('should override default configs if desired', function(done) {

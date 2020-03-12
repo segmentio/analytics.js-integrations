@@ -689,6 +689,20 @@ GA.prototype.pushEnhancedEcommerce = function(track, opts, trackerName) {
       setCustomDimenionsAndMetrics(track.properties(), opts, trackerName)
     )
   ]);
+
+  // Google expects an event level category. This field should be generic and not scoped to product level category: https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#product-click.
+  // These 4 events have a top level `category` field per Segment Ecommerce Spec referencing the product not event.
+  // For these events we will default to set the event category to 'EnhancedEcommerce'
+  var event = track.event().toLowerCase();
+  var eventsWithCategoryFieldProductScoped = [
+    'product clicked',
+    'product added',
+    'product viewed',
+    'product removed'
+  ];
+  if (eventsWithCategoryFieldProductScoped.includes(event)) {
+    args[2] = 'EnhancedEcommerce';
+  }
   window.ga.apply(window, args);
 };
 
@@ -732,7 +746,7 @@ GA.prototype.orderUpdatedEnhanced = function(track) {
 GA.prototype.checkoutStepViewedEnhanced = function(track) {
   var products = track.products();
   var props = track.properties();
-  var options = extractCheckoutOptions(track);
+  var options = extractCheckoutOptions(props);
   var self = this;
   var opts = this.options;
 
@@ -761,7 +775,7 @@ GA.prototype.checkoutStepViewedEnhanced = function(track) {
 
 GA.prototype.checkoutStepCompletedEnhanced = function(track) {
   var props = track.properties();
-  var options = extractCheckoutOptions(track);
+  var options = extractCheckoutOptions(props);
   var self = this;
 
   // Only send an event if we have step and options to update
@@ -1151,20 +1165,17 @@ function enhancedEcommerceProductAction(
  * Extracts checkout options.
  *
  * @api private
- * @param {Facade.Track} msg
+ * @param {Object} props
  * @return {string|null}
  */
 
-var extractCheckoutOptions = function extractCheckoutOptions(msg) {
-  var options = [
-    msg.proxy('properties.paymentMethod'),
-    msg.proxy('properties.shippingMethod')
-  ];
+function extractCheckoutOptions(props) {
+  var options = [props.paymentMethod, props.shippingMethod];
 
   // Remove all nulls, and join with commas.
   var valid = reject(options);
   return valid.length > 0 ? valid.join(', ') : null;
-};
+}
 
 /**
  * Creates a track out of product properties.
