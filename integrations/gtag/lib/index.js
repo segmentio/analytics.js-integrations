@@ -197,30 +197,11 @@ GTAG.prototype.track = function(track, params) {
     return;
   }
   var contextOpts = track.options(this.name);
-  var options = this.options;
   var opts = defaults(params || {}, contextOpts);
   var props = track.properties();
   props.event = event;
 
-  var gaOptions = this.options.gaOptions || {};
-  if (gaOptions && Object.keys(gaOptions).length) {
-    if (gaOptions.setAllMappedProps) {
-      // set custom dimension and metrics if present
-      // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
-
-      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
-      if (options.gaWebMeasurementId) {
-        push('config', this.options.gaWebMeasurementId, {
-          custom_map: customMap
-        });
-      }
-      if (options.gaWebAppMeasurementId) {
-        push('config', this.options.gaWebAppMeasurementId, {
-          custom_map: customMap
-        });
-      }
-    }
-  }
+  setCustomDimensionsAndMetrics(this.options);
 
   props.non_interaction =
     props.nonInteraction !== undefined
@@ -290,6 +271,8 @@ GTAG.prototype.orderCompletedClassic = function(track) {
     return;
   }
 
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'purchase', {
     transaction_id: orderId,
     affiliation: props.affiliation,
@@ -308,6 +291,8 @@ GTAG.prototype.orderCompletedClassic = function(track) {
  */
 
 GTAG.prototype.productListViewedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'view_item_list', {
     items: getFormattedProductList(track)
   });
@@ -320,6 +305,8 @@ GTAG.prototype.productListViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.productClickedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'select_content', {
     content_type: 'product',
     items: [getFormattedProduct(track)]
@@ -333,6 +320,8 @@ GTAG.prototype.productClickedEnhanced = function(track) {
  */
 
 GTAG.prototype.productViewedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'view_item', {
     items: [getFormattedProduct(track)]
   });
@@ -345,6 +334,8 @@ GTAG.prototype.productViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.productAddedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'add_to_cart', {
     items: [getFormattedProduct(track)]
   });
@@ -357,6 +348,8 @@ GTAG.prototype.productAddedEnhanced = function(track) {
  */
 
 GTAG.prototype.productRemovedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'remove_from_cart', {
     items: [getFormattedProduct(track)]
   });
@@ -369,6 +362,8 @@ GTAG.prototype.productRemovedEnhanced = function(track) {
  */
 
 GTAG.prototype.promotionViewedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'view_promotion', {
     promotions: [getFormattedPromotion(track)]
   });
@@ -381,6 +376,8 @@ GTAG.prototype.promotionViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.promotionClickedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'select_content', {
     promotions: [getFormattedPromotion(track)]
   });
@@ -393,6 +390,8 @@ GTAG.prototype.promotionClickedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStartedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   var coupon = track.proxy('properties.coupon');
 
   push('event', 'begin_checkout', {
@@ -421,6 +420,8 @@ GTAG.prototype.orderUpdatedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'checkout_progress', extractCheckoutOptions(track));
 };
 
@@ -431,6 +432,8 @@ GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'checkout_progress', extractCheckoutOptions(track));
 };
 
@@ -446,6 +449,7 @@ GTAG.prototype.setCheckoutOptionEnhanced = function(track) {
     track.proxy('properties.paymentMethod'),
     track.proxy('properties.shippingMethod')
   ]);
+
   push('event', 'set_checkout_option', {
     value: track.value() || 0,
     checkout_step: props.step || 1,
@@ -473,6 +477,9 @@ GTAG.prototype.orderRefundedEnhanced = function(track) {
     eventData.affiliation = track.properties().affiliation;
     eventData.items = getFormattedProductList(track);
   }
+
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'refund', eventData);
 };
 
@@ -486,6 +493,8 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
   var total = track.total() || track.revenue() || 0;
   var orderId = track.orderId();
   var props = track.properties();
+
+  setCustomDimensionsAndMetrics(this.options);
 
   push('event', 'purchase', {
     transaction_id: orderId,
@@ -505,6 +514,8 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
  */
 
 GTAG.prototype.productAddedToWishlistEnhanced = function(track) {
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'add_to_wishlist', {
     value: track.price(),
     currency: track.currency(),
@@ -524,6 +535,9 @@ GTAG.prototype.productSharedEnhanced = function(track) {
   if (!id) {
     return;
   }
+
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'share', {
     method: props.share_via,
     content_type: track.category(),
@@ -543,6 +557,9 @@ GTAG.prototype.productsSearchedEnhanced = function(track) {
   if (!searchQuery) {
     return;
   }
+
+  setCustomDimensionsAndMetrics(this.options);
+
   push('event', 'search', {
     search_term: searchQuery
   });
@@ -610,6 +627,35 @@ GTAG.prototype.timingCompletedEnhanced = function(track) {
     value: track.value()
   });
 };
+
+/**
+ * Set custom dimensions and metrics.
+ *
+ * @api private
+ * @param options
+ */
+
+function setCustomDimensionsAndMetrics(options) {
+  var gaOptions = options.gaOptions || {};
+  if (gaOptions && Object.keys(gaOptions).length) {
+    if (gaOptions.setAllMappedProps) {
+      // set custom dimension and metrics if present
+      // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
+
+      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
+      if (options.gaWebMeasurementId) {
+        push('config', options.gaWebMeasurementId, {
+          custom_map: customMap
+        });
+      }
+      if (options.gaWebAppMeasurementId) {
+        push('config', options.gaWebAppMeasurementId, {
+          custom_map: customMap
+        });
+      }
+    }
+  }
+}
 
 /**
  * Enhanced ecommerce format data for checkout.
