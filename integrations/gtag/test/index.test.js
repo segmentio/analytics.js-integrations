@@ -139,14 +139,10 @@ describe('Gtag', function() {
       it('should track named page', function() {
         gtag.options.trackAllPages = true;
         analytics.page('Pagename');
-        analytics.called(window.gtagDataLayer.push, 'event', 'Loaded a Page', {
-          name: 'Pagename',
-          event: 'Loaded a Page',
-          path: window.location.pathname,
-          referrer: document.referrer,
-          title: document.title,
-          search: window.location.search,
-          url: window.location.href,
+        analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
+          page_title: 'Pagename',
+          page_location: window.location.href,
+          page_path: window.location.pathname,
           non_interaction: false
         });
       });
@@ -160,41 +156,24 @@ describe('Gtag', function() {
       it('should track named page if option turned on', function() {
         gtag.options.trackNamedPages = true;
         analytics.page('Pagename');
-        analytics.called(
-          window.gtagDataLayer.push,
-          'event',
-          'Viewed Pagename Page',
-          {
-            name: 'Pagename',
-            path: window.location.pathname,
-            referrer: document.referrer,
-            title: document.title,
-            search: window.location.search,
-            url: window.location.href,
-            event: 'Viewed Pagename Page',
-            non_interaction: true
-          }
-        );
+        analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
+          page_title: 'Pagename',
+          page_location: window.location.href,
+          page_path: window.location.pathname,
+          non_interaction: true
+        });
       });
 
-      it('should track named page if option turned on and nonInteraction passed', function() {
-        gtag.options.trackNamedPages = true;
-        analytics.page('Pagename', { nonInteraction: 1 });
-        analytics.called(
-          window.gtagDataLayer.push,
-          'event',
-          'Viewed Pagename Page',
-          {
-            name: 'Pagename',
-            path: window.location.pathname,
-            referrer: document.referrer,
-            title: document.title,
-            search: window.location.search,
-            url: window.location.href,
-            event: 'Viewed Pagename Page',
-            non_interaction: true
-          }
-        );
+      it('should track page if trackAllPages option turned on and nonInteraction passed', function() {
+        gtag.options.trackAllPages = true;
+        gtag.options.nonInteraction = true;
+        analytics.page('Pagename');
+        analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
+          page_title: 'Pagename',
+          page_location: window.location.href,
+          page_path: window.location.pathname,
+          non_interaction: true
+        });
       });
 
       it('should not track page if set to false', function() {
@@ -210,7 +189,12 @@ describe('Gtag', function() {
         gtag.options.trackCategorizedPages = true;
         analytics.page('Pagename');
         analytics.page('Category', 'name');
-        analytics.called(window.gtagDataLayer.push);
+        analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
+          page_title: 'Category nameCategory',
+          page_location: window.location.href,
+          page_path: window.location.pathname,
+          non_interaction: true
+        });
       });
 
       it('should not track page if trackNamedPages & trackCategorizedPages set to true', function() {
@@ -279,11 +263,7 @@ describe('Gtag', function() {
             )
           }
         );
-        analytics.called(
-          window.gtagDataLayer.push,
-          'event',
-          'Viewed Page1 Page'
-        );
+        analytics.called(window.gtagDataLayer.push, 'event', 'page_view');
       });
     });
   });
@@ -350,15 +330,11 @@ describe('GA Classic', function() {
         analyticsClassic.called(
           window.gtagDataLayer.push,
           'event',
-          'Loaded a Page',
+          'page_view',
           {
-            name: 'Pagename',
-            event: 'Loaded a Page',
-            path: window.location.pathname,
-            referrer: document.referrer,
-            title: document.title,
-            search: window.location.search,
-            url: window.location.href,
+            page_title: 'Pagename',
+            page_location: window.location.href,
+            page_path: window.location.pathname,
             non_interaction: false
           }
         );

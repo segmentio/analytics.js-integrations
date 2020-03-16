@@ -223,14 +223,32 @@ GTAG.prototype.track = function(track, params) {
 GTAG.prototype.page = function(page) {
   var name = page.fullName();
   var category = page.category();
+  var props = page.properties();
+  setCustomDimensionsAndMetrics(this.options);
+
   if (this.options.trackAllPages) {
-    this.track(page.track());
+    push('event', 'page_view', {
+      page_title: name || category,
+      page_location: props.url,
+      page_path: props.path,
+      non_interaction: !!this.options.nonInteraction
+    });
   }
   if (name && this.options.trackNamedPages) {
-    this.track(page.track(name), { nonInteraction: 1 });
+    push('event', 'page_view', {
+      page_title: name,
+      page_location: props.url,
+      page_path: props.path,
+      non_interaction: true
+    });
   }
   if (category && this.options.trackCategorizedPages) {
-    this.track(page.track(category), { nonInteraction: 1 });
+    push('event', 'page_view', {
+      page_title: name + category,
+      page_location: props.url,
+      page_path: props.path,
+      non_interaction: true
+    });
   }
 };
 
@@ -243,14 +261,31 @@ GTAG.prototype.page = function(page) {
 GTAG.prototype.pageClassic = function(page) {
   var name = page.fullName();
   var category = page.category();
+  var props = page.properties();
+
   if (this.options.trackAllPages) {
-    this.track(page.track());
+    push('event', 'page_view', {
+      page_title: name || category,
+      page_location: props.url,
+      page_path: props.path,
+      non_interaction: !!this.options.nonInteraction
+    });
   }
   if (name && this.options.trackNamedPages) {
-    this.track(page.track(name));
+    push('event', 'page_view', {
+      page_title: name,
+      page_location: props.url,
+      page_path: props.path,
+      non_interaction: true
+    });
   }
   if (category && this.options.trackCategorizedPages) {
-    this.track(page.track(category));
+    push('event', 'page_view', {
+      page_title: name + category,
+      page_location: props.url,
+      page_path: props.path,
+      non_interaction: true
+    });
   }
 };
 
