@@ -443,7 +443,7 @@ GTAG.prototype.promotionClickedEnhanced = function(track) {
 GTAG.prototype.checkoutStartedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  var coupon = track.proxy('properties.coupon');
+  var coupon = track.coupon();
 
   push('event', 'begin_checkout', {
     value: track.total() || track.revenue() || 0,
@@ -496,10 +496,7 @@ GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
 
 GTAG.prototype.setCheckoutOptionEnhanced = function(track) {
   var props = track.properties();
-  var options = reject([
-    track.proxy('properties.paymentMethod'),
-    track.proxy('properties.shippingMethod')
-  ]);
+  var options = reject([track.paymentMethod(), track.shippingMethod()]);
 
   push('event', 'set_checkout_option', {
     value: track.value() || 0,
@@ -739,11 +736,8 @@ function setCustomDimensionsAndMetrics(options) {
 function extractCheckoutOptions(track) {
   var props = track.properties();
   var total = track.total() || track.revenue() || 0;
-  var coupon = track.proxy('properties.coupon');
-  var options = reject([
-    track.proxy('properties.paymentMethod'),
-    track.proxy('properties.shippingMethod')
-  ]);
+  var coupon = track.coupon();
+  var options = reject([track.paymentMethod(), track.shippingMethod()]);
 
   return {
     currency: track.currency(),
@@ -802,7 +796,7 @@ function getFormattedProduct(track) {
 
   // append coupon if it set
   // https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#measuring-transactions
-  var coupon = track.proxy('properties.coupon');
+  var coupon = track.coupon();
   if (coupon) product.coupon = coupon;
 
   return product;
