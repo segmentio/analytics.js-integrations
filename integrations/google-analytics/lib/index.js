@@ -783,11 +783,9 @@ GA.prototype.checkoutStepCompletedEnhanced = function(track) {
 
   // Append checkout option if it is set.
   var params = {
-    step: props.step || 1
+    step: props.step || 1,
+    option: options || undefined
   };
-  if (options) {
-    params.option = options;
-  }
 
   this.loadEnhancedEcommerce(track);
 
