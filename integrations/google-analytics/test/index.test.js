@@ -2121,7 +2121,8 @@ describe('Google Analytics', function() {
             'ec:setAction',
             'checkout_option',
             {
-              step: 2
+              step: 2,
+              option: undefined
             }
           ]);
           analytics.deepEqual(toArray(window.ga.args[3]), [
