@@ -170,6 +170,142 @@ describe('Vero', function() {
         analytics.track('unsubscribe', { id: 'id' });
         analytics.called(window._veroq.push, ['unsubscribe', { id: 'id' }]);
       });
+
+      it('should send order completed', function() {
+        analytics.track('Order Completed', {
+          order_id: '50314b8e9bcf000000000000',
+          total: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'foobar',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'foobarbaz',
+              price: 19,
+              quantity: 1,
+              category: 'foo',
+              productUrl: 'http://www.example.com/path/to/product',
+              imageUrl: 'http://www.example.com/path/to/product/image.png'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'barbazqux',
+              price: 17.38,
+              quantity: 2,
+              category: 'bar'
+            }
+          ]
+        });
+        analytics.called(window._veroq.push, [
+          'track',
+          'Order Completed',
+          {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'foobar',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'foobarbaz',
+                price: 19,
+                quantity: 1,
+                category: 'foo',
+                productUrl: 'http://www.example.com/path/to/product',
+                imageUrl: 'http://www.example.com/path/to/product/image.png'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'barbazqux',
+                price: 17.38,
+                quantity: 2,
+                category: 'bar'
+              }
+            ]
+          },
+          {
+            source: 'segment'
+          }
+        ]);
+      });
+
+      it('should send ordered product', function() {
+        analytics.track('Order Completed', {
+          order_id: '50314b8e9bcf000000000000',
+          total: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'foobar',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'barbazqux',
+              price: 17.38,
+              quantity: 2,
+              category: 'bar'
+            }
+          ]
+        });
+        analytics.calledTwice(window._veroq.push);
+        analytics.called(window._veroq.push, [
+          'track',
+          'Order Completed',
+          {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'foobar',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'barbazqux',
+                price: 17.38,
+                quantity: 2,
+                category: 'bar'
+              }
+            ]
+          },
+          {
+            source: 'segment'
+          }
+        ]);
+        analytics.called(window._veroq.push, [
+          'track',
+          'Ordered Product',
+          {
+            product_id: '505bd76785ebb509fc183733',
+            sku: '46493-32',
+            name: 'barbazqux',
+            price: 17.38,
+            quantity: 2,
+            category: 'bar'
+          },
+          {
+            source: 'segment'
+          }
+        ]);
+      });
     });
 
     describe('#alias', function() {
