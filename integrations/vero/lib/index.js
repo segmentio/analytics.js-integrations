@@ -127,6 +127,8 @@ Vero.prototype.orderCompleted = function(track) {
   }
 
   push('track', track.event(), track.properties(), { source: 'segment' });
+  var tags = track.options('Vero').tags;
+  if (tags) this.addOrRemoveTags(tags);
 };
 
 /**

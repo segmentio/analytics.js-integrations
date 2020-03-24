@@ -371,6 +371,46 @@ describe('Vero', function() {
         ]);
       });
 
+      it('should work for Order Completed calls', function() {
+        analytics.track(
+          'Order Completed',
+          {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'foobar',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'barbazqux',
+                price: 17.38,
+                quantity: 2,
+                category: 'bar'
+              }
+            ]
+          },
+          {
+            integrations: {
+              Vero: {
+                tags: {
+                  action: 'add',
+                  values: ['yoloer']
+                }
+              }
+            }
+          }
+        );
+        analytics.assert.deepEqual(window._veroq.push.args[2][0], [
+          'tags',
+          { add: ['yoloer'] }
+        ]);
+      });
+
       it('should work for .identify calls', function() {
         analytics.identify(
           'user-id',
