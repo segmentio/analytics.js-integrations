@@ -109,7 +109,7 @@ Vero.prototype.track = function(track) {
 };
 
 /**
- * Completed Order.
+ * Order Completed.
  *
  * https://www.getvero.com/api/http/#actions
  * https://github.com/getvero/vero-api/blob/master/sections/js.md#tracking-events
