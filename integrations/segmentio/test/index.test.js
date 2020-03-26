@@ -63,8 +63,8 @@ describe('Segment.io', function() {
   function resetCookies() {
     store('s:context.referrer', null);
     cookie('s:context.referrer', null, { maxage: -1, path: '/' });
-    store('segment_amp_id', null);
-    cookie('segment_amp_id', null, { maxage: -1, path: '/' });
+    store('_ga', null);
+    cookie('_ga', null, { maxage: -1, path: '/' });
     store('seg_xid', null);
     cookie('seg_xid', null, { maxage: -1, path: '/' });
     store('seg_xid_fd', null);
@@ -316,16 +316,24 @@ describe('Segment.io', function() {
         Segment.global = window;
       });
 
+      it('shouldnt add non amp ga cookie', function() {
+        segment.cookie('_ga', 'some-nonamp-id');
+        segment.normalize(object);
+        analytics.assert(object);
+        analytics.assert(object.context);
+        analytics.assert(!object.context.amp);
+      });
+
       it('should add .amp.id from store', function() {
-        segment.cookie('segment_amp_id', 'some-amp-id');
+        segment.cookie('_ga', 'amp-foo');
         segment.normalize(object);
         analytics.assert(object);
         analytics.assert(object.context);
         analytics.assert(object.context.amp);
-        analytics.assert(object.context.amp.id === 'some-amp-id');
+        analytics.assert(object.context.amp.id === 'amp-foo');
       });
 
-      it('should not add .amp if theres no segment_amp_id', function() {
+      it('should not add .amp if theres no _ga', function() {
         segment.normalize(object);
         analytics.assert(object);
         analytics.assert(object.context);
