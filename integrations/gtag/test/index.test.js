@@ -14,7 +14,8 @@ describe('Gtag', function() {
     trackNamedPages: true,
     trackAllPages: false,
     trackCategorizedPages: true,
-    gaOptions: {}
+    gaOptions: {},
+    includeSearch: false
   };
 
   beforeEach(function() {
@@ -49,6 +50,7 @@ describe('Gtag', function() {
           enhancedEcommerce: false,
           setAllMappedProps: true
         })
+        .option('includeSearch', false)
     );
   });
 
@@ -264,6 +266,22 @@ describe('Gtag', function() {
           }
         );
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view');
+      });
+
+      it('should send the query if its included', function() {
+        gtag.options.includeSearch = true;
+        gtag.options.trackCategorizedPages = true;
+        analytics.page('category', 'name', {
+          url: 'url',
+          path: '/path',
+          search: '?q=1'
+        });
+        analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
+          page_title: 'category namecategory',
+          page_location: 'url',
+          page_path: '/path?q=1',
+          non_interaction: true
+        });
       });
     });
   });

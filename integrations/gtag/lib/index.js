@@ -30,6 +30,7 @@ var GTAG = (module.exports = integration('Gtag')
     enhancedEcommerce: false,
     setAllMappedProps: true
   })
+  .option('includeSearch', false)
   .tag(
     '<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}&l=gtagDataLayer">'
   ));
@@ -221,43 +222,8 @@ GTAG.prototype.track = function(track, params) {
  */
 
 GTAG.prototype.page = function(page) {
-  var name = page.fullName();
-  var category = page.category();
-  var props = page.properties();
   setCustomDimensionsAndMetrics(this.options);
-
-  if (this.options.trackAllPages) {
-    trackPageViewEvent(
-      {
-        title: name || category,
-        url: props.url,
-        path: props.path
-      },
-      this.options
-    );
-  }
-  if (name && this.options.trackNamedPages) {
-    trackPageViewEvent(
-      {
-        title: name,
-        url: props.url,
-        path: props.path
-      },
-      this.options,
-      { nonInteraction: 1 }
-    );
-  }
-  if (category && this.options.trackCategorizedPages) {
-    trackPageViewEvent(
-      {
-        title: name + category,
-        url: props.url,
-        path: props.path
-      },
-      this.options,
-      { nonInteraction: 1 }
-    );
-  }
+  trackPageViewEvent(page, this.options);
 };
 
 /**
@@ -267,42 +233,7 @@ GTAG.prototype.page = function(page) {
  */
 
 GTAG.prototype.pageClassic = function(page) {
-  var name = page.fullName();
-  var category = page.category();
-  var props = page.properties();
-
-  if (this.options.trackAllPages) {
-    trackPageViewEvent(
-      {
-        title: name || category,
-        url: props.url,
-        path: props.path
-      },
-      this.options
-    );
-  }
-  if (name && this.options.trackNamedPages) {
-    trackPageViewEvent(
-      {
-        title: name,
-        url: props.url,
-        path: props.path
-      },
-      this.options,
-      { nonInteraction: 1 }
-    );
-  }
-  if (category && this.options.trackCategorizedPages) {
-    trackPageViewEvent(
-      {
-        title: name + category,
-        url: props.url,
-        path: props.path
-      },
-      this.options,
-      { nonInteraction: 1 }
-    );
-  }
+  trackPageViewEvent(page, this.options);
 };
 
 /**
@@ -682,20 +613,42 @@ GTAG.prototype.timingCompletedEnhanced = function(track) {
  * @api private
  * @param { Page } page
  * @param  opt
- * @param  props
  */
 
-function trackPageViewEvent(page, opts, props) {
-  var nonInteraction =
-    props && props.nonInteraction !== undefined
-      ? !!props.nonInteraction
-      : !!(opts && opts.nonInteraction);
-  push('event', 'page_view', {
-    page_title: page.title,
-    page_location: page.url,
-    page_path: page.path,
-    non_interaction: nonInteraction
-  });
+function trackPageViewEvent(page, options) {
+  var name = page.fullName();
+  var category = page.category();
+  var props = page.properties();
+
+  var nonInteraction = !!(options && options.nonInteraction);
+  var str = props.path;
+  if (options.includeSearch && props.search) {
+    str += props.search;
+  }
+  if (options.trackAllPages) {
+    push('event', 'page_view', {
+      page_title: name || category,
+      page_location: props.url,
+      page_path: str,
+      non_interaction: nonInteraction
+    });
+  }
+  if (name && options.trackNamedPages) {
+    push('event', 'page_view', {
+      page_title: name,
+      page_location: props.url,
+      page_path: str,
+      non_interaction: true
+    });
+  }
+  if (category && options.trackCategorizedPages) {
+    push('event', 'page_view', {
+      page_title: name + category,
+      page_location: props.url,
+      page_path: str,
+      non_interaction: true
+    });
+  }
 }
 
 /**
