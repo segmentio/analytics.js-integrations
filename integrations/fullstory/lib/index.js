@@ -21,7 +21,7 @@ var FullStory = (module.exports = integration('FullStory')
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
   .tag(
-    '<script async src="https://www.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
+    '<script async src="https://edge.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
   ));
 
 /**
@@ -36,7 +36,7 @@ var apiSource = 'segment';
  */
 FullStory.prototype.initialize = function() {
   window._fs_debug = this.options.debug;
-  window._fs_host = 'www.fullstory.com';
+  window._fs_host = 'fullstory.com';
   window._fs_org = this.options.org;
   window._fs_namespace = 'FS';
 
@@ -52,6 +52,8 @@ FullStory.prototype.initialize = function() {
     g.consent=function(a){g("consent",!arguments.length||a)};
     g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
     g.clearUserCookie=function(){};
+    g._w={};y='XMLHttpRequest';g._w[y]=m[y];y='fetch';g._w[y]=m[y];
+    if(m[y])m[y]=function(){return g._w[y].apply(this,arguments)};
   })(window,document,window['_fs_namespace'],'script','user');
   /* eslint-enable */
 
