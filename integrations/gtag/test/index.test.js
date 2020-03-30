@@ -217,6 +217,10 @@ describe('Gtag', function() {
           },
           metrics: {
             age: 'metric1'
+          },
+          contentGroupings: {
+            section: 'contentGrouping1',
+            score: 'contentGrouping5'
           }
         };
         analytics.page('Page1', {
@@ -231,7 +235,8 @@ describe('Gtag', function() {
           {
             custom_map: GTAG.merge(
               gtag.options.gaOptions.dimensions,
-              gtag.options.gaOptions.metrics
+              gtag.options.gaOptions.metrics,
+              gtag.options.gaOptions.contentGroupings
             )
           }
         );

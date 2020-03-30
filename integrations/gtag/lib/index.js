@@ -105,7 +105,11 @@ GTAG.prototype.initialize = function() {
       // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
 
       push('config', gaWebMeasurementId, {
-        custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
+        custom_map: merge(
+          gaOptions.dimensions,
+          gaOptions.metrics,
+          gaOptions.contentGroupings
+        )
       });
     }
   }
@@ -118,7 +122,11 @@ GTAG.prototype.initialize = function() {
       // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
 
       push('config', gaWebAppMeasurementId, {
-        custom_map: merge(gaOptions.dimensions, gaOptions.metrics)
+        custom_map: merge(
+          gaOptions.dimensions,
+          gaOptions.metrics,
+          gaOptions.contentGroupings
+        )
       });
     }
   }
@@ -665,7 +673,11 @@ function setCustomDimensionsAndMetrics(options) {
       // set custom dimension and metrics if present
       // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
 
-      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
+      var customMap = merge(
+        gaOptions.dimensions,
+        gaOptions.metrics,
+        gaOptions.contentGroupings
+      );
       if (options.gaWebMeasurementId) {
         push('config', options.gaWebMeasurementId, {
           custom_map: customMap
