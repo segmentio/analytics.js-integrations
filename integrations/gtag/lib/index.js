@@ -31,6 +31,7 @@ var GTAG = (module.exports = integration('Gtag')
     setAllMappedProps: true
   })
   .option('includeSearch', false)
+  .option('anonymizeIp', false)
   .tag(
     '<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}&l=gtagDataLayer">'
   ));
@@ -98,45 +99,51 @@ GTAG.prototype.initialize = function() {
     dcFloodLightId;
 
   if (gaWebMeasurementId) {
-    config.push(['config', gaWebMeasurementId]);
+    var gaWebOptions = {};
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
       // To Set persistent values we need to use set instead of config
       // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
 
-      push('config', gaWebMeasurementId, {
-        custom_map: merge(
-          gaOptions.dimensions,
-          gaOptions.metrics,
-          gaOptions.contentGroupings
-        )
-      });
+      gaWebOptions.custom_map = merge(
+        gaOptions.dimensions,
+        gaOptions.metrics,
+        gaOptions.contentGroupings
+      );
     }
+
+    if (this.options.anonymizeIp) {
+      gaWebOptions.anonymize_ip = true;
+    }
+    config.push(['config', gaWebMeasurementId, gaWebOptions]);
   }
 
   if (gaWebAppMeasurementId) {
-    config.push(['config', gaWebAppMeasurementId]);
+    var gaWebAppOptions = {};
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
       // To Set persistent values we need to use set instead of config
       // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
 
-      push('config', gaWebAppMeasurementId, {
-        custom_map: merge(
-          gaOptions.dimensions,
-          gaOptions.metrics,
-          gaOptions.contentGroupings
-        )
-      });
+      gaWebAppOptions.custom_map = merge(
+        gaOptions.dimensions,
+        gaOptions.metrics,
+        gaOptions.contentGroupings
+      );
     }
+
+    if (this.options.anonymizeIp) {
+      gaWebAppOptions.anonymize_ip = true;
+    }
+    config.push(['config', gaWebAppMeasurementId, gaWebAppOptions]);
   }
 
   if (awConversionId) {
-    config.push(['config', awConversionId]);
+    config.push(['config', awConversionId, {}]);
   }
 
   if (dcFloodLightId) {
-    config.push(['config', dcFloodLightId]);
+    config.push(['config', dcFloodLightId, {}]);
   }
 
   if (!accountId) {
@@ -146,7 +153,7 @@ GTAG.prototype.initialize = function() {
   this.load({ accountId: accountId }, function() {
     // Default routing.
     for (var i = 0; i < config.length; i++) {
-      push(config[i][0], config[i][1]);
+      push(config[i][0], config[i][1], config[i][2]);
     }
     that.ready();
   });

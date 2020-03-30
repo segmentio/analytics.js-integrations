@@ -15,7 +15,8 @@ describe('Gtag', function() {
     trackAllPages: false,
     trackCategorizedPages: true,
     gaOptions: {},
-    includeSearch: false
+    includeSearch: false,
+    anonymizeIp: false
   };
 
   beforeEach(function() {
@@ -51,6 +52,7 @@ describe('Gtag', function() {
           setAllMappedProps: true
         })
         .option('includeSearch', false)
+        .option('anonymizeIp', false)
     );
   });
 
@@ -64,7 +66,8 @@ describe('Gtag', function() {
     beforeEach(function(done) {
       gtag.options = {
         gaWebMeasurementId: 'GA_WEB_MEASUREMENT_ID',
-        awConversionId: 'AW_CONVERSION_ID'
+        awConversionId: 'AW_CONVERSION_ID',
+        anonymizeIp: true
       };
       analytics.once('ready', done);
       analytics.initialize();
@@ -73,8 +76,9 @@ describe('Gtag', function() {
     it('should set default routing', function() {
       analytics.assert(window.gtagDataLayer[0] === 'config');
       analytics.assert(window.gtagDataLayer[1] === 'GA_WEB_MEASUREMENT_ID');
-      analytics.assert(window.gtagDataLayer[2] === 'config');
-      analytics.assert(window.gtagDataLayer[3] === 'AW_CONVERSION_ID');
+      analytics.deepEqual(window.gtagDataLayer[2], { anonymize_ip: true });
+      analytics.assert(window.gtagDataLayer[3] === 'config');
+      analytics.assert(window.gtagDataLayer[4] === 'AW_CONVERSION_ID');
     });
 
     describe('#track', function() {
