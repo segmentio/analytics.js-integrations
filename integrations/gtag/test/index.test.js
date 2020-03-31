@@ -53,6 +53,7 @@ describe('Gtag', function() {
         })
         .option('includeSearch', false)
         .option('anonymizeIp', false)
+        .option('domain', 'auto')
     );
   });
 
@@ -67,7 +68,8 @@ describe('Gtag', function() {
       gtag.options = {
         gaWebMeasurementId: 'GA_WEB_MEASUREMENT_ID',
         awConversionId: 'AW_CONVERSION_ID',
-        anonymizeIp: true
+        anonymizeIp: true,
+        domain: 'auto'
       };
       analytics.once('ready', done);
       analytics.initialize();
@@ -76,7 +78,10 @@ describe('Gtag', function() {
     it('should set default routing', function() {
       analytics.assert(window.gtagDataLayer[0] === 'config');
       analytics.assert(window.gtagDataLayer[1] === 'GA_WEB_MEASUREMENT_ID');
-      analytics.deepEqual(window.gtagDataLayer[2], { anonymize_ip: true });
+      analytics.deepEqual(window.gtagDataLayer[2], {
+        anonymize_ip: true,
+        cookie_domain: 'auto'
+      });
       analytics.assert(window.gtagDataLayer[3] === 'config');
       analytics.assert(window.gtagDataLayer[4] === 'AW_CONVERSION_ID');
     });

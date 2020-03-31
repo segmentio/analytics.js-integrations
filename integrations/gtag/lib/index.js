@@ -32,6 +32,7 @@ var GTAG = (module.exports = integration('Gtag')
   })
   .option('includeSearch', false)
   .option('anonymizeIp', false)
+  .option('domain', 'auto')
   .tag(
     '<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}&l=gtagDataLayer">'
   ));
@@ -115,6 +116,10 @@ GTAG.prototype.initialize = function() {
     if (this.options.anonymizeIp) {
       gaWebOptions.anonymize_ip = true;
     }
+    if (this.options.domain) {
+      gaWebOptions.cookie_domain = this.options.domain;
+    }
+
     config.push(['config', gaWebMeasurementId, gaWebOptions]);
   }
 
@@ -134,6 +139,10 @@ GTAG.prototype.initialize = function() {
 
     if (this.options.anonymizeIp) {
       gaWebAppOptions.anonymize_ip = true;
+    }
+
+    if (this.options.domain) {
+      gaWebAppOptions.cookie_domain = this.options.domain;
     }
     config.push(['config', gaWebAppMeasurementId, gaWebAppOptions]);
   }
