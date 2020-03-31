@@ -28,7 +28,9 @@ var GTAG = (module.exports = integration('Gtag')
   .option('gaOptions', {
     classic: false,
     enhancedEcommerce: false,
-    setAllMappedProps: true
+    setAllMappedProps: true,
+    anonymizeIp: false,
+    domain: 'auto'
   })
   .option('includeSearch', false)
   .option('anonymizeIp', false)
@@ -113,11 +115,11 @@ GTAG.prototype.initialize = function() {
       );
     }
 
-    if (this.options.anonymizeIp) {
+    if (gaOptions.anonymizeIp) {
       gaWebOptions.anonymize_ip = true;
     }
-    if (this.options.domain) {
-      gaWebOptions.cookie_domain = this.options.domain;
+    if (gaOptions.domain) {
+      gaWebOptions.cookie_domain = gaOptions.domain;
     }
 
     config.push(['config', gaWebMeasurementId, gaWebOptions]);
@@ -137,12 +139,12 @@ GTAG.prototype.initialize = function() {
       );
     }
 
-    if (this.options.anonymizeIp) {
+    if (gaOptions.anonymizeIp) {
       gaWebAppOptions.anonymize_ip = true;
     }
 
-    if (this.options.domain) {
-      gaWebAppOptions.cookie_domain = this.options.domain;
+    if (gaOptions.domain) {
+      gaWebAppOptions.cookie_domain = gaOptions.domain;
     }
     config.push(['config', gaWebAppMeasurementId, gaWebAppOptions]);
   }

@@ -49,11 +49,11 @@ describe('Gtag', function() {
         .option('gaOptions', {
           classic: false,
           enhancedEcommerce: false,
-          setAllMappedProps: true
+          setAllMappedProps: true,
+          anonymizeIp: false,
+          domain: 'auto'
         })
         .option('includeSearch', false)
-        .option('anonymizeIp', false)
-        .option('domain', 'auto')
     );
   });
 
@@ -68,8 +68,10 @@ describe('Gtag', function() {
       gtag.options = {
         gaWebMeasurementId: 'GA_WEB_MEASUREMENT_ID',
         awConversionId: 'AW_CONVERSION_ID',
-        anonymizeIp: true,
-        domain: 'auto'
+        gaOptions: {
+          anonymizeIp: true,
+          domain: 'auto'
+        }
       };
       analytics.once('ready', done);
       analytics.initialize();
@@ -79,6 +81,7 @@ describe('Gtag', function() {
       analytics.assert(window.gtagDataLayer[0] === 'config');
       analytics.assert(window.gtagDataLayer[1] === 'GA_WEB_MEASUREMENT_ID');
       analytics.deepEqual(window.gtagDataLayer[2], {
+        custom_map: {},
         anonymize_ip: true,
         cookie_domain: 'auto'
       });
