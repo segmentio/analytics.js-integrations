@@ -51,7 +51,8 @@ describe('Gtag', function() {
           enhancedEcommerce: false,
           setAllMappedProps: true,
           anonymizeIp: false,
-          domain: 'auto'
+          domain: 'auto',
+          enhancedLinkAttribution: false
         })
         .option('includeSearch', false)
     );
@@ -70,7 +71,8 @@ describe('Gtag', function() {
         awConversionId: 'AW_CONVERSION_ID',
         gaOptions: {
           anonymizeIp: true,
-          domain: 'auto'
+          domain: 'auto',
+          enhancedLinkAttribution: true
         }
       };
       analytics.once('ready', done);
@@ -83,7 +85,8 @@ describe('Gtag', function() {
       analytics.deepEqual(window.gtagDataLayer[2], {
         custom_map: {},
         anonymize_ip: true,
-        cookie_domain: 'auto'
+        cookie_domain: 'auto',
+        link_attribution: true
       });
       analytics.assert(window.gtagDataLayer[3] === 'config');
       analytics.assert(window.gtagDataLayer[4] === 'AW_CONVERSION_ID');
