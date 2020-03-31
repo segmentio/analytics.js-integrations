@@ -449,7 +449,8 @@ describe('GA Classic', function() {
                 quantity: 2,
                 price: 3
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -559,7 +560,8 @@ describe('Enhanced Ecommerce', function() {
                 quantity: 1,
                 price: 50
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -591,7 +593,8 @@ describe('Enhanced Ecommerce', function() {
                 variant: undefined,
                 currency: 'CAD'
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -622,7 +625,8 @@ describe('Enhanced Ecommerce', function() {
                 variant: undefined,
                 currency: 'CAD'
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -653,7 +657,8 @@ describe('Enhanced Ecommerce', function() {
                 variant: undefined,
                 currency: 'CAD'
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -684,7 +689,8 @@ describe('Enhanced Ecommerce', function() {
                 variant: undefined,
                 currency: 'CAD'
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -709,7 +715,8 @@ describe('Enhanced Ecommerce', function() {
                 creative: 'summer_banner2',
                 position: 'banner_slot1'
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -734,7 +741,8 @@ describe('Enhanced Ecommerce', function() {
                 creative: 'summer_banner2',
                 position: 'banner_slot1'
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -792,7 +800,8 @@ describe('Enhanced Ecommerce', function() {
                 list_position: 2
               }
             ],
-            coupon: undefined
+            coupon: undefined,
+            non_interaction: true
           }
         );
       });
@@ -850,7 +859,8 @@ describe('Enhanced Ecommerce', function() {
                 list_position: 2
               }
             ],
-            coupon: undefined
+            coupon: undefined,
+            non_interaction: true
           }
         );
       });
@@ -870,7 +880,8 @@ describe('Enhanced Ecommerce', function() {
             value: 0,
             items: [],
             coupon: undefined,
-            checkout_option: null
+            checkout_option: null,
+            non_interaction: true
           }
         );
       });
@@ -892,7 +903,8 @@ describe('Enhanced Ecommerce', function() {
             value: 0,
             items: [],
             coupon: undefined,
-            checkout_option: 'Visa, FedEx'
+            checkout_option: 'Visa, FedEx',
+            non_interaction: true
           }
         );
       });
@@ -913,7 +925,8 @@ describe('Enhanced Ecommerce', function() {
             value: 0,
             items: [],
             coupon: undefined,
-            checkout_option: 'FedEx'
+            checkout_option: 'FedEx',
+            non_interaction: true
           }
         );
       });
@@ -923,7 +936,8 @@ describe('Enhanced Ecommerce', function() {
           orderId: '780bc55'
         });
         analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'refund', {
-          transaction_id: '780bc55'
+          transaction_id: '780bc55',
+          non_interaction: true
         });
       });
 
@@ -971,7 +985,8 @@ describe('Enhanced Ecommerce', function() {
               price: undefined,
               list_position: 2
             }
-          ]
+          ],
+          non_interaction: true
         });
       });
 
@@ -995,7 +1010,8 @@ describe('Enhanced Ecommerce', function() {
             currency: 'USD',
             tax: 20.99,
             shipping: 13.99,
-            items: []
+            items: [],
+            non_interaction: true
           }
         );
       });
@@ -1035,7 +1051,8 @@ describe('Enhanced Ecommerce', function() {
                 position: 3,
                 coupon: 'MAYDEALS'
               }
-            ]
+            ],
+            non_interaction: true
           }
         );
       });
@@ -1054,7 +1071,8 @@ describe('Enhanced Ecommerce', function() {
           {
             transaction_id: '1234',
             value: 2,
-            currency: 'USD'
+            currency: 'USD',
+            non_interaction: true
           }
         );
       });
@@ -1065,13 +1083,15 @@ describe('Enhanced Ecommerce', function() {
         });
 
         analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'login', {
-          method: 'google'
+          method: 'google',
+          non_interaction: true
         });
       });
 
       it('should track sign up', function() {
         analyticsEnhanced.track('sign_up', {
-          method: 'google'
+          method: 'google',
+          non_interaction: true
         });
 
         analyticsEnhanced.called(
@@ -1079,7 +1099,8 @@ describe('Enhanced Ecommerce', function() {
           'event',
           'sign_up',
           {
-            method: 'google'
+            method: 'google',
+            non_interaction: true
           }
         );
       });
@@ -1096,7 +1117,8 @@ describe('Enhanced Ecommerce', function() {
           'exception',
           {
             description: 'Some Description',
-            fatal: false
+            fatal: false,
+            non_interaction: true
           }
         );
       });
@@ -1113,7 +1135,8 @@ describe('Enhanced Ecommerce', function() {
           'timing_complete',
           {
             name: 'Name',
-            value: 10
+            value: 10,
+            non_interaction: true
           }
         );
       });
@@ -1133,7 +1156,8 @@ describe('Enhanced Ecommerce', function() {
           {
             value: 10,
             checkout_step: 2,
-            checkout_option: 'Visa, FedEx'
+            checkout_option: 'Visa, FedEx',
+            non_interaction: true
           }
         );
       });
@@ -1157,7 +1181,8 @@ describe('Enhanced Ecommerce', function() {
         analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'share', {
           method: 'email',
           content_type: 'Games',
-          content_id: '507f1f77bcf86cd799439011'
+          content_id: '507f1f77bcf86cd799439011',
+          non_interaction: true
         });
       });
 
@@ -1167,7 +1192,8 @@ describe('Enhanced Ecommerce', function() {
         });
 
         analyticsEnhanced.called(window.gtagDataLayer.push, 'event', 'search', {
-          search_term: 'blue hotpants'
+          search_term: 'blue hotpants',
+          non_interaction: true
         });
       });
 

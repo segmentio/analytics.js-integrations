@@ -9,6 +9,7 @@ var push = require('global-queue')('gtagDataLayer', { wrap: false });
 var Track = require('segmentio-facade').Track;
 var reject = require('reject');
 var defaults = require('@ndhoule/defaults');
+var extend = require('extend');
 
 /**
  * Expose `GTAG`.
@@ -292,7 +293,7 @@ GTAG.prototype.orderCompletedClassic = function(track) {
 
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'purchase', {
+  trackEnhancedEvent('purchase', {
     transaction_id: orderId,
     affiliation: props.affiliation,
     value: total,
@@ -312,7 +313,7 @@ GTAG.prototype.orderCompletedClassic = function(track) {
 GTAG.prototype.productListViewedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'view_item_list', {
+  trackEnhancedEvent('view_item_list', {
     items: getFormattedProductList(track)
   });
 };
@@ -326,7 +327,7 @@ GTAG.prototype.productListViewedEnhanced = function(track) {
 GTAG.prototype.productClickedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'select_content', {
+  trackEnhancedEvent('select_content', {
     content_type: 'product',
     items: [getFormattedProduct(track)]
   });
@@ -341,7 +342,7 @@ GTAG.prototype.productClickedEnhanced = function(track) {
 GTAG.prototype.productViewedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'view_item', {
+  trackEnhancedEvent('view_item', {
     items: [getFormattedProduct(track)]
   });
 };
@@ -355,7 +356,7 @@ GTAG.prototype.productViewedEnhanced = function(track) {
 GTAG.prototype.productAddedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'add_to_cart', {
+  trackEnhancedEvent('add_to_cart', {
     items: [getFormattedProduct(track)]
   });
 };
@@ -369,7 +370,7 @@ GTAG.prototype.productAddedEnhanced = function(track) {
 GTAG.prototype.productRemovedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'remove_from_cart', {
+  trackEnhancedEvent('remove_from_cart', {
     items: [getFormattedProduct(track)]
   });
 };
@@ -383,7 +384,7 @@ GTAG.prototype.productRemovedEnhanced = function(track) {
 GTAG.prototype.promotionViewedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'view_promotion', {
+  trackEnhancedEvent('view_promotion', {
     promotions: [getFormattedPromotion(track)]
   });
 };
@@ -397,7 +398,7 @@ GTAG.prototype.promotionViewedEnhanced = function(track) {
 GTAG.prototype.promotionClickedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'select_content', {
+  trackEnhancedEvent('select_content', {
     promotions: [getFormattedPromotion(track)]
   });
 };
@@ -413,7 +414,7 @@ GTAG.prototype.checkoutStartedEnhanced = function(track) {
 
   var coupon = track.coupon();
 
-  push('event', 'begin_checkout', {
+  trackEnhancedEvent('begin_checkout', {
     value: track.total() || track.revenue() || 0,
     currency: track.currency(),
     items: getFormattedProductList(track),
@@ -441,7 +442,7 @@ GTAG.prototype.orderUpdatedEnhanced = function(track) {
 GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'checkout_progress', extractCheckoutOptions(track));
+  trackEnhancedEvent('checkout_progress', extractCheckoutOptions(track));
 };
 
 /**
@@ -453,7 +454,7 @@ GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
 GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'checkout_progress', extractCheckoutOptions(track));
+  trackEnhancedEvent('checkout_progress', extractCheckoutOptions(track));
 };
 
 /**
@@ -466,7 +467,7 @@ GTAG.prototype.setCheckoutOptionEnhanced = function(track) {
   var props = track.properties();
   var options = reject([track.paymentMethod(), track.shippingMethod()]);
 
-  push('event', 'set_checkout_option', {
+  trackEnhancedEvent('set_checkout_option', {
     value: track.value() || 0,
     checkout_step: props.step || 1,
     checkout_option: options.length ? options.join(', ') : null
@@ -496,7 +497,7 @@ GTAG.prototype.orderRefundedEnhanced = function(track) {
 
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'refund', eventData);
+  trackEnhancedEvent('refund', eventData);
 };
 
 /**
@@ -512,7 +513,7 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
 
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'purchase', {
+  trackEnhancedEvent('purchase', {
     transaction_id: orderId,
     affiliation: props.affiliation,
     value: total,
@@ -532,7 +533,7 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
 GTAG.prototype.productAddedToWishlistEnhanced = function(track) {
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'add_to_wishlist', {
+  trackEnhancedEvent('add_to_wishlist', {
     value: track.price(),
     currency: track.currency(),
     items: [getFormattedProduct(track)]
@@ -554,7 +555,7 @@ GTAG.prototype.productSharedEnhanced = function(track) {
 
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'share', {
+  trackEnhancedEvent('share', {
     method: props.share_via,
     content_type: track.category(),
     content_id: id
@@ -576,7 +577,7 @@ GTAG.prototype.productsSearchedEnhanced = function(track) {
 
   setCustomDimensionsAndMetrics(this.options);
 
-  push('event', 'search', {
+  trackEnhancedEvent('search', {
     search_term: searchQuery
   });
 };
@@ -589,7 +590,7 @@ GTAG.prototype.productsSearchedEnhanced = function(track) {
 
 GTAG.prototype.loggedInEnhanced = function(track) {
   var props = track.properties();
-  push('event', 'login', { method: props.method });
+  trackEnhancedEvent('login', { method: props.method });
 };
 
 /**
@@ -600,7 +601,7 @@ GTAG.prototype.loggedInEnhanced = function(track) {
 
 GTAG.prototype.signedUpEnhanced = function(track) {
   var props = track.properties();
-  push('event', 'sign_up', { method: props.method });
+  trackEnhancedEvent('sign_up', { method: props.method });
 };
 
 /**
@@ -610,7 +611,7 @@ GTAG.prototype.signedUpEnhanced = function(track) {
  */
 
 GTAG.prototype.leadGeneratedEnhanced = function(track) {
-  push('event', 'generate_lead', {
+  trackEnhancedEvent('generate_lead', {
     transaction_id: track.id(),
     value: track.price(),
     currency: track.currency()
@@ -625,7 +626,7 @@ GTAG.prototype.leadGeneratedEnhanced = function(track) {
 
 GTAG.prototype.exceptionOccuredEnhanced = function(track) {
   var props = track.properties();
-  push('event', 'exception', {
+  trackEnhancedEvent('exception', {
     description: props.description,
     fatal: props.fatal
   });
@@ -638,7 +639,7 @@ GTAG.prototype.exceptionOccuredEnhanced = function(track) {
  */
 
 GTAG.prototype.timingCompletedEnhanced = function(track) {
-  push('event', 'timing_complete', {
+  trackEnhancedEvent('timing_complete', {
     name: track.name(),
     value: track.value()
   });
@@ -686,6 +687,23 @@ function trackPageViewEvent(page, options) {
       non_interaction: true
     });
   }
+}
+
+/**
+ * Track enhanced events.
+ *
+ * @api private
+ * @param eventName
+ * @param payload
+ */
+function trackEnhancedEvent(eventName, payload) {
+  push(
+    'event',
+    eventName,
+    extend(payload, {
+      non_interaction: true
+    })
+  );
 }
 
 /**
