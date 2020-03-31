@@ -52,7 +52,8 @@ describe('Gtag', function() {
           setAllMappedProps: true,
           anonymizeIp: false,
           domain: 'auto',
-          enhancedLinkAttribution: false
+          enhancedLinkAttribution: false,
+          optimize: ''
         })
         .option('includeSearch', false)
     );
@@ -72,7 +73,8 @@ describe('Gtag', function() {
         gaOptions: {
           anonymizeIp: true,
           domain: 'auto',
-          enhancedLinkAttribution: true
+          enhancedLinkAttribution: true,
+          optimize: 'GTM-XXXXX'
         }
       };
       analytics.once('ready', done);
@@ -86,7 +88,8 @@ describe('Gtag', function() {
         custom_map: {},
         anonymize_ip: true,
         cookie_domain: 'auto',
-        link_attribution: true
+        link_attribution: true,
+        optimize_id: 'GTM-XXXXX'
       });
       analytics.assert(window.gtagDataLayer[3] === 'config');
       analytics.assert(window.gtagDataLayer[4] === 'AW_CONVERSION_ID');

@@ -32,7 +32,8 @@ var GTAG = (module.exports = integration('Gtag')
     setAllMappedProps: true,
     anonymizeIp: false,
     domain: 'auto',
-    enhancedLinkAttribution: false
+    enhancedLinkAttribution: false,
+    optimize: ''
   })
   .option('includeSearch', false)
   .option('anonymizeIp', false)
@@ -102,63 +103,47 @@ GTAG.prototype.initialize = function() {
     gaWebAppMeasurementId ||
     awConversionId ||
     dcFloodLightId;
-
-  if (gaWebMeasurementId) {
-    var gaWebOptions = {};
+  if (gaWebMeasurementId || gaWebAppMeasurementId) {
+    var gaSetting = {};
     if (gaOptions && Object.keys(gaOptions).length) {
       // set custom dimension and metrics if present
       // To Set persistent values we need to use set instead of config
       // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
 
-      gaWebOptions.custom_map = merge(
+      gaSetting.custom_map = merge(
         gaOptions.dimensions,
         gaOptions.metrics,
         gaOptions.contentGroupings
       );
     }
 
+    // https://developers.google.com/analytics/devguides/collection/gtagjs/ip-anonymization
     if (gaOptions.anonymizeIp) {
-      gaWebOptions.anonymize_ip = true;
+      gaSetting.anonymize_ip = true;
     }
 
+    // https://developers.google.com/analytics/devguides/collection/gtagjs/cookies-user-id
     if (gaOptions.domain) {
-      gaWebOptions.cookie_domain = gaOptions.domain;
+      gaSetting.cookie_domain = gaOptions.domain;
     }
 
+    // https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-link-attribution
     if (gaOptions.enhancedLinkAttribution) {
-      gaWebOptions.link_attribution = true;
+      gaSetting.link_attribution = true;
     }
 
-    config.push(['config', gaWebMeasurementId, gaWebOptions]);
-  }
-
-  if (gaWebAppMeasurementId) {
-    var gaWebAppOptions = {};
-    if (gaOptions && Object.keys(gaOptions).length) {
-      // set custom dimension and metrics if present
-      // To Set persistent values we need to use set instead of config
-      // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
-
-      gaWebAppOptions.custom_map = merge(
-        gaOptions.dimensions,
-        gaOptions.metrics,
-        gaOptions.contentGroupings
-      );
+    // https://support.google.com/optimize/answer/9183119?hl=en
+    if (gaOptions.optimize) {
+      gaSetting.optimize_id = gaOptions.optimize;
     }
 
-    if (gaOptions.anonymizeIp) {
-      gaWebAppOptions.anonymize_ip = true;
+    if (gaWebMeasurementId) {
+      config.push(['config', gaWebMeasurementId, gaSetting]);
     }
 
-    if (gaOptions.domain) {
-      gaWebAppOptions.cookie_domain = gaOptions.domain;
+    if (gaWebAppMeasurementId) {
+      config.push(['config', gaWebAppMeasurementId, gaSetting]);
     }
-
-    if (gaOptions.enhancedLinkAttribution) {
-      gaWebAppOptions.link_attribution = true;
-    }
-
-    config.push(['config', gaWebAppMeasurementId, gaWebAppOptions]);
   }
 
   if (awConversionId) {
