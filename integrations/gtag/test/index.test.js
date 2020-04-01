@@ -53,7 +53,8 @@ describe('Gtag', function() {
           anonymizeIp: false,
           domain: 'auto',
           enhancedLinkAttribution: false,
-          optimize: ''
+          optimize: '',
+          sampleRate: 100
         })
         .option('includeSearch', false)
     );
@@ -74,7 +75,8 @@ describe('Gtag', function() {
           anonymizeIp: true,
           domain: 'auto',
           enhancedLinkAttribution: true,
-          optimize: 'GTM-XXXXX'
+          optimize: 'GTM-XXXXX',
+          sampleRate: 500
         }
       };
       analytics.once('ready', done);
@@ -89,7 +91,8 @@ describe('Gtag', function() {
         anonymize_ip: true,
         cookie_domain: 'auto',
         link_attribution: true,
-        optimize_id: 'GTM-XXXXX'
+        optimize_id: 'GTM-XXXXX',
+        site_speed_sample_rate: 500
       });
       analytics.assert(window.gtagDataLayer[3] === 'config');
       analytics.assert(window.gtagDataLayer[4] === 'AW_CONVERSION_ID');

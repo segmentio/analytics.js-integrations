@@ -33,7 +33,8 @@ var GTAG = (module.exports = integration('Gtag')
     anonymizeIp: false,
     domain: 'auto',
     enhancedLinkAttribution: false,
-    optimize: ''
+    optimize: '',
+    sampleRate: 100
   })
   .option('includeSearch', false)
   .option('anonymizeIp', false)
@@ -135,6 +136,11 @@ GTAG.prototype.initialize = function() {
     // https://support.google.com/optimize/answer/9183119?hl=en
     if (gaOptions.optimize) {
       gaSetting.optimize_id = gaOptions.optimize;
+    }
+
+    // https://support.google.com/analytics/thread/7741119?hl=en
+    if (gaOptions.sampleRate) {
+      gaSetting.site_speed_sample_rate = gaOptions.sampleRate;
     }
 
     if (gaWebMeasurementId) {
