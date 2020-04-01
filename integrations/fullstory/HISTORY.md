@@ -1,4 +1,4 @@
-2.2.3 / 2019-02-17
+2.2.3 / 2020-02-17
 ==================
 
   * Update fs.js source to CDN at edge.fullstory.com

@@ -44,7 +44,12 @@ describe('Adobe Analytics', function() {
     lVars: {
       names: 'list1'
     },
-    contextValues: {},
+    contextValues: {
+      video_genre: 'video_genre',
+      video_asset_title: 'video_asset_title',
+      video_series_name: 'video_series_name',
+      'page.title': 'page_title'
+    },
     customDataPrefix: '',
     timestampOption: 'enabled',
     enableTrackPageName: true,
@@ -1173,6 +1178,65 @@ describe('Adobe Analytics', function() {
 
         analytics.called(
           adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackPlay
+        );
+      });
+
+      it.only('should send custom metdata in properties on Video Playback Started', function() {
+        analytics.track('Video Playback Started', {
+          session_id: sessionId,
+          video_genre: 'Reality, Game Show, Music',
+          video_asset_title: 'Some Kind of Title',
+          video_series_name: 'The Masked Singer'
+        });
+
+        analytics.assert(adobeAnalytics.mediaHeartbeats[sessionId]);
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_genre === 'Reality, Game Show, Music'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_asset_title === 'Some Kind of Title'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_series_name === 'The Masked Singer'
+        );
+      });
+
+      it.only('should send custom metdata in properties and context on Video Playback Started', function() {
+        analytics.track(
+          'Video Playback Started',
+          {
+            session_id: sessionId,
+            video_genre: 'Reality, Game Show, Music',
+            video_asset_title: 'Some Kind of Title',
+            video_series_name: 'The Masked Singer'
+          },
+          {
+            context: {
+              page: { title: 'yolo moves most definitely made' }
+            }
+          }
+        );
+
+        analytics.assert(adobeAnalytics.mediaHeartbeats[sessionId]);
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_genre === 'Reality, Game Show, Music'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_asset_title === 'Some Kind of Title'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_series_name === 'The Masked Singer'
+        );
+
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.page_title === 'yolo moves most definitely made'
         );
       });
 
