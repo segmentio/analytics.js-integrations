@@ -141,7 +141,14 @@ describe('Gtag', function() {
         gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
         gtag.options.sendUserId = false;
         analytics.identify('userId');
-        analytics.didNotCall(window.gtagDataLayer.push);
+        analytics.didNotCall(
+          window.gtagDataLayer.push,
+          'config',
+          'GA_WEB_MEASUREMENT_ID',
+          {
+            user_id: 'userId'
+          }
+        );
       });
 
       it('should not set user id if GA is not configured', function() {

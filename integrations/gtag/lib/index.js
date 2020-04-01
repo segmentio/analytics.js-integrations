@@ -216,6 +216,8 @@ GTAG.prototype.identify = function(identify) {
       user_id: userId
     });
   }
+
+  setCustomDimensionsAndMetrics(this.options);
 };
 
 /**
