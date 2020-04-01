@@ -39,6 +39,7 @@ FullStory.prototype.initialize = function() {
   window._fs_host = 'fullstory.com';
   window._fs_org = this.options.org;
   window._fs_namespace = 'FS';
+  window._fs_script = 'edge.fullstory.com/s/fs.js';
 
   /* eslint-disable */
   /* istanbul ignore next */
