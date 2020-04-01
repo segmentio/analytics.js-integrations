@@ -55,7 +55,9 @@ describe('Gtag', function() {
           enhancedLinkAttribution: false,
           optimize: '',
           sampleRate: 100,
-          sendUserId: false
+          siteSpeedSampleRate: 1,
+          sendUserId: false,
+          useGoogleAmpClientId: false
         })
         .option('includeSearch', false)
     );
@@ -77,7 +79,9 @@ describe('Gtag', function() {
           domain: 'auto',
           enhancedLinkAttribution: true,
           optimize: 'GTM-XXXXX',
-          sampleRate: 500
+          sampleRate: 500,
+          siteSpeedSampleRate: 1,
+          useGoogleAmpClientId: true
         }
       };
       analytics.once('ready', done);
@@ -93,7 +97,9 @@ describe('Gtag', function() {
         cookie_domain: 'auto',
         link_attribution: true,
         optimize_id: 'GTM-XXXXX',
-        site_speed_sample_rate: 500
+        sample_rate: 500,
+        site_speed_sample_rate: 1,
+        use_amp_client_id: true
       });
       analytics.assert(window.gtagDataLayer[3] === 'config');
       analytics.assert(window.gtagDataLayer[4] === 'AW_CONVERSION_ID');

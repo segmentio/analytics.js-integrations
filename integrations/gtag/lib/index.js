@@ -35,7 +35,9 @@ var GTAG = (module.exports = integration('Gtag')
     enhancedLinkAttribution: false,
     optimize: '',
     sampleRate: 100,
-    sendUserId: false
+    siteSpeedSampleRate: 1,
+    sendUserId: false,
+    useGoogleAmpClientId: false
   })
   .option('includeSearch', false)
   .option('anonymizeIp', false)
@@ -141,7 +143,15 @@ GTAG.prototype.initialize = function() {
 
     // https://support.google.com/analytics/thread/7741119?hl=en
     if (gaOptions.sampleRate) {
-      gaSetting.site_speed_sample_rate = gaOptions.sampleRate;
+      gaSetting.sample_rate = gaOptions.sampleRate;
+    }
+
+    if (gaOptions.siteSpeedSampleRate) {
+      gaSetting.site_speed_sample_rate = gaOptions.siteSpeedSampleRate;
+    }
+
+    if (gaOptions.useGoogleAmpClientId) {
+      gaSetting.use_amp_client_id = true;
     }
 
     var userId = this.analytics.user().id();
