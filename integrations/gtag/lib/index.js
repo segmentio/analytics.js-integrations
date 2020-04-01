@@ -34,7 +34,8 @@ var GTAG = (module.exports = integration('Gtag')
     domain: 'auto',
     enhancedLinkAttribution: false,
     optimize: '',
-    sampleRate: 100
+    sampleRate: 100,
+    sendUserId: false
   })
   .option('includeSearch', false)
   .option('anonymizeIp', false)
@@ -143,6 +144,13 @@ GTAG.prototype.initialize = function() {
       gaSetting.site_speed_sample_rate = gaOptions.sampleRate;
     }
 
+    var userId = this.analytics.user().id();
+
+    // https://support.google.com/analytics/thread/7741119?hl=en
+    if (gaOptions.sendUserId && userId) {
+      gaSetting.user_id = userId;
+    }
+
     if (gaWebMeasurementId) {
       config.push(['config', gaWebMeasurementId, gaSetting]);
     }
@@ -195,7 +203,7 @@ GTAG.prototype.loaded = function() {
 
 GTAG.prototype.identify = function(identify) {
   var userId = identify.userId();
-  if (!userId) {
+  if (!userId || !this.options.sendUserId) {
     return;
   }
   if (this.options.gaWebMeasurementId) {

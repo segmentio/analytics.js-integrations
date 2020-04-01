@@ -54,7 +54,8 @@ describe('Gtag', function() {
           domain: 'auto',
           enhancedLinkAttribution: false,
           optimize: '',
-          sampleRate: 100
+          sampleRate: 100,
+          sendUserId: false
         })
         .option('includeSearch', false)
     );
@@ -124,6 +125,7 @@ describe('Gtag', function() {
 
       it('should set user id if GA is configured', function() {
         gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
+        gtag.options.sendUserId = true;
         analytics.identify('userId');
         analytics.called(
           window.gtagDataLayer.push,
@@ -133,6 +135,13 @@ describe('Gtag', function() {
             user_id: 'userId'
           }
         );
+      });
+
+      it('should not set user id if sendUserId is false', function() {
+        gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
+        gtag.options.sendUserId = false;
+        analytics.identify('userId');
+        analytics.didNotCall(window.gtagDataLayer.push);
       });
 
       it('should not set user id if GA is not configured', function() {
