@@ -1,7 +1,8 @@
-2.2.4 / 2020-04-01
+2.2.4 / 2020-04-02
 ==================
 
   * Add missing definition of window._fs_script
+  * Add a line missing from the end of the snippet
 
 2.2.3 / 2020-02-17
 ==================
