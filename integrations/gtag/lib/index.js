@@ -131,7 +131,7 @@ GTAG.prototype.initialize = function() {
       gaSetting.cookie_domain = gaOptions.domain;
     }
 
-    // https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-link-attribution
+    // https://developers.google.com/analytics/devguides/collection/gtagjs/enhanced-link-attribution
     if (gaOptions.enhancedLinkAttribution) {
       gaSetting.link_attribution = true;
     }
@@ -213,21 +213,22 @@ GTAG.prototype.loaded = function() {
 
 GTAG.prototype.identify = function(identify) {
   var userId = identify.userId();
-  if (!userId || !this.options.sendUserId) {
+  var opts = this.options;
+  if (!userId || !opts.gaOptions.sendUserId) {
     return;
   }
-  if (this.options.gaWebMeasurementId) {
-    push('config', this.options.gaWebMeasurementId, {
+  if (opts.gaWebMeasurementId) {
+    push('config', opts.gaWebMeasurementId, {
       user_id: userId
     });
   }
-  if (this.options.gaWebAppMeasurementId) {
-    push('config', this.options.gaWebAppMeasurementId, {
+  if (opts.gaWebAppMeasurementId) {
+    push('config', opts.gaWebAppMeasurementId, {
       user_id: userId
     });
   }
 
-  setCustomDimensionsAndMetrics(this.options);
+  setCustomDimensionsAndMetrics(opts);
 };
 
 /**

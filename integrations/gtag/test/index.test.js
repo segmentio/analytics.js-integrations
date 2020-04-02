@@ -131,7 +131,7 @@ describe('Gtag', function() {
 
       it('should set user id if GA is configured', function() {
         gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
-        gtag.options.sendUserId = true;
+        gtag.options.gaOptions.sendUserId = true;
         analytics.identify('userId');
         analytics.called(
           window.gtagDataLayer.push,
