@@ -114,11 +114,14 @@ GTAG.prototype.initialize = function() {
       // To Set persistent values we need to use set instead of config
       // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
 
-      gaSetting.custom_map = merge(
-        gaOptions.dimensions,
-        gaOptions.metrics,
-        gaOptions.contentGroupings
-      );
+      gaSetting.custom_map = merge(gaOptions.dimensions, gaOptions.metrics);
+
+      if (
+        gaOptions.contentGroupings &&
+        Object.keys(gaOptions.contentGroupings).length
+      ) {
+        merge(gaSetting, gaOptions.contentGroupings);
+      }
     }
 
     // https://developers.google.com/analytics/devguides/collection/gtagjs/ip-anonymization
@@ -731,21 +734,32 @@ function setCustomDimensionsAndMetrics(options) {
     if (gaOptions.setAllMappedProps) {
       // set custom dimension and metrics if present
       // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
-
-      var customMap = merge(
-        gaOptions.dimensions,
-        gaOptions.metrics,
-        gaOptions.contentGroupings
-      );
+      // For content grouping
+      // https://support.google.com/analytics/answer/7475939?hl=en#code
+      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
       if (options.gaWebMeasurementId) {
-        push('config', options.gaWebMeasurementId, {
-          custom_map: customMap
-        });
+        push(
+          'config',
+          options.gaWebMeasurementId,
+          merge(
+            {
+              custom_map: customMap
+            },
+            gaOptions.contentGroupings
+          )
+        );
       }
       if (options.gaWebAppMeasurementId) {
-        push('config', options.gaWebAppMeasurementId, {
-          custom_map: customMap
-        });
+        push(
+          'config',
+          options.gaWebAppMeasurementId,
+          merge(
+            {
+              custom_map: customMap
+            },
+            gaOptions.contentGroupings
+          )
+        );
       }
     }
   }

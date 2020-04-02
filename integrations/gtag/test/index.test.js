@@ -275,13 +275,15 @@ describe('Gtag', function() {
           window.gtagDataLayer.push,
           'config',
           'GA_WEB_MEASUREMENT_ID',
-          {
-            custom_map: GTAG.merge(
-              gtag.options.gaOptions.dimensions,
-              gtag.options.gaOptions.metrics,
-              gtag.options.gaOptions.contentGroupings
-            )
-          }
+          GTAG.merge(
+            {
+              custom_map: GTAG.merge(
+                gtag.options.gaOptions.dimensions,
+                gtag.options.gaOptions.metrics
+              )
+            },
+            gtag.options.gaOptions.contentGroupings
+          )
         );
       });
 
