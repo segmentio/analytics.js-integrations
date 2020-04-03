@@ -2071,7 +2071,7 @@ describe('Google Analytics', function() {
             currency: 'CAD',
             step: 2,
             paymentMethod: 'Visa',
-            shippingMethod: 'FedEx'
+            shipping_method: 'FedEx'
           });
 
           analytics.assert(window.ga.args.length === 4);
@@ -2105,13 +2105,32 @@ describe('Google Analytics', function() {
           analytics.assert(window.ga.args.length === 0);
         });
 
-        it('should not send checkout step completed data without an option', function() {
+        it('should send checkout step completed data without an option', function() {
           analytics.track('checkout step completed', {
             currency: 'CAD',
             step: 2
           });
 
-          analytics.assert(window.ga.args.length === 0);
+          analytics.assert(window.ga.args.length === 4);
+          analytics.deepEqual(toArray(window.ga.args[1]), [
+            'set',
+            '&cu',
+            'CAD'
+          ]);
+          analytics.deepEqual(toArray(window.ga.args[2]), [
+            'ec:setAction',
+            'checkout_option',
+            {
+              step: 2,
+              option: undefined
+            }
+          ]);
+          analytics.deepEqual(toArray(window.ga.args[3]), [
+            'send',
+            'event',
+            'Checkout',
+            'Option'
+          ]);
         });
 
         it('should send simple order completed data', function() {
