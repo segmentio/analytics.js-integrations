@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-gtag",
   "description": "The Gtag analytics.js integration.",
-  "version": "1.0.0",
+  "version": "1.0.0-beta",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
