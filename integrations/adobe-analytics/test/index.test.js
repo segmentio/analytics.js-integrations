@@ -1181,7 +1181,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it.only('should send custom metdata in properties on Video Playback Started', function() {
+      it('should send custom metdata in properties on Video Playback Started', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           video_genre: 'Reality, Game Show, Music',
@@ -1204,7 +1204,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it.only('should send custom metdata in properties and context on Video Playback Started', function() {
+      it('should send custom metdata in properties and context on Video Playback Started', function() {
         analytics.track(
           'Video Playback Started',
           {
