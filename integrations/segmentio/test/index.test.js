@@ -1521,6 +1521,7 @@ describe('Segment.io', function() {
     var headers = { 'Content-Type': 'application/json' };
 
     it('should timeout', function(done) {
+      this.skip(); // disabling this test for now, ticket https://segment.atlassian.net/browse/LIB-1723
       if (send.type !== 'xhr') return done();
 
       Segment.sendJsonWithTimeout(url, [1, 2, 3], headers, 1, function(err) {
