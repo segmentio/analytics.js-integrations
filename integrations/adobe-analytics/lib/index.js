@@ -1082,6 +1082,7 @@ function createStandardVideoMetadata(track, mediaObj) {
 function createCustomVideoMetadataContext(track, options) {
   var contextData = {};
 
+  //Check properties object for `settings.contextValue` mappings to assign custom metadata
   var properties = extractProperties(trample(track.properties()), options);
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
@@ -1089,6 +1090,15 @@ function createCustomVideoMetadataContext(track, options) {
     }
     contextData[key] = value;
   }, properties);
+
+  //Check properties object for `settings.contextValue` mappings to assign custom metadata
+  var contextFields = extractProperties(trample(track.context()), options);
+  each(function(value, key) {
+    if (!key || value === undefined || value === null || value === '') {
+      return;
+    }
+    contextData[key] = value;
+  }, contextFields);
   return contextData;
 }
 
