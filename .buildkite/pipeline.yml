@@ -1,7 +1,7 @@
 env:
-  SEGMENT_CONTEXTS: "snyk,aws-credentials,ecr,saucelabs,npm-publish"
+  SEGMENT_CONTEXTS: 'snyk,aws-credentials,ecr,saucelabs,npm-publish'
 steps:
-  - label: ":hammer: Build and Test"
+  - label: ':hammer: Build and Test'
     command:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
@@ -11,8 +11,8 @@ steps:
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
+          paths: ['node_modules/']
+          s3_bucket_name: 'segment-buildkite-cache'
       - docker#v3.3.0:
           image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
           user: root
@@ -23,17 +23,16 @@ steps:
 
   - wait: ~
 
-  - label: ":hammer: Synk Setup"
+  - label: ':hammer: Synk Setup'
     plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.0.0:
+      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.3.0:
           runtime: npm
+          fail-on: upgradable
+          severity-threshold: high
 
   - wait: ~
 
-  - label: ":cloud: Publish"
+  - label: ':cloud: Publish'
     branches: master
     commands:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
@@ -41,7 +40,7 @@ steps:
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
+          paths: ['node_modules/']
       - docker#v3.3.0:
           image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
           user: root
