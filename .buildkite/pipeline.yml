@@ -21,8 +21,6 @@ steps:
             - SAUCE_USERNAME
             - SAUCE_ACCESS_KEY
 
-  - wait: ~
-
   - label: ':hammer: Synk Setup'
     plugins:
       - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.3.0:
