@@ -204,7 +204,7 @@ Appboy.prototype.identify = function(identify) {
     this.appboyInitialize(userId, options, config);
   }
 
-  if (!this.hasBeenInitialized) {
+  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
     return;
   }
 
@@ -306,7 +306,7 @@ Appboy.prototype.identify = function(identify) {
  */
 
 Appboy.prototype.group = function(group) {
-  if (!this.hasBeenInitialized) {
+  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
     return;
   }
   var userId = group.userId();
@@ -328,7 +328,7 @@ Appboy.prototype.group = function(group) {
  */
 
 Appboy.prototype.track = function(track) {
-  if (!this.hasBeenInitialized) {
+  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
     return;
   }
   var userId = track.userId();
@@ -365,7 +365,7 @@ Appboy.prototype.track = function(track) {
  */
 
 Appboy.prototype.page = function(page) {
-  if (!this.hasBeenInitialized) {
+  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
     return;
   }
   var settings = this.options;
@@ -395,7 +395,7 @@ Appboy.prototype.page = function(page) {
  */
 
 Appboy.prototype.orderCompleted = function(track) {
-  if (!this.hasBeenInitialized) {
+  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
     return;
   }
   var userId = track.userId();
