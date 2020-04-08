@@ -60,6 +60,7 @@ describe('Appboy', function() {
         .option('enableHtmlInAppMessages', false)
         .option('trackAllPages', false)
         .option('trackNamedPages', false)
+        .option('onlyTrackKnownUsersOnWeb', false)
         .option('customEndpoint', '')
         .option('logPurchaseWhenRevenuePresent', false)
         .option('version', 1)
@@ -449,12 +450,6 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype.setPhoneNumber,
           '555-555-5555'
         );
-        // Verify new functionality.
-
-        // analytics.called(window.appboy.initialize);
-        // TODO(Marcus) Fix test. Instead of test here, need to move
-        // out to a new top level describe that has different configuration
-        // since at this point `this.hasBeenInitialized` already equals `true`.
       });
     });
 
