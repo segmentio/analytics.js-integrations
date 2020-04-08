@@ -34,6 +34,9 @@ If you need to add an external dependency to an integration, **please ensure you
 ### Running Tests
 Each integration directory has an npm script called `test` that you can use to easily run the unit tests with via `yarn test`.
 
+### Test Locally
+You can test changes to integraitons locally with the [a.js compiler](https://github.com/segmentio/analytics.js-integrations/tree/master/compiler).
+
 ### Code Formatting
 This project uses eslint to ensure uniform code formatting standards are maintained. You can see the specific eslint config in the root `.eslintrc` file. A pre-commit hook is used to help automate this process for you.
 
