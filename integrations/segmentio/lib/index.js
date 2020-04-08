@@ -330,8 +330,10 @@ Segment.prototype.normalize = function(message) {
  */
 
 Segment.prototype.ampId = function(ctx) {
-  var ampId = this.cookie('segment_amp_id');
-  if (ampId) ctx.amp = { id: ampId };
+  var ampId = this.cookie('_ga');
+  if (ampId) {
+    if (ampId.slice(0, 3) === 'amp') ctx.amp = { id: ampId };
+  }
 };
 
 /**
