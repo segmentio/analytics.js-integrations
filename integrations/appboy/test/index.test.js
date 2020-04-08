@@ -400,57 +400,6 @@ describe('Appboy', function() {
         );
         analytics.didNotCall(window.appboy.initialize);
       });
-
-      it('with onlyTrackKnownUsersOnWeb enabled should call each Appboy method for standard traits and openSession', function() {
-        // Setup
-        appboy.options.onlyTrackKnownUsersOnWeb = true;
-
-        // Action
-        analytics.identify('userId', {
-          firstName: 'Alex',
-          lastName: 'Noonan',
-          phone: '555-555-5555',
-          email: 'alex@email.com',
-          avatar:
-            'https://s-media-cache-ak0.pinimg.com/736x/39/b9/75/39b9757ac27c6eabba292d71a63def2c.jpg',
-          gender: 'woman',
-          birthday: '1991-09-16T00:00:00.000Z',
-          address: {
-            city: 'Dublin',
-            country: 'Ireland'
-          }
-        });
-
-        // Verify
-        // Regression testing.
-        analytics.called(window.appboy.changeUser, 'userId');
-        analytics.called(
-          window.appboy.ab.User.prototype.setAvatarImageUrl,
-          'https://s-media-cache-ak0.pinimg.com/736x/39/b9/75/39b9757ac27c6eabba292d71a63def2c.jpg'
-        );
-        analytics.called(window.appboy.ab.User.prototype.setCountry, 'Ireland');
-        analytics.called(
-          window.appboy.ab.User.prototype.setDateOfBirth,
-          1991,
-          9,
-          16
-        );
-        analytics.called(
-          window.appboy.ab.User.prototype.setEmail,
-          'alex@email.com'
-        );
-        analytics.called(window.appboy.ab.User.prototype.setFirstName, 'Alex');
-        analytics.called(window.appboy.ab.User.prototype.setHomeCity, 'Dublin');
-        analytics.called(
-          window.appboy.ab.User.prototype.setGender,
-          window.appboy.ab.User.Genders.FEMALE
-        );
-        analytics.called(window.appboy.ab.User.prototype.setLastName, 'Noonan');
-        analytics.called(
-          window.appboy.ab.User.prototype.setPhoneNumber,
-          '555-555-5555'
-        );
-      });
     });
 
     describe('#group', function() {
@@ -459,6 +408,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype,
           'setCustomUserAttribute'
         );
+        analytics.stub(window.appboy, 'initialize');
       });
 
       it('should send group calls with group ID as a custom field', function() {
@@ -470,6 +420,7 @@ describe('Appboy', function() {
           'ab_segment_group_0e8c78ea9d97a7b8185e8632',
           true
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
     });
 
@@ -477,11 +428,13 @@ describe('Appboy', function() {
       beforeEach(function() {
         analytics.stub(window.appboy, 'logCustomEvent');
         analytics.stub(window.appboy, 'logPurchase');
+        analytics.stub(window.appboy, 'initialize');
       });
 
       it('should send an event', function() {
         analytics.track('event');
         analytics.called(window.appboy.logCustomEvent, 'event');
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should send all properties', function() {
@@ -665,12 +618,14 @@ describe('Appboy', function() {
     describe('#page', function() {
       beforeEach(function() {
         analytics.stub(window.appboy, 'logCustomEvent');
+        analytics.stub(window.appboy, 'initialize');
       });
 
       it('should send a page view if trackAllPages is enabled', function() {
         appboy.options.trackAllPages = true;
         analytics.page();
         analytics.called(window.appboy.logCustomEvent, 'Loaded a Page');
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should send a page view if trackNamedPages is enabled', function() {

@@ -45,7 +45,7 @@ var Appboy = (module.exports = integration('Appboy')
     '<script src="https://js.appboycdn.com/web-sdk/2.4/appboy.min.js">'
   ));
 
-function appboyInitialize(userId, options, config) {
+Appboy.prototype.appboyInitialize = function(userId, options, config) {
   window.appboy.initialize(options.apiKey, config);
 
   if (options.automaticallyDisplayMessages)
@@ -53,7 +53,7 @@ function appboyInitialize(userId, options, config) {
   if (userId) window.appboy.changeUser(userId);
 
   window.appboy.openSession();
-}
+};
 
 Appboy.prototype.initialize = function() {
   if (appboyUtil.isVersionTwo(this.options)) {
@@ -109,7 +109,7 @@ Appboy.prototype.initializeV1 = function() {
       self.hasBeenInitialized = true;
       var config = appboyUtil.getConfig(options);
       self.initializeTester(options.apiKey, config);
-      appboyInitialize(userId, options, config);
+      self.appboyInitialize(userId, options, config);
     }
 
     self.ready();
@@ -157,7 +157,7 @@ Appboy.prototype.initializeV2 = function() {
     this.hasBeenInitialized = true;
     var config = appboyUtil.getConfig(options);
     this.initializeTester(options.apiKey, config);
-    appboyInitialize(userId, options, config);
+    this.appboyInitialize(userId, options, config);
   }
 
   this.load('v2', this.ready);
@@ -201,7 +201,7 @@ Appboy.prototype.identify = function(identify) {
     this.hasBeenInitialized = true;
     var config = appboyUtil.getConfig(options);
     this.initializeTester(options.apiKey, config);
-    appboyInitialize(userId, options, config);
+    this.appboyInitialize(userId, options, config);
   }
 
   if (!this.hasBeenInitialized) {

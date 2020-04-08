@@ -11,7 +11,7 @@ describe('Appboy with onlyTrackKnownUsersOnWeb enabled', function() {
   var appboy;
   var options = {
     apiKey: '7c664901-d8c0-4f82-80bf-e7e7a24478e8',
-    automaticallyDisplayMessages: true,
+    automaticallyDisplayMessages: false,
     safariWebsitePushId: '',
     enableHtmlInAppMessages: false,
     trackAllPages: false,
@@ -21,6 +21,9 @@ describe('Appboy with onlyTrackKnownUsersOnWeb enabled', function() {
     onlyTrackKnownUsersOnWeb: true, // Default off.
     logPurchaseWhenRevenuePresent: false
   };
+  var defaultInitializeArgs = [
+    [options.apiKey, { baseUrl: 'https://sdk.iad-01.braze.com/api/v3' }]
+  ];
 
   beforeEach(function() {
     analytics = new Analytics();
@@ -172,143 +175,87 @@ describe('Appboy with onlyTrackKnownUsersOnWeb enabled', function() {
     });
   });
 
-  // TODO(Marcus) Complete automated tests.
-  //  describe('after loading', function() {
-  //    beforeEach(function(done) {
-  //      analytics.once('ready', done);
-  //      analytics.initialize();
-  //    });
-  //
-  //    describe('#identify', function() {
-  //      beforeEach(function() {
-  //        analytics.stub(window.appboy, 'changeUser');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setFirstName');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setLastName');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setPhoneNumber');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setEmail');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setAvatarImageUrl');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setHomeCity');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setCountry');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setDateOfBirth');
-  //        analytics.stub(window.appboy.ab.User.prototype, 'setGender');
-  //        analytics.stub(
-  //          window.appboy.ab.User.prototype,
-  //          'setCustomUserAttribute'
-  //        );
-  //        analytics.stub(window.appboy, 'initialize');
-  //      });
-  //
-  //      it('should call each Appboy method for standard traits', function() {
-  //        analytics.identify('userId', {
-  //          firstName: 'Alex',
-  //          lastName: 'Noonan',
-  //          phone: '555-555-5555',
-  //          email: 'alex@email.com',
-  //          avatar:
-  //            'https://s-media-cache-ak0.pinimg.com/736x/39/b9/75/39b9757ac27c6eabba292d71a63def2c.jpg',
-  //          gender: 'woman',
-  //          birthday: '1991-09-16T00:00:00.000Z',
-  //          address: {
-  //            city: 'Dublin',
-  //            country: 'Ireland'
-  //          }
-  //        });
-  //        analytics.called(window.appboy.changeUser, 'userId');
-  //        analytics.called(
-  //          window.appboy.ab.User.prototype.setAvatarImageUrl,
-  //          'https://s-media-cache-ak0.pinimg.com/736x/39/b9/75/39b9757ac27c6eabba292d71a63def2c.jpg'
-  //        );
-  //        analytics.called(window.appboy.ab.User.prototype.setCountry, 'Ireland');
-  //        analytics.called(
-  //          window.appboy.ab.User.prototype.setDateOfBirth,
-  //          1991,
-  //          9,
-  //          16
-  //        );
-  //        analytics.called(
-  //          window.appboy.ab.User.prototype.setEmail,
-  //          'alex@email.com'
-  //        );
-  //        analytics.called(window.appboy.ab.User.prototype.setFirstName, 'Alex');
-  //        analytics.called(window.appboy.ab.User.prototype.setHomeCity, 'Dublin');
-  //        analytics.called(
-  //          window.appboy.ab.User.prototype.setGender,
-  //          window.appboy.ab.User.Genders.FEMALE
-  //        );
-  //        analytics.called(window.appboy.ab.User.prototype.setLastName, 'Noonan');
-  //        analytics.called(
-  //          window.appboy.ab.User.prototype.setPhoneNumber,
-  //          '555-555-5555'
-  //        );
-  //        analytics.didNotCall(window.appboy.initialize);
-  //      });
-  //
-  //    });
-  //
-  //    describe('#group', function() {
-  //      beforeEach(function() {
-  //        analytics.stub(
-  //          window.appboy.ab.User.prototype,
-  //          'setCustomUserAttribute'
-  //        );
-  //      });
-  //
-  //      it('should send group calls with group ID as a custom field', function() {
-  //        analytics.group('0e8c78ea9d97a7b8185e8632', {
-  //          name: 'Initech'
-  //        });
-  //        analytics.called(
-  //          window.appboy.ab.User.prototype.setCustomUserAttribute,
-  //          'ab_segment_group_0e8c78ea9d97a7b8185e8632',
-  //          true
-  //        );
-  //      });
-  //    });
-  //
-  //    describe('#track', function() {
-  //      beforeEach(function() {
-  //        analytics.stub(window.appboy, 'logCustomEvent');
-  //        analytics.stub(window.appboy, 'logPurchase');
-  //      });
-  //
-  //      it('should send an event', function() {
-  //        analytics.track('event');
-  //        analytics.called(window.appboy.logCustomEvent, 'event');
-  //      });
-  //
-  //      it('should send all properties', function() {
-  //        analytics.track('event with properties', {
-  //          nickname: 'noonz',
-  //          spiritAnimal: 'rihanna',
-  //          best_friend: 'han',
-  //          number_of_friends: 12,
-  //          idols: ['beyonce', 'madonna'],
-  //          favoriteThings: { whiskers: 'on-kittins' }
-  //        });
-  //        analytics.called(
-  //          window.appboy.logCustomEvent,
-  //          'event with properties',
-  //          {
-  //            nickname: 'noonz',
-  //            spiritAnimal: 'rihanna',
-  //            best_friend: 'han',
-  //            number_of_friends: 12
-  //          }
-  //        );
-  //      });
-  //    })
-  //
-  //    describe('#page', function() {
-  //      beforeEach(function() {
-  //        analytics.stub(window.appboy, 'logCustomEvent');
-  //      });
-  //
-  //      it('should send a page view if trackAllPages is enabled', function() {
-  //        appboy.options.trackAllPages = true;
-  //        analytics.page();
-  //        analytics.called(window.appboy.logCustomEvent, 'Loaded a Page');
-  //      });
-  //    })
-  //
-  //  });
+  describe('after loading', function() {
+    var initializeTesterSpy;
+    var appboyInitializeSpy;
+    beforeEach(function(done) {
+      initializeTesterSpy = sinon.spy(appboy, 'initializeTester');
+      appboyInitializeSpy = sinon.spy(appboy, 'appboyInitialize');
+      analytics.once('ready', done);
+      analytics.initialize();
+    });
+
+    describe('#identify', function() {
+      beforeEach(function() {
+        analytics.stub(window.appboy, 'changeUser');
+        analytics.stub(window.appboy, 'initialize');
+        analytics.stub(window.appboy, 'openSession');
+      });
+
+      it('should call each Appboy method for standard traits', function() {
+        assert.deepEqual(initializeTesterSpy.args, []);
+        assert.deepEqual(appboyInitializeSpy.args, []);
+        analytics.identify('userId', {
+          firstName: 'Mr',
+          lastName: 'Sloth'
+        });
+        // Initialize is triggered by identify call.
+        analytics.called(window.appboy.initialize);
+        assert.deepEqual(initializeTesterSpy.args, defaultInitializeArgs);
+        assert.deepEqual(appboyInitializeSpy.args.length, 1);
+        analytics.called(window.appboy.changeUser, 'userId');
+      });
+    });
+
+    describe('#group', function() {
+      beforeEach(function() {
+        analytics.stub(window.appboy, 'changeUser');
+      });
+
+      it('should send group calls with group ID as a custom field after initialized', function() {
+        analytics.group('0e8c78ea9d97a7b8185e8632', {
+          name: 'Initech'
+        });
+        analytics.didNotCall(window.appboy.changeUser);
+
+        analytics.identify('newUserId');
+        analytics.group('0e8c78ea9d97a7b8185e8632', {
+          name: 'Initech'
+        });
+        analytics.called(window.appboy.changeUser, 'newUserId');
+      });
+    });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.stub(window.appboy, 'logCustomEvent');
+        analytics.stub(window.appboy, 'logPurchase');
+      });
+
+      it('should send an event once initialized', function() {
+        analytics.track('event');
+        analytics.didNotCall(window.appboy.logCustomEvent, 'event');
+
+        analytics.identify('newUserId');
+        analytics.track('event');
+        analytics.called(window.appboy.logCustomEvent, 'event');
+      });
+    });
+
+    describe('#page', function() {
+      beforeEach(function() {
+        analytics.stub(window.appboy, 'logCustomEvent');
+      });
+
+      it('should send event once initialized', function() {
+        appboy.options.trackAllPages = true;
+        analytics.page();
+        analytics.didNotCall(window.appboy.logCustomEvent, 'Loaded a Page');
+
+        analytics.identify('newUserId');
+        analytics.page();
+        analytics.called(window.appboy.logCustomEvent, 'Loaded a Page');
+      });
+    });
+  });
 });
