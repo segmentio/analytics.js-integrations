@@ -163,6 +163,13 @@ Appboy.prototype.initializeV2 = function() {
   this.load('v2', this.ready);
 };
 
+/**
+ * @returns {boolean} true if integration should handle event.
+ */
+Appboy.prototype.shouldHandleEvent = function() {
+  return !this.options.onlyTrackKnownUsersOnWeb || this.hasBeenInitialized;
+};
+
 // This is used to test window.appboy.initialize
 Appboy.prototype.initializeTester = function() {};
 
@@ -306,7 +313,7 @@ Appboy.prototype.identify = function(identify) {
  */
 
 Appboy.prototype.group = function(group) {
-  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
+  if (!this.shouldHandleEvent()) {
     return;
   }
   var userId = group.userId();
@@ -328,7 +335,7 @@ Appboy.prototype.group = function(group) {
  */
 
 Appboy.prototype.track = function(track) {
-  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
+  if (!this.shouldHandleEvent()) {
     return;
   }
   var userId = track.userId();
@@ -365,7 +372,7 @@ Appboy.prototype.track = function(track) {
  */
 
 Appboy.prototype.page = function(page) {
-  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
+  if (!this.shouldHandleEvent()) {
     return;
   }
   var settings = this.options;
@@ -395,7 +402,7 @@ Appboy.prototype.page = function(page) {
  */
 
 Appboy.prototype.orderCompleted = function(track) {
-  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
+  if (!this.shouldHandleEvent()) {
     return;
   }
   var userId = track.userId();
