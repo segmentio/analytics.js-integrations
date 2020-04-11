@@ -1,4 +1,4 @@
-# Analaytics.js-Integrations Tester
+# Analytics.js-Integrations Tester
 
 This is a simple command line tool that supports building and testing
 Analytics.js locally.
