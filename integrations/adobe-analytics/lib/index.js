@@ -526,7 +526,7 @@ function calculateTimestamp(msg, options) {
 /**
  * Updates the "events" property on window.s.
  *
- * It accepts a "base" event which is an adobe-specific event like "prodView".
+ * It accepts a "predefinedEvent" event which is an adobe-specific event like "prodView".
  * Additional events will be custom "eventXXX" events specified by the user in
  * their configuration.
  *
@@ -535,7 +535,7 @@ function calculateTimestamp(msg, options) {
  * @param  {Object} properties            The event payloads properties
  * @param  {Object|Array} eventsMap       The configured events mapping
  * @param  {Object|Array} merchEventsMap  The configured merchEvents setting mapping
- * @param  {String} base                  An Adobe-specific event (if applicable)
+ * @param  {String} predefinedEvent  An Adobe-specific event (if applicable)
  */
 
 function setEventsString(
@@ -543,10 +543,10 @@ function setEventsString(
   properties,
   eventsMap,
   merchEventsMap,
-  base
+  predefinedEvent
 ) {
   var event = eventName.toLowerCase();
-  var adobeEvents = base ? [base] : [];
+  var adobeEvents = predefinedEvent ? [predefinedEvent] : [];
 
   if (eventsMap.length > 0) {
     // iterate through event map and pull adobe events corresponding to the incoming segment event
@@ -655,6 +655,7 @@ function addContextDatum(key, value) {
         "segmentProperty": "products.price"
       }
     ]
+ *
  * Example output: [event1,event34=20,event2]
  * @api private
  * @param {Objeect|Array} merchEvents
@@ -686,48 +687,6 @@ function mapMerchEvents(merchEvent, props) {
 }
 
 /**
-* Dedupe  Merch  Event Setting
-* Example input:
-  "merchEvents": [
-      {
-        "adobeEvent": "event1",
-        "valueScope": "product",
-        "segmentProperty": "products.sku"
-      },
-      {
-        "adobeEvent": "event1",
-        "valueScope": "event",
-        "segmentProperty": "total"
-      }
-    ]
-* TODO: ADD EXAMPLE RETURN HERE (I believe it prefers event scope over product scope)
-* @param {Array} configMerchEvents
-* @return {Array}
-*/
-
-function dedupeMerchEventSettings(configMerchEvents) {
-  var dedupeSettings = {};
-  each(function(eventObject) {
-    var existingEventObject = dedupeSettings[eventObject.adobeEvent];
-    if (
-      !existingEventObject ||
-      (existingEventObject.valueScope === 'product' &&
-        eventObject.valueScope === 'event')
-    ) {
-      dedupeSettings[eventObject.adobeEvent] = eventObject;
-    }
-  }, configMerchEvents);
-
-  var res = [];
-  for (var adobeEvent in dedupeSettings) {
-    if (dedupeSettings[adobeEvent]) {
-      res.push(dedupeSettings[adobeEvent]);
-    }
-  }
-  return res;
-}
-
-/**
  * Extract values from  `settings.merchEvents`.
  *
  * Example input:
@@ -749,7 +708,6 @@ function dedupeMerchEventSettings(configMerchEvents) {
           ]
         }
       ]
- * TODO: ADD EXAMPLE RETURN HERE  and description
  * @api private
  * @param {Object} msg
  * @param {Object} settings
@@ -775,8 +733,48 @@ function getMerchConfig(msg, settings) {
     );
     config.productEVars = mapping.productEVars;
   }
-
   return config;
+}
+
+/**
+* Dedupe  Merch  Event Setting
+* Example input:
+  "merchEvents": [
+      {
+        "adobeEvent": "event1",
+        "valueScope": "product",
+        "segmentProperty": "products.sku"
+      },
+      {
+        "adobeEvent": "event1",
+        "valueScope": "event",
+        "segmentProperty": "total"
+      }
+    ]
+* @param {Array} configMerchEvents
+* @return {Array}
+*/
+
+function dedupeMerchEventSettings(configMerchEvents) {
+  var dedupeSettings = {};
+  each(function(eventObject) {
+    var existingEventObject = dedupeSettings[eventObject.adobeEvent];
+    if (
+      !existingEventObject ||
+      (existingEventObject.valueScope === 'product' &&
+        eventObject.valueScope === 'event')
+    ) {
+      dedupeSettings[eventObject.adobeEvent] = eventObject;
+    }
+  }, configMerchEvents);
+
+  var res = [];
+  for (var adobeEvent in dedupeSettings) {
+    if (dedupeSettings[adobeEvent]) {
+      res.push(dedupeSettings[adobeEvent]);
+    }
+  }
+  return res;
 }
 
 /**
