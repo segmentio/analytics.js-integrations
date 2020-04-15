@@ -1,4 +1,4 @@
-1.16.0 / 2020-04-06
+1.16.0 / 2020-04-15
 ===================
 
   * Update the AppMeasurement, VisitorAPI, and MediaSDK (previously VideoHeartBeat) libraries to be the latest
@@ -6,6 +6,7 @@
     * AppMeasurement - 2.20.0
     * VisitorAPI.js - 4.4.0
     * MediaSDK - 2.2.1
+  * Adds support for merchandising variables and events
 
 1.15.2 / 2020-02-12
 ===================
