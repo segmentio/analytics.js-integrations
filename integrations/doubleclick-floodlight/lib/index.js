@@ -80,6 +80,7 @@ Floodlight.prototype.track = function(track) {
       mappedEvents.push(item);
     }
   }
+
   var settings = this.options;
 
   // Must have events mapped and DoubleClick Advertiser ID
@@ -105,7 +106,11 @@ Floodlight.prototype.track = function(track) {
 
         if (Array.isArray(segmentProp)) {
           segmentProp = segmentProp.pop();
-          segmentPropValue = find(track.json(), segmentProp);
+          if (segmentProp === 'userId') {
+            segmentPropValue = self.analytics.user().id();
+          } else {
+            segmentPropValue = find(track.json(), segmentProp);
+          }
         } else {
           segmentPropValue = properties[segmentProp];
         }
