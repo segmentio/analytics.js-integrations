@@ -265,6 +265,60 @@ describe('DoubleClick Floodlight', function() {
         analytics.loaded(iframe);
       });
 
+      it('should fire a floodlight sales tag properly with qty default to 1 when useTransactionCounting', function() {
+        floodlight.options.useTransactionCounting = true;
+        var properties = {
+          checkout_id: 'fksdjfsdjfisjf9sdfjsd9f',
+          order_id: '50314b8e9bcf000000000000',
+          affiliation: 'Google Store',
+          total: 30,
+          revenue: 25,
+          shipping: 3,
+          tax: 2,
+          discount: 2.5,
+          coupon: 'hasbros',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '507f1f77bcf86cd799439011',
+              sku: '45790-32',
+              name: 'Monopoly: 3rd Edition',
+              price: 19,
+              quantity: 1,
+              category: 'Games'
+            },
+            {
+              product_id: '505bd76785ebb509fc183733',
+              sku: '46493-32',
+              name: 'Uno Card Game',
+              price: 3,
+              quantity: 2,
+              category: 'Games'
+            }
+          ]
+        };
+        var iframe =
+          '<iframe src="https://' +
+          options.source +
+          '.fls.doubleclick.net/activityi' +
+          ';src=' +
+          options.source +
+          ';type=' +
+          options.events[1].value.type +
+          ';cat=' +
+          options.events[1].value.cat +
+          ';qty=' +
+          1 +
+          ';cost=' +
+          properties.revenue +
+          ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
+          ';ord=50314b8e9bcf000000000000?">';
+
+        analytics.track('Order Completed', properties);
+        analytics.called(floodlight.load);
+        analytics.loaded(iframe);
+      });
+
       it('should fire a floodlight sales tag properly with top level userId when identify previously triggered', function() {
         floodlight.options.events[3] = {
           key: 'Order Completed',
