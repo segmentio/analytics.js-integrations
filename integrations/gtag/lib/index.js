@@ -23,7 +23,6 @@ var GTAG = (module.exports = integration('Gtag')
   .option('gaWebAppMeasurementId', '')
   .option('awConversionId', '')
   .option('dcFloodLightId', '')
-  .option('trackAllPages', false)
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
   .option('gaOptions', {
@@ -678,14 +677,14 @@ function trackPageViewEvent(page, options) {
   if (options.includeSearch && props.search) {
     str += props.search;
   }
-  if (options.trackAllPages) {
-    push('event', 'page_view', {
-      page_title: name || category,
-      page_location: props.url,
-      page_path: str,
-      non_interaction: nonInteraction
-    });
-  }
+
+  push('event', 'page_view', {
+    page_title: name || category,
+    page_location: props.url,
+    page_path: str,
+    non_interaction: nonInteraction
+  });
+
   if (name && options.trackNamedPages) {
     push('event', 'page_view', {
       page_title: name,
