@@ -102,9 +102,21 @@ Floodlight.prototype.track = function(track) {
       each(function(variable) {
         var floodlightProp = variable.value;
         var segmentProp = variable.key.match(/{{(.*)}}/) || variable.key;
-        var segmentPropValue;
+        if (variable.key.includes('$')) {
+          segmentProp = variable.key.split('.$.');
+        }
 
-        if (Array.isArray(segmentProp)) {
+        var segmentPropValue;
+        if (Array.isArray(segmentProp) && segmentProp[0] === 'products') {
+          segmentProp = segmentProp.pop();
+          var productPropArray = [];
+          each(function(product) {
+            if (product[segmentProp]) {
+              productPropArray.push(product[segmentProp]);
+            }
+          }, track.products());
+          segmentPropValue = productPropArray;
+        } else if (Array.isArray(segmentProp)) {
           segmentProp = segmentProp.pop();
           if (segmentProp === 'userId') {
             segmentPropValue = self.analytics.user().id();
