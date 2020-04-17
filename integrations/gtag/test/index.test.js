@@ -217,10 +217,10 @@ describe('Gtag', function() {
           {
             name: 'Pagename',
             path: '/context.html',
-            referrer: 'http://localhost:9876/?id=14075059',
+            referrer: window.document.referrer,
             search: '',
             title: '',
-            url: 'http://localhost:9876/context.html',
+            url: window.location.href,
             event: 'Viewed Pagename Page',
             non_interaction: true
           }
@@ -241,9 +241,11 @@ describe('Gtag', function() {
       it('should not track page if trackCategorizedPages set to true', function() {
         gtag.options.trackNamedPages = false;
         gtag.options.trackCategorizedPages = true;
-        // analytics.page('Pagename');
+
         analytics.page('Category', 'name');
 
+        console.log(JSON.stringify(window.gtagDataLayer.push.args, null, 4));
+        console.log(window.document.referrer);
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
           page_title: 'Category name',
           page_location: window.location.href,
@@ -258,10 +260,10 @@ describe('Gtag', function() {
             name: 'name',
             category: 'Category',
             path: '/context.html',
-            referrer: 'http://localhost:9876/?id=14075059',
+            referrer: window.document.referrer,
             search: '',
             title: '',
-            url: 'http://localhost:9876/context.html',
+            url: window.location.href,
             event: 'Viewed Category Page',
             non_interaction: true
           }
