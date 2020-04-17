@@ -275,7 +275,7 @@ GTAG.prototype.track = function(track, params) {
 
 GTAG.prototype.page = function(page) {
   setCustomDimensionsAndMetrics(this.options);
-  trackPageViewEvent(page, this.options);
+  this.trackPageViewEvent(page, this.options);
 };
 
 /**
@@ -285,7 +285,7 @@ GTAG.prototype.page = function(page) {
  */
 
 GTAG.prototype.pageClassic = function(page) {
-  trackPageViewEvent(page, this.options);
+  this.trackPageViewEvent(page, this.options);
 };
 
 /**
@@ -667,10 +667,11 @@ GTAG.prototype.timingCompletedEnhanced = function(track) {
  * @param  opt
  */
 
-function trackPageViewEvent(page, options) {
+GTAG.prototype.trackPageViewEvent = function(page, options) {
   var name = page.fullName();
   var category = page.category();
   var props = page.properties();
+  var track;
 
   var nonInteraction = !!(options && options.nonInteraction);
   var str = props.path;
@@ -686,22 +687,14 @@ function trackPageViewEvent(page, options) {
   });
 
   if (name && options.trackNamedPages) {
-    push('event', 'page_view', {
-      page_title: name,
-      page_location: props.url,
-      page_path: str,
-      non_interaction: true
-    });
+    track = page.track(name);
+    this.track(track, { nonInteraction: 1 });
   }
   if (category && options.trackCategorizedPages) {
-    push('event', 'page_view', {
-      page_title: name + category,
-      page_location: props.url,
-      page_path: str,
-      non_interaction: true
-    });
+    track = page.track(category);
+    this.track(track, { nonInteraction: 1 });
   }
-}
+};
 
 /**
  * Track enhanced events.

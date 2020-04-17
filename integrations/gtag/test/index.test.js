@@ -12,7 +12,6 @@ describe('Gtag', function() {
   var options = {
     gaWebAppMeasurementId: 'G_12345678',
     trackNamedPages: true,
-    trackAllPages: false,
     trackCategorizedPages: true,
     gaOptions: {},
     includeSearch: false,
@@ -44,7 +43,6 @@ describe('Gtag', function() {
         .option('awConversionId', '')
         .option('dcFloodLightId', '')
         .option('trackNamedPages', true)
-        .option('trackAllPages', false)
         .option('trackCategorizedPages', true)
         .option('gaOptions', {
           classic: false,
@@ -176,13 +174,11 @@ describe('Gtag', function() {
       });
 
       it('should track page', function() {
-        gtag.options.trackAllPages = true;
         analytics.page();
         analytics.called(window.gtagDataLayer.push);
       });
 
       it('should track named page', function() {
-        gtag.options.trackAllPages = true;
         analytics.page('Pagename');
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
           page_title: 'Pagename',
@@ -195,22 +191,43 @@ describe('Gtag', function() {
       it('should not track named page if option turned off ', function() {
         gtag.options.trackNamedPages = false;
         analytics.page('Pagename');
-        analytics.didNotCall(window.gtagDataLayer.push);
+        analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
+          page_title: 'Pagename',
+          page_location: window.location.href,
+          page_path: window.location.pathname,
+          non_interaction: false
+        });
+        analytics.assert(window.gtagDataLayer.push.once);
       });
 
       it('should track named page if option turned on', function() {
         gtag.options.trackNamedPages = true;
         analytics.page('Pagename');
+
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
           page_title: 'Pagename',
           page_location: window.location.href,
           page_path: window.location.pathname,
-          non_interaction: true
+          non_interaction: false
         });
+        analytics.called(
+          window.gtagDataLayer.push,
+          'event',
+          'Viewed Pagename Page',
+          {
+            name: 'Pagename',
+            path: '/context.html',
+            referrer: 'http://localhost:9876/?id=14075059',
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html',
+            event: 'Viewed Pagename Page',
+            non_interaction: true
+          }
+        );
       });
 
-      it('should track page if trackAllPages option turned on and nonInteraction passed', function() {
-        gtag.options.trackAllPages = true;
+      it('should track page when and nonInteraction passed', function() {
         gtag.options.nonInteraction = true;
         analytics.page('Pagename');
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
@@ -221,33 +238,34 @@ describe('Gtag', function() {
         });
       });
 
-      it('should not track page if set to false', function() {
-        gtag.options.trackNamedPages = false;
-        gtag.options.trackCategorizedPages = false;
-        analytics.page('Pagename');
-        analytics.page('Category', 'name');
-        analytics.didNotCall(window.gtagDataLayer.push);
-      });
-
       it('should not track page if trackCategorizedPages set to true', function() {
         gtag.options.trackNamedPages = false;
         gtag.options.trackCategorizedPages = true;
-        analytics.page('Pagename');
+        // analytics.page('Pagename');
         analytics.page('Category', 'name');
+
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
-          page_title: 'Category nameCategory',
+          page_title: 'Category name',
           page_location: window.location.href,
           page_path: window.location.pathname,
-          non_interaction: true
+          non_interaction: false
         });
-      });
-
-      it('should not track page if trackNamedPages & trackCategorizedPages set to true', function() {
-        gtag.options.trackNamedPages = true;
-        gtag.options.trackCategorizedPages = true;
-        analytics.page('Pagename');
-        analytics.page('Category', 'Pagename');
-        analytics.calledThrice(window.gtagDataLayer.push);
+        analytics.called(
+          window.gtagDataLayer.push,
+          'event',
+          'Viewed Category Page',
+          {
+            name: 'name',
+            category: 'Category',
+            path: '/context.html',
+            referrer: 'http://localhost:9876/?id=14075059',
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html',
+            event: 'Viewed Category Page',
+            non_interaction: true
+          }
+        );
       });
 
       it('should set custom dimensions if setAllMappedProps set to true', function() {
@@ -320,17 +338,16 @@ describe('Gtag', function() {
 
       it('should send the query if its included', function() {
         gtag.options.includeSearch = true;
-        gtag.options.trackCategorizedPages = true;
         analytics.page('category', 'name', {
           url: 'url',
           path: '/path',
           search: '?q=1'
         });
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
-          page_title: 'category namecategory',
+          page_title: 'category name',
           page_location: 'url',
           page_path: '/path?q=1',
-          non_interaction: true
+          non_interaction: false
         });
       });
     });
@@ -387,7 +404,6 @@ describe('GA Classic', function() {
       });
 
       it('should track page', function() {
-        gtagClassic.options.trackAllPages = true;
         analyticsClassic.page();
         analyticsClassic.called(window.gtagDataLayer.push);
       });
