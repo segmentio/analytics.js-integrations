@@ -671,7 +671,20 @@ GTAG.prototype.trackPageViewEvent = function(page, options) {
   var name = page.fullName();
   var category = page.category();
   var props = page.properties();
+  var campaign = page.proxy('context.campaign');
   var track;
+
+  if (campaign && options.gaWebMeasurementId) {
+    push('config', options.gaWebMeasurementId, {
+      campaign: campaign
+    });
+  }
+
+  if (campaign && options.gaWebAppMeasurementId) {
+    push('config', options.gaWebAppMeasurementId, {
+      campaign: campaign
+    });
+  }
 
   var nonInteraction = !!(options && options.nonInteraction);
   var str = props.path;
@@ -680,7 +693,7 @@ GTAG.prototype.trackPageViewEvent = function(page, options) {
   }
 
   push('event', 'page_view', {
-    page_title: name || category,
+    page_title: name || props.title,
     page_location: props.url,
     page_path: str,
     non_interaction: nonInteraction

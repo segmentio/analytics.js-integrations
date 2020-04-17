@@ -352,6 +352,31 @@ describe('Gtag', function() {
           non_interaction: false
         });
       });
+
+      it('should set campaign data', function() {
+        analytics.page(
+          'Pagename',
+          {},
+          {
+            campaign: {
+              source: 'Some source',
+              medium: 'Some medium'
+            }
+          }
+        );
+
+        analytics.called(
+          window.gtagDataLayer.push,
+          'config',
+          gtag.options.gaWebMeasurementId,
+          {
+            campaign: {
+              source: 'Some source',
+              medium: 'Some medium'
+            }
+          }
+        );
+      });
     });
   });
 });
