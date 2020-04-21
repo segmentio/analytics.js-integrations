@@ -397,7 +397,7 @@ describe('DoubleClick Floodlight', function() {
           ';cost=' +
           properties.revenue +
           ';dc_lat=;dc_rdid=;tag_for_child_directed_treatment=' +
-          ';ord=50314b8e9bcf000000000000;u8%5B0%5D=Games;u8%5B1%5D=Games?">';
+          ';ord=50314b8e9bcf000000000000;u8=Games%2CGames?">';
 
         analytics.identify('some_previous_userId');
         analytics.track('Order Completed', properties);

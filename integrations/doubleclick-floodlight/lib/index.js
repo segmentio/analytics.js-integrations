@@ -115,7 +115,7 @@ Floodlight.prototype.track = function(track) {
               productPropArray.push(product[segmentProp]);
             }
           }, track.products());
-          segmentPropValue = productPropArray;
+          segmentPropValue = productPropArray.join(',');
         } else if (Array.isArray(segmentProp)) {
           segmentProp = segmentProp.pop();
           if (segmentProp === 'userId') {
