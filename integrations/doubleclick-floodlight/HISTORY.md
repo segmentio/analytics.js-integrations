@@ -1,9 +1,10 @@
 1.5.1 / 2020-04-16
 ==================
 
-  * Adds support for top level `{{userId}}` proprety to be used as Custom Variable on Conversion Events. 
+  * Adds support for top level `{{userId}}` proprety to be used as Custom Variable on Conversion Events.
   * Adds support for nested products propreties (ie. `products.$.price`) to be mapped in as a comma separated array on Conversion Events.
-  
+  * Adds support to use Transaction Method instead of Items Sold for `qty` if `useTransactionCounting` setting is enabled. 
+
 1.5.0 / 2019-12-05
 ==================
 
