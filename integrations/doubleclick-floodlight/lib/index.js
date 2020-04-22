@@ -20,6 +20,7 @@ var Floodlight = (module.exports = integration('DoubleClick Floodlight')
   .option('getDoubleClickId', false)
   .option('googleNetworkId', '')
   .option('segmentWriteKey', '')
+  .option('useTransactionCounting', false)
   .tag(
     'counter',
     '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">'
@@ -159,6 +160,8 @@ Floodlight.prototype.track = function(track) {
           quantity = properties.quantity;
         }
         if (quantity) tagParams.qty = quantity;
+        // overwrite qty param with 1 if customer is using Trasaction Counting mehtod instead of Items Sold method
+        if (settings.useTransactionCounting) tagParams.qty = 1;
         // doubleclick wants revenue under this cost param, yes
         if (track.revenue()) tagParams.cost = track.revenue();
         tagParams.ord = track.proxy(tag.ordKey);
