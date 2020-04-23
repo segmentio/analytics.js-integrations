@@ -77,7 +77,13 @@ describe('Gtag', function() {
         gaOptimizeContainerId: 'GTM-XXXXX',
         gaSampleRate: 500,
         gaSiteSpeedSampleRate: 1,
-        gaUseAmpClientId: true
+        gaUseAmpClientId: true,
+        gaCustomDimensions: {
+          company: 'dimension1'
+        },
+        gaCustomMetrics: {
+          age: 'metric1'
+        }
       };
       analytics.once('ready', done);
       analytics.initialize();
@@ -87,14 +93,17 @@ describe('Gtag', function() {
       analytics.assert(window.gtagDataLayer[0] === 'config');
       analytics.assert(window.gtagDataLayer[1] === 'GA_WEB_MEASUREMENT_ID');
       analytics.deepEqual(window.gtagDataLayer[2], {
-        custom_map: {},
         anonymize_ip: true,
         cookie_domain: 'auto',
         link_attribution: true,
         optimize_id: 'GTM-XXXXX',
         sample_rate: 500,
         site_speed_sample_rate: 1,
-        use_amp_client_id: true
+        use_amp_client_id: true,
+        custom_map: {
+          dimension1: 'company',
+          metric1: 'age'
+        }
       });
       analytics.assert(window.gtagDataLayer[3] === 'config');
       analytics.assert(window.gtagDataLayer[4] === 'AW_CONVERSION_ID');
@@ -270,14 +279,14 @@ describe('Gtag', function() {
         gtag.options.trackNamedPages = true;
         gtag.options.gaSetAllMappedProps = true;
         gtag.options.gaCustomDimensions = {
-          'properties.company': 'dimension2'
+          company: 'dimension2'
         };
         gtag.options.gaCustomMetrics = {
-          'properties.age': 'metric1'
+          age: 'metric1'
         };
         gtag.options.gaContentGroupings = {
-          'properties.section': 'content_group1',
-          'properties.score': 'content_group5'
+          section: 'content_group1',
+          score: 'content_group5'
         };
         analytics.page('Page1', {
           loadTime: '100',
@@ -327,7 +336,7 @@ describe('Gtag', function() {
           {
             custom_map: GTAG.merge(
               gtag.options.gaCustomDimensions,
-              gtag.options.gaCustomDimensions
+              gtag.options.gaCustomMetrics
             )
           }
         );

@@ -106,10 +106,23 @@ GTAG.prototype.initialize = function() {
     // set custom dimension and metrics if present
     // To Set persistent values we need to use set instead of config
     // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
-    gaSetting.custom_map = merge(
+    var customMap = merge(
       this.options.gaCustomDimensions || {},
       this.options.gaCustomMetrics || {}
     );
+
+    // The dimension and metric mappings are stored as objects where the key is the
+    // event field and the value is the dimension or metric so we swap them!
+    // e.g.; { 'properties.age': 'dimension1' }
+    //
+    var customMapSwap = {};
+    for (var field in customMap) {
+      if (customMap.hasOwnProperty(field)) {
+        customMapSwap[customMap[field]] = field;
+      }
+    }
+
+    gaSetting.custom_map = customMapSwap;
 
     // https://developers.google.com/analytics/devguides/collection/gtagjs/ip-anonymization
     if (this.options.gaAnonymizeIp) {
@@ -218,8 +231,8 @@ GTAG.prototype.identify = function(identify) {
     });
   }
 
-  setContentGroups(identify, opts);
-  setCustomDimensionsAndMetrics(identify, opts);
+  setContentGroups(identify.traits(), opts);
+  setCustomDimensionsAndMetrics(identify.traits(), opts);
 };
 
 /**
@@ -243,8 +256,8 @@ GTAG.prototype.track = function(track, params) {
   var props = track.properties();
   props.event = event;
 
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   props.non_interaction =
     props.nonInteraction !== undefined
@@ -264,8 +277,8 @@ GTAG.prototype.track = function(track, params) {
  */
 
 GTAG.prototype.page = function(page) {
-  setContentGroups(page, this.options);
-  setCustomDimensionsAndMetrics(page, this.options);
+  setContentGroups(page.properties(), this.options);
+  setCustomDimensionsAndMetrics(page.properties(), this.options);
   this.trackPageViewEvent(page, this.options);
 };
 
@@ -276,8 +289,8 @@ GTAG.prototype.page = function(page) {
  */
 
 GTAG.prototype.productListViewedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('view_item_list', {
     items: getFormattedProductList(track)
@@ -291,8 +304,8 @@ GTAG.prototype.productListViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.productClickedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('select_content', {
     content_type: 'product',
@@ -307,8 +320,8 @@ GTAG.prototype.productClickedEnhanced = function(track) {
  */
 
 GTAG.prototype.productViewedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('view_item', {
     items: [getFormattedProduct(track)]
@@ -322,8 +335,8 @@ GTAG.prototype.productViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.productAddedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('add_to_cart', {
     items: [getFormattedProduct(track)]
@@ -337,8 +350,8 @@ GTAG.prototype.productAddedEnhanced = function(track) {
  */
 
 GTAG.prototype.productRemovedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('remove_from_cart', {
     items: [getFormattedProduct(track)]
@@ -352,8 +365,8 @@ GTAG.prototype.productRemovedEnhanced = function(track) {
  */
 
 GTAG.prototype.promotionViewedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('view_promotion', {
     promotions: [getFormattedPromotion(track)]
@@ -367,8 +380,8 @@ GTAG.prototype.promotionViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.promotionClickedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('select_content', {
     promotions: [getFormattedPromotion(track)]
@@ -382,8 +395,8 @@ GTAG.prototype.promotionClickedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStartedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   var coupon = track.coupon();
 
@@ -413,8 +426,8 @@ GTAG.prototype.orderUpdatedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('checkout_progress', extractCheckoutOptions(track));
 };
@@ -426,8 +439,8 @@ GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('checkout_progress', extractCheckoutOptions(track));
 };
@@ -470,8 +483,8 @@ GTAG.prototype.orderRefundedEnhanced = function(track) {
     eventData.items = getFormattedProductList(track);
   }
 
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('refund', eventData);
 };
@@ -487,8 +500,8 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
   var orderId = track.orderId();
   var props = track.properties();
 
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('purchase', {
     transaction_id: orderId,
@@ -508,8 +521,8 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
  */
 
 GTAG.prototype.productAddedToWishlistEnhanced = function(track) {
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('add_to_wishlist', {
     value: track.price(),
@@ -531,8 +544,8 @@ GTAG.prototype.productSharedEnhanced = function(track) {
     return;
   }
 
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('share', {
     method: props.share_via,
@@ -554,8 +567,8 @@ GTAG.prototype.productsSearchedEnhanced = function(track) {
     return;
   }
 
-  setContentGroups(track, this.options);
-  setCustomDimensionsAndMetrics(track, this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('search', {
     search_term: searchQuery
@@ -708,10 +721,11 @@ function trackEnhancedEvent(eventName, payload) {
  * Set custom dimensions and metrics.
  *
  * @api private
- * @param options
+ * @param {Object} props
+ * @param {Object} options
  */
 
-function setCustomDimensionsAndMetrics(msg, options) {
+function setCustomDimensionsAndMetrics(props, options) {
   if (options.gaSetAllMappedProps) {
     // set custom dimension and metrics if present
     // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
@@ -724,7 +738,7 @@ function setCustomDimensionsAndMetrics(msg, options) {
     var customMapValues = {};
     for (var field in customMap) {
       if (customMap.hasOwnProperty(field)) {
-        customMapValues[customMap[field]] = msg.proxy(field);
+        customMapValues[customMap[field]] = props[field];
       }
     }
     if (options.gaWebMeasurementId) {
@@ -745,15 +759,15 @@ function setCustomDimensionsAndMetrics(msg, options) {
  * https://support.google.com/analytics/answer/7475939?hl=en#code
  *
  * @api private
- * @param {Facade} msg
+ * @param {Object} props
  * @param {Object} opts
  */
-function setContentGroups(msg, opts) {
+function setContentGroups(props, opts) {
   if (opts.gaContentGroupings && Object.keys(opts.gaContentGroupings).length) {
     var contentGroupValues = {};
     for (var field in opts.gaContentGroupings) {
       if (opts.gaContentGroupings.hasOwnProperty(field)) {
-        contentGroupValues[opts.gaContentGroupings[field]] = msg.proxy(field);
+        contentGroupValues[opts.gaContentGroupings[field]] = props[field];
       }
     }
 
