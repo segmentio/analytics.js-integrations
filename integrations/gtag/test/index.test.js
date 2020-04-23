@@ -13,7 +13,6 @@ describe('Gtag', function() {
     gaWebAppMeasurementId: 'G_12345678',
     trackNamedPages: true,
     trackCategorizedPages: true,
-    gaOptions: {},
     includeSearch: false,
     anonymizeIp: false
   };
@@ -38,26 +37,26 @@ describe('Gtag', function() {
       GTAG,
       integration('Gtag')
         .global('gtagDataLayer')
-        .option('gaWebMeasurementId', '')
-        .option('gaWebAppMeasurementId', '')
         .option('awConversionId', '')
         .option('dcFloodLightId', '')
         .option('trackNamedPages', true)
         .option('trackCategorizedPages', true)
-        .option('gaOptions', {
-          classic: false,
-          enhancedEcommerce: false,
-          setAllMappedProps: true,
-          anonymizeIp: false,
-          domain: 'auto',
-          enhancedLinkAttribution: false,
-          optimize: '',
-          sampleRate: 100,
-          siteSpeedSampleRate: 1,
-          sendUserId: false,
-          useGoogleAmpClientId: false
-        })
-        .option('includeSearch', false)
+        .option('includeQueryString', false)
+        .option('gaWebMeasurementId', '')
+        .option('gaWebAppMeasurementId', '')
+        .option('gaCustomDimensions', {})
+        .option('gaCustomMetrics', {})
+        .option('gaContentGroupings', {})
+        .option('gaEnhancedEcommerce', false)
+        .option('gaAnonymizeIp', false)
+        .option('gaCookieDomain', 'auto')
+        .option('gaEnhancedLinkAttribution', false)
+        .option('gaOptimizeContainerId', '')
+        .option('gaSampleRate', 100)
+        .option('gaSendUserId', false)
+        .option('gaUseAmpClientId', false)
+        .option('gaSiteSpeedSampleRate', 1)
+        .option('gaSetAllMappedProps', false)
     );
   });
 
@@ -72,15 +71,13 @@ describe('Gtag', function() {
       gtag.options = {
         gaWebMeasurementId: 'GA_WEB_MEASUREMENT_ID',
         awConversionId: 'AW_CONVERSION_ID',
-        gaOptions: {
-          anonymizeIp: true,
-          domain: 'auto',
-          enhancedLinkAttribution: true,
-          optimize: 'GTM-XXXXX',
-          sampleRate: 500,
-          siteSpeedSampleRate: 1,
-          useGoogleAmpClientId: true
-        }
+        gaAnonymizeIp: true,
+        gaCookieDomain: 'auto',
+        gaEnhancedLinkAttribution: true,
+        gaOptimizeContainerId: 'GTM-XXXXX',
+        gaSampleRate: 500,
+        gaSiteSpeedSampleRate: 1,
+        gaUseAmpClientId: true
       };
       analytics.once('ready', done);
       analytics.initialize();
@@ -129,7 +126,7 @@ describe('Gtag', function() {
 
       it('should set user id if GA is configured', function() {
         gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
-        gtag.options.gaOptions.sendUserId = true;
+        gtag.options.gaSendUserId = true;
         analytics.identify('userId');
         analytics.called(
           window.gtagDataLayer.push,
@@ -244,8 +241,6 @@ describe('Gtag', function() {
 
         analytics.page('Category', 'name');
 
-        console.log(JSON.stringify(window.gtagDataLayer.push.args, null, 4));
-        console.log(window.document.referrer);
         analytics.called(window.gtagDataLayer.push, 'event', 'page_view', {
           page_title: 'Category name',
           page_location: window.location.href,
@@ -273,51 +268,52 @@ describe('Gtag', function() {
       it('should set custom dimensions if setAllMappedProps set to true', function() {
         gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
         gtag.options.trackNamedPages = true;
-        gtag.options.gaOptions = {
-          setAllMappedProps: true,
-          dimensions: {
-            company: 'dimension2'
-          },
-          metrics: {
-            age: 'metric1'
-          },
-          contentGroupings: {
-            section: 'contentGrouping1',
-            score: 'contentGrouping5'
-          }
+        gtag.options.gaSetAllMappedProps = true;
+        gtag.options.gaCustomDimensions = {
+          'properties.company': 'dimension2'
+        };
+        gtag.options.gaCustomMetrics = {
+          'properties.age': 'metric1'
+        };
+        gtag.options.gaContentGroupings = {
+          'properties.section': 'content_group1',
+          'properties.score': 'content_group5'
         };
         analytics.page('Page1', {
           loadTime: '100',
           levelAchieved: '5',
-          company: 'Google'
+          company: 'Google',
+          score: 101
         });
         analytics.called(
           window.gtagDataLayer.push,
           'config',
           'GA_WEB_MEASUREMENT_ID',
-          GTAG.merge(
-            {
-              custom_map: GTAG.merge(
-                gtag.options.gaOptions.dimensions,
-                gtag.options.gaOptions.metrics
-              )
-            },
-            gtag.options.gaOptions.contentGroupings
-          )
+          {
+            custom_map: {
+              dimension2: 'Google'
+            }
+          }
+        );
+        analytics.called(
+          window.gtagDataLayer.push,
+          'config',
+          'GA_WEB_MEASUREMENT_ID',
+          {
+            content_group5: 101
+          }
         );
       });
 
       it('should not set custom dimensions if setAllMappedProps set to false', function() {
         gtag.options.gaWebMeasurementId = 'GA_WEB_MEASUREMENT_ID';
         gtag.options.trackNamedPages = true;
-        gtag.options.gaOptions = {
-          setAllMappedProps: false,
-          dimensions: {
-            company: 'dimension2'
-          },
-          metrics: {
-            age: 'metric1'
-          }
+        gtag.options.gaSetAllMappedProps = false;
+        gtag.options.gaCustomDimensions = {
+          company: 'dimension2'
+        };
+        gtag.options.gaCustomMetrics = {
+          age: 'metric1'
         };
         analytics.page('Page1', {
           loadTime: '100',
@@ -330,8 +326,8 @@ describe('Gtag', function() {
           'GA_WEB_MEASUREMENT_ID',
           {
             custom_map: GTAG.merge(
-              gtag.options.gaOptions.dimensions,
-              gtag.options.gaOptions.metrics
+              gtag.options.gaCustomDimensions,
+              gtag.options.gaCustomDimensions
             )
           }
         );
@@ -339,7 +335,7 @@ describe('Gtag', function() {
       });
 
       it('should send the query if its included', function() {
-        gtag.options.includeSearch = true;
+        gtag.options.includeQueryString = true;
         analytics.page('category', 'name', {
           url: 'url',
           path: '/path',
@@ -381,175 +377,11 @@ describe('Gtag', function() {
   });
 });
 
-describe('GA Classic', function() {
-  var analyticsClassic;
-  var gtagClassic;
-  var settings = {
-    gaOptions: {
-      classic: true
-    },
-    gaWebMeasurementId: 'GA-120399404'
-  };
-
-  beforeEach(function() {
-    analyticsClassic = new Analytics();
-    gtagClassic = new GTAG(settings);
-    analyticsClassic.use(GTAG);
-    analyticsClassic.use(tester);
-    analyticsClassic.add(gtagClassic);
-  });
-
-  afterEach(function() {
-    analyticsClassic.restore();
-    analyticsClassic.reset();
-    gtagClassic.reset();
-    sandbox();
-  });
-
-  describe('loading', function() {
-    it('should load', function(done) {
-      analyticsClassic.load(gtagClassic, done);
-    });
-  });
-
-  describe('after loading', function() {
-    beforeEach(function(done) {
-      gtagClassic.options = {
-        gaOptions: {
-          classic: true,
-          enhancedEcommerce: false
-        },
-        gaWebMeasurementId: 'GA-120399404'
-      };
-      analyticsClassic.once('ready', done);
-      analyticsClassic.initialize();
-    });
-
-    describe('# page', function() {
-      beforeEach(function() {
-        analyticsClassic.stub(window.gtagDataLayer, 'push');
-      });
-
-      it('should track page', function() {
-        analyticsClassic.page();
-        analyticsClassic.called(window.gtagDataLayer.push);
-      });
-
-      it('should track named page', function() {
-        gtagClassic.options.trackAllPages = true;
-        analyticsClassic.page('Pagename');
-        analyticsClassic.called(
-          window.gtagDataLayer.push,
-          'event',
-          'page_view',
-          {
-            page_title: 'Pagename',
-            page_location: window.location.href,
-            page_path: window.location.pathname,
-            non_interaction: false
-          }
-        );
-      });
-    });
-
-    describe('ecommerce', function() {
-      beforeEach(function() {
-        analyticsClassic.stub(window.gtagDataLayer, 'push');
-      });
-
-      it('should call order completed', function() {
-        analyticsClassic.track('Order Completed', {
-          checkout_id: 'fksdjfsdjfisjf9sdfjsd9f',
-          order_id: '24.031608523954162',
-          affiliation: 'Whole Foods',
-          total: 27.5,
-          subtotal: 22.5,
-          revenue: 25.0,
-          shipping: 3,
-          tax: 2,
-          currency: 'USD',
-          products: [
-            {
-              product_id: 'P12345',
-              name: 'Birthday Cake',
-              price: 19,
-              quantity: 1,
-              category: 'Bakery',
-              position: '1'
-            },
-            {
-              product_id: 'P67890',
-              name: 'Apple',
-              price: 3,
-              quantity: 2,
-              category: 'Fruit',
-              position: '2'
-            }
-          ]
-        });
-
-        analyticsClassic.called(
-          window.gtagDataLayer.push,
-          'event',
-          'purchase',
-          {
-            transaction_id: '24.031608523954162',
-            affiliation: 'Whole Foods',
-            value: 27.5,
-            currency: 'USD',
-            tax: 2,
-            shipping: 3,
-            items: [
-              {
-                id: 'P12345',
-                name: 'Birthday Cake',
-                list_name: 'products',
-                category: 'Bakery',
-                list_position: 1,
-                brand: undefined,
-                variant: undefined,
-                quantity: 1,
-                price: 19
-              },
-              {
-                id: 'P67890',
-                name: 'Apple',
-                list_name: 'products',
-                category: 'Fruit',
-                list_position: 2,
-                brand: undefined,
-                variant: undefined,
-                quantity: 2,
-                price: 3
-              }
-            ],
-            non_interaction: true
-          }
-        );
-      });
-
-      it('should not track order completed if order id is missing', function() {
-        analyticsClassic.track('Order Completed', {
-          checkout_id: 'fksdjfsdjfisjf9sdfjsd9f',
-          total: 27.5
-        });
-        analyticsClassic.didNotCall(
-          window.gtagDataLayer.push,
-          'event',
-          'purchase'
-        );
-      });
-    });
-  });
-});
-
 describe('Enhanced Ecommerce', function() {
   var analyticsEnhanced;
   var gtagEnhanced;
   var settings = {
-    gaOptions: {
-      enhancedEcommerce: true
-    },
+    gaEnhancedEcommerce: true,
     gaWebMeasurementId: 'GA-120399404'
   };
 
@@ -571,10 +403,7 @@ describe('Enhanced Ecommerce', function() {
   describe('after loading', function() {
     beforeEach(function(done) {
       gtagEnhanced.options = {
-        gaOptions: {
-          classic: false,
-          enhancedEcommerce: true
-        },
+        gaEnhancedEcommerce: true,
         gaWebMeasurementId: 'GA-120399404'
       };
       analyticsEnhanced.once('ready', done);
