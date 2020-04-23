@@ -944,14 +944,20 @@ function mapProducts(
     // Note that product level currency and counter events preceed product eVars.
     // Ex: s.products="Category;ABC123;1;10;event1=1.99|event2=25;evar1=2 Day Shipping|evar2=3 Stars"
     if (eventString !== '' || productEVarstring !== '') {
-      return [category, item, quantity, total, eventString, productEVarstring]
-        .map(function(value) {
-          if (value == null) {
-            return String(value);
-          }
-          return value;
-        })
-        .join(';');
+      var test = [
+        category,
+        item,
+        quantity,
+        total,
+        eventString,
+        productEVarstring
+      ].map(function(value) {
+        if (value == null) {
+          return String(value);
+        }
+        return value;
+      });
+      return test.join(';');
     }
     return [category, item, quantity, total]
       .map(function(value) {
@@ -962,7 +968,6 @@ function mapProducts(
       })
       .join(';');
   });
-
   update(productString, 'products');
 }
 
