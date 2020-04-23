@@ -745,7 +745,8 @@ function setCustomDimensionsAndMetrics(msg, options) {
  * https://support.google.com/analytics/answer/7475939?hl=en#code
  *
  * @api private
- * @param {Track} track
+ * @param {Facade} msg
+ * @param {Object} opts
  */
 function setContentGroups(msg, opts) {
   if (opts.gaContentGroupings && Object.keys(opts.gaContentGroupings).length) {
