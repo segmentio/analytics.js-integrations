@@ -573,7 +573,11 @@ function setEventsString(
     }, merchEventsMap);
   }
 
-  var value = adobeEvents.join(',');
+  adobeEvents = adobeEvents.filter(function(item) {
+    return !!item;
+  });
+  var value =
+    adobeEvents.length > 1 ? adobeEvents.join(',') : String(adobeEvents);
   update(value, 'events');
   window.s.linkTrackEvents = value;
 }
@@ -898,7 +902,6 @@ function mapProducts(
   properties
 ) {
   if (!Array.isArray(products)) return;
-
   var productString = products.map(function(productProperties) {
     var product = new Track({ properties: productProperties });
     var category = product.category() || '';
@@ -938,19 +941,19 @@ function mapProducts(
         productProperties
       );
     }
-
-    var productVariablesArray = [category, item, quantity, total];
-    if (eventString !== '') {
-      productVariablesArray.push(eventString);
-    }
-
-    if (productEVarstring !== '') {
-      productVariablesArray.push(productEVarstring);
-    }
-
-    // Product-level currency and counter events preceed product eVars.
+    // Note that product level currency and counter events preceed product eVars.
     // Ex: s.products="Category;ABC123;1;10;event1=1.99|event2=25;evar1=2 Day Shipping|evar2=3 Stars"
-    return productVariablesArray
+    if (eventString !== '' || productEVarstring !== '') {
+      return [category, item, quantity, total, eventString, productEVarstring]
+        .map(function(value) {
+          if (value == null) {
+            return String(value);
+          }
+          return value;
+        })
+        .join(';');
+    }
+    return [category, item, quantity, total]
       .map(function(value) {
         if (value == null) {
           return String(value);
@@ -1006,6 +1009,11 @@ function mapProductEvents(merchEvents, props, product) {
       // Respect what the customer configures in the setting.
       // ex. products.cart_id
       // Only check products if "products." configured in settings.
+      if (!event.segmentProperty) {
+        // If the customer did not indicate a Segment Property in their settings to
+        // associate with the incrementor we will return early.
+        return merchMap;
+      }
       if (event.segmentProperty.startsWith('products.')) {
         var value = getProductField(event.segmentProperty, product);
         if (value && value !== 'undefined') {
