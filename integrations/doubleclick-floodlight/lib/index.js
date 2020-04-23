@@ -20,6 +20,7 @@ var Floodlight = (module.exports = integration('DoubleClick Floodlight')
   .option('getDoubleClickId', false)
   .option('googleNetworkId', '')
   .option('segmentWriteKey', '')
+  .option('useTransactionCounting', false)
   .tag(
     'counter',
     '<iframe src="https://{{ src }}.fls.doubleclick.net/activityi;src={{ src }};type={{ type }};cat={{ cat }};dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord={{ ord }}{{ customVariables }}?">'
@@ -80,6 +81,7 @@ Floodlight.prototype.track = function(track) {
       mappedEvents.push(item);
     }
   }
+
   var settings = this.options;
 
   // Must have events mapped and DoubleClick Advertiser ID
@@ -101,11 +103,27 @@ Floodlight.prototype.track = function(track) {
       each(function(variable) {
         var floodlightProp = variable.value;
         var segmentProp = variable.key.match(/{{(.*)}}/) || variable.key;
-        var segmentPropValue;
+        if (variable.key.includes('$')) {
+          segmentProp = variable.key.split('.$.');
+        }
 
-        if (Array.isArray(segmentProp)) {
+        var segmentPropValue;
+        if (Array.isArray(segmentProp) && segmentProp[0] === 'products') {
           segmentProp = segmentProp.pop();
-          segmentPropValue = find(track.json(), segmentProp);
+          var productPropArray = [];
+          each(function(product) {
+            if (product[segmentProp]) {
+              productPropArray.push(product[segmentProp]);
+            }
+          }, track.products());
+          segmentPropValue = productPropArray.join(',');
+        } else if (Array.isArray(segmentProp)) {
+          segmentProp = segmentProp.pop();
+          if (segmentProp === 'userId') {
+            segmentPropValue = self.analytics.user().id();
+          } else {
+            segmentPropValue = find(track.json(), segmentProp);
+          }
         } else {
           segmentPropValue = properties[segmentProp];
         }
@@ -142,6 +160,8 @@ Floodlight.prototype.track = function(track) {
           quantity = properties.quantity;
         }
         if (quantity) tagParams.qty = quantity;
+        // overwrite qty param with 1 if customer is using Trasaction Counting mehtod instead of Items Sold method
+        if (settings.useTransactionCounting) tagParams.qty = 1;
         // doubleclick wants revenue under this cost param, yes
         if (track.revenue()) tagParams.cost = track.revenue();
         tagParams.ord = track.proxy(tag.ordKey);
