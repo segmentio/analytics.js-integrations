@@ -847,6 +847,64 @@ describe('Adobe Analytics', function() {
           analytics.called(window.s.tl, true, 'o', 'Order Completed');
         });
 
+        it('tracks order completed with no Adobe Event/Segment Property but with product-scoped merch variables', function() {
+          adobeAnalytics.options.merchEvents.push({
+            segmentEvent: 'Order Completed',
+            merchEvents: [
+              {
+                adobeEvent: null,
+                valueScope: 'product',
+                segmentProperty: null
+              }
+            ],
+            productEVars: [
+              {
+                key: 'products.cart_id',
+                value: 'eVar33'
+              }
+            ]
+          });
+
+          analytics.track('Order Completed', {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games',
+                cart_id: '1'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games',
+                cart_id: '1'
+              }
+            ]
+          });
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00;;eVar33=1,' +
+              'Games;Uno Card Game;2;6.00;;eVar33=1'
+          );
+          analytics.assert(window.s.events === 'purchase');
+          analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
+          analytics.called(window.s.tl, true, 'o', 'Order Completed');
+        });
+
         it('tracks order completed with multiple product-scoped merch vars, no eVars', function() {
           adobeAnalytics.options.merchEvents.push({
             segmentEvent: 'Order Completed',
@@ -897,8 +955,8 @@ describe('Adobe Analytics', function() {
           });
           analytics.equal(
             window.s.products,
-            'Games;Monopoly: 3rd Edition;1;19.00;event5=2.5|event12=2.5,' +
-              'Games;Uno Card Game;2;6.00;event5=2.5|event12=2.5'
+            'Games;Monopoly: 3rd Edition;1;19.00;event5=2.5|event12=2.5;,' +
+              'Games;Uno Card Game;2;6.00;event5=2.5|event12=2.5;'
           );
           analytics.assert(window.s.events === 'purchase,event5,event12');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
