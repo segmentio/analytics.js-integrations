@@ -69,10 +69,6 @@ describe('Wootric', function() {
         analytics.assert(window.wootricSettings.version);
       });
 
-      it('should have lastPageTracked set to null', function() {
-        analytics.assert(wootric.lastPageTracked === null);
-      });
-
       it('should call #load', function() {
         analytics.called(wootric.load);
       });
@@ -276,16 +272,39 @@ describe('Wootric', function() {
 
     describe('#page', function() {
       beforeEach(function() {
-        analytics.page({});
+        analytics.page('Pricing', {
+          title: 'Segment Pricing',
+          url: 'https://segment.com/pricing',
+          path: '/pricing',
+          referrer: 'https://segment.com/warehouses'
+        });
       });
 
       it('should track the current page', function() {
-        analytics.assert(window.wootricSettings);
-        analytics.assert(wootric.lastPageTracked);
+        analytics.equal(window.wootricSettings.page_info.name, 'Pricing');
+        analytics.equal(
+          window.wootricSettings.page_info.url,
+          'https://segment.com/pricing'
+        );
+      });
+    });
+
+    describe('#group', function() {
+      beforeEach(function() {
+        analytics.group('0e8c78ea9d97a7b8185e8632', {
+          name: 'Initech',
+          industry: 'Technology',
+          employees: 329,
+          plan: 'enterprise'
+        });
       });
 
-      it('should set lastPageTracked to window location', function() {
-        analytics.assert(wootric.lastPageTracked === window.location);
+      it('should send group traits to Wootric', function() {
+        analytics.equal(
+          window.wootricSettings.group_info.id,
+          '0e8c78ea9d97a7b8185e8632'
+        );
+        analytics.equal(window.wootricSettings.group_info.name, 'Initech');
       });
     });
 
