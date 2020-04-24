@@ -727,10 +727,8 @@ function trackEnhancedEvent(eventName, payload) {
 
 function setCustomDimensionsAndMetrics(props, options) {
   if (options.gaSetAllMappedProps) {
-    // set custom dimension and metrics if present
-    // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
-    // For content grouping
-    // https://support.google.com/analytics/answer/7475939?hl=en#code
+    // Set custom dimension and metrics if present
+    // https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
     var customMap = merge(
       options.gaCustomDimensions || {},
       options.gaCustomMetrics || {}
