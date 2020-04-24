@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var push = require('global-queue')('gtagDataLayer', { wrap: false });
 var Track = require('segmentio-facade').Track;
 var reject = require('reject');
 var defaults = require('@ndhoule/defaults');
@@ -89,6 +88,11 @@ GTAG.on('construct', function(Integration) {
  */
 
 GTAG.prototype.initialize = function() {
+  window.gtagDataLayer = window.gtagDataLayer || [];
+  window.gtag = function() {
+    window.gtagDataLayer.push(arguments);
+  };
+
   var config = [];
   var that = this;
   var gaWebMeasurementId = this.options.gaWebMeasurementId;
@@ -188,7 +192,7 @@ GTAG.prototype.initialize = function() {
   this.load({ accountId: accountId }, function() {
     // Default routing.
     for (var i = 0; i < config.length; i++) {
-      push(config[i][0], config[i][1], config[i][2]);
+      window.gtag(config[i][0], config[i][1], config[i][2]);
     }
     that.ready();
   });
@@ -221,12 +225,12 @@ GTAG.prototype.identify = function(identify) {
     return;
   }
   if (opts.gaWebMeasurementId) {
-    push('config', opts.gaWebMeasurementId, {
+    window.gtag('config', opts.gaWebMeasurementId, {
       user_id: userId
     });
   }
   if (opts.gaWebAppMeasurementId) {
-    push('config', opts.gaWebAppMeasurementId, {
+    window.gtag('config', opts.gaWebAppMeasurementId, {
       user_id: userId
     });
   }
@@ -266,7 +270,7 @@ GTAG.prototype.track = function(track, params) {
 
   delete props.nonInteraction;
 
-  push('event', props.event, props);
+  window.gtag('event', props.event, props);
 };
 
 /**
@@ -654,7 +658,7 @@ GTAG.prototype.trackPageViewEvent = function(page, options) {
   var track;
 
   if (campaign && options.gaWebMeasurementId) {
-    push('config', options.gaWebMeasurementId, {
+    window.gtag('config', options.gaWebMeasurementId, {
       campaign: reject({
         name: campaign.name,
         source: campaign.source,
@@ -666,7 +670,7 @@ GTAG.prototype.trackPageViewEvent = function(page, options) {
   }
 
   if (campaign && options.gaWebAppMeasurementId) {
-    push('config', options.gaWebAppMeasurementId, {
+    window.gtag('config', options.gaWebAppMeasurementId, {
       campaign: reject({
         name: campaign.name,
         source: campaign.source,
@@ -683,7 +687,7 @@ GTAG.prototype.trackPageViewEvent = function(page, options) {
     str += props.search;
   }
 
-  push('event', 'page_view', {
+  window.gtag('event', 'page_view', {
     page_title: name || props.title,
     page_location: props.url,
     page_path: str,
@@ -708,7 +712,7 @@ GTAG.prototype.trackPageViewEvent = function(page, options) {
  * @param payload
  */
 function trackEnhancedEvent(eventName, payload) {
-  push(
+  window.gtag(
     'event',
     eventName,
     extend(payload, {
@@ -740,12 +744,12 @@ function setCustomDimensionsAndMetrics(props, options) {
       }
     }
     if (options.gaWebMeasurementId) {
-      push('config', options.gaWebMeasurementId, {
+      window.gtag('config', options.gaWebMeasurementId, {
         custom_map: reject(customMapValues)
       });
     }
     if (options.gaWebAppMeasurementId) {
-      push('config', options.gaWebAppMeasurementId, {
+      window.gtag('config', options.gaWebAppMeasurementId, {
         custom_map: reject(customMapValues)
       });
     }
@@ -770,10 +774,18 @@ function setContentGroups(props, opts) {
     }
 
     if (opts.gaWebMeasurementId) {
-      push('config', opts.gaWebMeasurementId, reject(contentGroupValues));
+      window.gtag(
+        'config',
+        opts.gaWebMeasurementId,
+        reject(contentGroupValues)
+      );
     }
     if (opts.gaWebAppMeasurementId) {
-      push('config', opts.gaWebAppMeasurementId, reject(contentGroupValues));
+      window.gtag(
+        'config',
+        opts.gaWebAppMeasurementId,
+        reject(contentGroupValues)
+      );
     }
   }
 }
