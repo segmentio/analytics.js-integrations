@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var push = require('global-queue')('gtagDataLayer', { wrap: false });
 var Track = require('segmentio-facade').Track;
 var reject = require('reject');
 var defaults = require('@ndhoule/defaults');
@@ -19,39 +18,33 @@ var extend = require('extend');
 
 var GTAG = (module.exports = integration('Gtag')
   .global('gtagDataLayer')
-  .option('gaWebMeasurementId', '')
-  .option('gaWebAppMeasurementId', '')
   .option('awConversionId', '')
   .option('dcFloodLightId', '')
-  .option('trackAllPages', false)
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .option('gaOptions', {
-    classic: false,
-    enhancedEcommerce: false,
-    setAllMappedProps: true,
-    anonymizeIp: false,
-    domain: 'auto',
-    enhancedLinkAttribution: false,
-    optimize: '',
-    sampleRate: 100,
-    siteSpeedSampleRate: 1,
-    sendUserId: false,
-    useGoogleAmpClientId: false
-  })
-  .option('includeSearch', false)
-  .option('anonymizeIp', false)
-  .option('domain', 'auto')
+  .option('includeQueryString', false)
+  .option('gaWebMeasurementId', '')
+  .option('gaWebAppMeasurementId', '')
+  .option('gaCustomDimensions', {})
+  .option('gaCustomMetrics', {})
+  .option('gaContentGroupings', {})
+  .option('gaEnhancedEcommerce', false)
+  .option('gaAnonymizeIp', false)
+  .option('gaCookieDomain', 'auto')
+  .option('gaEnhancedLinkAttribution', false)
+  .option('gaOptimizeContainerId', '')
+  .option('gaSampleRate', 100)
+  .option('gaSendUserId', false)
+  .option('gaUseAmpClientId', false)
+  .option('gaSiteSpeedSampleRate', 1)
+  .option('gaSetAllMappedProps', false)
   .tag(
     '<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}&l=gtagDataLayer">'
   ));
 
 GTAG.on('construct', function(Integration) {
   /* eslint-disable */
-  if (Integration.options.gaOptions.classic) {
-      Integration.page = Integration.pageClassic;
-      Integration.orderCompleted = Integration.orderCompletedClassic;
-    } else if (Integration.options.gaOptions.enhancedEcommerce) {
+  if (Integration.options.gaEnhancedEcommerce) {
       Integration.productListViewed = Integration.productListViewedEnhanced;
       Integration.productClicked = Integration.productClickedEnhanced;
       Integration.productViewed = Integration.productViewedEnhanced;
@@ -95,9 +88,13 @@ GTAG.on('construct', function(Integration) {
  */
 
 GTAG.prototype.initialize = function() {
+  window.gtagDataLayer = window.gtagDataLayer || [];
+  window.gtag = function() {
+    window.gtagDataLayer.push(arguments);
+  };
+
   var config = [];
   var that = this;
-  var gaOptions = this.options.gaOptions;
   var gaWebMeasurementId = this.options.gaWebMeasurementId;
   var gaWebAppMeasurementId = this.options.gaWebAppMeasurementId;
   var awConversionId = this.options.awConversionId;
@@ -109,58 +106,65 @@ GTAG.prototype.initialize = function() {
     dcFloodLightId;
   if (gaWebMeasurementId || gaWebAppMeasurementId) {
     var gaSetting = {};
-    if (gaOptions && Object.keys(gaOptions).length) {
-      // set custom dimension and metrics if present
-      // To Set persistent values we need to use set instead of config
-      // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
 
-      gaSetting.custom_map = merge(gaOptions.dimensions, gaOptions.metrics);
+    // set custom dimension and metrics if present
+    // To Set persistent values we need to use set instead of config
+    // https://developers.google.com/analytics/devguides/collection/gtagjs/setting-values
+    var customMap = merge(
+      this.options.gaCustomDimensions || {},
+      this.options.gaCustomMetrics || {}
+    );
 
-      if (
-        gaOptions.contentGroupings &&
-        Object.keys(gaOptions.contentGroupings).length
-      ) {
-        merge(gaSetting, gaOptions.contentGroupings);
+    // The dimension and metric mappings are stored as objects where the key is the
+    // event field and the value is the dimension or metric so we swap them!
+    // e.g.; { 'properties.age': 'dimension1' }
+    //
+    var customMapSwap = {};
+    for (var field in customMap) {
+      if (customMap.hasOwnProperty(field)) {
+        customMapSwap[customMap[field]] = field;
       }
     }
 
+    gaSetting.custom_map = customMapSwap;
+
     // https://developers.google.com/analytics/devguides/collection/gtagjs/ip-anonymization
-    if (gaOptions.anonymizeIp) {
+    if (this.options.gaAnonymizeIp) {
       gaSetting.anonymize_ip = true;
     }
 
     // https://developers.google.com/analytics/devguides/collection/gtagjs/cookies-user-id
-    if (gaOptions.domain) {
-      gaSetting.cookie_domain = gaOptions.domain;
+    if (this.options.gaCookieDomain) {
+      gaSetting.cookie_domain = this.options.gaCookieDomain;
     }
 
     // https://developers.google.com/analytics/devguides/collection/gtagjs/enhanced-link-attribution
-    if (gaOptions.enhancedLinkAttribution) {
+    if (this.options.gaEnhancedLinkAttribution) {
       gaSetting.link_attribution = true;
     }
 
     // https://support.google.com/optimize/answer/9183119?hl=en
-    if (gaOptions.optimize) {
-      gaSetting.optimize_id = gaOptions.optimize;
+    if (this.options.gaOptimizeContainerId) {
+      gaSetting.optimize_id = this.options.gaOptimizeContainerId;
     }
 
     // https://support.google.com/analytics/thread/7741119?hl=en
-    if (gaOptions.sampleRate) {
-      gaSetting.sample_rate = gaOptions.sampleRate;
+    if (this.options.gaSampleRate) {
+      gaSetting.sample_rate = this.options.gaSampleRate;
     }
 
-    if (gaOptions.siteSpeedSampleRate) {
-      gaSetting.site_speed_sample_rate = gaOptions.siteSpeedSampleRate;
+    if (this.options.gaSiteSpeedSampleRate) {
+      gaSetting.site_speed_sample_rate = this.options.gaSiteSpeedSampleRate;
     }
 
-    if (gaOptions.useGoogleAmpClientId) {
+    if (this.options.gaUseAmpClientId) {
       gaSetting.use_amp_client_id = true;
     }
 
     var userId = this.analytics.user().id();
 
     // https://support.google.com/analytics/thread/7741119?hl=en
-    if (gaOptions.sendUserId && userId) {
+    if (this.options.gaSendUserId && userId) {
       gaSetting.user_id = userId;
     }
 
@@ -188,7 +192,7 @@ GTAG.prototype.initialize = function() {
   this.load({ accountId: accountId }, function() {
     // Default routing.
     for (var i = 0; i < config.length; i++) {
-      push(config[i][0], config[i][1], config[i][2]);
+      window.gtag(config[i][0], config[i][1], config[i][2]);
     }
     that.ready();
   });
@@ -217,21 +221,22 @@ GTAG.prototype.loaded = function() {
 GTAG.prototype.identify = function(identify) {
   var userId = identify.userId();
   var opts = this.options;
-  if (!userId || !opts.gaOptions.sendUserId) {
+  if (!userId || !opts.gaSendUserId) {
     return;
   }
   if (opts.gaWebMeasurementId) {
-    push('config', opts.gaWebMeasurementId, {
+    window.gtag('config', opts.gaWebMeasurementId, {
       user_id: userId
     });
   }
   if (opts.gaWebAppMeasurementId) {
-    push('config', opts.gaWebAppMeasurementId, {
+    window.gtag('config', opts.gaWebAppMeasurementId, {
       user_id: userId
     });
   }
 
-  setCustomDimensionsAndMetrics(opts);
+  setContentGroups(identify.traits(), opts);
+  setCustomDimensionsAndMetrics(identify.traits(), opts);
 };
 
 /**
@@ -255,7 +260,8 @@ GTAG.prototype.track = function(track, params) {
   var props = track.properties();
   props.event = event;
 
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   props.non_interaction =
     props.nonInteraction !== undefined
@@ -264,7 +270,7 @@ GTAG.prototype.track = function(track, params) {
 
   delete props.nonInteraction;
 
-  push('event', props.event, props);
+  window.gtag('event', props.event, props);
 };
 
 /**
@@ -275,48 +281,9 @@ GTAG.prototype.track = function(track, params) {
  */
 
 GTAG.prototype.page = function(page) {
-  setCustomDimensionsAndMetrics(this.options);
-  trackPageViewEvent(page, this.options);
-};
-
-/**
- * Page (classic).
- *
- * @param {Page} page
- */
-
-GTAG.prototype.pageClassic = function(page) {
-  trackPageViewEvent(page, this.options);
-};
-
-/**
- * Completed order.
- *
- * @param {Track} track
- */
-
-GTAG.prototype.orderCompletedClassic = function(track) {
-  var total = track.total() || track.revenue() || 0;
-  var orderId = track.orderId();
-  var currency = track.currency();
-  var props = track.properties();
-
-  // orderId is required.
-  if (!orderId) {
-    return;
-  }
-
-  setCustomDimensionsAndMetrics(this.options);
-
-  trackEnhancedEvent('purchase', {
-    transaction_id: orderId,
-    affiliation: props.affiliation,
-    value: total,
-    currency: currency,
-    tax: track.tax(),
-    shipping: track.shipping(),
-    items: getFormattedProductList(track)
-  });
+  setContentGroups(page.properties(), this.options);
+  setCustomDimensionsAndMetrics(page.properties(), this.options);
+  this.trackPageViewEvent(page, this.options);
 };
 
 /**
@@ -326,7 +293,8 @@ GTAG.prototype.orderCompletedClassic = function(track) {
  */
 
 GTAG.prototype.productListViewedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('view_item_list', {
     items: getFormattedProductList(track)
@@ -340,7 +308,8 @@ GTAG.prototype.productListViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.productClickedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('select_content', {
     content_type: 'product',
@@ -355,7 +324,8 @@ GTAG.prototype.productClickedEnhanced = function(track) {
  */
 
 GTAG.prototype.productViewedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('view_item', {
     items: [getFormattedProduct(track)]
@@ -369,7 +339,8 @@ GTAG.prototype.productViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.productAddedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('add_to_cart', {
     items: [getFormattedProduct(track)]
@@ -383,7 +354,8 @@ GTAG.prototype.productAddedEnhanced = function(track) {
  */
 
 GTAG.prototype.productRemovedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('remove_from_cart', {
     items: [getFormattedProduct(track)]
@@ -397,7 +369,8 @@ GTAG.prototype.productRemovedEnhanced = function(track) {
  */
 
 GTAG.prototype.promotionViewedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('view_promotion', {
     promotions: [getFormattedPromotion(track)]
@@ -411,7 +384,8 @@ GTAG.prototype.promotionViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.promotionClickedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('select_content', {
     promotions: [getFormattedPromotion(track)]
@@ -425,7 +399,8 @@ GTAG.prototype.promotionClickedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStartedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   var coupon = track.coupon();
 
@@ -455,7 +430,8 @@ GTAG.prototype.orderUpdatedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('checkout_progress', extractCheckoutOptions(track));
 };
@@ -467,7 +443,8 @@ GTAG.prototype.checkoutStepViewedEnhanced = function(track) {
  */
 
 GTAG.prototype.checkoutStepCompletedEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('checkout_progress', extractCheckoutOptions(track));
 };
@@ -510,7 +487,8 @@ GTAG.prototype.orderRefundedEnhanced = function(track) {
     eventData.items = getFormattedProductList(track);
   }
 
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('refund', eventData);
 };
@@ -526,7 +504,8 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
   var orderId = track.orderId();
   var props = track.properties();
 
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('purchase', {
     transaction_id: orderId,
@@ -546,7 +525,8 @@ GTAG.prototype.orderCompletedEnhanced = function(track) {
  */
 
 GTAG.prototype.productAddedToWishlistEnhanced = function(track) {
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('add_to_wishlist', {
     value: track.price(),
@@ -568,7 +548,8 @@ GTAG.prototype.productSharedEnhanced = function(track) {
     return;
   }
 
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('share', {
     method: props.share_via,
@@ -590,7 +571,8 @@ GTAG.prototype.productsSearchedEnhanced = function(track) {
     return;
   }
 
-  setCustomDimensionsAndMetrics(this.options);
+  setContentGroups(track.properties(), this.options);
+  setCustomDimensionsAndMetrics(track.properties(), this.options);
 
   trackEnhancedEvent('search', {
     search_term: searchQuery
@@ -668,41 +650,59 @@ GTAG.prototype.timingCompletedEnhanced = function(track) {
  * @param  opt
  */
 
-function trackPageViewEvent(page, options) {
+GTAG.prototype.trackPageViewEvent = function(page, options) {
   var name = page.fullName();
   var category = page.category();
   var props = page.properties();
+  var campaign = page.proxy('context.campaign');
+  var track;
+
+  if (campaign && options.gaWebMeasurementId) {
+    window.gtag('config', options.gaWebMeasurementId, {
+      campaign: reject({
+        name: campaign.name,
+        source: campaign.source,
+        medium: campaign.medium,
+        content: campaign.content,
+        keyword: campaign.term
+      })
+    });
+  }
+
+  if (campaign && options.gaWebAppMeasurementId) {
+    window.gtag('config', options.gaWebAppMeasurementId, {
+      campaign: reject({
+        name: campaign.name,
+        source: campaign.source,
+        medium: campaign.medium,
+        content: campaign.content,
+        keyword: campaign.term
+      })
+    });
+  }
 
   var nonInteraction = !!(options && options.nonInteraction);
   var str = props.path;
-  if (options.includeSearch && props.search) {
+  if (options.includeQueryString && props.search) {
     str += props.search;
   }
-  if (options.trackAllPages) {
-    push('event', 'page_view', {
-      page_title: name || category,
-      page_location: props.url,
-      page_path: str,
-      non_interaction: nonInteraction
-    });
-  }
+
+  window.gtag('event', 'page_view', {
+    page_title: name || props.title,
+    page_location: props.url,
+    page_path: str,
+    non_interaction: nonInteraction
+  });
+
   if (name && options.trackNamedPages) {
-    push('event', 'page_view', {
-      page_title: name,
-      page_location: props.url,
-      page_path: str,
-      non_interaction: true
-    });
+    track = page.track(name);
+    this.track(track, { nonInteraction: 1 });
   }
   if (category && options.trackCategorizedPages) {
-    push('event', 'page_view', {
-      page_title: name + category,
-      page_location: props.url,
-      page_path: str,
-      non_interaction: true
-    });
+    track = page.track(category);
+    this.track(track, { nonInteraction: 1 });
   }
-}
+};
 
 /**
  * Track enhanced events.
@@ -712,7 +712,7 @@ function trackPageViewEvent(page, options) {
  * @param payload
  */
 function trackEnhancedEvent(eventName, payload) {
-  push(
+  window.gtag(
     'event',
     eventName,
     extend(payload, {
@@ -725,42 +725,67 @@ function trackEnhancedEvent(eventName, payload) {
  * Set custom dimensions and metrics.
  *
  * @api private
- * @param options
+ * @param {Object} props
+ * @param {Object} options
  */
 
-function setCustomDimensionsAndMetrics(options) {
-  var gaOptions = options.gaOptions || {};
-  if (gaOptions && Object.keys(gaOptions).length) {
-    if (gaOptions.setAllMappedProps) {
-      // set custom dimension and metrics if present
-      // REF: https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
-      // For content grouping
-      // https://support.google.com/analytics/answer/7475939?hl=en#code
-      var customMap = merge(gaOptions.dimensions, gaOptions.metrics);
-      if (options.gaWebMeasurementId) {
-        push(
-          'config',
-          options.gaWebMeasurementId,
-          merge(
-            {
-              custom_map: customMap
-            },
-            gaOptions.contentGroupings
-          )
-        );
+function setCustomDimensionsAndMetrics(props, options) {
+  if (options.gaSetAllMappedProps) {
+    // Set custom dimension and metrics if present
+    // https://developers.google.com/analytics/devguides/collection/gtagjs/custom-dims-mets
+    var customMap = merge(
+      options.gaCustomDimensions || {},
+      options.gaCustomMetrics || {}
+    );
+    var customMapValues = {};
+    for (var field in customMap) {
+      if (customMap.hasOwnProperty(field)) {
+        customMapValues[customMap[field]] = props[field];
       }
-      if (options.gaWebAppMeasurementId) {
-        push(
-          'config',
-          options.gaWebAppMeasurementId,
-          merge(
-            {
-              custom_map: customMap
-            },
-            gaOptions.contentGroupings
-          )
-        );
+    }
+    if (options.gaWebMeasurementId) {
+      window.gtag('config', options.gaWebMeasurementId, {
+        custom_map: reject(customMapValues)
+      });
+    }
+    if (options.gaWebAppMeasurementId) {
+      window.gtag('config', options.gaWebAppMeasurementId, {
+        custom_map: reject(customMapValues)
+      });
+    }
+  }
+}
+
+/**
+ * Set the content groups for an event.
+ * https://support.google.com/analytics/answer/7475939?hl=en#code
+ *
+ * @api private
+ * @param {Object} props
+ * @param {Object} opts
+ */
+function setContentGroups(props, opts) {
+  if (opts.gaContentGroupings && Object.keys(opts.gaContentGroupings).length) {
+    var contentGroupValues = {};
+    for (var field in opts.gaContentGroupings) {
+      if (opts.gaContentGroupings.hasOwnProperty(field)) {
+        contentGroupValues[opts.gaContentGroupings[field]] = props[field];
       }
+    }
+
+    if (opts.gaWebMeasurementId) {
+      window.gtag(
+        'config',
+        opts.gaWebMeasurementId,
+        reject(contentGroupValues)
+      );
+    }
+    if (opts.gaWebAppMeasurementId) {
+      window.gtag(
+        'config',
+        opts.gaWebAppMeasurementId,
+        reject(contentGroupValues)
+      );
     }
   }
 }
