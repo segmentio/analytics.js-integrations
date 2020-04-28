@@ -576,8 +576,7 @@ function setEventsString(
   adobeEvents = adobeEvents.filter(function(item) {
     return !!item;
   });
-  var value =
-    adobeEvents.length > 1 ? adobeEvents.join(',') : String(adobeEvents);
+  var value = adobeEvents.join(',');
   update(value, 'events');
   window.s.linkTrackEvents = value;
 }
