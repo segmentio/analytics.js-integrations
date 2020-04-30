@@ -268,8 +268,7 @@ AdobeAnalytics.prototype.page = function(page) {
   calculateTimestamp(page, this.options);
 
   // Check if any properties match mapped eVar, prop, or hVar in options
-  var properties = page.properties();
-  var props = extractProperties(properties, this.options);
+  var props = extractProperties(page, this.options);
   // Attach them to window.s and push to dynamicKeys
   each(update, props);
 
@@ -441,7 +440,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
 
   calculateTimestamp(msg, this.options);
 
-  var mappedProps = extractProperties(properties, this.options);
+  var mappedProps = extractProperties(msg, this.options);
   each(update, mappedProps);
 
   if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
@@ -609,7 +608,7 @@ function updateContextData(facade, options) {
   // There is a bug here, but it must be maintained. `extractProperties` will
   // look at *all* our mappings, but only the `contextValues` mapping should be
   // used here.
-  var contextProperties = extractProperties(trample(facade.context()), options);
+  var contextProperties = extractProperties(facade, options, 'context');
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
@@ -803,7 +802,7 @@ function clearKeys(keys) {
  * @param {Object} options
  */
 
-function extractProperties(props, options) {
+function extractProperties(facade, options, propType) {
   var result = {};
   var mappings = [
     options.eVars,
@@ -813,6 +812,14 @@ function extractProperties(props, options) {
     options.contextValues
   ];
 
+  var topLevelProperties = ['messageId', 'anonymousId'];
+
+  var props = facade.properties();
+  if (propType === 'mergedPropContext') {
+    props = merge(trample(facade.properties()), trample(facade.context()));
+  } else if (propType === 'context') {
+    props = trample(facade.context());
+  }
   // Iterate through each variable mappings to find matching props
   for (var x = 0; x < mappings.length; x++) {
     each(match, mappings[x]);
@@ -820,6 +827,14 @@ function extractProperties(props, options) {
 
   function match(mappedValue, mappedKey) {
     var value = dot(props, mappedKey);
+    // console.log(mappedKey)
+    // console.log(mappedValue)
+    // console.log(propType)
+    // this is to avoid setting eVars and other Properties to Context Data like
+    // contextData.eVar1 etc.
+    if (topLevelProperties.includes(mappedKey) && propType !== 'context') {
+      value = facade.proxy(mappedKey);
+    }
     var isarr = Array.isArray(value);
     // make sure it's an acceptable data type
     if (
@@ -1474,23 +1489,16 @@ function createStandardVideoMetadata(track, mediaObj) {
 function createCustomVideoMetadataContext(track, options) {
   var contextData = {};
 
-  //Check properties object for `settings.contextValue` mappings to assign custom metadata
-  var properties = extractProperties(trample(track.properties()), options);
-  each(function(value, key) {
-    if (!key || value === undefined || value === null || value === '') {
-      return;
-    }
-    contextData[key] = value;
-  }, properties);
 
-  //Check properties object for `settings.contextValue` mappings to assign custom metadata
-  var contextFields = extractProperties(trample(track.context()), options);
+  //Check properties & context object for `settings.contextValue` mappings to assign custom metadata
+  var extractedProperties = extractProperties(track, options, 'mergedPropContext');
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
     contextData[key] = value;
-  }, contextFields);
+  }, extractedProperties);
+
   return contextData;
 }
 
@@ -1532,4 +1540,36 @@ function createQosObject(track) {
     props.fps || 0,
     props.droppedFrames || 0
   );
+}
+
+/**
+ * Merge two javascript objects. This works similarly to `Object.assign({}, obj1, obj2)`
+ * but it's compatible with old browsers. The properties of the first argument takes preference
+ * over the other.
+ *
+ * It does not do fancy stuff, just use it with top level properties.
+ *
+ * @param {Object} obj1 Object 1
+ * @param {Object} obj2 Object 2
+ *
+ * @return {Object} a new object with all the properties of obj1 and the remainder of obj2.
+ */
+function merge(obj1, obj2) {
+  var res = {};
+
+  // All properties of obj1
+  for (var propObj1 in obj1) {
+    if (obj1.hasOwnProperty(propObj1)) {
+      res[propObj1] = obj1[propObj1];
+    }
+  }
+
+  // Extra properties of obj2
+  for (var propObj2 in obj2) {
+    if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+      res[propObj2] = obj2[propObj2];
+    }
+  }
+
+  return res;
 }

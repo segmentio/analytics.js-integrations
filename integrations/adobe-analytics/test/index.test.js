@@ -229,6 +229,30 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
       });
 
+      it('should track set top level fields (msgId and anonId) set as eVars properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'eVar2',
+          anonymousId: 'eVar3'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.eVar2);
+        analytics.assert(window.s.eVar3);
+        // console.log(window.s.eVar2)
+        // console.log(window.s.eVar3)
+        // console.log(window.s.linkTrackVars)
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'eVar2',
+            'eVar3'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('tracks aliased properties', function() {
         analytics.track('Drank Some Milk', {
           type: '2%',
