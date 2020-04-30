@@ -827,14 +827,24 @@ function extractProperties(facade, options, propType) {
 
   function match(mappedValue, mappedKey) {
     var value = dot(props, mappedKey);
-    // console.log(mappedKey)
-    // console.log(mappedValue)
-    // console.log(propType)
-    // this is to avoid setting eVars and other Properties to Context Data like
-    // contextData.eVar1 etc.
+    // On track and page calls the propType here will be empty. On video HB calls the propTyp will
+    // be 'mergedPropContext'. On those events we use  the extracted properties from this fxn to explicitly
+    // map link vars on `window.s` object.
     if (topLevelProperties.includes(mappedKey) && propType !== 'context') {
       value = facade.proxy(mappedKey);
     }
+
+    // When we are checking the context object for segment property mappings (updateContextData)
+    // we only want set top level fields to Context Data Variables.
+    var contextValueKeys = Object.keys(options.contextValues);
+    if (
+      topLevelProperties.includes(mappedKey) &&
+      propType === 'context' &&
+      contextValueKeys.includes(mappedValue)
+    ) {
+      value = facade.proxy(mappedKey);
+    }
+
     var isarr = Array.isArray(value);
     // make sure it's an acceptable data type
     if (

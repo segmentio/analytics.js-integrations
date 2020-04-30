@@ -238,9 +238,6 @@ describe('Adobe Analytics', function() {
         analytics.equal(window.s.events, 'event7');
         analytics.assert(window.s.eVar2);
         analytics.assert(window.s.eVar3);
-        // console.log(window.s.eVar2)
-        // console.log(window.s.eVar3)
-        // console.log(window.s.linkTrackVars)
         analytics.assert(
           contains(
             window.s.linkTrackVars,
@@ -278,6 +275,27 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
+      it('should track set top level fields (msgId and anonId) set as props properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'prop1',
+          anonymousId: 'prop2'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'prop1',
+            'prop2'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -293,6 +311,17 @@ describe('Adobe Analytics', function() {
           window.location.href
         );
         analytics.equal(window.s.contextData.foo, 'bar');
+        analytics.called(window.s.tl);
+      });
+
+      it('should send top level fields (msgId & anonId) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          messageId: 'messageId',
+          anonymousId: 'anonymousId'
+        };
+        analytics.track('Drank Some Milk', { foo: 'bar' });
+        analytics.assert(window.s.contextData.messageId);
+        analytics.assert(window.s.contextData.anonymousId);
         analytics.called(window.s.tl);
       });
 
