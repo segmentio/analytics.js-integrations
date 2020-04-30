@@ -227,6 +227,27 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
       });
 
+      it('should track set top level fields (msgId and anonId) set as eVars properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'eVar2',
+          anonymousId: 'eVar3'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.eVar2);
+        analytics.assert(window.s.eVar3);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'eVar2',
+            'eVar3'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('tracks aliased properties', function() {
         analytics.track('Drank Some Milk', {
           type: '2%',
@@ -252,6 +273,27 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
+      it('should track set top level fields (msgId and anonId) set as props properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'prop1',
+          anonymousId: 'prop2'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'prop1',
+            'prop2'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -267,6 +309,17 @@ describe('Adobe Analytics', function() {
           window.location.href
         );
         analytics.equal(window.s.contextData.foo, 'bar');
+        analytics.called(window.s.tl);
+      });
+
+      it('should send top level fields (msgId & anonId) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          messageId: 'messageId',
+          anonymousId: 'anonymousId'
+        };
+        analytics.track('Drank Some Milk', { foo: 'bar' });
+        analytics.assert(window.s.contextData.messageId);
+        analytics.assert(window.s.contextData.anonymousId);
         analytics.called(window.s.tl);
       });
 
@@ -1181,7 +1234,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it.only('should send custom metdata in properties on Video Playback Started', function() {
+      it('should send custom metdata in properties on Video Playback Started', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           video_genre: 'Reality, Game Show, Music',
@@ -1204,7 +1257,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it.only('should send custom metdata in properties and context on Video Playback Started', function() {
+      it('should send custom metdata in properties and context on Video Playback Started', function() {
         analytics.track(
           'Video Playback Started',
           {
