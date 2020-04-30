@@ -976,6 +976,22 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.t);
       });
 
+      it('tracks top level fields (msgId & anonId) as mapped properties', function() {
+        adobeAnalytics.options.props = {
+          anonymousId: 'prop1',
+          messageId: 'prop2'
+        };
+        analytics.page('Drank Some Milk', {
+          type: '2%',
+          hier_group2: 'Lucerne',
+          dog: true
+        });
+        analytics.equal(window.s.pageName, 'Drank Some Milk');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.called(window.s.t);
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -995,6 +1011,17 @@ describe('Adobe Analytics', function() {
           window.document.referrer
         );
         analytics.equal(window.s.contextData.url, window.location.href);
+        analytics.called(window.s.t);
+      });
+
+      it('should send top level fields (msgId & anonId) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          anonymousId: 'anonymousId',
+          messageId: 'messageId'
+        };
+        analytics.page('Page1', {});
+        analytics.assert(window.s.contextData.anonymousId);
+        analytics.assert(window.s.contextData.messageId);
         analytics.called(window.s.t);
       });
 
