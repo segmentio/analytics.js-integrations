@@ -314,12 +314,12 @@ describe('Adobe Analytics', function() {
 
       it('should send top level fields (msgId & anonId) as context properties', function() {
         adobeAnalytics.options.contextValues = {
-          messageId: 'messageId',
-          anonymousId: 'anonymousId'
+          messageId: 'messageIdAdobe',
+          anonymousId: 'anonymousIdAdobe'
         };
         analytics.track('Drank Some Milk', { foo: 'bar' });
-        analytics.assert(window.s.contextData.messageId);
-        analytics.assert(window.s.contextData.anonymousId);
+        analytics.assert(window.s.contextData.messageIdAdobe);
+        analytics.assert(window.s.contextData.anonymousIdAdobe);
         analytics.called(window.s.tl);
       });
 
