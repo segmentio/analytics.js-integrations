@@ -656,11 +656,14 @@ function clearKeys(keys) {
 }
 
 /**
- * Extract properties and context values for `window.s`.
+ * 1. Extracts properties and context values for `window.s` for `page` and `track` calls.
+ * 2. Extracts fields to update custom content metadata on video heartbeat events (from context & properties).
+ * 3. Extracts fields from context object to update context data ie. `window.s.contextData`.
  *
  * @api private
- * @param {Object} props
+ * @param {Facade} facade
  * @param {Object} options
+ * @param {String} propType
  */
 
 function extractProperties(facade, options, propType) {
