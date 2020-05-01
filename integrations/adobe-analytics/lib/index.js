@@ -702,7 +702,7 @@ function extractProperties(facade, options, propType) {
     if (
       topLevelProperties.includes(mappedKey) &&
       propType === 'context' &&
-      contextValueKeys.includes(mappedValue)
+      contextValueKeys.includes(mappedKey)
     ) {
       value = facade.proxy(mappedKey);
     }
