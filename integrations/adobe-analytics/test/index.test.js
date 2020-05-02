@@ -1803,6 +1803,24 @@ describe('Adobe Analytics', function() {
           window.ADB.va.MediaHeartbeat.Event.AdBreakComplete
         );
       });
+
+      it('should pause the playhead on Video Playback Interrupted', function() {
+        analytics.track('Video Playback Interrupted', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackPause'
+        );
+      });
     });
   });
 });

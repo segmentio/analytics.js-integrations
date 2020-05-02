@@ -180,7 +180,8 @@ AdobeAnalytics.prototype.initialize = function() {
           'video playback buffer started': heartbeatBufferStarted,
           'video playback buffer completed': heartbeatBufferCompleted,
           'video quality updated': heartbeatQualityUpdated,
-          'video content playing': heartbeatUpdatePlayhead
+          'video content playing': heartbeatUpdatePlayhead,
+          'video playback interrupted': heartbeatVideoPaused
         };
       }
 

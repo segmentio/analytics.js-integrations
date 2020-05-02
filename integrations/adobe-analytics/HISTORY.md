@@ -1,4 +1,10 @@
+1.16.1-rc.0 / 2020-05-01
+===================
+
+  * Implement Video Playback Interrupted handler.
+
 1.16.0-rc.1 / 2020-04-15
+===================
 
   * Update the AppMeasurement, VisitorAPI, and MediaSDK (previously VideoHeartBeat) libraries to be the latest
   versions:
