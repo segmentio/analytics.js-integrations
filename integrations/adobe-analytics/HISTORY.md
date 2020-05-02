@@ -1,5 +1,4 @@
 1.16.0-rc.1 / 2020-04-15
-===================
 
   * Update the AppMeasurement, VisitorAPI, and MediaSDK (previously VideoHeartBeat) libraries to be the latest
   versions:
@@ -7,6 +6,11 @@
     * VisitorAPI.js - 4.4.0
     * MediaSDK - 2.2.1
   * Adds support for merchandising variables and events
+
+1.15.3-rc.0 / 2020-05-01
+===================
+
+  * Support sending top level `messageId` and `anonymousId` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable. 
 
 1.15.2 / 2020-02-12
 ===================

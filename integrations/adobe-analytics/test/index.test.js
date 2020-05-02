@@ -229,6 +229,27 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
       });
 
+      it('should track set top level fields (msgId and anonId) set as eVars properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'eVar2',
+          anonymousId: 'eVar3'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.eVar2);
+        analytics.assert(window.s.eVar3);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'eVar2',
+            'eVar3'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('tracks aliased properties', function() {
         analytics.track('Drank Some Milk', {
           type: '2%',
@@ -254,6 +275,27 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
+      it('should track set top level fields (msgId and anonId) set as props properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'prop1',
+          anonymousId: 'prop2'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'prop1',
+            'prop2'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -269,6 +311,17 @@ describe('Adobe Analytics', function() {
           window.location.href
         );
         analytics.equal(window.s.contextData.foo, 'bar');
+        analytics.called(window.s.tl);
+      });
+
+      it('should send top level fields (msgId & anonId) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          messageId: 'messageIdAdobe',
+          anonymousId: 'anonymousIdAdobe'
+        };
+        analytics.track('Drank Some Milk', { foo: 'bar' });
+        analytics.assert(window.s.contextData.messageIdAdobe);
+        analytics.assert(window.s.contextData.anonymousIdAdobe);
         analytics.called(window.s.tl);
       });
 
@@ -1150,6 +1203,22 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.t);
       });
 
+      it('tracks top level fields (msgId & anonId) as mapped properties', function() {
+        adobeAnalytics.options.props = {
+          anonymousId: 'prop1',
+          messageId: 'prop2'
+        };
+        analytics.page('Drank Some Milk', {
+          type: '2%',
+          hier_group2: 'Lucerne',
+          dog: true
+        });
+        analytics.equal(window.s.pageName, 'Drank Some Milk');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.called(window.s.t);
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -1169,6 +1238,17 @@ describe('Adobe Analytics', function() {
           window.document.referrer
         );
         analytics.equal(window.s.contextData.url, window.location.href);
+        analytics.called(window.s.t);
+      });
+
+      it('should send top level fields (msgId & anonId) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          anonymousId: 'anonymousId',
+          messageId: 'messageId'
+        };
+        analytics.page('Page1', {});
+        analytics.assert(window.s.contextData.anonymousId);
+        analytics.assert(window.s.contextData.messageId);
         analytics.called(window.s.t);
       });
 
