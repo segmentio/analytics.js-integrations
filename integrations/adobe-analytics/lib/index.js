@@ -309,7 +309,13 @@ AdobeAnalytics.prototype.track = function(track) {
     return;
   }
 
+```suggestion
+  // 'cart opened' is not covered in our ecommerce spec and was one-off specced for this integration
+if (eventName === 'cart opened' || eventName === 'opened cart') {
+  this.processEvent(track, 'scOpen');
+} else {
   this.processEvent(track);
+};
 };
 
 /**
