@@ -1,3 +1,8 @@
+1.16.1-rc.1 / 2020-05-01
+===================
+
+  * Add support for Cart Opened events. 
+
 1.16.1-rc.0 / 2020-05-01
 ===================
 
@@ -16,7 +21,7 @@
 1.15.3-rc.0 / 2020-05-01
 ===================
 
-  * Support sending top level `messageId` and `anonymousId` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable. 
+  * Support sending top level `messageId` and `anonymousId` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.
 
 1.15.2 / 2020-02-12
 ===================
