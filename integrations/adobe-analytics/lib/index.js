@@ -314,7 +314,7 @@ AdobeAnalytics.prototype.track = function(track) {
     this.processEvent(track, 'scOpen');
   } else {
     this.processEvent(track);
-  };
+  }
 };
 
 /**
