@@ -471,13 +471,14 @@ Segment.prototype.retrieveCrossDomainId = function(callback) {
   var writeKey = this.options.apiKey;
 
   // Exclude the current domain from the list of servers we're querying
-  var currentTld = getTld(window.location.hostname);
+  // var currentTld = getTld(window.location.hostname);
   var domains = [];
   for (var i = 0; i < this.options.crossDomainIdServers.length; i++) {
     var domain = this.options.crossDomainIdServers[i];
-    if (getTld(domain) !== currentTld) {
-      domains.push(domain);
-    }
+    domains.push(domain);
+    // if (getTld(domain) !== currentTld) {
+    //   domains.push(domain);
+    // }
   }
 
   getCrossDomainIdFromServerList(domains, writeKey, function(err, res) {
@@ -525,9 +526,7 @@ Segment.prototype.retrieveCrossDomainId = function(callback) {
  */
 Segment.prototype.getCachedCrossDomainId = function() {
   if (this.options.saveCrossDomainIdInLocalStorage) {
-    if (localstorage('seg_xid') !== null) {
-      return localstorage('seg_xid');
-    }
+    return localstorage('seg_xid');
   }
   return this.cookie('seg_xid');
 };
