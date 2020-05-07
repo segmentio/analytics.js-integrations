@@ -1117,26 +1117,6 @@ describe('Segment.io', function() {
             }
 
             describe('with ' + scenario, function() {
-              it('should generate xid locally if there is only one (current hostname) server', function() {
-                segment.options.crossDomainIdServers = ['localhost'];
-                segment.options.saveCrossDomainIdInLocalStorage =
-                  cases[scenario];
-
-                var res = null;
-                segment.retrieveCrossDomainId(function(err, response) {
-                  res = response;
-                });
-
-                var identify = segment.onidentify.args[0];
-                var crossDomainId = identify[0].traits().crossDomainId;
-                analytics.assert(crossDomainId);
-
-                analytics.assert(res.crossDomainId === crossDomainId);
-                analytics.assert(res.fromDomain === 'localhost');
-
-                assert.equal(segment.getCachedCrossDomainId(), crossDomainId);
-              });
-
               it('should obtain crossDomainId', function() {
                 server.respondWith(
                   'GET',
@@ -1194,6 +1174,15 @@ describe('Segment.io', function() {
                     '{ "id": null }'
                   ]
                 );
+                server.respondWith(
+                  'GET',
+                  'https://localhost/v1/id/' + segment.options.apiKey,
+                  [
+                    200,
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": null }'
+                  ]
+                );
                 if (segment.options.saveCrossDomainIdInLocalStorage) {
                   server.respondWith('GET', /https:\/\/localhost\/v1\/saveId/, [
                     200,
@@ -1237,12 +1226,17 @@ describe('Segment.io', function() {
                     segment.options.apiKey,
                   [500, { 'Content-Type': 'application/json' }, '']
                 );
+                server.respondWith(
+                  'GET',
+                  'https://localhost/v1/id/' + segment.options.apiKey,
+                  [500, { 'Content-Type': 'application/json' }, '']
+                );
                 server.respond();
 
                 var identify = segment.onidentify.args[0];
                 analytics.assert(!identify);
                 analytics.assert(!res);
-                analytics.assert(err === 'Internal Server Error');
+                analytics.assert.equal(err, 'Internal Server Error');
 
                 assert.equal(segment.getCachedCrossDomainId(), null);
               });
@@ -1264,6 +1258,15 @@ describe('Segment.io', function() {
                   'GET',
                   'https://userdata.example1.com/v1/id/' +
                     segment.options.apiKey,
+                  [
+                    200,
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": null }'
+                  ]
+                );
+                server.respondWith(
+                  'GET',
+                  'https://localhost/v1/id/' + segment.options.apiKey,
                   [
                     200,
                     { 'Content-Type': 'application/json' },
