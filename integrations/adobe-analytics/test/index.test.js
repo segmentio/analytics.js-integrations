@@ -23,6 +23,7 @@ describe('Adobe Analytics', function() {
       { segmentEvent: 'Drank Some Milk', adobeEvents: ['event6'] },
       { segmentEvent: 'Overlord exploded', adobeEvents: ['event7'] }
     ],
+    merchEvents: [],
     eVars: {
       Car: 'eVar1',
       Dog: 'eVar47',
@@ -81,6 +82,7 @@ describe('Adobe Analytics', function() {
         .global('s')
         .global('s_gi')
         .option('events', {})
+        .option('merchEvents', [])
         .option('eVars', {})
         .option('props', {})
         .option('hVars', {})
@@ -227,6 +229,27 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
       });
 
+      it('should track set top level fields (msgId and anonId) set as eVars properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'eVar2',
+          anonymousId: 'eVar3'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.eVar2);
+        analytics.assert(window.s.eVar3);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'eVar2',
+            'eVar3'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('tracks aliased properties', function() {
         analytics.track('Drank Some Milk', {
           type: '2%',
@@ -252,6 +275,27 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
+      it('should track set top level fields (msgId and anonId) set as props properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'prop1',
+          anonymousId: 'prop2'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'prop1',
+            'prop2'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -267,6 +311,17 @@ describe('Adobe Analytics', function() {
           window.location.href
         );
         analytics.equal(window.s.contextData.foo, 'bar');
+        analytics.called(window.s.tl);
+      });
+
+      it('should send top level fields (msgId & anonId) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          messageId: 'messageIdAdobe',
+          anonymousId: 'anonymousIdAdobe'
+        };
+        analytics.track('Drank Some Milk', { foo: 'bar' });
+        analytics.assert(window.s.contextData.messageIdAdobe);
+        analytics.assert(window.s.contextData.anonymousIdAdobe);
         analytics.called(window.s.tl);
       });
 
@@ -736,6 +791,231 @@ describe('Adobe Analytics', function() {
           }
         });
 
+        it('tracks order completed with event-scoped merch variables', function() {
+          adobeAnalytics.options.merchEvents.push({
+            segmentEvent: 'Order Completed',
+            merchEvents: [
+              {
+                adobeEvent: 'event5',
+                valueScope: 'event',
+                segmentProperty: 'total'
+              }
+            ],
+            productEvars: []
+          });
+
+          analytics.track('Order Completed', {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games'
+              }
+            ]
+          });
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00,' +
+              'Games;Uno Card Game;2;6.00'
+          );
+          analytics.assert(window.s.events === 'purchase,event5=30');
+          analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
+          analytics.called(window.s.tl, true, 'o', 'Order Completed');
+        });
+
+        it('tracks order completed with product-scoped merch variables', function() {
+          adobeAnalytics.options.merchEvents.push({
+            segmentEvent: 'Order Completed',
+            merchEvents: [
+              {
+                adobeEvent: 'event5',
+                valueScope: 'product',
+                segmentProperty: 'discount'
+              }
+            ],
+            productEVars: [
+              {
+                key: 'products.cart_id',
+                value: 'eVar33'
+              }
+            ]
+          });
+
+          analytics.track('Order Completed', {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games',
+                cart_id: '1'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games',
+                cart_id: '1'
+              }
+            ]
+          });
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00;event5=2.5;eVar33=1,' +
+              'Games;Uno Card Game;2;6.00;event5=2.5;eVar33=1'
+          );
+          analytics.assert(window.s.events === 'purchase,event5');
+          analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
+          analytics.called(window.s.tl, true, 'o', 'Order Completed');
+        });
+
+        it('tracks order completed with no Adobe Event/Segment Property but with product-scoped merch variables', function() {
+          adobeAnalytics.options.merchEvents.push({
+            segmentEvent: 'Order Completed',
+            merchEvents: [
+              {
+                adobeEvent: null,
+                valueScope: 'product',
+                segmentProperty: null
+              }
+            ],
+            productEVars: [
+              {
+                key: 'products.cart_id',
+                value: 'eVar33'
+              }
+            ]
+          });
+
+          analytics.track('Order Completed', {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games',
+                cart_id: '1'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games',
+                cart_id: '1'
+              }
+            ]
+          });
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00;;eVar33=1,' +
+              'Games;Uno Card Game;2;6.00;;eVar33=1'
+          );
+          analytics.assert(window.s.events === 'purchase');
+          analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
+          analytics.called(window.s.tl, true, 'o', 'Order Completed');
+        });
+
+        it('tracks order completed with multiple product-scoped merch vars, no eVars', function() {
+          adobeAnalytics.options.merchEvents.push({
+            segmentEvent: 'Order Completed',
+            merchEvents: [
+              {
+                adobeEvent: 'event5',
+                valueScope: 'product',
+                segmentProperty: 'discount'
+              },
+              {
+                adobeEvent: 'event12',
+                valueScope: 'product',
+                segmentProperty: 'discount'
+              }
+            ],
+            productEVars: []
+          });
+
+          analytics.track('Order Completed', {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games',
+                cart_id: '1'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games',
+                cart_id: '1'
+              }
+            ]
+          });
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00;event5=2.5|event12=2.5;,' +
+              'Games;Uno Card Game;2;6.00;event5=2.5|event12=2.5;'
+          );
+          analytics.assert(window.s.events === 'purchase,event5,event12');
+          analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
+          analytics.called(window.s.tl, true, 'o', 'Order Completed');
+        });
+
         it('tracks cart viewed', function() {
           analytics.track('Cart Viewed', {
             cart_id: 'd92jd29jd92jd29j92d92jd',
@@ -923,6 +1203,22 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.t);
       });
 
+      it('tracks top level fields (msgId & anonId) as mapped properties', function() {
+        adobeAnalytics.options.props = {
+          anonymousId: 'prop1',
+          messageId: 'prop2'
+        };
+        analytics.page('Drank Some Milk', {
+          type: '2%',
+          hier_group2: 'Lucerne',
+          dog: true
+        });
+        analytics.equal(window.s.pageName, 'Drank Some Milk');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.called(window.s.t);
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -942,6 +1238,17 @@ describe('Adobe Analytics', function() {
           window.document.referrer
         );
         analytics.equal(window.s.contextData.url, window.location.href);
+        analytics.called(window.s.t);
+      });
+
+      it('should send top level fields (msgId & anonId) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          anonymousId: 'anonymousId',
+          messageId: 'messageId'
+        };
+        analytics.page('Page1', {});
+        analytics.assert(window.s.contextData.anonymousId);
+        analytics.assert(window.s.contextData.messageId);
         analytics.called(window.s.t);
       });
 
@@ -1181,7 +1488,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it.only('should send custom metdata in properties on Video Playback Started', function() {
+      it('should send custom metdata in properties on Video Playback Started', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           video_genre: 'Reality, Game Show, Music',
@@ -1204,7 +1511,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it.only('should send custom metdata in properties and context on Video Playback Started', function() {
+      it('should send custom metdata in properties and context on Video Playback Started', function() {
         analytics.track(
           'Video Playback Started',
           {
@@ -1494,6 +1801,24 @@ describe('Adobe Analytics', function() {
         analytics.called(
           adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
           window.ADB.va.MediaHeartbeat.Event.AdBreakComplete
+        );
+      });
+
+      it('should pause the playhead on Video Playback Interrupted', function() {
+        analytics.track('Video Playback Interrupted', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackPause'
         );
       });
     });
