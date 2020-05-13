@@ -109,6 +109,29 @@ Vero.prototype.track = function(track) {
 };
 
 /**
+ * Order Completed.
+ *
+ * https://www.getvero.com/api/http/#actions
+ * https://github.com/getvero/vero-api/blob/master/sections/js.md#tracking-events
+ *
+ * @api public
+ * @param {Track} track
+ */
+
+Vero.prototype.orderCompleted = function(track) {
+  var products = track.properties().products;
+  if (products && Array.isArray(products)) {
+    for (var x = 0; x < products.length; x++) {
+      push('track', 'Ordered Product', products[x], { source: 'segment' });
+    }
+  }
+
+  push('track', track.event(), track.properties(), { source: 'segment' });
+  var tags = track.options('Vero').tags;
+  if (tags) this.addOrRemoveTags(tags);
+};
+
+/**
  * Alias.
  *
  * https://www.getvero.com/api/http/#users

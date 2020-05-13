@@ -1,3 +1,15 @@
+1.16.0 / 2020-05-05
+===================
+* Supports sending top level `messageId` and `anonymousId` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.
+* Updates the AppMeasurement, VisitorAPI, and MediaSDK (previously VideoHeartBeat) libraries to be the latest
+versions:
+  * AppMeasurement - 2.20.0
+  * VisitorAPI.js - 4.4.0
+  * MediaSDK - 2.2.1
+* Adds support for merchandising variables and events
+* Implement Video Playback Interrupted handler.
+* Add support for Cart Opened events.
+
 1.15.2 / 2020-02-12
 ===================
 
