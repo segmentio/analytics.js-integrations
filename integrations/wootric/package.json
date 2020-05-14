@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-wootric",
   "description": "The Wootric analytics.js integration.",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
