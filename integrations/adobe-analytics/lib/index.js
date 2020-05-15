@@ -112,11 +112,11 @@ AdobeAnalytics.global('s')
   .sOption('usePlugins', true)
   .tag(
     'default',
-    '<script src="//cdn.segment.com/integrations/omniture/AppMeasurement-2.5.0/appmeasurement.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0.js">'
   )
   .tag(
     'heartbeat',
-    '<script src="//cdn.segment.com/integrations/omniture/AppMeasurement-2.5.0/appmeasurement-heartbeat.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0-heartbeat.js">'
   );
 
 /**
@@ -180,7 +180,8 @@ AdobeAnalytics.prototype.initialize = function() {
           'video playback buffer started': heartbeatBufferStarted,
           'video playback buffer completed': heartbeatBufferCompleted,
           'video quality updated': heartbeatQualityUpdated,
-          'video content playing': heartbeatUpdatePlayhead
+          'video content playing': heartbeatUpdatePlayhead,
+          'video playback interrupted': heartbeatVideoPaused
         };
       }
 
@@ -268,8 +269,7 @@ AdobeAnalytics.prototype.page = function(page) {
   calculateTimestamp(page, this.options);
 
   // Check if any properties match mapped eVar, prop, or hVar in options
-  var properties = page.properties();
-  var props = extractProperties(properties, this.options);
+  var props = extractProperties(page, this.options);
   // Attach them to window.s and push to dynamicKeys
   each(update, props);
 
@@ -303,14 +303,18 @@ AdobeAnalytics.prototype.track = function(track) {
       return; // Heartbeat calls AA itself, so returning here likely prevents dupe data.
     }
   }
-
   // Check if Segment event is mapped in settings; if not, noop
   var isMapped = this.isMapped(eventName);
   if (!isMapped) {
     return;
   }
 
-  this.processEvent(track);
+  // 'cart opened' is not covered in our ecommerce spec and was one-off specced for this integration
+  if (eventName === 'cart opened' || eventName === 'opened cart') {
+    this.processEvent(track, 'scOpen');
+  } else {
+    this.processEvent(track);
+  }
 };
 
 /**
@@ -406,8 +410,8 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
 /**
  * Update window variables and then fire Adobe track call
  *
- * @param {*} msg              Segment Page or Track payload.
- * @param {string} adobeEvent  Adobe standard event.
+ * @param {*} msg Segment Page or Track payload
+ * @param {string} adobeEvent Adobe standard event
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
@@ -442,7 +446,7 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
 
   calculateTimestamp(msg, this.options);
 
-  var mappedProps = extractProperties(properties, this.options);
+  var mappedProps = extractProperties(msg, this.options);
   each(update, mappedProps);
 
   if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
@@ -527,16 +531,16 @@ function calculateTimestamp(msg, options) {
 /**
  * Updates the "events" property on window.s.
  *
- * It accepts a "base" event which is an adobe-specific event like "prodView".
+ * It accepts a "predefinedEvent" event which is an adobe-specific event like "prodView".
  * Additional events will be custom "eventXXX" events specified by the user in
  * their configuration.
  *
  * @api private
- * @param  {String} eventName             The Segment event name
+ * @param  {String} eventName             The Segment event
  * @param  {Object} properties            The event payloads properties
- * @param  {Object|Array} eventsMap       The configured events settings mapping
- * @param  {Object|Array} merchEventsMap  The configured merchEvents settings mapping
- * @param  {String} base                  The Adobe-specific stanard event (if applicable)
+ * @param  {Object|Array} eventsMap       The configured events mapping
+ * @param  {Object|Array} merchEventsMap  The configured merchEvents setting mapping
+ * @param  {String} predefinedEvent  An Adobe-specific event (if applicable)
  */
 
 function setEventsString(
@@ -544,10 +548,10 @@ function setEventsString(
   properties,
   eventsMap,
   merchEventsMap,
-  base
+  predefinedEvent
 ) {
   var event = eventName.toLowerCase();
-  var adobeEvents = base ? [base] : [];
+  var adobeEvents = predefinedEvent ? [predefinedEvent] : [];
 
   if (eventsMap.length > 0) {
     // iterate through event map and pull adobe events corresponding to the incoming segment event
@@ -574,6 +578,9 @@ function setEventsString(
     }, merchEventsMap);
   }
 
+  adobeEvents = adobeEvents.filter(function(item) {
+    return !!item;
+  });
   var value = adobeEvents.join(',');
   update(value, 'events');
   window.s.linkTrackEvents = value;
@@ -607,7 +614,7 @@ function updateContextData(facade, options) {
   // There is a bug here, but it must be maintained. `extractProperties` will
   // look at *all* our mappings, but only the `contextValues` mapping should be
   // used here.
-  var contextProperties = extractProperties(trample(facade.context()), options);
+  var contextProperties = extractProperties(facade, options, 'context');
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
@@ -635,9 +642,9 @@ function addContextDatum(key, value) {
 }
 
 /**
+ *
  * Map event level (order wide) currency & incrementor events.
  * https://docs.adobe.com/content/help/en/analytics/implementation/javascript-implementation/variables-analytics-reporting/page-variables.html
- *
  * Example input:
     "merchEvents": [
       {
@@ -656,12 +663,12 @@ function addContextDatum(key, value) {
         "segmentProperty": "products.price"
       }
     ]
- * Example output: [event1,event34=20,event2]
  *
- * @param {Object|Array} merchEvents
- * @param {Properties} props
- * @return {Object|Array} An array of Adobe events, some may have values.
+ * Example output: [event1,event34=20,event2]
  * @api private
+ * @param {Objeect|Array} merchEvents
+ * @param {Properties} props
+ * @return {Object|Array} An array  of Adobe eventts, some may have values.
  */
 
 function mapMerchEvents(merchEvent, props) {
@@ -669,13 +676,14 @@ function mapMerchEvents(merchEvent, props) {
   if (!merchEvent) {
     return merchMap;
   }
+
   if (merchEvent.valueScope === 'event') {
     if (merchEvent.segmentProperty in props) {
       var eventString =
         merchEvent.adobeEvent + '=' + String(props[merchEvent.segmentProperty]);
       merchMap.push(eventString);
     } else if (!merchEvent.segmentProperty) {
-      // To account for event with no value
+      // To account for  event with no value
       merchMap.push(merchEvent.adobeEvent);
     }
   } else {
@@ -687,52 +695,9 @@ function mapMerchEvents(merchEvent, props) {
 }
 
 /**
-* Dedupe Merch Event Setting
-*
-* Example input:
-  "merchEvents": [
-      {
-        "adobeEvent": "event1",
-        "valueScope": "product",
-        "segmentProperty": "products.sku"
-      },
-      {
-        "adobeEvent": "event1",
-        "valueScope": "event",
-        "segmentProperty": "total"
-      }
-    ]
-  * @param {Array} configMerchEvents
-  * @return {Array}
- */
-
-function dedupeMerchEventSettings(configMerchEvents) {
-  var dedupeSettings = {};
-  each(function(eventObject) {
-    var existingEventObject = dedupeSettings[eventObject.adobeEvent];
-
-    if (
-      !existingEventObject ||
-      (existingEventObject.valueScope === 'product' &&
-        eventObject.valueScope === 'event')
-    ) {
-      dedupeSettings[eventObject.adobeEvent] = eventObject;
-    }
-  }, configMerchEvents);
-
-  var res = [];
-  for (var adobeEvent in dedupeSettings) {
-    if (dedupeSettings[adobeEvent]) {
-      res.push(dedupeSettings[adobeEvent]);
-    }
-  }
-  return res;
-}
-
-/**
-* Extract values from `settings.merchEvents`.
-*
-* Example input:
+ * Extract values from  `settings.merchEvents`.
+ *
+ * Example input:
   settings.merchEvents = [
         {
           'segmentEvent': 'Order Completed',
@@ -751,10 +716,12 @@ function dedupeMerchEventSettings(configMerchEvents) {
           ]
         }
       ]
-  * @param {Object} msg
-  * @param {Object} settings
-  * @return {Object}
+ * @api private
+ * @param {Object} msg
+ * @param {Object} settings
+ * @return {Object}
  */
+
 function getMerchConfig(msg, settings) {
   var eventName = msg.event().toLowerCase();
   var mapping = (settings.merchEvents || []).find(function(setting) {
@@ -774,8 +741,48 @@ function getMerchConfig(msg, settings) {
     );
     config.productEVars = mapping.productEVars;
   }
-
   return config;
+}
+
+/**
+* Dedupe  Merch  Event Setting
+* Example input:
+  "merchEvents": [
+      {
+        "adobeEvent": "event1",
+        "valueScope": "product",
+        "segmentProperty": "products.sku"
+      },
+      {
+        "adobeEvent": "event1",
+        "valueScope": "event",
+        "segmentProperty": "total"
+      }
+    ]
+* @param {Array} configMerchEvents
+* @return {Array}
+*/
+
+function dedupeMerchEventSettings(configMerchEvents) {
+  var dedupeSettings = {};
+  each(function(eventObject) {
+    var existingEventObject = dedupeSettings[eventObject.adobeEvent];
+    if (
+      !existingEventObject ||
+      (existingEventObject.valueScope === 'product' &&
+        eventObject.valueScope === 'event')
+    ) {
+      dedupeSettings[eventObject.adobeEvent] = eventObject;
+    }
+  }, configMerchEvents);
+
+  var res = [];
+  for (var adobeEvent in dedupeSettings) {
+    if (dedupeSettings[adobeEvent]) {
+      res.push(dedupeSettings[adobeEvent]);
+    }
+  }
+  return res;
 }
 
 /**
@@ -790,18 +797,21 @@ function clearKeys(keys) {
     delete window.s[linkVar];
   }, keys);
   // Clears the array passed in
-  keys.length = 0; // eslint-disable-line
+  keys.length = 0; //eslint-disable-line
 }
 
 /**
- * Extract properties and context values for `window.s`.
+ * 1. Extracts properties and context values for `window.s` for `page` and `track` calls.
+ * 2. Extracts fields to update custom content metadata on video heartbeat events (from context & properties).
+ * 3. Extracts fields from context object to update context data ie. `window.s.contextData`.
  *
  * @api private
- * @param {Object} props
+ * @param {Facade} facade
  * @param {Object} options
+ * @param {String} propType
  */
 
-function extractProperties(props, options) {
+function extractProperties(facade, options, propType) {
   var result = {};
   var mappings = [
     options.eVars,
@@ -811,6 +821,15 @@ function extractProperties(props, options) {
     options.contextValues
   ];
 
+  var topLevelProperties = ['messageId', 'anonymousId'];
+
+  var props = facade.properties();
+  if (propType === 'mergedPropContext') {
+    props = merge(trample(facade.properties()), trample(facade.context()));
+  } else if (propType === 'context') {
+    props = trample(facade.context());
+  }
+
   // Iterate through each variable mappings to find matching props
   for (var x = 0; x < mappings.length; x++) {
     each(match, mappings[x]);
@@ -818,6 +837,23 @@ function extractProperties(props, options) {
 
   function match(mappedValue, mappedKey) {
     var value = dot(props, mappedKey);
+    // On track and page calls the propType here will be empty. On video HB calls the propTyp will
+    // be 'mergedPropContext'. On those events we use  the extracted properties from this fxn to explicitly
+    // map link vars on `window.s` object.
+    if (topLevelProperties.includes(mappedKey) && propType !== 'context') {
+      value = facade.proxy(mappedKey);
+    }
+
+    // When we are checking the context object for segment property mappings (updateContextData)
+    // we only want set top level fields to Context Data Variables.
+    var contextValueKeys = Object.keys(options.contextValues);
+    if (
+      topLevelProperties.includes(mappedKey) &&
+      propType === 'context' &&
+      contextValueKeys.includes(mappedKey)
+    ) {
+      value = facade.proxy(mappedKey);
+    }
     var isarr = Array.isArray(value);
     // make sure it's an acceptable data type
     if (
@@ -836,7 +872,7 @@ function extractProperties(props, options) {
 }
 
 /**
- * Prepare to set `window.s.products`.
+ * Format product string to set `window.s.products`.
  *
  * @api private
  * @param {string} eventName
@@ -899,7 +935,6 @@ function mapProducts(
   properties
 ) {
   if (!Array.isArray(products)) return;
-
   var productString = products.map(function(productProperties) {
     var product = new Track({ properties: productProperties });
     var category = product.category() || '';
@@ -908,9 +943,7 @@ function mapProducts(
     // This functionality has been in place for too long to simply correct
     // without risking introducing a regression.
     var total = (product.price() * quantity).toFixed(2);
-
     var item = product[identifier]();
-
     // support ecom spec v2 when identifier setting == 'id'
     // ecom spec v2 supports object_id convention
     if (identifier === 'id') {
@@ -941,18 +974,25 @@ function mapProducts(
         productProperties
       );
     }
-
-    var productVariablesArray = [category, item, quantity, total];
-    if (eventString !== '') {
-      productVariablesArray.push(eventString);
-    }
-    if (productEVarstring !== '') {
-      productVariablesArray.push(productEVarstring);
-    }
-
-    // Product-level currency and counter events preceed product eVars.
+    // Note that product level currency and counter events preceed product eVars.
     // Ex: s.products="Category;ABC123;1;10;event1=1.99|event2=25;evar1=2 Day Shipping|evar2=3 Stars"
-    return productVariablesArray
+    if (eventString !== '' || productEVarstring !== '') {
+      var test = [
+        category,
+        item,
+        quantity,
+        total,
+        eventString,
+        productEVarstring
+      ].map(function(value) {
+        if (value == null) {
+          return String(value);
+        }
+        return value;
+      });
+      return test.join(';');
+    }
+    return [category, item, quantity, total]
       .map(function(value) {
         if (value == null) {
           return String(value);
@@ -961,7 +1001,6 @@ function mapProducts(
       })
       .join(';');
   });
-
   update(productString, 'products');
 }
 
@@ -1008,6 +1047,11 @@ function mapProductEvents(merchEvents, props, product) {
       // Respect what the customer configures in the setting.
       // ex. products.cart_id
       // Only check products if "products." configured in settings.
+      if (!event.segmentProperty) {
+        // If the customer did not indicate a Segment Property in their settings to
+        // associate with the incrementor we will return early.
+        return merchMap;
+      }
       if (event.segmentProperty.startsWith('products.')) {
         var value = getProductField(event.segmentProperty, product);
         if (value && value !== 'undefined') {
@@ -1077,7 +1121,6 @@ function getProductField(productString, product) {
   var fields = productString.split('.');
   return product[fields[fields.length - 1]].toString();
 }
-
 /**
  * Check if event is mapped in either `events` or `merchEvents` settings.
  * If not, the destination will noop.
@@ -1128,7 +1171,7 @@ function lowercaseKeys(obj) {
   }, obj);
   return obj;
 }
- /* eslint-enable */
+/* eslint-disable */
 
 /**
  * Return whether `str` is an empty string.
@@ -1229,8 +1272,9 @@ function heartbeatSessionStart(track) {
     props.total_length || 0,
     streamType
   );
-  var contextData = {}; // This might be a custom object for the user.
 
+  // Assign custom context data using the Context Data Variables settings and properties in payload.
+  var contextData = createCustomVideoMetadataContext(track, this.options); // This might be a custom object for the user.
   createStandardVideoMetadata(track, mediaObj);
 
   this.mediaHeartbeats[
@@ -1246,6 +1290,11 @@ function heartbeatVideoStart(track) {
   var props = track.properties();
 
   this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackPlay();
+  // Assign custom metadata using the Context Data Variables settings and properties in payload.
+  var chapterCustomMetadata = createCustomVideoMetadataContext(
+    track,
+    this.options
+  );
 
   if (!this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress) {
     var chapterObj = videoAnalytics.MediaHeartbeat.createChapterObject(
@@ -1266,7 +1315,7 @@ function heartbeatVideoStart(track) {
     this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackEvent(
       videoAnalytics.MediaHeartbeat.Event.ChapterStart,
       chapterObj,
-      {}
+      chapterCustomMetadata
     );
     this.mediaHeartbeats[
       props.session_id || 'default'
@@ -1317,7 +1366,7 @@ function heartbeatAdStarted(track) {
   adSessionCount
     ? (adSessionCount = ++this.adBreakCounts[props.session_id || 'default'])
     : (adSessionCount = this.adBreakCounts[props.session_id || 'default'] = 1);
-  /* eslint-enable */
+  /* eslint-disable */
 
   var adBreakObj = videoAnalytics.MediaHeartbeat.createAdBreakObject(
     props.type || 'unknown',
@@ -1456,6 +1505,20 @@ function createStandardVideoMetadata(track, mediaObj) {
   );
 }
 
+function createCustomVideoMetadataContext(track, options) {
+  var contextData = {};
+
+  //Check properties & context object for `settings.contextValue` mappings to assign custom metadata
+  var extractedProperties = extractProperties(track, options, 'mergedPropContext');
+  each(function(value, key) {
+    if (!key || value === undefined || value === null || value === '') {
+      return;
+    }
+    contextData[key] = value;
+  }, extractedProperties);
+  return contextData;
+}
+
 function createStandardAdMetadata(track, adObj) {
   var videoAnalytics = window.ADB.va;
   var props = track.properties();
@@ -1494,4 +1557,36 @@ function createQosObject(track) {
     props.fps || 0,
     props.droppedFrames || 0
   );
+}
+
+/**
+ * Merge two javascript objects. This works similarly to `Object.assign({}, obj1, obj2)`
+ * but it's compatible with old browsers. The properties of the first argument takes preference
+ * over the other.
+ *
+ * It does not do fancy stuff, just use it with top level properties.
+ *
+ * @param {Object} obj1 Object 1
+ * @param {Object} obj2 Object 2
+ *
+ * @return {Object} a new object with all the properties of obj1 and the remainder of obj2.
+ */
+function merge(obj1, obj2) {
+  var res = {};
+
+  // All properties of obj1
+  for (var propObj1 in obj1) {
+    if (obj1.hasOwnProperty(propObj1)) {
+      res[propObj1] = obj1[propObj1];
+    }
+  }
+
+  // Extra properties of obj2
+  for (var propObj2 in obj2) {
+    if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+      res[propObj2] = obj2[propObj2];
+    }
+  }
+
+  return res;
 }

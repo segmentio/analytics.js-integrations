@@ -1,3 +1,13 @@
+2.18.3 / 2020-03-10
+===================
+
+  * Add support for all casing types for enhanced ecommerce checkout options.
+  * Make checkout options optional
+
+2.18.2  / 2020-02-18
+===================
+  * Fix a bug where we are sending a product level category for the event category. We will send Google Analytics an event category of `'EnhancedEcommerce'` for the following events: `'product clicked'`, `product removed`, `product added` and `product viewed`.
+
 2.18.0 / 2019-12-17
 ===================
 
