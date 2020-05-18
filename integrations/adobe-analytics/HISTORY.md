@@ -1,3 +1,7 @@
+1.16.1 / 2020-05-15
+===================
+* Supports sending top level `event` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.
+
 1.16.0 / 2020-05-05
 ===================
 * Supports sending top level `messageId` and `anonymousId` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.

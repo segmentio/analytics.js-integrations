@@ -229,22 +229,25 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
       });
 
-      it('should track set top level fields (msgId and anonId) set as eVars properly', function() {
+      it('should track set top level fields (msgId, anonId, event) set as eVars properly', function() {
         adobeAnalytics.options.eVars = {
           messageId: 'eVar2',
-          anonymousId: 'eVar3'
+          anonymousId: 'eVar3',
+          event: 'eVar4'
         };
         analytics.track('Overlord exploded');
         analytics.equal(window.s.events, 'event7');
         analytics.assert(window.s.eVar2);
         analytics.assert(window.s.eVar3);
+        analytics.assert(window.s.eVar4);
         analytics.assert(
           contains(
             window.s.linkTrackVars,
             'events',
             'timestamp',
             'eVar2',
-            'eVar3'
+            'eVar3',
+            'eVar4'
           )
         );
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
@@ -275,22 +278,25 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
-      it('should track set top level fields (msgId and anonId) set as props properly', function() {
+      it('should track set top level fields (msgId, anonId, event) set as props properly', function() {
         adobeAnalytics.options.eVars = {
           messageId: 'prop1',
-          anonymousId: 'prop2'
+          anonymousId: 'prop2',
+          event: 'prop3'
         };
         analytics.track('Overlord exploded');
         analytics.equal(window.s.events, 'event7');
         analytics.assert(window.s.prop1);
         analytics.assert(window.s.prop2);
+        analytics.assert(window.s.prop3);
         analytics.assert(
           contains(
             window.s.linkTrackVars,
             'events',
             'timestamp',
             'prop1',
-            'prop2'
+            'prop2',
+            'prop3'
           )
         );
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
@@ -314,14 +320,16 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl);
       });
 
-      it('should send top level fields (msgId & anonId) as context properties', function() {
+      it('should send top level fields (msgId, anonId, event) as context properties', function() {
         adobeAnalytics.options.contextValues = {
           messageId: 'messageIdAdobe',
-          anonymousId: 'anonymousIdAdobe'
+          anonymousId: 'anonymousIdAdobe',
+          event: 'adobeEvent'
         };
         analytics.track('Drank Some Milk', { foo: 'bar' });
         analytics.assert(window.s.contextData.messageIdAdobe);
         analytics.assert(window.s.contextData.anonymousIdAdobe);
+        analytics.assert(window.s.contextData.adobeEvent);
         analytics.called(window.s.tl);
       });
 
@@ -1203,10 +1211,11 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.t);
       });
 
-      it('tracks top level fields (msgId & anonId) as mapped properties', function() {
+      it('tracks top level fields (msgId, anonId, event) as mapped properties', function() {
         adobeAnalytics.options.props = {
           anonymousId: 'prop1',
-          messageId: 'prop2'
+          messageId: 'prop2',
+          event: 'prop3'
         };
         analytics.page('Drank Some Milk', {
           type: '2%',
@@ -1216,6 +1225,7 @@ describe('Adobe Analytics', function() {
         analytics.equal(window.s.pageName, 'Drank Some Milk');
         analytics.assert(window.s.prop1);
         analytics.assert(window.s.prop2);
+        analytics.assert(window.s.prop3);
         analytics.called(window.s.t);
       });
 
@@ -1241,14 +1251,16 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.t);
       });
 
-      it('should send top level fields (msgId & anonId) as context properties', function() {
+      it('should send top level fields (msgId, anonId, event) as context properties', function() {
         adobeAnalytics.options.contextValues = {
           anonymousId: 'anonymousId',
-          messageId: 'messageId'
+          messageId: 'messageId',
+          event: 'eventContextData'
         };
         analytics.page('Page1', {});
         analytics.assert(window.s.contextData.anonymousId);
         analytics.assert(window.s.contextData.messageId);
+        analytics.assert(window.s.contextData.eventContextData);
         analytics.called(window.s.t);
       });
 
