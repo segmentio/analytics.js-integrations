@@ -1833,6 +1833,26 @@ describe('Adobe Analytics', function() {
           'trackPause'
         );
       });
+
+      it('should return the playhead value from the window object', function() {
+        analytics.track('Video Playback Started', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        window._segHBPlayheads[sessionId] = 5.111;
+
+        var actual = adobeAnalytics.mediaHeartbeats[
+          sessionId
+        ].delegate.getCurrentPlaybackTime();
+        analytics.assert(actual, 5.111);
+      });
     });
   });
 });
