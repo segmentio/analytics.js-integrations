@@ -22,6 +22,7 @@ var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('adAssetIdPropertyName', '')
   .option('subbrandPropertyName', '')
   .option('clientIdPropertyName', '')
+  .option('sendCurrentTimeLivestream', false)
   .option('contentLengthPropertyName', 'total_length')
   .option('optout', false)
   .tag(
@@ -136,12 +137,11 @@ NielsenDCR.prototype.heartbeat = function(assetId, position, livestream) {
 
   if (livestream) {
     // for livestream events, we calculate a unix timestamp based on the current time an offset value, which should be passed in properties.position
-    this.currentPosition = getOffsetTime(position);
+    this.currentPosition = getOffsetTime(position, self.options);
   } else if (position >= 0) {
     // this.currentPosition defaults to 0 upon initialization
     this.currentPosition = position;
   }
-
   this.heartbeatId = setInterval(function() {
     self._client.ggPM('setPlayheadPosition', self.currentPosition);
     self.currentPosition++;
@@ -305,13 +305,15 @@ NielsenDCR.prototype.videoContentPlaying = function(track) {
  */
 
 NielsenDCR.prototype.videoContentCompleted = function(track) {
+  var self = this;
+
   clearInterval(this.heartbeatId);
   if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  if (livestream) position = getOffsetTime(position);
+  if (livestream) position = getOffsetTime(position, self.options);
 
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('stop', position);
@@ -399,13 +401,14 @@ NielsenDCR.prototype.videoAdCompleted = function(track) {
 NielsenDCR.prototype.videoPlaybackPaused = NielsenDCR.prototype.videoPlaybackSeekStarted = NielsenDCR.prototype.videoPlaybackBufferStarted = function(
   track
 ) {
+  var self = this;
   clearInterval(this.heartbeatId);
   if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  if (livestream) position = getOffsetTime(position);
+  if (livestream) position = getOffsetTime(position, self.options);
 
   this._client.ggPM('stop', position);
 };
@@ -466,13 +469,14 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
 NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlaybackInterrupted = function(
   track
 ) {
+  var self = this;
   clearInterval(this.heartbeatId);
   if (!this.isDCRStream) return;
 
   var position = track.proxy('properties.position');
   var livestream = track.proxy('properties.livestream');
 
-  if (livestream) position = getOffsetTime(position);
+  if (livestream) position = getOffsetTime(position, self.options);
 
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('end', position);
@@ -527,14 +531,15 @@ function formatLoadType(integrationOpts, track, propertiesPath) {
  * handles offsets for livestreams, if applicable.
  *
  * @param {*} position Should be negative int representing livestream offset
+ * @param {*} options Integration settings
  * @returns {Number} Unix timestamp in seconds
  *
  * @api private
  */
 
-function getOffsetTime(position) {
+function getOffsetTime(position, options) {
   var date = Math.floor(Date.now() / 1000);
-  if (!position) return date;
+  if (!position || options.sendCurrentTimeLivestream) return date;
 
   try {
     if (typeof position !== 'number') {

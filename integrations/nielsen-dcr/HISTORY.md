@@ -1,6 +1,10 @@
-2.0.0 / 2020-02-06
+2.0.1 / 2020-05-15
 ==================
 
+  * Adds new setting `sendCurrentTimeLivestream` that when enabled will default to sending current time in seconds to Nielsen for livestream videos. If a position is passed and this setting is disabled we will calculate an offset of `currentTime` + `position` from properties object.
+
+2.0.0 / 2020-02-06
+==================
   * Events are mapped to Nielsen DCR only when Segment `load_type` property is set to 'dynamic'.
 
 1.5.0 / 2020-01-27
