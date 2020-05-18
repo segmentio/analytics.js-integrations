@@ -821,7 +821,7 @@ function extractProperties(facade, options, propType) {
     options.contextValues
   ];
 
-  var topLevelProperties = ['messageId', 'anonymousId'];
+  var topLevelProperties = ['messageId', 'anonymousId', 'event'];
 
   var props = facade.properties();
   if (propType === 'mergedPropContext') {
