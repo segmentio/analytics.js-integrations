@@ -45,6 +45,7 @@ describe('NielsenDCR', function() {
         .option('clientIdPropertyName', '')
         .option('contentLengthPropertyName', 'total_length')
         .option('optout', false)
+        .option('sendCurrentTimeLivestream', false)
         .tag(
           'http',
           '<script src="http://cdn-gl.imrworldwide.com/conf/{{ appId }}.js#name={{ instanceName }}&ns=NOLBUNDLE">'
@@ -223,6 +224,37 @@ describe('NielsenDCR', function() {
             livestream: true
           };
           timestamp = Math.floor(Date.now() / 1000) + props.position;
+          analytics.track('video playback completed', props);
+          analytics.called(window.clearInterval);
+          analytics.called(
+            nielsenDCR._client.ggPM,
+            'setPlayheadPosition',
+            timestamp
+          );
+          analytics.called(nielsenDCR._client.ggPM, 'end', timestamp);
+        });
+
+        it('video playback completed w livestream when `sendCurrentTimeLivestream` enabled', function() {
+          nielsenDCR.options.sendCurrentTimeLivestream = true;
+          var timestamp;
+          var props = {
+            session_id: '12345',
+            content_asset_id: null,
+            content_pod_id: null,
+            ad_asset_id: 'ad907',
+            ad_pod_id: 'adSegB',
+            ad_type: null,
+            position: -100,
+            total_length: 392,
+            sound: 88,
+            bitrate: 100,
+            full_screen: false,
+            video_player: 'youtube',
+            ad_enabled: false,
+            quality: 'hd1080',
+            livestream: true
+          };
+          timestamp = Math.floor(Date.now() / 1000);
           analytics.track('video playback completed', props);
           analytics.called(window.clearInterval);
           analytics.called(

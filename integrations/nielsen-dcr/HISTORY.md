@@ -1,3 +1,8 @@
+1.5.1 / 2020-05-15
+==================
+
+  * Adds new setting `sendCurrentTimeLivestream` that when enabled will default to sending current time in seconds to Nielsen for livestream videos. If a position is passed and this setting is disabled we will calculate an offset of `currentTime` + `position` from properties object. 
+
 1.3.3 / 2019-10-11
 ==================
 
