@@ -93,7 +93,7 @@ Pinterest.prototype.getPinterestEvent = function(segmentEvent) {
     [analyticsEvents.productAdded, 'AddToCart'],
     [analyticsEvents.orderCompleted, 'Checkout'],
     [analyticsEvents.videoPlaybackStarted, 'WatchVideo'],
-    [analyticsEvents.productViewed, "PageVisit"]
+    [analyticsEvents.productViewed, 'PageVisit']
   ];
 
   for (var index in eventMap) {
