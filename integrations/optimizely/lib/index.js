@@ -118,9 +118,11 @@ Optimizely.prototype.track = function(track) {
 
   push(payload);
 
-  var optimizelyClientInstance = window.optimizelyClientInstance;
+  var optimizelyOptions = track.options('Optimizely');
+  // Prefer the client instance specified via options, falling back to the globally defined one.
+  var optimizelyClientInstance =
+    optimizelyOptions.clientInstance || window.optimizelyClientInstance;
   if (optimizelyClientInstance && optimizelyClientInstance.track) {
-    var optimizelyOptions = track.options('Optimizely');
     var userId =
       optimizelyOptions.userId || track.userId() || this.analytics.user().id();
     var attributes =
