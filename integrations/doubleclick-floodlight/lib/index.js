@@ -31,7 +31,7 @@ var Floodlight = (module.exports = integration('DoubleClick Floodlight')
   )
   .tag(
     'doubleclick id',
-    '<img src="//cm.g.doubleclick.net/pixel?google_cm&google_nid={{ googleNetworkId }}&segment_write_key={{ segmentWriteKey }}&user_id={{ userId }}&anonymous_id={{ anonymousId }}"/>'
+    '<img src="//cm.g.doubleclick.net/pixel?google_cm&google_nid={{ googleNetworkId }}&segment_write_key={{ segmentWriteKey }}&user_id={{ userId }}&anonymous_id={{ anonymousId }}&google_hm={{ hostedMatchId }}"/>'
   ));
 
 /**
@@ -51,7 +51,8 @@ Floodlight.prototype.initialize = function() {
       segmentWriteKey: this.options.segmentWriteKey,
       // TODO: handle userId being nulls/undefined.
       userId: this.analytics.user().id(),
-      anonymousId: this.analytics.user().anonymousId()
+      anonymousId: this.analytics.user().anonymousId(),
+      hostedMatchId: btoa(this.analytics.user().anonymousId())
     });
   }
   this.ready();
