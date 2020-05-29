@@ -1126,7 +1126,7 @@ describe('Optimizely', function() {
         });
 
         context(
-          'when the Optimizely.clientInstance option is present',
+          'when the Optimizely.FSClientInstance option is present',
           function() {
             beforeEach(function() {
               window.otherClientInstance = {};
@@ -1141,7 +1141,7 @@ describe('Optimizely', function() {
                   Optimizely: {
                     userId: 'user1',
                     attributes: { country: 'usa' },
-                    clientInstance: window.otherClientInstance
+                    FSClientInstance: window.otherClientInstance
                   }
                 }
               );
