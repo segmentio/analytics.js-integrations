@@ -1,3 +1,9 @@
+1.5.2 / 2020-05-29
+==================
+
+  * Migrate away from the partner hosted match table in favor of a Google hosted match table
+  * Send hosted match id
+
 1.5.1 / 2020-04-16
 ==================
 
