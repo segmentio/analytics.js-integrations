@@ -1,3 +1,8 @@
+3.6.0 / 2020-06-04
+==================
+
+  * Exposed `window.optimizelyEdge` so customers with Performance Edge are able to track Performance Edge related experiments in Segment.
+
 
 3.5.0 / 2019-12-28
 ==================

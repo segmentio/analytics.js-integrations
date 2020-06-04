@@ -1070,6 +1070,29 @@ describe('Optimizely', function() {
         analytics.stub(window.optimizely, 'push');
       });
 
+      describe('when the experiment running is from Edge', function() {
+        beforeEach(function() {
+          window.optimizelyEdge = [];
+          analytics.stub(window.optimizelyEdge, 'push');
+        });
+        afterEach(function() {
+          delete window.optimizelyEdge;
+        });
+        it('should send an event to window.optimizelyEdge, not window.optimizely', function() {
+          analytics.track('event');
+          analytics.called(window.optimizelyEdge.push, {
+            type: 'event',
+            eventName: 'event',
+            tags: {}
+          });
+          analytics.didNotCall(window.optimizely.push, {
+            type: 'event',
+            eventName: 'event',
+            tags: {}
+          });
+        });
+      });
+
       it('should send an event', function() {
         analytics.track('event');
         analytics.called(window.optimizely.push, {

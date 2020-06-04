@@ -9,8 +9,9 @@ var values = require('@ndhoule/values');
 var foldl = require('@ndhoule/foldl');
 var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
-var push = require('global-queue')('optimizely', { wrap: false });
 var tick = require('next-tick');
+var push = require('global-queue')('optimizely', { wrap: false });
+var pushEdge = require('global-queue')('optimizelyEdge', { wrap: false });
 
 /**
  * Expose `Optimizely` integration.
@@ -47,10 +48,17 @@ var optimizelyContext = {
 Optimizely.prototype.initialize = function() {
   var self = this;
   // Flag source of integration (requested by Optimizely)
-  push({
-    type: 'integration',
-    OAuthClientId: '5360906403'
-  });
+  if (window.optimizelyEdge) {
+    pushEdge({
+      type: 'integration',
+      OAuthClientId: '5360906403'
+    });
+  } else {
+    push({
+      type: 'integration',
+      OAuthClientId: '5360906403'
+    });
+  }
   // Initialize listeners for both Classic and New Optimizely
   // crazying binding because that's just how javascript works
   // We're caling this on the next tick to be safe so we don't hold up
@@ -116,7 +124,11 @@ Optimizely.prototype.track = function(track) {
     tags: eventProperties
   };
 
-  push(payload);
+  if (window.optimizelyEdge) {
+    pushEdge(payload);
+  } else {
+    push(payload);
+  }
 
   var optimizelyClientInstance = window.optimizelyClientInstance;
   if (optimizelyClientInstance && optimizelyClientInstance.track) {
