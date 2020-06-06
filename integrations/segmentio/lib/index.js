@@ -330,8 +330,10 @@ Segment.prototype.normalize = function(message) {
  */
 
 Segment.prototype.ampId = function(ctx) {
-  var ampId = this.cookie('segment_amp_id');
-  if (ampId) ctx.amp = { id: ampId };
+  var ampId = this.cookie('_ga');
+  if (ampId) {
+    if (ampId.slice(0, 3) === 'amp') ctx.amp = { id: ampId };
+  }
 };
 
 /**
@@ -468,14 +470,10 @@ Segment.prototype.retrieveCrossDomainId = function(callback) {
   var self = this;
   var writeKey = this.options.apiKey;
 
-  // Exclude the current domain from the list of servers we're querying
-  var currentTld = getTld(window.location.hostname);
   var domains = [];
   for (var i = 0; i < this.options.crossDomainIdServers.length; i++) {
     var domain = this.options.crossDomainIdServers[i];
-    if (getTld(domain) !== currentTld) {
-      domains.push(domain);
-    }
+    domains.push(domain);
   }
 
   getCrossDomainIdFromServerList(domains, writeKey, function(err, res) {

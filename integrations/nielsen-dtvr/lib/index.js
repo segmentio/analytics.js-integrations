@@ -41,6 +41,7 @@ NielsenDTVR.prototype.initialize = function() {
   var config = {};
   this.ID3 = null;
   this.previousEvent = null;
+  this.isDTVRStream = false;
 
   // Modified Nielsen snippet. It shouldn't load the Nielsen tag, but it should
   // still successfully queue events fired before the tag loads.
@@ -136,105 +137,50 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
 
 /**
  * Video Content Completed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoContentCompleted = function(track) {
-  this.end(track);
-};
-
-/**
- * Video Playback Interrupted
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackInterrupted = function(track) {
-  this.sendID3(track);
-  this.end(track);
-};
-
-/**
- * Video Playback Seek Started
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
-  this.sendID3(track);
-  this.end(track);
-};
-
-/**
- * Video Playback Seek Completed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
-  var metadata = this.mapMetadata(track);
-  if (!metadata) return;
-  this.client.ggPM('loadMetadata', metadata);
-  this.sendID3(track);
-};
-
-/**
- * Video Playback Buffer Started
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackBufferStarted = function(track) {
-  this.sendID3(track);
-  this.end(track);
-};
-
-/**
- * Video Playback Buffer Completed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackBufferCompleted = function(track) {
-  var metadata = this.mapMetadata(track);
-  if (!metadata) return;
-  this.client.ggPM('loadMetadata', metadata);
-  this.sendID3(track);
-};
-
-/**
- * Video Playback Paused
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
-  this.sendID3(track);
-  this.end(track);
-};
-
-/**
- * Video Playback Resumed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
-  var metadata = this.mapMetadata(track);
-  if (!metadata) return;
-  this.client.ggPM('loadMetadata', metadata);
-  this.sendID3(track);
-};
-
-/**
  * Video Playback Completed
  *
  * @api public
  */
 
-NielsenDTVR.prototype.videoPlaybackCompleted = function(track) {
+NielsenDTVR.prototype.videoContentCompleted = NielsenDTVR.prototype.videoPlaybackCompleted = function(
+  track
+) {
+  if (!this.isDTVRStream) return;
   this.end(track);
+};
+
+/**
+ * Video Playback Interrupted
+ * Video Playback Seek Started
+ * Video Playback Buffer Started
+ * Video Playback Paused
+ *
+ * @api public
+ */
+
+NielsenDTVR.prototype.videoPlaybackInterrupted = NielsenDTVR.prototype.videoPlaybackSeekStarted = NielsenDTVR.prototype.videoPlaybackBufferStarted = NielsenDTVR.prototype.videoPlaybackPaused = function(
+  track
+) {
+  if (!this.isDTVRStream) return;
+  this.sendID3(track);
+  this.end(track, 'recoverable');
+};
+
+/**
+ * Video Playback Seek Completed
+ * Video Playback Buffer Completed
+ * Video Playback Resumed
+ *
+ * @api public
+ */
+
+NielsenDTVR.prototype.videoPlaybackSeekCompleted = NielsenDTVR.prototype.videoPlaybackBufferCompleted = NielsenDTVR.prototype.videoPlaybackResumed = function(
+  track
+) {
+  var metadata = this.mapMetadata(track);
+  if (!metadata || !this.isDTVRStream) return;
+  this.client.ggPM('loadMetadata', metadata);
+  this.sendID3(track);
 };
 
 /**
@@ -277,7 +223,7 @@ NielsenDTVR.prototype.sendID3 = function(event) {
  * @api private
  */
 
-NielsenDTVR.prototype.end = function(event) {
+NielsenDTVR.prototype.end = function(event, interruptType) {
   var livestream = event.proxy('properties.livestream');
   var position = event.proxy('properties.position');
   var time;
@@ -291,8 +237,11 @@ NielsenDTVR.prototype.end = function(event) {
     this.client.ggPM('end', time);
   }
 
-  this.ID3 = null;
-  this.previousEvent = null;
+  if (interruptType !== 'recoverable') {
+    this.ID3 = null;
+    this.previousEvent = null;
+    this.isDTVRStream = null;
+  }
 };
 
 /**
@@ -325,19 +274,25 @@ function validate(metadata) {
  */
 
 NielsenDTVR.prototype.mapMetadata = function(event) {
-  var adModel;
   var loadType =
-    event.proxy('properties.loadType') || event.proxy('properties.load_type');
+    event.proxy('properties.loadType') ||
+    event.proxy('properties.load_type') ||
+    event.proxy('properties.content.loadType') ||
+    event.proxy('properties.content.load_type');
 
-  if (loadType === 'linear') {
-    adModel = '1';
-  } else if (loadType === 'dynamic') {
-    adModel = '2';
+  // only video streams of load_type "linear" should be mapped to Nielsen DTVR
+  // we need to persist the fact that a stream is/isn't a DTVR stream for events
+  // that may not contain a `load_type` k:v pair, such as "Video Playback" events
+  if (loadType !== 'linear') {
+    this.isDTVRStream = false;
+    return false;
   }
+
+  this.isDTVRStream = true;
 
   return validate({
     type: 'content',
     channelName: event.proxy('properties.channel'),
-    adModel: adModel
+    adModel: '1'
   });
 };
