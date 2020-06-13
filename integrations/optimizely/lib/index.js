@@ -245,15 +245,13 @@ Optimizely.prototype.sendWebDecisionToSegment = function(campaignState) {
 /**
  * setRedirectInfo
  *
- * TODO: fix the tests!
- *
  * This function is called when a redirect experiment changed the effective referrer value where it is different from the `document.referrer`.
  * This is a documented caveat for any mutual customers that are using redirect experiments.
  * We will set this global variable that Segment customers can lookup and pass down in their initial `.page()` call inside
  * their Segment snippet.
  *
  * @apr private
- * @param {Object=} redirectInfo
+ * @param {Object?} redirectInfo
  * @param {String} redirectInfo.experimentId
  * @param {String} redirectInfo.variationId
  * @param {String} redirectInfo.referrer
