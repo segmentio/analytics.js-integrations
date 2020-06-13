@@ -4,7 +4,7 @@ var _ = require('lodash');
 var Analytics = require('@segment/analytics.js-core').constructor;
 var assert = require('chai').assert;
 var sandbox = require('@segment/clear-env');
-var sinon = require('sinon').sandbox.create();
+var sinon = require('sinon');
 var tester = require('@segment/analytics.js-integration-tester');
 var Optimizely = require('../lib/');
 var tick = require('next-tick');
@@ -97,16 +97,22 @@ var mockWindowOptimizely = function() {
           if (!options.isActive) {
             throw new Error('Incorrect call to getCampaignStates');
           }
-          return _.filter(window.optimizely.newMockData, {
+          return _.pickBy(window.optimizely.newMockData, {
             isActive: options.isActive
           });
         },
         getRedirectInfo: function() {
           var campaigns = this.getCampaignStates({ isActive: true });
           for (var id in campaigns) {
-            if (campaigns[id].visitorRedirected)
-              return { referrer: 'barstools.com' };
+            if (campaigns[id].visitorRedirected) {
+              return {
+                experimentId: campaigns[id].experiment.id,
+                variationId: campaigns[id].variation.id,
+                referrer: 'barstools.com'
+              };
+            }
           }
+          return null;
         }
       };
     },
@@ -217,37 +223,209 @@ describe('Optimizely', function() {
       sinon.stub(optimizely, 'setRedirectInfo');
     });
 
-    context('after the Optimizely snippet has loaded', function() {
+    context('before the Optimizely snippet has loaded', function() {
+      var prePushStub;
+
       beforeEach(function() {
-        mockWindowOptimizely();
+        prePushStub = sinon.stub();
+        window.optimizely = {
+          push: prePushStub
+        };
+
+        optimizely.initWebIntegration();
       });
 
       context('if a redirect experiment has executed', function() {
-        it('captures redirect info', function() {
+        beforeEach(function() {
+          mockWindowOptimizely();
           // Make sure window.optimizely.getRedirectInfo returns something
           window.optimizely.newMockData[2347102720].isActive = true;
-          optimizely.initWebIntegration();
-          sinon.assert.calledOnce(optimizely.setRedirectInfo);
-          sinon.assert.alwaysCalledWith(optimizely.setRedirectInfo, {
-            experimentId: 'TODO',
-            variationId: 'TODO',
+        });
+
+        it('eventually captures redirect info', function() {
+          sinon.assert.notCalled(optimizely.setRedirectInfo);
+
+          var initializedCalls = _.filter(prePushStub.getCalls(), {
+            args: [
+              {
+                type: 'addListener',
+                filter: {
+                  type: 'lifecycle',
+                  name: 'initialized'
+                }
+              }
+            ]
+          });
+          assert.equal(initializedCalls.length, 1);
+          // Actually simulated an 'initialized' event.
+          initializedCalls[0].args[0].handler();
+
+          sinon.assert.calledOnceWithExactly(optimizely.setRedirectInfo, {
+            experimentId: '7522212694',
+            variationId: '7551111120',
             referrer: 'barstools.com'
           });
         });
       });
 
       context("if a redirect experiment hasn't executed", function() {
-        it('does not capture redirect info', function() {
+        beforeEach(function() {
           // by default mock data has no redirect experiments active
-          optimizely.initWebIntegration();
+          mockWindowOptimizely();
+        });
+
+        it('does not capture redirect info', function() {
           sinon.assert.notCalled(optimizely.setRedirectInfo);
+
+          var initializedCalls = _.filter(prePushStub.getCalls(), {
+            args: [
+              {
+                type: 'addListener',
+                filter: {
+                  type: 'lifecycle',
+                  name: 'initialized'
+                }
+              }
+            ]
+          });
+          assert.equal(initializedCalls.length, 1);
+          // Actually simulated an 'initialized' event.
+          initializedCalls[0].args[0].handler();
+
+          sinon.assert.calledOnceWithExactly(optimizely.setRedirectInfo, null);
+        });
+      });
+
+      it('does not immediately call sendWebDecisionToSegment', function() {
+        optimizely.initWebIntegration();
+        sinon.assert.notCalled(optimizely.sendWebDecisionToSegment);
+      });
+
+      context('when a campaign is finally decided', function() {
+        var handler;
+
+        beforeEach(function() {
+          // Make sure the code is actually listening for campaign decisions
+          var campaignDecidedCalls = _.filter(prePushStub.getCalls(), {
+            args: [
+              {
+                type: 'addListener',
+                filter: {
+                  type: 'lifecycle',
+                  name: 'campaignDecided'
+                }
+              }
+            ]
+          });
+          assert.equal(campaignDecidedCalls.length, 1);
+          // We'll call this later in order to simulate the 'campaignDecided' event.
+          handler = campaignDecidedCalls[0].args[0].handler;
+        });
+
+        context('and the campaign is active', function() {
+          beforeEach(function() {
+            mockWindowOptimizely();
+            window.optimizely.newMockData[2347102720].isActive = true;
+
+            handler({
+              data: {
+                campaign: {
+                  id: '2347102720'
+                }
+              }
+            });
+          });
+
+          it('calls #sendWebDecisionToSegment', function() {
+            sinon.assert.calledWithExactly(
+              optimizely.sendWebDecisionToSegment,
+              sinon.match({
+                id: '2347102720',
+                campaignName: 'Get Rich or Die Tryin',
+                experiment: {
+                  id: '7522212694',
+                  name: 'Wells Fargo Scam'
+                },
+                variation: {
+                  id: '7551111120',
+                  name: 'Variation Corruption #1884'
+                },
+                isInCampaignHoldback: false,
+                audiences: [
+                  {
+                    name: 'Middle Class',
+                    id: '7100568438'
+                  }
+                ]
+              })
+            );
+          });
+        });
+
+        context('and the campaign is inactive', function() {
+          beforeEach(function() {
+            mockWindowOptimizely();
+
+            handler({
+              data: {
+                campaign: {
+                  id: '2347102720'
+                }
+              }
+            });
+          });
+
+          it('does not call #sendWebDecisionToSegment', function() {
+            sinon.assert.notCalled(optimizely.sendWebDecisionToSegment);
+          });
+        });
+      });
+    });
+
+    context('after the Optimizely snippet has loaded', function() {
+      beforeEach(function() {
+        mockWindowOptimizely();
+      });
+
+      context('if a redirect experiment has executed', function() {
+        beforeEach(function() {
+          // Make sure window.optimizely.getRedirectInfo returns something
+          window.optimizely.newMockData[2347102720].isActive = true;
+
+          optimizely.initWebIntegration();
+        });
+
+        it('immediately captures redirect info', function() {
+          sinon.assert.calledOnceWithExactly(optimizely.setRedirectInfo, {
+            experimentId: '7522212694',
+            variationId: '7551111120',
+            referrer: 'barstools.com'
+          });
+        });
+
+        it('captures redirect info _before_ tracking decisions', function() {
+          sinon.assert.callOrder(
+            optimizely.setRedirectInfo,
+            optimizely.sendWebDecisionToSegment
+          );
+        });
+      });
+
+      context("if a redirect experiment hasn't executed", function() {
+        beforeEach(function() {
+          optimizely.initWebIntegration();
+        });
+
+        it('does not capture redirect info', function() {
+          sinon.assert.calledOnceWithExactly(optimizely.setRedirectInfo, null);
         });
       });
 
       it('calls sendWebDecisionToSegment for active Optimizely X campaigns', function() {
         optimizely.initWebIntegration();
+
         sinon.assert.calledTwice(optimizely.sendWebDecisionToSegment);
-        sinon.assert.calledWith({
+        sinon.assert.calledWithExactly(optimizely.sendWebDecisionToSegment, {
           audiences: [
             {
               name: 'Penthouse 6',
@@ -273,7 +451,7 @@ describe('Optimizely', function() {
           reason: undefined,
           visitorRedirected: false
         });
-        sinon.assert.calledWith({
+        sinon.assert.calledWithExactly(optimizely.sendWebDecisionToSegment, {
           audiences: [
             {
               name: 'Trust Tree',
@@ -297,100 +475,99 @@ describe('Optimizely', function() {
         });
       });
 
-      it('listens for future campaign activations', function() {
-        sinon.assert.calledWithExactly(window.optimizely.push, {
-          type: 'addListener',
-          filter: {
-            type: 'lifecycle',
-            name: 'campaignDecided'
-          },
-          handler: sinon.match.function
-        });
-      });
+      context('when a future campaign is decided', function() {
+        var handler;
 
-      // TODO: context('when a future campaign activation occurs')
-
-      // TODO: context('when a future campaign decision occurs without activation')
-    });
-
-    context('before the Optimizely snippet has loaded', function() {
-      beforeEach(function() {
-        window.optimizely = {
-          push: sinon.stub()
-        };
-        optimizely.initWebIntegration();
-      });
-
-      it('defers the redirect check until snippet initialization', function() {
-        sinon.assert.calledWithExactly(window.optimizely.push, {
-          type: 'addListener',
-          filter: {
-            type: 'lifecycle',
-            name: 'initialized'
-          },
-          handler: sinon.match.function
-        });
-      });
-
-      context('once the snippet finally initializes', function() {
         beforeEach(function() {
-          // by default mock data has no redirect experiments active
-          mockWindowOptimizely();
+          optimizely.initWebIntegration();
+          // Forget about the initial campaigns that were tracked.
+          optimizely.sendWebDecisionToSegment.resetHistory();
+
+          // Make sure the code is actually listening for campaign decisions
+          var campaignDecidedCalls = _.filter(
+            window.optimizely.push.getCalls(),
+            {
+              args: [
+                {
+                  type: 'addListener',
+                  filter: {
+                    type: 'lifecycle',
+                    name: 'campaignDecided'
+                  }
+                }
+              ]
+            }
+          );
+          assert.equal(campaignDecidedCalls.length, 1);
+          // We'll call this later in order to simulate the 'campaignDecided' event.
+          handler = campaignDecidedCalls[0].args[0].handler;
         });
 
-        context('if a redirect experiment has executed', function() {
+        context('and the campaign is active', function() {
           beforeEach(function() {
-            mockWindowOptimizely();
-            // Make sure window.optimizely.getRedirectInfo returns something
             window.optimizely.newMockData[2347102720].isActive = true;
-          });
 
-          it('captures redirect info', function() {
-            window.optimizely.push.firstCall.args[0].handler();
-            sinon.assert.calledOnce(optimizely.setRedirectInfo);
-            sinon.assert.alwaysCalledWith(optimizely.setRedirectInfo, {
-              experimentId: 'TODO',
-              variationId: 'TODO',
-              referrer: 'barstools.com'
+            handler({
+              data: {
+                campaign: {
+                  id: '2347102720'
+                }
+              }
             });
           });
+
+          it('calls #sendWebDecisionToSegment', function() {
+            sinon.assert.calledWithExactly(
+              optimizely.sendWebDecisionToSegment,
+              sinon.match({
+                id: '2347102720',
+                campaignName: 'Get Rich or Die Tryin',
+                experiment: {
+                  id: '7522212694',
+                  name: 'Wells Fargo Scam'
+                },
+                variation: {
+                  id: '7551111120',
+                  name: 'Variation Corruption #1884'
+                },
+                isInCampaignHoldback: false,
+                audiences: [
+                  {
+                    name: 'Middle Class',
+                    id: '7100568438'
+                  }
+                ]
+              })
+            );
+          });
         });
 
-        context("if a redirect experiment hasn't executed", function() {
-          it('does not capture redirect info', function() {
-            window.optimizely.push.firstCall.args[0].handler();
-            sinon.assert.notCalled(optimizely.setRedirectInfo);
+        context('and the campaign is inactive', function() {
+          beforeEach(function() {
+            handler({
+              data: {
+                campaign: {
+                  id: '2347102720'
+                }
+              }
+            });
+          });
+
+          it('does not call #sendWebDecisionToSegment', function() {
+            sinon.assert.notCalled(optimizely.sendWebDecisionToSegment);
           });
         });
       });
-
-      it('does not immediately call sendWebDecisionToSegment', function() {
-        optimizely.initWebIntegration();
-        sinon.assert.notCalled(optimizely.sendWebDecisionToSegment);
-      });
-
-      it('listens for future campaign activations', function() {
-        sinon.assert.calledWithExactly(window.optimizely.push, {
-          type: 'addListener',
-          filter: {
-            type: 'lifecycle',
-            name: 'campaignDecided'
-          },
-          handler: sinon.match.function
-        });
-      });
-
-      // TODO: context('when a future campaign activation occurs')
-
-      // TODO: context('when a future campaign decision occurs without activation')
     });
   });
 
   describe('#sendWebDecisionToSegment', function() {
-    // TODO: call sendWebDecisionToSegment directly with a campaignId, maybe a referrer, and assert on the output
-
-    // TODO: move some of these tests above, where we call initWebIntegration and assert a particular call to sendWebDecisionToSegment
-    //       and a particular state in the API
+    // TODO: Turn these into proper _unit_ tests.
+    //       * Directly call sendWebDecisionToSegment (after calling setRedirectInfo in cases where
+    //         that precondition is relevant) instead of calling analytics.initialize.
+    //       * For some of these tests (e.g. the ones that reference "personalized" campaigns),
+    //         move the tests to #initWebIntegration and assert that #sendWebDecisionToSegment is called
+    //         with particular arguments.
 
     beforeEach(function() {
       mockWindowOptimizely();
@@ -423,10 +600,6 @@ describe('Optimizely', function() {
     });
 
     context('options.sendRevenueOnlyForOrderCompleted', function() {
-      beforeEach(function() {
-        sinon.stub(window.optimizely, 'push');
-      });
-
       it('should not include revenue on a non Order Completed event if `onlySendRevenueOnOrderCompleted` is enabled', function(done) {
         analytics.initialize();
         tick(done);
@@ -489,9 +662,7 @@ describe('Optimizely', function() {
         // Going to leave just the one that was created as a standard
         // experiment inside Optimizely X (not campaign)
         window.optimizely.newMockData[7547101713].isActive = false;
-
-        analytics.initialize(); // TODO
-
+        analytics.initialize();
         executeAsyncTest(done, function() {
           assert.deepEqual(analytics.track.args[0], [
             'Experiment Viewed',
@@ -517,7 +688,8 @@ describe('Optimizely', function() {
         window.optimizely.newMockData[2542102702].isActive = false;
         analytics.initialize();
         executeAsyncTest(done, function() {
-          assert.deepEqual(analytics.track.args[0], [
+          sinon.assert.calledWithExactly(
+            analytics.track,
             'Experiment Viewed',
             {
               campaignName: 'URF',
@@ -531,75 +703,7 @@ describe('Optimizely', function() {
               isInCampaignHoldback: true
             },
             { integration: optimizelyContext }
-          ]);
-        });
-      });
-
-      it('should map custom properties and send campaign data via `.track()`', function(done) {
-        optimizely.options.customCampaignProperties = {
-          campaignName: 'campaign_name',
-          campaignId: 'campaign_id',
-          experimentId: 'experiment_id',
-          experimentName: 'experiment_name'
-        };
-
-        window.optimizely.newMockData.experiment_id = '124';
-        window.optimizely.newMockData.experiment_name =
-          'custom experiment name';
-        window.optimizely.newMockData.campaign_id = '421';
-        window.optimizely.newMockData.campaign_name = 'custom campaign name';
-
-        window.optimizely.newMockData[2542102702].isActive = false;
-        analytics.initialize();
-        executeAsyncTest(done, function() {
-          assert.deepEqual(analytics.track.args[0], [
-            'Experiment Viewed',
-            {
-              campaignName: 'custom campaign name',
-              campaignId: '421',
-              experimentId: '124',
-              experimentName: 'custom experiment name',
-              variationId: '7557950020',
-              variationName: 'Variation #1',
-              audienceId: '7527565438',
-              audienceName: 'Trust Tree',
-              isInCampaignHoldback: true
-            },
-            { integration: optimizelyContext }
-          ]);
-        });
-      });
-
-      it('should not map existing properties if custom properties not specified`', function(done) {
-        optimizely.options.customCampaignProperties = {
-          campaignName: 'campaign_name',
-          campaignId: 'campaign_id'
-        };
-
-        window.optimizely.newMockData.experiment_id = '124';
-        window.optimizely.newMockData.experiment_name =
-          'custom experiment name';
-        window.optimizely.newMockData.campaign_id = '421';
-        window.optimizely.newMockData.campaign_name = 'custom campaign name';
-
-        window.optimizely.newMockData[2542102702].isActive = false;
-        analytics.initialize();
-        executeAsyncTest(done, function() {
-          assert.deepEqual(analytics.track.args[0], [
-            'Experiment Viewed',
-            {
-              campaignName: 'custom campaign name',
-              campaignId: '421',
-              experimentId: '7547682694',
-              experimentName: 'Worlds Group Stage',
-              variationId: '7557950020',
-              variationName: 'Variation #1',
-              audienceId: '7527565438',
-              audienceName: 'Trust Tree',
-              isInCampaignHoldback: true
-            },
-            { integration: optimizelyContext }
-          ]);
+          );
         });
       });
 
@@ -614,7 +718,8 @@ describe('Optimizely', function() {
         };
         analytics.initialize();
         executeAsyncTest(done, function() {
-          assert.deepEqual(analytics.track.args[0], [
+          sinon.assert.calledWithExactly(
+            analytics.track,
             'Experiment Viewed',
             {
               campaignName: 'Get Rich or Die Tryin',
@@ -629,7 +734,7 @@ describe('Optimizely', function() {
               isInCampaignHoldback: false
             },
             context
-          ]);
+          );
         });
       });
 
@@ -640,7 +745,8 @@ describe('Optimizely', function() {
         optimizely.options.nonInteraction = true;
         analytics.initialize();
         executeAsyncTest(done, function() {
-          assert.deepEqual(analytics.track.args[0], [
+          sinon.assert.calledWithExactly(
+            analytics.track,
             'Experiment Viewed',
             {
               campaignName: 'URF',
@@ -655,7 +761,7 @@ describe('Optimizely', function() {
               isInCampaignHoldback: true
             },
             { integration: optimizelyContext }
-          ]);
+          );
         });
       });
 
@@ -672,210 +778,210 @@ describe('Optimizely', function() {
     });
   });
 
-  describe('after loading', function() {
-    beforeEach(function(done) {
-      mockWindowOptimizely();
+  describe('#track', function() {
+    beforeEach(function() {
       analytics.initialize();
-      analytics.page();
-      analytics.once('ready', done);
     });
 
-    describe('#track', function() {
-      context('when the Optimizely Web snippet has initialized', function() {
-        beforeEach(function() {
-          sinon.stub(window.optimizely, 'push');
-        });
+    context('when Optimizely Web is implemented', function() {
+      beforeEach(function() {
+        window.optimizely = {
+          push: sinon.stub()
+        };
+      });
 
-        it('should send an event', function() {
-          analytics.track('event');
-          sinon.assert.calledWith(window.optimizely.push, {
-            type: 'event',
-            eventName: 'event',
-            tags: {}
-          });
-        });
-
-        it('should replace colons with underscore in eventName', function() {
-          analytics.track('event:foo:bar');
-          sinon.assert.calledWith(window.optimizely.push, {
-            type: 'event',
-            eventName: 'event_foo_bar',
-            tags: {}
-          });
-        });
-
-        it('should send all additional properties along as tags', function() {
-          analytics.track('event', { id: 'c00lHa$h', name: 'jerry' });
-          sinon.assert.calledWith(window.optimizely.push, {
-            type: 'event',
-            eventName: 'event',
-            tags: { id: 'c00lHa$h', name: 'jerry' }
-          });
-        });
-
-        it('should change revenue to cents and include in tags', function() {
-          analytics.track('Order Completed', { revenue: 9.99 });
-          sinon.assert.calledWith(window.optimizely.push, {
-            type: 'event',
-            eventName: 'Order Completed',
-            tags: { revenue: 999 }
-          });
-        });
-
-        it('should round the revenue value to an integer value if passed in as a floating point number', function() {
-          analytics.track('Order Completed', { revenue: 534.3099999999999 });
-          sinon.assert.calledWith(window.optimizely.push, {
-            type: 'event',
-            eventName: 'Order Completed',
-            tags: { revenue: 53431 }
-          });
+      it('should send an event', function() {
+        analytics.track('event');
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'event',
+          tags: {}
         });
       });
 
-      context(
-        'when the Optimizely Full Stack JavaScript SDK has initialized',
-        function() {
-          beforeEach(function() {
-            window.optimizelyClientInstance = {};
-            sinon.stub(window.optimizelyClientInstance, 'track');
-          });
+      it('should replace colons with underscore in eventName', function() {
+        analytics.track('event:foo:bar');
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'event_foo_bar',
+          tags: {}
+        });
+      });
 
-          it('should send an event through the Optimizely X Full Stack JS SDK using the logged in user', function() {
-            analytics.identify('user1');
-            analytics.track('event', { purchasePrice: 9.99, property: 'foo' });
-            sinon.assert.calledWith(
-              window.optimizelyClientInstance.track,
-              'event',
-              'user1',
-              {},
-              { purchasePrice: 9.99, property: 'foo' }
-            );
-          });
+      it('should send all additional properties along as tags', function() {
+        analytics.track('event', { id: 'c00lHa$h', name: 'jerry' });
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'event',
+          tags: { id: 'c00lHa$h', name: 'jerry' }
+        });
+      });
 
-          it('should replace colons with underscores for event names', function() {
-            analytics.identify('user1');
-            analytics.track('foo:bar:baz');
-            sinon.assert.calledWith(
-              window.optimizelyClientInstance.track,
-              'foo_bar_baz',
-              'user1',
-              {},
-              {}
-            );
-          });
+      it('should change revenue to cents and include in tags', function() {
+        analytics.track('Order Completed', { revenue: 9.99 });
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'Order Completed',
+          tags: { revenue: 999 }
+        });
+      });
 
-          it('should send an event through the Optimizely X Fullstack JS SDK using the user provider user id', function() {
-            analytics.track(
-              'event',
-              { purchasePrice: 9.99, property: 'foo' },
-              {
-                Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
-              }
-            );
-            sinon.assert.calledWith(
-              window.optimizelyClientInstance.track,
-              'event',
-              'user1',
-              { country: 'usa' },
-              { property: 'foo', purchasePrice: 9.99 }
-            );
-          });
-
-          it('should send revenue on `Order Completed` through the Optimizely X Fullstack JS SDK and `properites.revenue` is passed', function() {
-            analytics.track(
-              'Order Completed',
-              { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
-              {
-                Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
-              }
-            );
-            sinon.assert.calledWith(
-              window.optimizelyClientInstance.track,
-              'Order Completed',
-              'user1',
-              { country: 'usa' },
-              { property: 'foo', purchasePrice: 9.99, revenue: 199 }
-            );
-          });
-
-          it('should not default to sending revenue through the Optimizely X Fullstack JS SDK on non `Order Completed` events and `properites.revenue` is passed', function() {
-            analytics.track(
-              'event',
-              { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
-              {
-                Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
-              }
-            );
-            sinon.assert.calledWith(
-              window.optimizelyClientInstance.track,
-              'event',
-              'user1',
-              { country: 'usa' },
-              { property: 'foo', purchasePrice: 9.99 }
-            );
-          });
-
-          it('should send revenue through the Optimizely X Fullstack JS SDK on all events if `sendRevenueOnlyForOrderCompleted` is disabled and `properites.revenue` is passed', function() {
-            optimizely.options.sendRevenueOnlyForOrderCompleted = false;
-            analytics.track(
-              'event',
-              { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
-              {
-                Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
-              }
-            );
-            sinon.assert.calledWith(
-              window.optimizelyClientInstance.track,
-              'event',
-              'user1',
-              { country: 'usa' },
-              { property: 'foo', purchasePrice: 9.99, revenue: 199 }
-            );
-          });
-        }
-      );
+      it('should round the revenue value to an integer value if passed in as a floating point number', function() {
+        analytics.track('Order Completed', { revenue: 534.3099999999999 });
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'Order Completed',
+          tags: { revenue: 53431 }
+        });
+      });
     });
 
-    describe('#page', function() {
-      context('when the Optimizely Web snippet has initialized', function() {
-        beforeEach(function() {
-          mockWindowOptimizely();
-          sinon.stub(window.optimizely, 'push');
-        });
+    context('when Optimizely Full Stack is implemented', function() {
+      beforeEach(function() {
+        window.optimizelyClientInstance = {
+          track: sinon.stub()
+        };
+      });
 
-        it('should send an event for a named page', function() {
-          var referrer = window.document.referrer;
-          analytics.page('Home');
-          sinon.assert.calledWith(window.optimizely.push, {
-            type: 'event',
-            eventName: 'Viewed Home Page',
-            tags: {
-              name: 'Home',
-              path: '/context.html',
-              referrer: referrer,
-              search: '',
-              title: '',
-              url: 'http://localhost:9876/context.html'
-            }
-          });
-        });
+      it('should send an event through the Optimizely X Full Stack JS SDK using the logged in user', function() {
+        analytics.identify('user1');
+        analytics.track('event', { purchasePrice: 9.99, property: 'foo' });
+        sinon.assert.calledWith(
+          window.optimizelyClientInstance.track,
+          'event',
+          'user1',
+          {},
+          { purchasePrice: 9.99, property: 'foo' }
+        );
+      });
 
-        it('should send an event for a named and categorized page', function() {
-          var referrer = window.document.referrer;
-          analytics.page('Blog', 'New Integration');
-          sinon.assert.calledWith(window.optimizely.push, {
-            type: 'event',
-            eventName: 'Viewed Blog New Integration Page',
-            tags: {
-              name: 'New Integration',
-              category: 'Blog',
-              path: '/context.html',
-              referrer: referrer,
-              search: '',
-              title: '',
-              url: 'http://localhost:9876/context.html'
-            }
-          });
+      it('should replace colons with underscores for event names', function() {
+        analytics.identify('user1');
+        analytics.track('foo:bar:baz');
+        sinon.assert.calledWith(
+          window.optimizelyClientInstance.track,
+          'foo_bar_baz',
+          'user1',
+          {},
+          {}
+        );
+      });
+
+      it('should send an event through the Optimizely X Fullstack JS SDK using the user provider user id', function() {
+        analytics.track(
+          'event',
+          { purchasePrice: 9.99, property: 'foo' },
+          {
+            Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
+          }
+        );
+        sinon.assert.calledWith(
+          window.optimizelyClientInstance.track,
+          'event',
+          'user1',
+          { country: 'usa' },
+          { property: 'foo', purchasePrice: 9.99 }
+        );
+      });
+
+      it('should send revenue on `Order Completed` through the Optimizely X Fullstack JS SDK and `properites.revenue` is passed', function() {
+        analytics.track(
+          'Order Completed',
+          { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
+          {
+            Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
+          }
+        );
+        sinon.assert.calledWith(
+          window.optimizelyClientInstance.track,
+          'Order Completed',
+          'user1',
+          { country: 'usa' },
+          { property: 'foo', purchasePrice: 9.99, revenue: 199 }
+        );
+      });
+
+      it('should not default to sending revenue through the Optimizely X Fullstack JS SDK on non `Order Completed` events and `properites.revenue` is passed', function() {
+        analytics.track(
+          'event',
+          { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
+          {
+            Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
+          }
+        );
+        sinon.assert.calledWith(
+          window.optimizelyClientInstance.track,
+          'event',
+          'user1',
+          { country: 'usa' },
+          { property: 'foo', purchasePrice: 9.99 }
+        );
+      });
+
+      it('should send revenue through the Optimizely X Fullstack JS SDK on all events if `sendRevenueOnlyForOrderCompleted` is disabled and `properites.revenue` is passed', function() {
+        optimizely.options.sendRevenueOnlyForOrderCompleted = false;
+        analytics.track(
+          'event',
+          { purchasePrice: 9.99, property: 'foo', revenue: 1.99 },
+          {
+            Optimizely: { userId: 'user1', attributes: { country: 'usa' } }
+          }
+        );
+        sinon.assert.calledWith(
+          window.optimizelyClientInstance.track,
+          'event',
+          'user1',
+          { country: 'usa' },
+          { property: 'foo', purchasePrice: 9.99, revenue: 199 }
+        );
+      });
+    });
+  });
+
+  describe('#page', function() {
+    beforeEach(function() {
+      analytics.initialize();
+    });
+
+    context('when Optimizely Web is implemented', function() {
+      beforeEach(function() {
+        window.optimizely = {
+          push: sinon.stub()
+        };
+      });
+
+      it('should send an event for a named page', function() {
+        var referrer = window.document.referrer;
+        analytics.page('Home');
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'Viewed Home Page',
+          tags: {
+            name: 'Home',
+            path: '/context.html',
+            referrer: referrer,
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html'
+          }
+        });
+      });
+
+      it('should send an event for a named and categorized page', function() {
+        var referrer = window.document.referrer;
+        analytics.page('Blog', 'New Integration');
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'Viewed Blog New Integration Page',
+          tags: {
+            name: 'New Integration',
+            category: 'Blog',
+            path: '/context.html',
+            referrer: referrer,
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html'
+          }
         });
       });
     });
