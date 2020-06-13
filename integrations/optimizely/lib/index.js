@@ -22,8 +22,7 @@ var Optimizely = (module.exports = integration('Optimizely')
   .option('variations', false) // send data via `.identify()`
   .option('listen', true) // send data via `.track()`
   .option('nonInteraction', false)
-  .option('sendRevenueOnlyForOrderCompleted', true)
-);
+  .option('sendRevenueOnlyForOrderCompleted', true));
 
 /**
  * The name and version for this integration.
@@ -52,7 +51,7 @@ Optimizely.prototype.initialize = function() {
   // initializing the integration even though the function below is designed to be async,
   // just want to be extra safe
   tick(function() {
-    this.initWebIntegration();
+    self.initWebIntegration();
   });
 
   this.ready();
@@ -159,23 +158,22 @@ Optimizely.prototype.page = function(page) {
  * attached listeners on the page
  *
  * @api private
- * @param {String} id
- * @param {String|undefined} referrer
+ * @param {Object} campaignState: contains all information regarding experiments and campaign
+ * @param {String} campaignState.id: the ID of the campaign
+ * @param {String} campaignState.campaignName: the name of the campaign
+ * @param {Array} campaignState.audiences: "Audiences" the visitor is considered part of related to this campaign
+ * @param {String} campaignState.audiences[].id: the id of the Audience
+ * @param {String} campaignState.audiences[].name: the name of the Audience
+ * @param {Object} campaignState.experiment: the experiment the visitor is seeing
+ * @param {String} campaignState.experiment.id: the id of the experiment
+ * @param {String} campaignState.experiment.name: the name of the experiment
+ * @param {String} campaignState.experiment.referrer: the effective referrer of the experiment (only defined for redirect)
+ * @param {Object} campaignState.variation: the variation the visitor is seeing
+ * @param {String} campaignState.variation.id: the id of the variation
+ * @param {String} campaignState.variation.name: the name of the variation
+ * @param {String} campaignState.isInCampaignHoldback: whether the visitor is in the Campaign holdback
  */
-
-Optimizely.prototype.sendWebDecisionToSegment = function(id, referrer) {
-  var state = window.optimizely.get && window.optimizely.get('state');
-  if (!state) {
-    return;
-  }
-
-  var activeCampaigns = state.getCampaignStates({
-    isActive: true
-  });
-  var campaignState = activeCampaigns[id];
-  // Legacy. It's more accurate to use on context.page.referrer or window.optimizelyEffectiveReferrer.
-  if (referrer) campaignState.experiment.referrer = referrer;
-
+Optimizely.prototype.sendWebDecisionToSegment = function(campaignState) {
   var experiment = campaignState.experiment;
   var variation = campaignState.variation;
   var context = { integration: optimizelyContext }; // backward compatibility
@@ -213,12 +211,12 @@ Optimizely.prototype.sendWebDecisionToSegment = function(id, referrer) {
       isInCampaignHoldback: campaignState.isInCampaignHoldback
     };
 
-    // If this was a redirect experiment and the effective referrer is different from document.referrer,
-    // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
-    // `experiment.referrer` would be google.com/ad here NOT `tb12.com`.
-    if (experiment.referrer) {
-      props.referrer = experiment.referrer;
-      context.page = { referrer: experiment.referrer };
+    if (this.redirectInfo) {
+      // Legacy. It's more accurate to use context.page.referrer or window.optimizelyEffectiveReferrer.
+      // TODO: Maybe only set this if experiment.id matches this.redirectInfo.experimentId?
+      props.referrer = this.redirectInfo.referrer;
+
+      context.page = { referrer: this.redirectInfo.referrer };
     }
 
     // For Google's nonInteraction flag
@@ -245,7 +243,9 @@ Optimizely.prototype.sendWebDecisionToSegment = function(id, referrer) {
 };
 
 /**
- * setEffectiveReferrer
+ * setRedirectInfo
+ *
+ * TODO: fix the tests!
  *
  * This function is called when a redirect experiment changed the effective referrer value where it is different from the `document.referrer`.
  * This is a documented caveat for any mutual customers that are using redirect experiments.
@@ -253,13 +253,15 @@ Optimizely.prototype.sendWebDecisionToSegment = function(id, referrer) {
  * their Segment snippet.
  *
  * @apr private
- * @param {string} referrer
+ * @param {Object=} redirectInfo
+ * @param {String} redirectInfo.experimentId
+ * @param {String} redirectInfo.variationId
+ * @param {String} redirectInfo.referrer
  */
-
-Optimizely.prototype.setEffectiveReferrer = function(referrer) {
-  if (referrer) {
-    window.optimizelyEffectiveReferrer = referrer;
-    return referrer;
+Optimizely.prototype.setRedirectInfo = function(redirectInfo) {
+  if (redirectInfo) {
+    this.redirectInfo = redirectInfo;
+    window.optimizelyEffectiveReferrer = redirectInfo.referrer;
   }
 };
 
@@ -272,16 +274,29 @@ Optimizely.prototype.setEffectiveReferrer = function(referrer) {
 Optimizely.prototype.initWebIntegration = function() {
   var self = this;
 
+  /**
+   * If the visitor got to the current page via an Optimizely redirect variation,
+   * record the "effective referrer", i.e. the URL that referred the visitor to the
+   * _pre-redirect_ page.
+   */
   var checkReferrer = function() {
     var state = window.optimizely.get && window.optimizely.get('state');
     if (state) {
-      var referrer =
-        state.getRedirectInfo() && state.getRedirectInfo().referrer;
-
-      if (referrer) {
-        self.setEffectiveReferrer(referrer);
-        return referrer; // Segment added code: so I can pass this referrer value in cb
-      }
+      self.setRedirectInfo(state.getRedirectInfo());
+    } else {
+      push({
+        type: 'addListener',
+        filter: {
+          type: 'lifecycle',
+          name: 'initialized'
+        },
+        handler: function() {
+          var state = window.optimizely.get && window.optimizely.get('state');
+          if (state) {
+            self.setRedirectInfo(state.getRedirectInfo());
+          }
+        }
+      });
     }
   };
 
@@ -291,16 +306,24 @@ Optimizely.prototype.initWebIntegration = function() {
    * handles them.
    */
   var registerFutureActiveCampaigns = function() {
-    window.optimizely = window.optimizely || [];
-    window.optimizely.push({
+    push({
       type: 'addListener',
       filter: {
         type: 'lifecycle',
         name: 'campaignDecided'
       },
       handler: function(event) {
-        var id = event.data.campaign.id;
-        self.sendWebDecisionToSegment(id);
+        var campaignId = event.data.campaign.id;
+        var state = window.optimizely.get && window.optimizely.get('state');
+        if (!state) {
+          return;
+        }
+        // Make sure the campaign actually activated (rather than producing a null decision)
+        var activeCampaigns = state.getCampaignStates({ isActive: true });
+        if (!activeCampaigns[campaignId]) {
+          return;
+        }
+        self.sendWebDecisionToSegment(activeCampaigns[campaignId]);
       }
     });
   };
@@ -308,41 +331,21 @@ Optimizely.prototype.initWebIntegration = function() {
   /**
    * If this code is running after Optimizely on the page, there might already be
    * some campaigns or experiments active. This function retrieves and handlers them.
-   *
-   * This function also checks for an effective referrer if the visitor got to the current
-   * page via an Optimizely redirect variation.
    */
   var registerCurrentlyActiveCampaigns = function() {
     window.optimizely = window.optimizely || [];
     var state = window.optimizely.get && window.optimizely.get('state');
     if (state) {
-      var referrer = checkReferrer();
       var activeCampaigns = state.getCampaignStates({
         isActive: true
       });
-      for (var id in activeCampaigns) {
-        if ({}.hasOwnProperty.call(activeCampaigns, id)) {
-          // Segment modified code: need to pass down referrer in the cb for backward compat reasons
-          if (referrer) {
-            self.sendWebDecisionToSegment(id, referrer);
-          } else {
-            self.sendWebDecisionToSegment(id);
-          }
-        }
-      }
-    } else {
-      window.optimizely.push({
-        type: 'addListener',
-        filter: {
-          type: 'lifecycle',
-          name: 'initialized'
-        },
-        handler: function() {
-          checkReferrer();
-        }
-      });
+      each(function(campaignState) {
+        self.sendWebDecisionToSegment(campaignState);
+      }, activeCampaigns);
     }
   };
+
+  checkReferrer();
   registerCurrentlyActiveCampaigns();
   registerFutureActiveCampaigns();
 };
