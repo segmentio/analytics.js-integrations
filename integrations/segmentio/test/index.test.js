@@ -63,8 +63,8 @@ describe('Segment.io', function() {
   function resetCookies() {
     store('s:context.referrer', null);
     cookie('s:context.referrer', null, { maxage: -1, path: '/' });
-    store('segment_amp_id', null);
-    cookie('segment_amp_id', null, { maxage: -1, path: '/' });
+    store('_ga', null);
+    cookie('_ga', null, { maxage: -1, path: '/' });
     store('seg_xid', null);
     cookie('seg_xid', null, { maxage: -1, path: '/' });
     store('seg_xid_fd', null);
@@ -316,16 +316,24 @@ describe('Segment.io', function() {
         Segment.global = window;
       });
 
+      it('shouldnt add non amp ga cookie', function() {
+        segment.cookie('_ga', 'some-nonamp-id');
+        segment.normalize(object);
+        analytics.assert(object);
+        analytics.assert(object.context);
+        analytics.assert(!object.context.amp);
+      });
+
       it('should add .amp.id from store', function() {
-        segment.cookie('segment_amp_id', 'some-amp-id');
+        segment.cookie('_ga', 'amp-foo');
         segment.normalize(object);
         analytics.assert(object);
         analytics.assert(object.context);
         analytics.assert(object.context.amp);
-        analytics.assert(object.context.amp.id === 'some-amp-id');
+        analytics.assert(object.context.amp.id === 'amp-foo');
       });
 
-      it('should not add .amp if theres no segment_amp_id', function() {
+      it('should not add .amp if theres no _ga', function() {
         segment.normalize(object);
         analytics.assert(object);
         analytics.assert(object.context);
@@ -1109,26 +1117,6 @@ describe('Segment.io', function() {
             }
 
             describe('with ' + scenario, function() {
-              it('should generate xid locally if there is only one (current hostname) server', function() {
-                segment.options.crossDomainIdServers = ['localhost'];
-                segment.options.saveCrossDomainIdInLocalStorage =
-                  cases[scenario];
-
-                var res = null;
-                segment.retrieveCrossDomainId(function(err, response) {
-                  res = response;
-                });
-
-                var identify = segment.onidentify.args[0];
-                var crossDomainId = identify[0].traits().crossDomainId;
-                analytics.assert(crossDomainId);
-
-                analytics.assert(res.crossDomainId === crossDomainId);
-                analytics.assert(res.fromDomain === 'localhost');
-
-                assert.equal(segment.getCachedCrossDomainId(), crossDomainId);
-              });
-
               it('should obtain crossDomainId', function() {
                 server.respondWith(
                   'GET',
@@ -1186,6 +1174,15 @@ describe('Segment.io', function() {
                     '{ "id": null }'
                   ]
                 );
+                server.respondWith(
+                  'GET',
+                  'https://localhost/v1/id/' + segment.options.apiKey,
+                  [
+                    200,
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": null }'
+                  ]
+                );
                 if (segment.options.saveCrossDomainIdInLocalStorage) {
                   server.respondWith('GET', /https:\/\/localhost\/v1\/saveId/, [
                     200,
@@ -1229,12 +1226,17 @@ describe('Segment.io', function() {
                     segment.options.apiKey,
                   [500, { 'Content-Type': 'application/json' }, '']
                 );
+                server.respondWith(
+                  'GET',
+                  'https://localhost/v1/id/' + segment.options.apiKey,
+                  [500, { 'Content-Type': 'application/json' }, '']
+                );
                 server.respond();
 
                 var identify = segment.onidentify.args[0];
                 analytics.assert(!identify);
                 analytics.assert(!res);
-                analytics.assert(err === 'Internal Server Error');
+                analytics.assert.equal(err, 'Internal Server Error');
 
                 assert.equal(segment.getCachedCrossDomainId(), null);
               });
@@ -1256,6 +1258,15 @@ describe('Segment.io', function() {
                   'GET',
                   'https://userdata.example1.com/v1/id/' +
                     segment.options.apiKey,
+                  [
+                    200,
+                    { 'Content-Type': 'application/json' },
+                    '{ "id": null }'
+                  ]
+                );
+                server.respondWith(
+                  'GET',
+                  'https://localhost/v1/id/' + segment.options.apiKey,
                   [
                     200,
                     { 'Content-Type': 'application/json' },
@@ -1513,6 +1524,7 @@ describe('Segment.io', function() {
     var headers = { 'Content-Type': 'application/json' };
 
     it('should timeout', function(done) {
+      this.skip(); // disabling this test for now, ticket https://segment.atlassian.net/browse/LIB-1723
       if (send.type !== 'xhr') return done();
 
       Segment.sendJsonWithTimeout(url, [1, 2, 3], headers, 1, function(err) {
