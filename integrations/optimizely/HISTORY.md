@@ -1,3 +1,7 @@
+4.1.0 / 2020-07-13
+==================
+
+  * Track conversion events using `window.optimizelyEdge` instead of `window.optimizely` if Optimizely Performance Edge is running on the page.
 
 4.0.0 / 2020-06-12
 ==================

@@ -142,6 +142,83 @@ var mockWindowOptimizely = function() {
   };
 };
 
+var mockWindowEdge = function() {
+  window.optimizelyEdge = {
+    edgeMockData: {
+      7522212694: {
+        id: '7522212694',
+        name: 'Wells Fargo Scam',
+        variation: {
+          id: '7551111120',
+          name: 'Variation Corruption #1884'
+        },
+        // these are returned by real Optimizely API but will not be send to integrations
+        isActive: false,
+        reason: undefined,
+        visitorRedirected: true
+      },
+      7547682694: {
+        id: '7547682694',
+        name: 'Worlds Group Stage',
+        variation: {
+          id: '7557950020',
+          name: 'Variation #1'
+        },
+        // these are returned by real Optimizely API but will not be send to integrations
+        isActive: true,
+        reason: undefined,
+        visitorRedirected: false
+      },
+      1111182111: {
+        id: '1111182111',
+        name: 'Coding Bootcamp',
+        variation: {
+          id: '7333333333',
+          name: 'Variation DBC'
+        },
+        // these are returned by real Optimizely API but will not be send to integrations
+        isActive: true,
+        reason: undefined,
+        visitorRedirected: false
+      }
+    },
+
+    get: function() {
+      return {
+        getActiveExperiments: function() {
+          var data = _.filter(window.optimizelyEdge.newMockData, {
+            isActive: true
+          });
+
+          data = Object.keys(data).map(function(key) {
+            return data[key];
+          });
+          var formatExperiment = function(experimentState) {
+            return {
+              id: experimentState.id,
+              name: experimentState.name,
+              variation: {
+                id: experimentState.variation.id,
+                name: experimentState.variation.name
+              }
+            };
+          };
+
+          /* eslint-disable no-param-reassign */
+          return data.reduce(function(activeExperiments, experiment) {
+            var formatted = formatExperiment(experiment);
+            activeExperiments[formatted.id] = formatted;
+            return activeExperiments;
+          }, {});
+          /* eslint-enable no-param-reassign */
+        }
+      };
+    },
+
+    push: sinon.stub()
+  };
+};
+
 // passed into context.integration (not context.integrations!) for all track calls for some reason
 var optimizelyContext = {
   name: 'optimizely',
@@ -197,6 +274,28 @@ describe('Optimizely', function() {
       sinon.assert.calledWith(window.optimizely.push, {
         type: 'integration',
         OAuthClientId: '5360906403'
+      });
+    });
+
+    describe('on an Edge page', function() {
+      beforeEach(function() {
+        sinon.stub(Optimizely.prototype, 'initEdgeIntegration');
+        sinon.stub(window.optimizelyEdge, 'push');
+        window.optimizelyEdge = [];
+      });
+
+      it('should call initEdgeIntegration', function(done) {
+        executeAsyncTest(done, function() {
+          sinon.assert.calledWith(optimizely.initEdgeIntegration);
+          sinon.assert.notCalled(optimizely.initWebIntegration);
+        });
+      });
+
+      it('should flag source of integration', function() {
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'integration',
+          OAuthClientId: '5360906403'
+        });
       });
     });
   });
@@ -582,6 +681,135 @@ describe('Optimizely', function() {
     });
   });
 
+  describe('#initEdgeIntegration', function() {
+    beforeEach(function() {
+      sinon.stub(optimizely, 'sendEdgeExperimentData');
+    });
+
+    context('after the Optimizely Edge microsnippet has loaded', function() {
+      beforeEach(function() {
+        mockWindowEdge();
+      });
+
+      it('calls sendEdgeExperimentData for active Optimizely Edge experiments', function() {
+        optimizely.initEdgeIntegration();
+        sinon.assert.calledTwice(optimizely.sendEdgeExperimentData);
+        // fix
+        sinon.assert.calledWith({
+          id: '7522212694',
+          name: 'Wells Fargo Scam',
+          variation: {
+            id: '7551111120',
+            name: 'Variation Corruption #1884'
+          },
+          // these are returned by real Optimizely API but will not be send to integrations
+          isActive: false,
+          reason: undefined,
+          visitorRedirected: true
+        });
+        sinon.assert.calledWith({
+          id: '7547682694',
+          name: 'Worlds Group Stage',
+          variation: {
+            id: '7557950020',
+            name: 'Variation #1'
+          },
+          // these are returned by real Optimizely API but will not be send to integrations
+          isActive: true,
+          reason: undefined,
+          visitorRedirected: false
+        });
+      });
+
+      // until Edge supports its API counterparts, use Web's API's for now.
+      it('listens for future experiment activations', function() {
+        sinon.assert.calledWithExactly(window.optimizely.push, {
+          type: 'addListener',
+          filter: {
+            type: 'lifecycle',
+            name: 'campaignDecided'
+          },
+          handler: sinon.match.function
+        });
+      });
+    });
+
+    context('before the Edge microsnippet has loaded', function() {
+      beforeEach(function() {
+        window.optimizelyEdge = {
+          push: sinon.stub()
+        };
+        optimizely.initEdgeIntegration();
+      });
+
+      it('defers the redirect check until snippet initialization', function() {
+        sinon.assert.calledWithExactly(window.optimizely.push, {
+          type: 'addListener',
+          filter: {
+            type: 'lifecycle',
+            name: 'initialized'
+          },
+          handler: sinon.match.function
+        });
+      });
+
+      // Edge does not have a way to handle redirect info.
+      context.skip('once the snippet finally initializes', function() {
+        beforeEach(function() {
+          // by default mock data has no redirect experiments active
+          mockWindowEdge();
+        });
+
+        context('if a redirect experiment has executed', function() {
+          beforeEach(function() {
+            mockWindowOptimizely();
+            // Make sure window.optimizely.getRedirectInfo returns something
+            window.optimizely.newMockData[2347102720].isActive = true;
+          });
+
+          it('captures redirect info', function() {
+            window.optimizely.push.firstCall.args[0].handler();
+            sinon.assert.calledOnce(optimizely.setRedirectInfo);
+            sinon.assert.alwaysCalledWith(optimizely.setRedirectInfo, {
+              experimentId: 'TODO',
+              variationId: 'TODO',
+              referrer: 'barstools.com'
+            });
+          });
+        });
+
+        context("if a redirect experiment hasn't executed", function() {
+          it('does not capture redirect info', function() {
+            window.optimizely.push.firstCall.args[0].handler();
+            sinon.assert.notCalled(optimizely.setRedirectInfo);
+          });
+        });
+      });
+
+      it('does not immediately call sendWebDecisionToSegment', function() {
+        optimizely.initEdgeIntegration();
+        sinon.assert.notCalled(optimizely.sendEdgeExperimentData);
+      });
+
+      // We push to Optimizely Web (which exists silently on Edge pages),
+      // so this works awkwardly.
+      it('listens for future campaign activations', function() {
+        sinon.assert.calledWithExactly(window.optimizely.push, {
+          type: 'addListener',
+          filter: {
+            type: 'lifecycle',
+            name: 'campaignDecided'
+          },
+          handler: sinon.match.function
+        });
+      });
+
+      // TODO: context('when a future campaign activation occurs')
+
+      // TODO: context('when a future campaign decision occurs without activation')
+    });
+  });
+
   describe('#sendWebDecisionToSegment', function() {
     // TODO: Turn these into proper _unit_ tests.
     //       * Directly call sendWebDecisionToSegment (after calling setRedirectInfo in cases where
@@ -799,6 +1027,236 @@ describe('Optimizely', function() {
     });
   });
 
+  describe('#sendEdgeDecisionToSegment', function() {
+    beforeEach(function() {
+      mockWindowOptimizely();
+    });
+
+    context('options.sendRevenueOnlyForOrderCompleted', function() {
+      beforeEach(function() {
+        sinon.stub(window.optimizelyEdge, 'push');
+      });
+
+      it('should not include revenue on a non Order Completed event if `onlySendRevenueOnOrderCompleted` is enabled', function(done) {
+        analytics.initialize();
+        tick(done);
+
+        analytics.track('Order Updated', {
+          revenue: 25
+        });
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'Order Updated',
+          tags: {}
+        });
+      });
+
+      it('should send revenue only on Order Completed if `onlySendRevenueOnOrderCompleted` is enabled', function(done) {
+        optimizely.options.sendRevenueOnlyForOrderCompleted = true;
+
+        analytics.initialize();
+        tick(done);
+
+        analytics.track('Order Completed', {
+          revenue: 9.99
+        });
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'Order Completed',
+          tags: {
+            revenue: 999
+          }
+        });
+      });
+
+      it('should send revenue on all events with properties.revenue if `onlySendRevenueOnOrderCompleted` is disabled', function(done) {
+        optimizely.options.sendRevenueOnlyForOrderCompleted = false;
+
+        analytics.initialize();
+        tick(done);
+
+        analytics.track('Checkout Started', {
+          revenue: 9.99
+        });
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'Checkout Started',
+          tags: {
+            revenue: 999
+          }
+        });
+      });
+    });
+
+    context('options.listen', function() {
+      beforeEach(function() {
+        optimizely.options.listen = true;
+        sinon.stub(analytics, 'track');
+      });
+
+      it('should send standard active experiment data via `.track()`', function(done) {
+        // Mock data by default has two active campaign/experiments.
+        // Going to leave just the one that was created as a standard
+        // experiment inside Optimizely X (not campaign)
+        window.optimizelyEdge.newMockData[1111182111].isActive = false;
+
+        analytics.initialize();
+
+        executeAsyncTest(done, function() {
+          assert.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              experimentId: '1111182111',
+              experimentName: 'Coding Bootcamp',
+              variationId: '7333333333',
+              variationName: 'Variation DBC'
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should send personalized experiment data via `.track()`', function(done) {
+        // Mock data by default has two active experiments.
+        // Going to leave just the personalized experiment
+        window.optimizelyEdge.newMockData[7547682694].isActive = false;
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          assert.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              experimentId: '7547682694',
+              experimentName: 'Worlds Group Stage',
+              variationId: '7557950020',
+              variationName: 'Variation #1'
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should map custom properties and send campaign data via `.track()`', function(done) {
+        optimizely.options.customCampaignProperties = {
+          experimentId: 'experiment_id',
+          experimentName: 'experiment_name'
+        };
+
+        window.optimizelyEdge.newMockData.experiment_id = '124';
+        window.optimizelyEdge.newMockData.experiment_name =
+          'custom experiment name';
+
+        window.optimizelyEdge.newMockData[7547682694].isActive = false;
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          assert.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              experimentId: '124',
+              experimentName: 'custom experiment name',
+              variationId: '7557950020',
+              variationName: 'Variation #1'
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should not map existing properties if custom properties not specified`', function(done) {
+        optimizely.options.customCampaignProperties = {};
+
+        window.optimizelyEdge.newMockData.experiment_id = '124';
+        window.optimizelyEdge.newMockData.experiment_name =
+          'custom experiment name';
+
+        window.optimizelyEdge.newMockData[7547682694].isActive = false;
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          assert.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              experimentId: '7547682694',
+              experimentName: 'Worlds Group Stage',
+              variationId: '7557950020',
+              variationName: 'Variation #1'
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      // Edge does not have a way to retrieve redirect info
+      it.skip('should send redirect experiment data via `.track()`', function(done) {
+        // Enable just the campaign with redirect variation
+        window.optimizely.newMockData[2347102720].isActive = true;
+        window.optimizely.newMockData[7547101713].isActive = false;
+        window.optimizely.newMockData[2542102702].isActive = false;
+        var context = {
+          integration: optimizelyContext,
+          page: { referrer: 'barstools.com' }
+        };
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          assert.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              campaignName: 'Get Rich or Die Tryin',
+              campaignId: '2347102720',
+              experimentId: '7522212694',
+              experimentName: 'Wells Fargo Scam',
+              variationId: '7551111120',
+              variationName: 'Variation Corruption #1884',
+              audienceId: '7100568438',
+              audienceName: 'Middle Class',
+              referrer: 'barstools.com',
+              isInCampaignHoldback: false
+            },
+            context
+          ]);
+        });
+      });
+
+      it("should send Google's nonInteraction flag via `.track()`", function(done) {
+        // Mock data has two active campaigns running
+        // For convenience, we'll disable one of them
+        window.optimizelyEdge.newMockData[7547682694] = false;
+        optimizely.options.nonInteraction = true;
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          assert.deepEqual(analytics.track.args[0], [
+            'Experiment Viewed',
+            {
+              experimentId: '7547682694',
+              experimentName: 'Worlds Group Stage',
+              variationId: '7557950020',
+              variationName: 'Variation #1',
+              nonInteraction: 1
+            },
+            { integration: optimizelyContext }
+          ]);
+        });
+      });
+
+      it('should not send inactive experiments', function(done) {
+        // deactivate all experiments
+        window.optimizely.newMockData[7522212694].isActive = false;
+        window.optimizely.newMockData[7547682694].isActive = false;
+        window.optimizely.newMockData[1111182111].isActive = false;
+        analytics.initialize();
+        executeAsyncTest(done, function() {
+          sinon.assert.notCalled(analytics.track);
+        });
+      });
+    });
+  });
+
+describe('after loading', function() {
+    beforeEach(function(done) {
+      mockWindowOptimizely();
+      analytics.initialize();
+      analytics.page();
+      analytics.once('ready', done);
+    });
+
   describe('#track', function() {
     beforeEach(function() {
       analytics.initialize();
@@ -856,6 +1314,25 @@ describe('Optimizely', function() {
         });
       });
     });
+  });
+
+  context(
+    'when the Optimizely Edge microsnippet has initialized',
+    function() {
+      beforeEach(function() {
+        sinon.stub(window.optimizelyEdge, 'push');
+      });
+
+      it('should send an event', function() {
+        analytics.track('event');
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'event',
+          tags: {}
+        });
+      });
+    }
+  );
 
     context('when Optimizely Full Stack is implemented', function() {
       beforeEach(function() {

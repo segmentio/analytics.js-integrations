@@ -10,6 +10,7 @@ var foldl = require('@ndhoule/foldl');
 var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('optimizely', { wrap: false });
+var edgePush = require('global-queue')('optimizelyEdge', { wrap: false });
 var tick = require('next-tick');
 
 /**
@@ -42,17 +43,33 @@ var optimizelyContext = {
 Optimizely.prototype.initialize = function() {
   var self = this;
   // Flag source of integration (requested by Optimizely)
-  push({
-    type: 'integration',
-    OAuthClientId: '5360906403'
-  });
-  // Initialize listeners for Optimizely Web decisions.
-  // We're caling this on the next tick to be safe so we don't hold up
-  // initializing the integration even though the function below is designed to be async,
-  // just want to be extra safe
-  tick(function() {
-    self.initWebIntegration();
-  });
+  if (window.optimizelyEdge) {
+    edgePush({
+      type: 'integration',
+      OAuthClientId: '5360906403'
+    });
+
+    // Initialize listeners for Optimizely Edge decisions.
+    // We're calling this on the next tick to be safe so we don't hold up
+    // initializing the integration even though the function below is designed to be async,
+    // just want to be extra safe
+    tick(function() {
+      self.initEdgeIntegration();
+    });
+  } else {
+    push({
+      type: 'integration',
+      OAuthClientId: '5360906403'
+    });
+
+    // Initialize listeners for Optimizely Web decisions.
+    // We're calling this on the next tick to be safe so we don't hold up
+    // initializing the integration even though the function below is designed to be async,
+    // just want to be extra safe
+    tick(function() {
+      self.initWebIntegration();
+    });
+  }
 
   this.ready();
 };
@@ -101,8 +118,13 @@ Optimizely.prototype.track = function(track) {
     tags: eventProperties
   };
 
-  // Track via Optimizely Web
-  push(payload);
+  if (window.optimizelyEdge) {
+    // Track via Optimizely Edge
+    edgePush(payload);
+  } else {
+    // Track via Optimizely Web
+    push(payload);
+  }
 
   // Track via Optimizely Full Stack
   var optimizelyClientInstance = window.optimizelyClientInstance;
@@ -243,6 +265,31 @@ Optimizely.prototype.sendWebDecisionToSegment = function(campaignState) {
 };
 
 /**
+ * TODO: description
+ * @param {Object} experimentState
+ */
+Optimizely.prototype.sendEdgeExperimentData = function(experimentState) {
+  var variation = experimentState.variation;
+  var context = { integration: optimizelyContext }; // backward compatibility
+
+  // Send data via `.track()`
+  if (this.options.listen) {
+    var props = {
+      experimentId: experimentState.id,
+      experimentName: experimentState.name,
+      variationName: variation.name,
+      variationId: variation.id
+    };
+
+    // For Google's nonInteraction flag
+    if (this.options.nonInteraction) props.nonInteraction = 1;
+
+    // Send to Segment
+    this.analytics.track('Experiment Viewed', props, context);
+  }
+};
+
+/**
  * setRedirectInfo
  *
  * This function is called when a redirect experiment changed the effective referrer value where it is different from the `document.referrer`.
@@ -346,4 +393,78 @@ Optimizely.prototype.initWebIntegration = function() {
   checkReferrer();
   registerCurrentlyActiveCampaigns();
   registerFutureActiveCampaigns();
+};
+
+/**
+ * TODO: description
+ */
+Optimizely.prototype.initEdgeIntegration = function() {
+  var edgeActiveExperiment = function(id) {
+    var state =
+      window.optimizelyEdge &&
+      window.optimizelyEdge.get &&
+      window.optimizelyEdge.get('state');
+    if (state) {
+      var allActiveExperiments = state.getActiveExperiments();
+      var experimentState = allActiveExperiments[id];
+
+      // TODO: referrer
+      self.sendEdgeExperimentData(experimentState);
+    }
+  };
+
+  /**
+   * If this code is running after Optimizely on the page, there might already be
+   * some experiments active. This function makes sure all those experiments are
+   * handled.
+   */
+  var registerCurrentlyActiveEdgeExperiment = function() {
+    window.optimizelyEdge = window.optimizelyEdge || [];
+    var edgeState =
+      window.optimizelyEdge.get && window.optimizelyEdge.get('state');
+    if (edgeState) {
+      var activeExperiments = edgeState.getActiveExperiments();
+      for (var id in activeExperiments) {
+        if ({}.hasOwnProperty.call(activeExperiments, id)) {
+          edgeActiveExperiment(id);
+        }
+      }
+    } else {
+      window.optimizely.push({
+        type: 'addListener',
+        filter: {
+          type: 'lifecycle',
+          name: 'initialized'
+        },
+        handler: function() {
+          // check referrer
+          // TODO: implement a way to get redirect info in Edge.
+        }
+      });
+    }
+  };
+
+  /**
+   * At any moment, a new Edge experiment can be activated (manual or conditional activation).
+   * This function registers a listener that listens to newly activated Edge experiment and
+   * handles them.
+   */
+  var registerFutureActiveEdgeExperiment = function() {
+    push({
+      type: 'addListener',
+      filter: {
+        type: 'lifecycle',
+        name: 'campaignDecided'
+      },
+      handler: function(event) {
+        var experimentId = event.data.decision.experimentId;
+        if (experimentId && event.data.decision.variationId) {
+          edgeActiveExperiment(experimentId);
+        }
+      }
+    });
+  };
+
+  registerCurrentlyActiveEdgeExperiment();
+  registerFutureActiveEdgeExperiment();
 };
