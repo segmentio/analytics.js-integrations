@@ -92,5 +92,36 @@ describe('Pinterest', function() {
         });
       });
     });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.spy(window, 'pintrk');
+      });
+
+      it('should fire the Pinterest tag if event is mapped in settings', function() {
+        analytics.track('Some Custom Event');
+        analytics.called(window.pintrk, 'track', 'Custom');
+      });
+
+      it('should fire the Pinterest tag if event is allowed spec event', function() {
+        analytics.track('Products Searched');
+        analytics.called(window.pintrk, 'track', 'Search');
+
+        analytics.track('Product List Filtered');
+        analytics.called(window.pintrk, 'track', 'Search');
+
+        analytics.track('Product Added');
+        analytics.called(window.pintrk, 'track', 'AddToCart');
+
+        analytics.track('Order Completed');
+        analytics.called(window.pintrk, 'track', 'Checkout');
+
+        analytics.track('Video Playback Started');
+        analytics.called(window.pintrk, 'track', 'WatchVideo');
+
+        analytics.track('Product Viewed');
+        analytics.called(window.pintrk, 'track', 'PageVisit');
+      });
+    });
   });
 });
