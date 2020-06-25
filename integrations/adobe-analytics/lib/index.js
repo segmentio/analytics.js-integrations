@@ -1317,9 +1317,7 @@ function heartbeatVideoStart(track) {
       chapterObj,
       chapterCustomMetadata
     );
-    this.mediaHeartbeats[
-      props.session_id || 'default'
-    ].chapterInProgress = true;
+    this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = true;
   }
 }
 
@@ -1332,8 +1330,6 @@ function heartbeatVideoComplete(track) {
     videoAnalytics.MediaHeartbeat.Event.ChapterComplete
   );
   this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = false;
-
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackComplete();
 }
 
 function heartbeatVideoPaused(track) {
@@ -1347,9 +1343,8 @@ function heartbeatSessionEnd(track) {
   populateHeartbeat.call(this, track);
 
   var props = track.properties();
-  this.mediaHeartbeats[
-    props.session_id || 'default'
-  ].heartbeat.trackSessionEnd();
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackComplete();
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackSessionEnd();
 
   // Remove the session from memory when it's all over.
   delete this.mediaHeartbeats[props.session_id || 'default'];
