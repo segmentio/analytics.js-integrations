@@ -35,6 +35,7 @@ describe('Facebook Pixel', function() {
     pixelId: '123123123',
     agent: 'test',
     initWithExistingTraits: false,
+    limitedDataUse: true,
     whitelistPiiProperties: [],
     blacklistPiiProperties: [],
     standardEventsCustomProperties: []
@@ -145,6 +146,12 @@ describe('Facebook Pixel', function() {
           false,
           options.pixelId
         );
+      });
+
+      it('should call dataProcessingOptions if limitedDataUse is enabled', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'dataProcessingOptions', ['LDU'], 0, 0);
       });
 
       before(function() {

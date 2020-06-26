@@ -30,6 +30,7 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('standardEventsCustomProperties', [])
   .option('keyForExternalId', '')
   .option('userIdAsExternalId', false)
+  .option('limitedDataUse', true)
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -101,6 +102,9 @@ FacebookPixel.prototype.initialize = function() {
   this.load(this.ready);
   if (!this.options.automaticConfiguration) {
     window.fbq('set', 'autoConfig', false, this.options.pixelId);
+  }
+  if (this.options.limitedDataUse) {
+    window.fbq('dataProcessingOptions', ['LDU'], 0, 0);
   }
   if (this.options.initWithExistingTraits) {
     var traits = this.formatTraits(this.analytics);
