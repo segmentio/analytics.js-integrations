@@ -1592,7 +1592,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it('should call trackComplete when a video completes', function() {
+      it('should set chapterInProgress when a video completes', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -1606,7 +1606,7 @@ describe('Adobe Analytics', function() {
 
         analytics.stub(
           adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
-          'trackComplete'
+          'trackEvent'
         );
 
         analytics.track('Video Content Completed', {
@@ -1621,7 +1621,12 @@ describe('Adobe Analytics', function() {
         });
 
         analytics.called(
-          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackComplete
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.ChapterComplete
+        );
+        analytics.equal(
+          false,
+          adobeAnalytics.mediaHeartbeats[sessionId].chapterInProgress
         );
       });
 
@@ -1658,7 +1663,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it('should delete the instance when the session is over', function() {
+      it('should call final hb methods and delete the instance when the session is over', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -1674,6 +1679,7 @@ describe('Adobe Analytics', function() {
 
         // We need to save this reference for the upcoming check, since we delete the higher property after the next call.
         var heartbeatRef = adobeAnalytics.mediaHeartbeats[sessionId].heartbeat;
+        analytics.stub(heartbeatRef, 'trackComplete');
         analytics.stub(heartbeatRef, 'trackSessionEnd');
 
         analytics.track('Video Playback Completed', {
@@ -1687,8 +1693,9 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.assert(!adobeAnalytics.mediaHeartbeats[sessionId]);
+        analytics.called(heartbeatRef.trackComplete);
         analytics.called(heartbeatRef.trackSessionEnd);
+        analytics.assert(!adobeAnalytics.mediaHeartbeats[sessionId]);
       });
 
       it('should start an Ad Break and Ad Tracking when an ad starts', function() {
