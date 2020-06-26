@@ -620,6 +620,13 @@ function updateContextData(facade, options) {
       return;
     }
 
+    // If context data values are booleans then stringify them.
+    // Adobe's SDK seems to reject a false boolean value. Stringifying is
+    // acceptable since these values are appended as query strings anyway.
+    if (typeof value === 'boolean') {
+      value = value.toString();
+    }
+
     addContextDatum(key, value);
   }, contextProperties);
 }
