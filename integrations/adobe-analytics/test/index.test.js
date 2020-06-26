@@ -1175,6 +1175,30 @@ describe('Adobe Analytics', function() {
           });
           analytics.equal(window.s.events, 'prodView,event1,event38');
         });
+
+        it('should stringify bool context data', function() {
+          adobeAnalytics.options.contextValues = {
+            'page.referrer': 'page.referrer',
+            'page.url': 'page.title',
+            'page.bickenBack': 'page.bickenBack'
+          };
+          analytics.track(
+            'Drank Some Milk',
+            { foo: 'bar' },
+            { page: { bickenBack: false } }
+          );
+          analytics.equal(
+            window.s.contextData['page.referrer'],
+            window.document.referrer
+          );
+          analytics.equal(
+            window.s.contextData['page.title'],
+            window.location.href
+          );
+          analytics.equal(window.s.contextData['page.bickenBack'], 'false');
+          analytics.equal(window.s.contextData.foo, 'bar');
+          analytics.called(window.s.tl);
+        });
       });
     });
 
