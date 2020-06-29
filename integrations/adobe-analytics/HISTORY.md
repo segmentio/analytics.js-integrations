@@ -1,3 +1,7 @@
+1.16.2 / 2020-05-17
+===================
+* Reads session playhead values from `window._segHBPlayheads` if it exists. This solves an issue where the playhead is only updated when 'Video Content Playing' (+ various others) events are tracked. To get around this, we allow video implementations to set the playhead value as often as possible without the need to trigger an event.
+
 1.16.1 / 2020-05-15
 ===================
 * Supports sending top level `event` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.
