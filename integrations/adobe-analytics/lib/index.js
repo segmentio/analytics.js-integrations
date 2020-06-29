@@ -1531,6 +1531,15 @@ function createCustomVideoMetadataContext(track, options) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
+
+    // If context data values are booleans then stringify them.
+    // Adobe's SDK seems to reject a false boolean value. Stringifying is
+    // acceptable since these values are appended as query strings anyway.
+    if (typeof value === 'boolean') {
+      addContextDatum(key, value.toString());
+      return;
+    }
+
     contextData[key] = value;
   }, extractedProperties);
   return contextData;
