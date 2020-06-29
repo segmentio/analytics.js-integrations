@@ -135,6 +135,10 @@ AdobeAnalytics.prototype.initialize = function() {
   // In case this has been defined already
   window.s_account = window.s_account || options.reportSuiteId;
 
+  // Initialize a window object that can be used to update the playhead value of a session
+  // WITHOUT sending several 'Video Content Playing' events. (see line 1242)
+  window._segHBPlayheads = {};
+
   // Load the larger Heartbeat script only if the customer has it enabled in settings.
   // This file is considerably bigger, so this check is necessary.
   if (options.heartbeatTrackingServerUrl) {
@@ -1244,7 +1248,17 @@ function initHeartbeat(track) {
   mediaHeartbeatConfig.debugLogging = !!window._enableHeartbeatDebugLogging; // Optional beta flag for seeing debug output.
 
   mediaHeartbeatDelegate.getCurrentPlaybackTime = function() {
-    return self.playhead || 0; // TODO: Bind to the Heartbeat events we have specced.
+    var playhead = self.playhead || 0;
+
+    // We allow implementions to set the playhead value of a video session on a shared
+    // window object. This allows us to relay the playhead to AA's heartbeat SDK several
+    // times a second, without relying on a 'Video Content Playing' event to update the position.
+    var sessions = window._segHBPlayheads || {};
+    if (sessions[props.session_id]) {
+      playhead = sessions[props.session_id];
+    }
+
+    return playhead;
   };
 
   mediaHeartbeatDelegate.getQoSObject = function() {
