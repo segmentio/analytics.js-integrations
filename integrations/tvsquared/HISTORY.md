@@ -6,7 +6,7 @@
 2.3.0 / 2017-05-05
 ==================
 
-  * Add trackWhitelist option
+  * Add track allowlist option
 
 2.2.0 / 2017-04-27
 ==================

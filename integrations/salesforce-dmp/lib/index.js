@@ -68,7 +68,7 @@ SalesforceDMP.prototype.track = function(track) {
     window.kruxDataLayer = {};
   }
 
-  // Verify that this event is one we want to fire on, if a whitelist exists.
+  // Verify that this event is one we want to fire on, if an allowlist exists.
   if (this.options.trackFireEvents.length) {
     for (var i = 0; i < this.options.trackFireEvents.length; i++) {
       var event = this.options.trackFireEvents[i];
@@ -81,9 +81,11 @@ SalesforceDMP.prototype.track = function(track) {
   // Modify the dataLayer with any defined adjustments. It's okay if they choose to make none.
   for (var segmentProp in this.options.eventAttributeMap) {
     // { Segment Property -> Krux Property }
-    var kruxKey = this.options.eventAttributeMap[segmentProp];
-    var value = track.proxy('properties.' + segmentProp);
-    if (value) window.kruxDataLayer[kruxKey] = value;
+    if (this.options.eventAttributeMap.hasOwnProperty(segmentProp)) {
+      var kruxKey = this.options.eventAttributeMap[segmentProp];
+      var value = track.proxy('properties.' + segmentProp);
+      if (value) window.kruxDataLayer[kruxKey] = value;
+    }
   }
 
   // This re-fires the Krux tag with the given namespace without counting it as a new page view.
@@ -116,7 +118,7 @@ SalesforceDMP.prototype.identifyV2 = SalesforceDMP.prototype.trackV2 = function(
   var type = msg.type();
 
   if (type === 'track') {
-    // Verify that this event is one we want to fire on, if a whitelist exists.
+    // Verify that this event is one we want to fire on, if an allowlist exists.
     if (this.options.trackFireEvents.length > 0) {
       for (var i = 0; i < this.options.trackFireEvents.length; i++) {
         var event = this.options.trackFireEvents[i];
@@ -137,16 +139,20 @@ SalesforceDMP.prototype.identifyV2 = SalesforceDMP.prototype.trackV2 = function(
     // Modify the dataLayer with any defined adjustments. It's okay if they choose to make none.
     for (var segmentProp in this.options.eventAttributeMap) {
       // { Segment Property -> Krux Property }
-      var kruxKey = this.options.eventAttributeMap[segmentProp];
-      var value = msg.proxy('properties.' + segmentProp);
-      if (value) window.kruxDataLayer[kruxKey] = value;
+      if (this.options.eventAttributeMap.hasOwnProperty(segmentProp)) {
+        var kruxKey = this.options.eventAttributeMap[segmentProp];
+        var value = msg.proxy('properties.' + segmentProp);
+        if (value) window.kruxDataLayer[kruxKey] = value;
+      }
     }
 
-    for (segmentProp in this.options.contextTraitsMap) {
+    for (var segmentContextTrait in this.options.contextTraitsMap) {
       // { Segment Context Property -> Krux Property }
-      kruxKey = this.options.contextTraitsMap[segmentProp];
-      value = msg.proxy('context.traits.' + segmentProp);
-      if (value) window.kruxDataLayer[kruxKey] = value;
+      if (this.options.contextTraitsMap.hasOwnProperty(segmentContextTrait)) {
+        var kruxContextKey = this.options.contextTraitsMap[segmentContextTrait];
+        var segmentValue = msg.proxy('context.traits.' + segmentContextTrait);
+        if (segmentValue) window.kruxDataLayer[kruxContextKey] = segmentValue;
+      }
     }
   } else {
     resetDataLayer = createDataLayer();
@@ -175,7 +181,7 @@ SalesforceDMP.prototype.identifyV2 = SalesforceDMP.prototype.trackV2 = function(
   this.firePixel(resetDataLayer);
 };
 
-SalesforceDMP.prototype.pageV2 = function(page) {
+SalesforceDMP.prototype.pageV2 = function() {
   // Noop on page events because SFDMP's control tag auto-fires a call to the pixel endpoint on page load
 };
 

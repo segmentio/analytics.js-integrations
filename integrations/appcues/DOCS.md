@@ -81,14 +81,14 @@ loads them if necessary.
 
 ## Appcues Features
 
-### Whitelisted Domains
+### Allowed Domains
 
 By default, Appcues will target based on the path of the URL. So if we
 created an Appcues experience and targeted it to `/integrations`,
 it would appear wherever the embed script is installed with that URL path,
 like appcues.com/integrations and my.appcues.com/integrations. If your
 analytics.js script is installed on multiple domains (e.g. your marketing
-site and your web app), you’ll want to use Appcues whitelisted domains when
+site and your web app), you’ll want to use Appcues allowed domains when
 targeting your experience.
 
 ### Sending Appcues events to other Segment partner services

@@ -237,7 +237,7 @@ describe('Facebook Pixel', function() {
           assertEventId(window.fbq);
         });
 
-        it('should send whitelisted PII properties', function() {
+        it('should send allowed PII properties', function() {
           facebookPixel.options.whitelistPiiProperties = ['country'];
           analytics.track('event', {
             // PII
@@ -269,7 +269,7 @@ describe('Facebook Pixel', function() {
           assertEventId(window.fbq);
         });
 
-        it('should blacklist properties defined in the blacklistPiiProperties setting', function() {
+        it('should deny properties defined in the blacklistPiiProperties setting', function() {
           facebookPixel.options.blacklistPiiProperties = [
             { propertyName: 'team', hashPropery: false }
           ];
@@ -289,7 +289,7 @@ describe('Facebook Pixel', function() {
             // Non PII
             position: 'point guard',
 
-            // Not default PII but included in blacklist setting
+            // Not default PII but included in denylist setting
             team: 'Warriors'
           });
 
@@ -305,7 +305,7 @@ describe('Facebook Pixel', function() {
           assertEventId(window.fbq);
         });
 
-        it('should hash and send blacklisted properties if the hashProperty flag is true', function() {
+        it('should hash and send denied properties if the hashProperty flag is true', function() {
           facebookPixel.options.blacklistPiiProperties = [
             {
               propertyName: 'email',
@@ -332,7 +332,7 @@ describe('Facebook Pixel', function() {
             // Non PII
             position: 'point guard',
 
-            // Not default PII but included in blacklist setting
+            // Not default PII but included in denylist setting
             team: 'Warriors'
           });
 
