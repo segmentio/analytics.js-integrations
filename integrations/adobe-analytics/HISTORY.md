@@ -1,6 +1,8 @@
-1.16.2 / 2020-05-17
+1.16.2 / 2020-07-13
 ===================
 * Reads session playhead values from `window._segHBPlayheads` if it exists. This solves an issue where the playhead is only updated when 'Video Content Playing' (+ various others) events are tracked. To get around this, we allow video implementations to set the playhead value as often as possible without the need to trigger an event.
+* Removes trackComplete from Video Content Completed events and only calls chapterComplete on these events. It also adds trackComplete to Video Playback Completed events. This is in line with Adobe's documentation and also allows for parity between iOS, a.js, and Android.
+* Stringifies context data values which are booleans. The AA SDK tends to reject false boolean values when setting them on the window object. This does not break existing behavior since booleans are stringified when they're sent in the query string.
 
 1.16.1 / 2020-05-15
 ===================
