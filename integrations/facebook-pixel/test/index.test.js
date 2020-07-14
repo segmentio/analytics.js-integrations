@@ -178,6 +178,28 @@ describe('Facebook Pixel', function() {
         analytics.called(window.fbq, 'init', options.pixelId, payload);
       });
     });
+
+    describe('#initialize without LDU', function() {
+      before(function() {
+        options.limitedDataUse = false;
+      });
+
+      after(function() {
+        options.limitedDataUse = true;
+      });
+
+      it('should not call dataProcessingOptions if limitedDataUse is false', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.didNotCall(
+          window.fbq,
+          'dataProcessingOptions',
+          ['LDU'],
+          0,
+          0
+        );
+      });
+    });
   });
 
   describe('loading', function() {
