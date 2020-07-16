@@ -1,3 +1,8 @@
+2.11.0/ 2020-07-16
+==================
+
+  * Add support for Limited Data Use. See: https://developers.facebook.com/docs/marketing-apis/data-processing-options
+
 2.10.0/ 2019-12-04
 ==================
 
