@@ -200,6 +200,38 @@ describe('Facebook Pixel', function() {
         );
       });
     });
+
+    describe('#initialize with preset data processing options', function() {
+      before(function() {
+        window.fbDataProcessingOptions = [['LDU'], 99, 99];
+      });
+
+      after(function() {
+        delete window.fbDataProcessingOptions;
+      });
+
+      it('should call dataProcessingOptions with the preset values', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'dataProcessingOptions', ['LDU'], 99, 99);
+      });
+    });
+
+    describe('#initialize with fallback data processing options', function() {
+      before(function() {
+        window.fbDataProcessingOptions = ['a string', true, 99];
+      });
+
+      after(function() {
+        delete window.fbDataProcessingOptions;
+      });
+
+      it('should call dataProcessingOptions with fallback values', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'dataProcessingOptions', ['LDU'], 0, 0);
+      });
+    });
   });
 
   describe('loading', function() {
