@@ -203,11 +203,11 @@ describe('Facebook Pixel', function() {
 
     describe('#initialize with preset data processing options', function() {
       before(function() {
-        window.fbDataProcessingOptions = [['LDU'], 99, 99];
+        options.dataProcessingOptions = [['LDU'], 99, 99];
       });
 
       after(function() {
-        delete window.fbDataProcessingOptions;
+        delete options.dataProcessingOptions;
       });
 
       it('should call dataProcessingOptions with the preset values', function() {
@@ -219,11 +219,11 @@ describe('Facebook Pixel', function() {
 
     describe('#initialize with fallback data processing options', function() {
       before(function() {
-        window.fbDataProcessingOptions = ['a string', true, 99];
+        options.dataProcessingOptions = ['a string', true, 99];
       });
 
       after(function() {
-        delete window.fbDataProcessingOptions;
+        delete options.dataProcessingOptions;
       });
 
       it('should call dataProcessingOptions with fallback values', function() {

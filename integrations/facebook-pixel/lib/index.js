@@ -105,7 +105,7 @@ FacebookPixel.prototype.initialize = function() {
   }
   if (this.options.limitedDataUse) {
     this.validateAndSetDataProcessing(
-      window.fbDataProcessingOptions || [['LDU'], 0, 0]
+      this.options.dataProcessingOptions || [['LDU'], 0, 0]
     );
   }
   if (this.options.initWithExistingTraits) {
