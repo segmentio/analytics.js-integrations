@@ -1,3 +1,17 @@
+2.11.1/ 2020-07-22
+==================
+
+  * Add support to override the Data Processing Options by pass them in the load options object.
+  ```
+  analytics.load("<writeKey>", {
+    integrations: {
+      'Facebook Pixel': {
+        dataProcessingOptions: [['LDU'], 1, 1000]
+      }
+    }
+  });
+  ```
+
 2.11.0/ 2020-07-16
 ==================
 
