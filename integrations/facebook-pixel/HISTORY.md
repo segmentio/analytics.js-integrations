@@ -1,3 +1,8 @@
+2.11.2/ 2020-07-28
+==================
+
+  * Explicitly not enable Limited Data Use (LDU) mode in the FB Pixel SDK when the Limited Data Use Segment setting is disabled.
+
 2.11.1/ 2020-07-22
 ==================
 

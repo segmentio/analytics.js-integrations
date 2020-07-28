@@ -107,6 +107,9 @@ FacebookPixel.prototype.initialize = function() {
     this.validateAndSetDataProcessing(
       this.options.dataProcessingOptions || [['LDU'], 0, 0]
     );
+  } else {
+    // explicitly not enable Limited Data Use (LDU) mode
+    window.fbq('dataProcessingOptions', []);
   }
   if (this.options.initWithExistingTraits) {
     var traits = this.formatTraits(this.analytics);
