@@ -1,3 +1,12 @@
+2.0.2 / 2020-07-30
+==================
+
+  * Send anonymousId in all calls
+  * Support for `track` calls
+  * Support for `group` calls
+  * Support page related properties
+  * Send `source` parameter to identify analytics.js as the caller
+
 2.0.1 / 2017-04-11
 ==================
 
