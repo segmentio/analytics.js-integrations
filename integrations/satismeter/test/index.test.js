@@ -45,6 +45,7 @@ describe('SatisMeter', function() {
     describe('#initialize', function() {
       it('should call #load', function() {
         analytics.initialize();
+
         analytics.called(satismeter.load);
       });
     });
@@ -69,48 +70,52 @@ describe('SatisMeter', function() {
 
       it('should send apiKey and user id', function() {
         analytics.identify('id');
-        analytics.called(window.satismeter, {
-          writeKey: options.apiKey,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
-          traits: {},
-          type: 'identify'
+          anonymousId: anonymousId,
+          traits: {}
         });
       });
 
       it('should send email', function() {
         analytics.identify('id', { email: 'email@example.com' });
-        analytics.called(window.satismeter, {
-          writeKey: options.apiKey,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             email: 'email@example.com'
-          },
-          type: 'identify'
+          }
         });
       });
 
       it('should send user name', function() {
         analytics.identify('id', { name: 'john doe' });
-        analytics.called(window.satismeter, {
-          writeKey: options.apiKey,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             name: 'john doe'
-          },
-          type: 'identify'
+          }
         });
       });
 
       it('should send signUpDate', function() {
         var now = new Date();
         analytics.identify('id', { createdAt: now });
-        analytics.called(window.satismeter, {
-          writeKey: options.apiKey,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             createdAt: now
-          },
-          type: 'identify'
+          }
         });
       });
 
@@ -121,16 +126,42 @@ describe('SatisMeter', function() {
           },
           language: 'en'
         });
-        analytics.called(window.satismeter, {
-          writeKey: options.apiKey,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             translation: {
               FOLLOWUP: 'What can we improve'
             },
             language: 'en'
-          },
-          type: 'identify'
+          }
+        });
+      });
+    });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'satismeter');
+      });
+
+      it('should send event name and properties', function() {
+        analytics.user().id('id');
+        analytics.user().anonymousId('anonymousId');
+        analytics.track('User Subscribed', {
+          planId: 'Example Plan',
+          planPrice: 2000
+        });
+
+        analytics.called(window.satismeter, 'track', {
+          userId: 'id',
+          anonymousId: 'anonymousId',
+          event: 'User Subscribed',
+          properties: {
+            planId: 'Example Plan',
+            planPrice: 2000
+          }
         });
       });
     });
@@ -140,13 +171,53 @@ describe('SatisMeter', function() {
         analytics.stub(window, 'satismeter');
       });
 
-      it('should send apiKey and user id', function() {
+      it('should send page name, category and properties', function() {
         analytics.user().id('id');
-        analytics.page('Pricing');
-        analytics.called(window.satismeter, {
-          writeKey: options.apiKey,
+        analytics.user().anonymousId('anonymousId');
+        analytics.page('Product', 'Pricing', {
+          customProperty: 'Example'
+        });
+
+        analytics.called(window.satismeter, 'page', {
           userId: 'id',
-          type: 'page'
+          anonymousId: 'anonymousId',
+          name: 'Pricing',
+          category: 'Product',
+          properties: {
+            name: 'Pricing',
+            category: 'Product',
+            path: window.location.pathname,
+            referrer: window.document.referrer,
+            search: window.location.search,
+            title: window.document.title,
+            url: window.location.href,
+            customProperty: 'Example'
+          }
+        });
+      });
+    });
+
+    describe('#group', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'satismeter');
+      });
+
+      it('should send group id and traits', function() {
+        analytics.user().id('id');
+        analytics.user().anonymousId('anonymousId');
+        analytics.group('groupId', {
+          industry: 'Technology',
+          employees: 2000
+        });
+
+        analytics.called(window.satismeter, 'group', {
+          userId: 'id',
+          anonymousId: 'anonymousId',
+          groupId: 'groupId',
+          traits: {
+            industry: 'Technology',
+            employees: 2000
+          }
         });
       });
     });
@@ -193,6 +264,7 @@ describe('SatisMeter - legacy setup', function() {
     describe('#initialize', function() {
       it('should call #load', function() {
         analytics.initialize();
+
         analytics.called(satismeter.load);
       });
     });
@@ -217,48 +289,52 @@ describe('SatisMeter - legacy setup', function() {
 
       it('should send token and user id', function() {
         analytics.identify('id');
-        analytics.called(window.satismeter, {
-          writeKey: options.token,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
-          traits: {},
-          type: 'identify'
+          anonymousId: anonymousId,
+          traits: {}
         });
       });
 
       it('should send email', function() {
         analytics.identify('id', { email: 'email@example.com' });
-        analytics.called(window.satismeter, {
-          writeKey: options.token,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             email: 'email@example.com'
-          },
-          type: 'identify'
+          }
         });
       });
 
       it('should send user name', function() {
         analytics.identify('id', { name: 'john doe' });
-        analytics.called(window.satismeter, {
-          writeKey: options.token,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             name: 'john doe'
-          },
-          type: 'identify'
+          }
         });
       });
 
       it('should send signUpDate', function() {
         var now = new Date();
         analytics.identify('id', { createdAt: now });
-        analytics.called(window.satismeter, {
-          writeKey: options.token,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             createdAt: now
-          },
-          type: 'identify'
+          }
         });
       });
 
@@ -269,16 +345,42 @@ describe('SatisMeter - legacy setup', function() {
           },
           language: 'en'
         });
-        analytics.called(window.satismeter, {
-          writeKey: options.token,
+        var anonymousId = analytics.user().anonymousId();
+
+        analytics.called(window.satismeter, 'identify', {
           userId: 'id',
+          anonymousId: anonymousId,
           traits: {
             translation: {
               FOLLOWUP: 'What can we improve'
             },
             language: 'en'
-          },
-          type: 'identify'
+          }
+        });
+      });
+    });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'satismeter');
+      });
+
+      it('should send event name and properties', function() {
+        analytics.user().id('id');
+        analytics.user().anonymousId('anonymousId');
+        analytics.track('User Subscribed', {
+          planId: 'Example Plan',
+          planPrice: 2000
+        });
+
+        analytics.called(window.satismeter, 'track', {
+          userId: 'id',
+          anonymousId: 'anonymousId',
+          event: 'User Subscribed',
+          properties: {
+            planId: 'Example Plan',
+            planPrice: 2000
+          }
         });
       });
     });
@@ -288,13 +390,53 @@ describe('SatisMeter - legacy setup', function() {
         analytics.stub(window, 'satismeter');
       });
 
-      it('should send token and user id', function() {
+      it('should send page name, category and properties', function() {
         analytics.user().id('id');
-        analytics.page('Pricing');
-        analytics.called(window.satismeter, {
-          writeKey: options.token,
+        analytics.user().anonymousId('anonymousId');
+        analytics.page('Product', 'Pricing', {
+          customProperty: 'Example'
+        });
+
+        analytics.called(window.satismeter, 'page', {
           userId: 'id',
-          type: 'page'
+          anonymousId: 'anonymousId',
+          name: 'Pricing',
+          category: 'Product',
+          properties: {
+            name: 'Pricing',
+            category: 'Product',
+            path: window.location.pathname,
+            referrer: window.document.referrer,
+            search: window.location.search,
+            title: window.document.title,
+            url: window.location.href,
+            customProperty: 'Example'
+          }
+        });
+      });
+    });
+
+    describe('#group', function() {
+      beforeEach(function() {
+        analytics.stub(window, 'satismeter');
+      });
+
+      it('should send group id and traits', function() {
+        analytics.user().id('id');
+        analytics.user().anonymousId('anonymousId');
+        analytics.group('groupId', {
+          industry: 'Technology',
+          employees: 2000
+        });
+
+        analytics.called(window.satismeter, 'group', {
+          userId: 'id',
+          anonymousId: 'anonymousId',
+          groupId: 'groupId',
+          traits: {
+            industry: 'Technology',
+            employees: 2000
+          }
         });
       });
     });
