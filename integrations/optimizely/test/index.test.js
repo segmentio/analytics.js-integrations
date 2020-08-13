@@ -264,28 +264,16 @@ describe('Optimizely', function() {
       analytics.page();
     });
 
-    context('if on a Web page', function() {
-      beforeEach(function(done) {
-        analytics.once('ready', done);
-        analytics.initialize();
-        analytics.page();
+    it('should call initWebIntegration', function(done) {
+      executeAsyncTest(done, function() {
+        sinon.assert.calledWith(optimizely.initWebIntegration);
       });
+    });
 
-      afterEach(function() {
-        analytics.reset();
-      });
-
-      it('should call initWebIntegration', function(done) {
-        executeAsyncTest(done, function() {
-          sinon.assert.calledWith(optimizely.initWebIntegration);
-        });
-      });
-
-      it('should flag source of integration', function() {
-        sinon.assert.calledWith(window.optimizely.push, {
-          type: 'integration',
-          OAuthClientId: '5360906403'
-        });
+    it('should flag source of integration', function() {
+      sinon.assert.calledWith(window.optimizely.push, {
+        type: 'integration',
+        OAuthClientId: '5360906403'
       });
     });
   });
