@@ -289,7 +289,7 @@ Optimizely.prototype.initWebIntegration = function() {
           name: 'initialized'
         },
         handler: function() {
-          var state = window.optimizely.get && window.optimizely.get('state');
+          state = window.optimizely.get && window.optimizely.get('state');
           if (state) {
             self.setRedirectInfo(state.getRedirectInfo());
           }

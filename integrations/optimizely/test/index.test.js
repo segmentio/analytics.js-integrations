@@ -9,6 +9,25 @@ var tester = require('@segment/analytics.js-integration-tester');
 var Optimizely = require('../lib/');
 var tick = require('next-tick');
 
+/*
+ * execute AsyncTest
+ *
+ * Prevent tests from hanging if deepEqual fails inside `tick`
+ * @api private
+ * @param {Function} done cb
+ * @param {Function} function that runs test
+ */
+function executeAsyncTest(done, test) {
+  tick(function() {
+    try {
+      test();
+      done();
+    } catch (e) {
+      done(e);
+    }
+  });
+}
+
 /**
  * Test account: han@segment.com
  */
@@ -103,7 +122,9 @@ var mockWindowOptimizely = function() {
         },
         getRedirectInfo: function() {
           var campaigns = this.getCampaignStates({ isActive: true });
-          for (var id in campaigns) {
+          var campaignIds = Object.keys(campaigns);
+          for (var i = 0; i < campaignIds.length; i++) {
+            var id = campaignIds[i];
             if (campaigns[id].visitorRedirected) {
               return {
                 experimentId: campaigns[id].experiment.id,
@@ -257,7 +278,7 @@ describe('Optimizely', function() {
             ]
           });
           assert.equal(initializedCalls.length, 1);
-          // Actually simulated an 'initialized' event.
+          // Actually simulate an 'initialized' event.
           initializedCalls[0].args[0].handler();
 
           sinon.assert.calledOnceWithExactly(optimizely.setRedirectInfo, {
@@ -289,7 +310,7 @@ describe('Optimizely', function() {
             ]
           });
           assert.equal(initializedCalls.length, 1);
-          // Actually simulated an 'initialized' event.
+          // Actually simulate an 'initialized' event.
           initializedCalls[0].args[0].handler();
 
           sinon.assert.calledOnceWithExactly(optimizely.setRedirectInfo, null);
@@ -987,22 +1008,3 @@ describe('Optimizely', function() {
     });
   });
 });
-
-/*
- * execute AsyncTest
- *
- * Prevent tests from hanging if deepEqual fails inside `tick`
- * @api private
- * @param {Function} done cb
- * @param {Function} function that runs test
- */
-function executeAsyncTest(done, test) {
-  tick(function() {
-    try {
-      test();
-      done();
-    } catch (e) {
-      done(e);
-    }
-  });
-}
