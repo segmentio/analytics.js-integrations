@@ -255,58 +255,6 @@ describe('Optimizely', function() {
     sinon.restore();
   });
 
-  describe('#initialize on Web', function() {
-    beforeEach(function(done) {
-      sinon.stub(Optimizely.prototype, 'initWebIntegration');
-      sinon.stub(window.optimizely, 'push');
-      analytics.once('ready', done);
-      analytics.initialize();
-      analytics.page();
-    });
-
-    it('should call initWebIntegration', function(done) {
-      executeAsyncTest(done, function() {
-        sinon.assert.calledWith(optimizely.initWebIntegration);
-      });
-    });
-
-    it('should flag source of integration', function() {
-      sinon.assert.calledWith(window.optimizely.push, {
-        type: 'integration',
-        OAuthClientId: '5360906403'
-      });
-    });
-  });
-
-  // causes another test suite to fail (#sendWebDecisionToSegment).
-  describe.skip('#initialize on Edge', function() {
-    beforeEach(function(done) {
-      window.optimizelyEdge = [];
-      sinon.stub(Optimizely.prototype, 'initEdgeIntegration');
-      sinon.stub(window.optimizelyEdge, 'push');
-      analytics.once('ready', done);
-      analytics.initialize();
-      analytics.page();
-    });
-
-    afterEach(function() {
-      delete window.optimizelyEdge;
-    });
-
-    it('should call initEdgeIntegration', function(done) {
-      executeAsyncTest(done, function() {
-        sinon.assert.calledWith(optimizely.initEdgeIntegration);
-      });
-    });
-
-    it('should flag source of integration', function() {
-      sinon.assert.calledWith(window.optimizelyEdge.push, {
-        type: 'integration',
-        OAuthClientId: '5360906403'
-      });
-    });
-  });
-
   describe('#setRedirectInfo', function() {
     beforeEach(function(done) {
       analytics.initialize();
@@ -1334,8 +1282,6 @@ describe('Optimizely', function() {
         optimizely.options.nonInteraction = true;
         analytics.initialize();
         executeAsyncTest(done, function() {
-          console.log(analytics.track.args[0]);
-
           assert.deepEqual(analytics.track.args[0], [
             'Experiment Viewed',
             {
@@ -1595,6 +1541,58 @@ describe('Optimizely', function() {
             url: 'http://localhost:9876/context.html'
           }
         });
+      });
+    });
+  });
+
+  describe('#initialize on Web', function() {
+    beforeEach(function(done) {
+      sinon.stub(Optimizely.prototype, 'initWebIntegration');
+      sinon.stub(window.optimizely, 'push');
+      analytics.once('ready', done);
+      analytics.initialize();
+      analytics.page();
+    });
+
+    it('should call initWebIntegration', function(done) {
+      executeAsyncTest(done, function() {
+        sinon.assert.calledWith(optimizely.initWebIntegration);
+      });
+    });
+
+    it('should flag source of integration', function() {
+      sinon.assert.calledWith(window.optimizely.push, {
+        type: 'integration',
+        OAuthClientId: '5360906403'
+      });
+    });
+  });
+
+  // causes another test suite to fail (#sendWebDecisionToSegment).
+  describe('#initialize on Edge', function() {
+    beforeEach(function(done) {
+      window.optimizelyEdge = [];
+      sinon.stub(Optimizely.prototype, 'initEdgeIntegration');
+      sinon.stub(window.optimizelyEdge, 'push');
+      analytics.once('ready', done);
+      analytics.initialize();
+      analytics.page();
+    });
+
+    afterEach(function() {
+      delete window.optimizelyEdge;
+    });
+
+    it('should call initEdgeIntegration', function(done) {
+      executeAsyncTest(done, function() {
+        sinon.assert.calledWith(optimizely.initEdgeIntegration);
+      });
+    });
+
+    it('should flag source of integration', function() {
+      sinon.assert.calledWith(window.optimizelyEdge.push, {
+        type: 'integration',
+        OAuthClientId: '5360906403'
       });
     });
   });

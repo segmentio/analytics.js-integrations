@@ -265,7 +265,11 @@ Optimizely.prototype.sendWebDecisionToSegment = function(campaignState) {
 };
 
 /**
- * TODO: description
+ * sendEdgeExperimentToSegment (Optimizely Performance Edge)
+ *
+ * This function is called for each experiment created in Performance Edge that are running on the page.
+ * This function will also be executed for any experiments activated at a later stage since initEdgeIntegration
+ * attached listeners on the page. Currently, those listeners leverage the Web API.
  * @api private
  * @param {Object} experimentState
  * @param {String} experimentState.id
@@ -410,22 +414,6 @@ Optimizely.prototype.initWebIntegration = function() {
 Optimizely.prototype.initEdgeIntegration = function() {
   var self = this;
 
-  var edgeActiveExperiment = function(id) {
-    var edgeState =
-      window.optimizelyEdge &&
-      window.optimizelyEdge.get &&
-      window.optimizelyEdge.get('state');
-    if (edgeState) {
-      var allActiveExperiments = edgeState.getActiveExperiments();
-      var experimentState = allActiveExperiments[id];
-
-      // TODO: referrer
-      if (experimentState) {
-        self.sendEdgeExperimentToSegment(experimentState);
-      }
-    }
-  };
-
   /**
    * At any moment, a new Edge experiment can be activated (manual or conditional activation).
    * This function registers a listener that listens to newly activated Edge experiment and
@@ -469,11 +457,12 @@ Optimizely.prototype.initEdgeIntegration = function() {
       window.optimizelyEdge.get && window.optimizelyEdge.get('state');
     if (edgeState) {
       var activeExperiments = edgeState.getActiveExperiments();
-      for (var id in activeExperiments) {
-        if ({}.hasOwnProperty.call(activeExperiments, id)) {
-          edgeActiveExperiment(id);
+
+      each(function(experimentState) {
+        if (experimentState) {
+          self.sendEdgeExperimentToSegment(experimentState);
         }
-      }
+      }, activeExperiments);
     }
   };
 
@@ -481,7 +470,7 @@ Optimizely.prototype.initEdgeIntegration = function() {
   // a 'getRedirectInfo' API in Edge. We will skip checking if an
   // experiment is from a redirect.
   //
-  // Additionally, because a track event for page requires redirect info,
+  // Additionally, because a page event requires redirect info,
   // we will not be sending such event.
   registerCurrentlyActiveEdgeExperiment();
   registerFutureActiveEdgeExperiment();
