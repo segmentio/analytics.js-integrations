@@ -266,9 +266,15 @@ Optimizely.prototype.sendWebDecisionToSegment = function(campaignState) {
 
 /**
  * TODO: description
+ * @api private
  * @param {Object} experimentState
+ * @param {String} experimentState.id
+ * @param {String} experimentState.name
+ * @param {Object} experimentState.variation
+ * @param {String} experimentState.variation.id
+ * @param {String} experimentState.variation.name
  */
-Optimizely.prototype.sendEdgeExperimentData = function(experimentState) {
+Optimizely.prototype.sendEdgeExperimentToSegment = function(experimentState) {
   var variation = experimentState.variation;
   var context = { integration: optimizelyContext }; // backward compatibility
 
@@ -396,21 +402,60 @@ Optimizely.prototype.initWebIntegration = function() {
 };
 
 /**
- * TODO: description
+ * This function fetches all active Optimizely Performance Edge experiments,
+ * invoking the sendEdgeExperimentToSegment callback for each one.
+ *
+ * @api private
  */
 Optimizely.prototype.initEdgeIntegration = function() {
+  var self = this;
+
   var edgeActiveExperiment = function(id) {
-    var state =
+    var edgeState =
       window.optimizelyEdge &&
       window.optimizelyEdge.get &&
       window.optimizelyEdge.get('state');
-    if (state) {
-      var allActiveExperiments = state.getActiveExperiments();
+    if (edgeState) {
+      var allActiveExperiments = edgeState.getActiveExperiments();
       var experimentState = allActiveExperiments[id];
 
       // TODO: referrer
-      self.sendEdgeExperimentData(experimentState);
+      if (experimentState) {
+        self.sendEdgeExperimentToSegment(experimentState);
+      }
     }
+  };
+
+  /**
+   * At any moment, a new Edge experiment can be activated (manual or conditional activation).
+   * This function registers a listener that listens to newly activated Edge experiment and
+   * handles them.
+   *
+   * However, the Edge API does not support a 'campaignDecided' listener. For now, we can
+   * utilize the Web API to listen to newly activated Edge experiments.
+   */
+  var registerFutureActiveEdgeExperiment = function() {
+    push({
+      type: 'addListener',
+      filter: {
+        type: 'lifecycle',
+        name: 'campaignDecided'
+      },
+      handler: function(event) {
+        var experimentId = event.data.decision.experimentId;
+        if (experimentId && event.data.decision.variationId) {
+          var edgeState =
+            window.optimizelyEdge.get && window.optimizelyEdge.get('state');
+          if (edgeState) {
+            var allActiveExperiments = edgeState.getActiveExperiments();
+            var experimentState = allActiveExperiments[experimentId];
+            if (experimentState) {
+              self.sendEdgeExperimentToSegment(experimentState);
+            }
+          }
+        }
+      }
+    });
   };
 
   /**
@@ -429,42 +474,15 @@ Optimizely.prototype.initEdgeIntegration = function() {
           edgeActiveExperiment(id);
         }
       }
-    } else {
-      window.optimizely.push({
-        type: 'addListener',
-        filter: {
-          type: 'lifecycle',
-          name: 'initialized'
-        },
-        handler: function() {
-          // check referrer
-          // TODO: implement a way to get redirect info in Edge.
-        }
-      });
     }
   };
 
-  /**
-   * At any moment, a new Edge experiment can be activated (manual or conditional activation).
-   * This function registers a listener that listens to newly activated Edge experiment and
-   * handles them.
-   */
-  var registerFutureActiveEdgeExperiment = function() {
-    push({
-      type: 'addListener',
-      filter: {
-        type: 'lifecycle',
-        name: 'campaignDecided'
-      },
-      handler: function(event) {
-        var experimentId = event.data.decision.experimentId;
-        if (experimentId && event.data.decision.variationId) {
-          edgeActiveExperiment(experimentId);
-        }
-      }
-    });
-  };
-
+  // Normally, we would like to check referrer info, but we don't provide
+  // a 'getRedirectInfo' API in Edge. We will skip checking if an
+  // experiment is from a redirect.
+  //
+  // Additionally, because a track event for page requires redirect info,
+  // we will not be sending such event.
   registerCurrentlyActiveEdgeExperiment();
   registerFutureActiveEdgeExperiment();
 };
