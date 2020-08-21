@@ -13,6 +13,41 @@ var normalize = require('to-no-case');
 var is = require('is');
 
 /**
+ * Find any mapped settings to page `name`.
+ *
+ * Given something like this:
+ *
+ * [
+ *   { value: { type: 'user', name: 'register' } }
+ *   { value: { type: 'user', name: 'invite' } }
+ *   { value: { type: 'purchase', name: 'main' } }
+ * ]
+ *
+ * If you do `get(events, 'b')`, it wll give you:
+ *
+ * { type: 'purchase', name: 'main' }
+ *
+ * @param {Array} events
+ * @param {String} name
+ * @return {Object}
+ */
+
+function get(events, name) {
+  var ret = {};
+  var pageName = normalize(name || '');
+
+  each(function(widget) {
+    if (widget.value && pageName === normalize(widget.value.name)) {
+      ret = widget.value;
+    } else if (pageName === normalize(widget.name)) {
+      ret = widget;
+    }
+  }, events);
+
+  return ret;
+}
+
+/**
  * Expose `FriendBuy` integration.
  */
 
@@ -90,7 +125,8 @@ FriendBuy.prototype.page = function(page) {
       var segmentKey = pair.key;
       var fbKey = pair.value;
       var value = page.proxy('properties.' + segmentKey);
-      if (value) return (parameters[fbKey] = value);
+      if (value) parameters[fbKey] = value;
+      return parameters[fbKey];
     }, widgetSettings.parameters);
 
     if (!is.empty(parameters)) config.parameters = parameters;
@@ -105,26 +141,27 @@ FriendBuy.prototype.page = function(page) {
   if (this.options.siteWideWidgets.length) {
     each(function(setting) {
       var widget = setting.value || setting || {};
-      var commands = ['widget', widget.id];
-      if (widget.selector) commands.push(widget.selector);
+      var widgetCommands = ['widget', widget.id];
+      if (widget.selector) widgetCommands.push(widget.selector);
       var configs = {
         // The display configuration options control how and when a widget is invoked.
         configuration: {
           auto_delay: widget.autoDelay ? parseInt(widget.autoDelay, 10) : null // A value of 0 indicates manual widget invocation which is the default. Waits this many milliseconds after loading to display. Must be null otherwise so that it allows FB UI entered value to override
         }
       };
-      var parameters = {};
+      var widgetParameters = {};
       each(function(pair) {
         var segmentKey = pair.key;
         var fbKey = pair.value;
         var value = page.proxy('properties.' + segmentKey);
-        if (value) return (parameters[fbKey] = value);
+        if (value) widgetParameters[fbKey] = value;
+        return widgetParameters[fbKey];
       }, widget.parameters);
 
-      if (!is.empty(parameters)) configs.parameters = parameters;
+      if (!is.empty(widgetParameters)) configs.parameters = widgetParameters;
 
-      commands.push(configs);
-      window.friendbuy.push(commands);
+      widgetCommands.push(configs);
+      window.friendbuy.push(widgetCommands);
     }, this.options.siteWideWidgets);
   }
 };
@@ -142,14 +179,33 @@ FriendBuy.prototype.identify = function(identify) {
   if (!identify.userId()) return; // required
 
   var options = identify.options(this.name);
-  var customerDetail = reject({
+
+  // It looks like `identify` will always have `obj.traits` even if called without traits,
+  // so it’s safe to access `identify.obj.traits` without checks.
+  var traits = identify.obj.traits;
+  var customTraits = Object.keys(traits).filter(function(key) {
+    // A custom trait, for Friendbuy purposes, is something that is passed through by Segment
+    // but does not have a wrapper function around it.
+    return (
+      Object.prototype.hasOwnProperty.call(traits, key) &&
+      typeof identify[key] !== 'function'
+    );
+  });
+
+  var customerDetail = {
     id: identify.userId(),
     email: identify.email(),
     first_name: identify.firstName(),
     last_name: identify.lastName(),
     stripe_customer_id: find(options, 'stripe_customer_id'),
     chargebee_customer_id: find(options, 'chargebee_customer_id')
+  };
+
+  customTraits.forEach(function(key) {
+    customerDetail[key] = traits[key];
   });
+
+  customerDetail = reject(customerDetail);
 
   window.friendbuy.push(['track', 'customer', customerDetail]);
 };
@@ -194,38 +250,3 @@ FriendBuy.prototype.orderCompleted = function(track) {
 
   window.friendbuy.push(['track', 'products', orderList]);
 };
-
-/**
- * Find any mapped settings to page `name`.
- *
- * Given something like this:
- *
- * [
- *   { value: { type: 'user', name: 'register' } }
- *   { value: { type: 'user', name: 'invite' } }
- *   { value: { type: 'purchase', name: 'main' } }
- * ]
- *
- * If you do `get(events, 'b')`, it wll give you:
- *
- * { type: 'purchase', name: 'main' }
- *
- * @param {Array} events
- * @param {String} name
- * @return {Object}
- */
-
-function get(events, name) {
-  var ret = {};
-  var pageName = normalize(name || '');
-
-  each(function(widget) {
-    if (widget.value && pageName === normalize(widget.value.name)) {
-      ret = widget.value;
-    } else if (pageName === normalize(widget.name)) {
-      ret = widget;
-    }
-  }, events);
-
-  return ret;
-}

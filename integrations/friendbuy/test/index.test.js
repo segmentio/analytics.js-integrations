@@ -5,7 +5,6 @@ var integrationTester = require('@segment/analytics.js-integration-tester');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var FriendBuy = require('../lib/');
-var util = require('util');
 
 describe('FriendBuy', function() {
   var analytics;
@@ -239,6 +238,31 @@ describe('FriendBuy', function() {
             last_name: myElectrifyingTraits.lastName,
             stripe_customer_id: 'staging-billing-is-broken',
             chargebee_customer_id: 'buzz-buzz'
+          }
+        ]);
+      });
+
+      it('should track customer with custom traits', function() {
+        var myCustomElectrifyingTraits = Object.assign(
+          {},
+          myElectrifyingTraits,
+          {
+            VIP: true,
+            plan_type: 'luxury'
+          }
+        );
+
+        analytics.identify(userId, myCustomElectrifyingTraits);
+        analytics.called(window.friendbuy.push, [
+          'track',
+          'customer',
+          {
+            id: userId,
+            email: myCustomElectrifyingTraits.email,
+            first_name: myCustomElectrifyingTraits.firstName,
+            last_name: myCustomElectrifyingTraits.lastName,
+            VIP: true,
+            plan_type: 'luxury'
           }
         ]);
       });
