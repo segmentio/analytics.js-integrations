@@ -42,35 +42,74 @@ var optimizelyContext = {
 
 Optimizely.prototype.initialize = function() {
   var self = this;
-  // Flag source of integration (requested by Optimizely)
-  if (window.optimizelyEdge) {
-    edgePush({
-      type: 'integration',
-      OAuthClientId: '5360906403'
-    });
+  window.optimizelyEdge.push({
+    type: 'addListener',
+    filter: {
+      type: 'lifecycle',
+      name: 'initialized'
+    },
+    handler: function() {
+      // Initialize the Edge integration if that hasn't been done already
+      if (window.optimizelyEdge && window.optimizelyEdge.get) {
+        edgePush({
+          type: 'integration',
+          // Flag source of integration (requested by Optimizely)
+          OAuthClientId: '5360906403'
+        });
 
-    // Initialize listeners for Optimizely Edge decisions.
-    // We're calling this on the next tick to be safe so we don't hold up
-    // initializing the integration even though the function below is designed to be async,
-    // just want to be extra safe
-    tick(function() {
-      self.initEdgeIntegration();
-    });
-  } else {
-    push({
-      type: 'integration',
-      OAuthClientId: '5360906403'
-    });
+        // Initialize listeners for Optimizely Edge decisions.
+        // We're calling this on the next tick to be safe so we don't hold up
+        // initializing the integration even though the function below is designed to be async,
+        // just want to be extra safe
+        tick(function() {
+          self.initEdgeIntegration();
+        });
+      }
+    }
+  });
 
-    // Initialize listeners for Optimizely Web decisions.
-    // We're calling this on the next tick to be safe so we don't hold up
-    // initializing the integration even though the function below is designed to be async,
-    // just want to be extra safe
-    tick(function() {
-      self.initWebIntegration();
-    });
-  }
+  window.optimizely.push({
+    type: 'addListener',
+    filter: {
+      type: 'lifecycle',
+      name: 'initialized'
+    },
+    handler: function() {
+      // We have to check this because Edge microsnippets currently process
+      // window.optimizely calls and not just window.optimizelyEdge calls.
+      if (window.optimizelyEdge && window.optimizelyEdge.get) {
+        // Initialize the Edge integration if that hasn't been done already
+        edgePush({
+          type: 'integration',
+          // Flag source of integration (requested by Optimizely)
+          OAuthClientId: '5360906403'
+        });
 
+        // Initialize listeners for Optimizely Edge decisions.
+        // We're calling this on the next tick to be safe so we don't hold up
+        // initializing the integration even though the function below is designed to be async,
+        // just want to be extra safe
+        tick(function() {
+          self.initEdgeIntegration();
+        });
+      } else if (window.optimizely && window.optimizely.get) {
+        // Initialize the Web integration
+        push({
+          type: 'integration',
+          // Flag source of integration (requested by Optimizely)
+          OAuthClientId: '5360906403'
+        });
+
+        // Initialize listeners for Optimizely Web decisions.
+        // We're calling this on the next tick to be safe so we don't hold up
+        // initializing the integration even though the function below is designed to be async,
+        // just want to be extra safe
+        tick(function() {
+          self.initWebIntegration();
+        });
+      }
+    }
+  });
   this.ready();
 };
 
@@ -118,7 +157,7 @@ Optimizely.prototype.track = function(track) {
     tags: eventProperties
   };
 
-  if (window.optimizelyEdge) {
+  if (window.optimizelyEdge && window.optimizelyEdge.get) {
     // Track via Optimizely Edge
     edgePush(payload);
   } else {
@@ -423,7 +462,7 @@ Optimizely.prototype.initEdgeIntegration = function() {
    * utilize the Web API to listen to newly activated Edge experiments.
    */
   var registerFutureActiveEdgeExperiment = function() {
-    push({
+    edgePush({
       type: 'addListener',
       filter: {
         type: 'lifecycle',
