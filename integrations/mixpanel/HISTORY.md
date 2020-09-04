@@ -1,3 +1,7 @@
+3.3.0 / 2020-09-04
+==================
+  * Added support for setting custom URL to load library from.
+
 3.1.0 / 2019-09-27
 ==================
   * Added support for groups.

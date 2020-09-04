@@ -40,7 +40,12 @@ var Mixpanel = (module.exports = integration('Mixpanel')
   .option('groupIdentifierTraits', [])
   .option('sourceName', '')
   .option('enableEuropeanUnionEndpoint', false)
-  .tag('<script src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">'));
+  .option('customLibraryUrl', '')
+  .tag(
+    'default',
+    '<script src="//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">'
+  )
+  .tag('custom', '<script src="{{ customLibraryUrl }}">'));
 
 /**
  * Options aliases.
@@ -79,7 +84,12 @@ for(h=0;h<k.length;h++)e(d,k[h]);a._i.push([b,c,f])};a.__SV=1.2;}})(document,win
     mixpanel.register({ mp_lib: 'Segment: web' });
   };
   window.mixpanel.init(options.token, options);
-  this.load(this.ready);
+  // if custom library URL is provided, use that one
+  if (options.customLibraryUrl) {
+    this.load('custom', this.ready);
+  } else {
+    this.load('default', this.ready);
+  }
 };
 
 /**

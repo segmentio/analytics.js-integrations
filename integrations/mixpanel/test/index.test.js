@@ -58,6 +58,7 @@ describe('Mixpanel', function() {
         .option('groupIdentifierTraits', [])
         .option('sourceName', '')
         .option('enableEuropeanUnionEndpoint', false)
+        .option('customLibraryUrl', '')
     );
   });
 
@@ -90,8 +91,21 @@ describe('Mixpanel', function() {
   });
 
   describe('loading', function() {
-    it('should load', function(done) {
-      analytics.load(mixpanel, done);
+    beforeEach(function() {
+      analytics.spy(mixpanel, 'load');
+    });
+
+    it('should load default script', function() {
+      analytics.load(mixpanel);
+      analytics.loaded(
+        '<script src="http://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js">'
+      );
+    });
+
+    it('should load from custom library url if provided', function() {
+      mixpanel.options.customLibraryUrl = '//example.com/mixpanel.js';
+      analytics.load(mixpanel);
+      analytics.loaded('<script src="http://example.com/mixpanel.js">');
     });
   });
 
