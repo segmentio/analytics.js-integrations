@@ -11,7 +11,8 @@ describe('Heap', function() {
   var heap;
   var analytics;
   var options = {
-    appId: '1535634150'
+    appId: '1535634150',
+    blacklistedTraits: ['forbidden_field', 'do_not_send']
   };
 
   beforeEach(function() {
@@ -124,6 +125,19 @@ describe('Heap', function() {
 
       it('should send id as handle and traits', function() {
         analytics.identify('id', { trait: 'trait' });
+        analytics.called(window.heap.identify, 'id');
+        analytics.called(window.heap.addUserProperties, {
+          id: 'id',
+          trait: 'trait'
+        });
+      });
+
+      it('should filter out blacklisted traits', function() {
+        analytics.identify('id', {
+          trait: 'trait',
+          forbidden_field: 'shouldnt send this',
+          do_not_send: 'nor this'
+        });
         analytics.called(window.heap.identify, 'id');
         analytics.called(window.heap.addUserProperties, {
           id: 'id',
