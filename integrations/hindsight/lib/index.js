@@ -1,7 +1,6 @@
 'use strict';
 
 var integration = require('@segment/analytics.js-integration');
-var useHttps = require('use-https');
 var is = require('is');
 var each = require('@ndhoule/each');
 
@@ -13,8 +12,8 @@ var each = require('@ndhoule/each');
 var Hindsight = (module.exports = integration('Hindsight')
   .global('RB')
   .option('pixel_code', '')
-  .tag('http', '<script src="http://getrockerbox.com/assets/xyz.js">')
-  .tag('https', '<script src="https://getrockerbox.com/assets/xyz.js">'));
+  .option('custom_tracking_domain', '')
+  .tag('<script src="https://{{ host }}/assets/{{ lib }}.js">'));
 
 /**
  * Initialize
@@ -31,9 +30,15 @@ Hindsight.prototype.initialize = function() {
     };
   window.RB.source = this.options.pixel_code;
 
-  var protocol = useHttps() ? 'https' : 'http';
+  var hasCustomDomain = !!this.options.custom_tracking_domain;
+  var tagParams = {
+    host: hasCustomDomain
+      ? this.options.custom_tracking_domain
+      : 'getrockerbox.com',
+    lib: hasCustomDomain ? 'wxyz.rb.js' : 'wxyz.v2.js'
+  };
 
-  this.load(protocol, this.ready);
+  this.load(tagParams, this.ready);
 };
 
 /**
