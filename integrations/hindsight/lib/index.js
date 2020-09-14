@@ -35,7 +35,7 @@ Hindsight.prototype.initialize = function() {
     host: hasCustomDomain
       ? this.options.custom_tracking_domain
       : 'getrockerbox.com',
-    lib: hasCustomDomain ? 'wxyz.rb.js' : 'wxyz.v2.js'
+    lib: hasCustomDomain ? 'wxyz.rb' : 'wxyz.v2'
   };
 
   this.load(tagParams, this.ready);
