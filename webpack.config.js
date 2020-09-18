@@ -1,23 +1,20 @@
-const path = require('path');
-const fs = require('fs-extra');
-const TerserPlugin = require('terser-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
-const CompressionPlugin = require('compression-webpack-plugin');
+var path = require('path');
+var fs = require('fs-extra');
+var TerserPlugin = require('terser-webpack-plugin');
+var CompressionPlugin = require('compression-webpack-plugin');
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-const files = fs.readdirSync('./integrations');
+var files = fs.readdirSync('./integrations');
 
-const entries = files.reduce((entries, file) => {
-  const path = `./integrations/${file}/lib/index.js`;
-  if (!fs.existsSync(path)) {
-    return entries;
+var entries = {};
+
+files.forEach(function(file) {
+  var filePath = './integrations/' + file + '/lib/index.js';
+  if (!fs.existsSync(filePath)) {
+    return;
   }
-
-  return {
-    ...entries,
-    [file]: path
-  };
-}, {});
+  entries[file] = filePath;
+});
 
 module.exports = {
   entry: entries,
@@ -25,11 +22,13 @@ module.exports = {
   // devtool: 'inline-source-map',
   output: {
     filename: '[name]/[contenthash]/bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    library: '[name]Integration',
+    libraryTarget: 'umd'
   },
   optimization: {
     moduleIds: 'hashed',
-    minimize: true,
+    minimize: process.env.NODE_ENV === 'production',
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -45,7 +44,7 @@ module.exports = {
 
     splitChunks: {
       cacheGroups: {
-        ndhoule: {
+        compat: {
           test: /[\\/]node_modules[\\/](setimmediate|component-emmitter|process|@ndhoule|is|segmentio-facade|debug|analytics-events|@segment\/analytics\.js\-integrations)[\\/]/,
           name: 'ajs-compat',
           chunks: 'all'
@@ -53,5 +52,5 @@ module.exports = {
       }
     }
   },
-  plugins: [new CompressionPlugin(), new BundleAnalyzerPlugin()]
+  plugins: [new CompressionPlugin() /* new BundleAnalyzerPlugin() */]
 };
