@@ -34,16 +34,18 @@ module.exports = {
   },
   optimization: {
     moduleIds: 'hashed',
-    minimize: isProd,
-    splitChunks: {
-      cacheGroups: {
-        compat: {
-          test: /[\\/]node_modules[\\/](setimmediate|component-emmitter|process|@ndhoule|is|segmentio-facade|debug|analytics-events|@segment\/analytics\.js\-integrations)[\\/]/,
-          name: 'ajs-compat',
-          chunks: 'all'
-        }
-      }
-    }
+    minimize: isProd
+    // enable this when we figure out a better way to load common chunks
+
+    // splitChunks: {
+    // cacheGroups: {
+    //   compat: {
+    //     test: /[\\/]node_modules[\\/](setimmediate|component-emmitter|process|@ndhoule|is|segmentio-facade|debug|analytics-events|@segment\/analytics\.js\-integrations)[\\/]/,
+    //     name: 'ajs-compat',
+    //     chunks: 'all'
+    //   }
+    // }
+    // }
   },
   plugins: [new CompressionPlugin() /* new BundleAnalyzerPlugin() */]
 };
