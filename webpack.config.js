@@ -1,10 +1,11 @@
 var path = require('path');
 var fs = require('fs-extra');
-var TerserPlugin = require('terser-webpack-plugin');
 var CompressionPlugin = require('compression-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 var files = fs.readdirSync('./integrations');
+var isProd = process.env.NODE_ENV === 'production';
+var s3Path = 'https://ajs-next-integrations.s3-us-west-2.amazonaws.com';
 
 var entries = {};
 
@@ -18,30 +19,22 @@ files.forEach(function(file) {
 
 module.exports = {
   entry: entries,
-  mode: process.env.NODE_ENV || 'production',
-  // devtool: 'inline-source-map',
+  mode: process.env.NODE_ENV || 'development',
   output: {
-    filename: '[name]/[contenthash]/bundle.js',
+    filename: isProd
+      ? '[name]/[contenthash]/bundle.js'
+      : '[name]/latest/bundle.js',
     path: path.resolve(__dirname, 'dist'),
     library: '[name]Integration',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    publicPath: isProd ? s3Path : '/'
+  },
+  devServer: {
+    contentBase: path.resolve(__dirname, 'dist')
   },
   optimization: {
     moduleIds: 'hashed',
-    minimize: process.env.NODE_ENV === 'production',
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          output: {
-            comments: false
-          }
-        },
-        cache: true,
-        parallel: true,
-        extractComments: false
-      })
-    ],
-
+    minimize: isProd,
     splitChunks: {
       cacheGroups: {
         compat: {
