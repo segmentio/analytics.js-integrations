@@ -30,6 +30,7 @@ var FacebookPixel = (module.exports = integration('Facebook Pixel')
   .option('standardEventsCustomProperties', [])
   .option('keyForExternalId', '')
   .option('userIdAsExternalId', false)
+  .option('limitedDataUse', true)
   .mapping('standardEvents')
   .mapping('legacyEvents')
   .mapping('contentTypes')
@@ -101,6 +102,14 @@ FacebookPixel.prototype.initialize = function() {
   this.load(this.ready);
   if (!this.options.automaticConfiguration) {
     window.fbq('set', 'autoConfig', false, this.options.pixelId);
+  }
+  if (this.options.limitedDataUse) {
+    this.validateAndSetDataProcessing(
+      this.options.dataProcessingOptions || [['LDU'], 0, 0]
+    );
+  } else {
+    // explicitly not enable Limited Data Use (LDU) mode
+    window.fbq('dataProcessingOptions', []);
   }
   if (this.options.initWithExistingTraits) {
     var traits = this.formatTraits(this.analytics);
@@ -712,6 +721,29 @@ FacebookPixel.prototype.buildPayload = function(track, isStandardEvent) {
   }
 
   return payload;
+};
+
+/**
+ * Validates that a set of parameters are formatted correctly and passes them to the pixel instance.
+ * https://developers.facebook.com/docs/marketing-apis/data-processing-options#reference
+ *
+ * @param {Array} options
+ *
+ * @api private
+ */
+FacebookPixel.prototype.validateAndSetDataProcessing = function(params) {
+  var lenOk = params.length === 3;
+  var valOk =
+    Array.isArray(params[0]) &&
+    typeof params[1] === 'number' &&
+    typeof params[2] === 'number';
+
+  // Pass the data processing options if they're valid, otherwise, fallback to geolocation.
+  if (lenOk && valOk) {
+    window.fbq('dataProcessingOptions', params[0], params[1], params[2]);
+  } else {
+    window.fbq('dataProcessingOptions', ['LDU'], 0, 0);
+  }
 };
 
 /**

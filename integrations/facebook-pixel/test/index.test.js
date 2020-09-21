@@ -35,6 +35,7 @@ describe('Facebook Pixel', function() {
     pixelId: '123123123',
     agent: 'test',
     initWithExistingTraits: false,
+    limitedDataUse: true,
     whitelistPiiProperties: [],
     blacklistPiiProperties: [],
     standardEventsCustomProperties: []
@@ -147,6 +148,12 @@ describe('Facebook Pixel', function() {
         );
       });
 
+      it('should call dataProcessingOptions if limitedDataUse is enabled', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'dataProcessingOptions', ['LDU'], 0, 0);
+      });
+
       before(function() {
         options.initWithExistingTraits = true;
       });
@@ -169,6 +176,60 @@ describe('Facebook Pixel', function() {
         analytics.stub(window, 'fbq');
         analytics.initialize();
         analytics.called(window.fbq, 'init', options.pixelId, payload);
+      });
+    });
+
+    describe('#initialize without LDU', function() {
+      before(function() {
+        options.limitedDataUse = false;
+      });
+
+      after(function() {
+        options.limitedDataUse = true;
+      });
+
+      it('should not call dataProcessingOptions if limitedDataUse is false', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.didNotCall(
+          window.fbq,
+          'dataProcessingOptions',
+          ['LDU'],
+          0,
+          0
+        );
+      });
+    });
+
+    describe('#initialize with preset data processing options', function() {
+      before(function() {
+        options.dataProcessingOptions = [['LDU'], 99, 99];
+      });
+
+      after(function() {
+        delete options.dataProcessingOptions;
+      });
+
+      it('should call dataProcessingOptions with the preset values', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'dataProcessingOptions', ['LDU'], 99, 99);
+      });
+    });
+
+    describe('#initialize with fallback data processing options', function() {
+      before(function() {
+        options.dataProcessingOptions = ['a string', true, 99];
+      });
+
+      after(function() {
+        delete options.dataProcessingOptions;
+      });
+
+      it('should call dataProcessingOptions with fallback values', function() {
+        analytics.stub(window, 'fbq');
+        analytics.initialize();
+        analytics.called(window.fbq, 'dataProcessingOptions', ['LDU'], 0, 0);
       });
     });
   });

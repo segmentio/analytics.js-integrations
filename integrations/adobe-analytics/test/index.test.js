@@ -1175,6 +1175,30 @@ describe('Adobe Analytics', function() {
           });
           analytics.equal(window.s.events, 'prodView,event1,event38');
         });
+
+        it('should stringify bool context data', function() {
+          adobeAnalytics.options.contextValues = {
+            'page.referrer': 'page.referrer',
+            'page.url': 'page.title',
+            'page.bickenBack': 'page.bickenBack'
+          };
+          analytics.track(
+            'Drank Some Milk',
+            { foo: 'bar' },
+            { page: { bickenBack: false } }
+          );
+          analytics.equal(
+            window.s.contextData['page.referrer'],
+            window.document.referrer
+          );
+          analytics.equal(
+            window.s.contextData['page.title'],
+            window.location.href
+          );
+          analytics.equal(window.s.contextData['page.bickenBack'], 'false');
+          analytics.equal(window.s.contextData.foo, 'bar');
+          analytics.called(window.s.tl);
+        });
       });
     });
 
@@ -1592,7 +1616,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it('should call trackComplete when a video completes', function() {
+      it('should set chapterInProgress when a video completes', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -1606,7 +1630,7 @@ describe('Adobe Analytics', function() {
 
         analytics.stub(
           adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
-          'trackComplete'
+          'trackEvent'
         );
 
         analytics.track('Video Content Completed', {
@@ -1621,7 +1645,12 @@ describe('Adobe Analytics', function() {
         });
 
         analytics.called(
-          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackComplete
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.ChapterComplete
+        );
+        analytics.equal(
+          false,
+          adobeAnalytics.mediaHeartbeats[sessionId].chapterInProgress
         );
       });
 
@@ -1658,7 +1687,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it('should delete the instance when the session is over', function() {
+      it('should call final hb methods and delete the instance when the session is over', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -1674,6 +1703,7 @@ describe('Adobe Analytics', function() {
 
         // We need to save this reference for the upcoming check, since we delete the higher property after the next call.
         var heartbeatRef = adobeAnalytics.mediaHeartbeats[sessionId].heartbeat;
+        analytics.stub(heartbeatRef, 'trackComplete');
         analytics.stub(heartbeatRef, 'trackSessionEnd');
 
         analytics.track('Video Playback Completed', {
@@ -1687,8 +1717,9 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.assert(!adobeAnalytics.mediaHeartbeats[sessionId]);
+        analytics.called(heartbeatRef.trackComplete);
         analytics.called(heartbeatRef.trackSessionEnd);
+        analytics.assert(!adobeAnalytics.mediaHeartbeats[sessionId]);
       });
 
       it('should start an Ad Break and Ad Tracking when an ad starts', function() {
@@ -1832,6 +1863,26 @@ describe('Adobe Analytics', function() {
           adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
           'trackPause'
         );
+      });
+
+      it('should return the playhead value from the window object', function() {
+        analytics.track('Video Playback Started', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        window._segHBPlayheads[sessionId] = 5.111;
+
+        var actual = adobeAnalytics.mediaHeartbeats[
+          sessionId
+        ].delegate.getCurrentPlaybackTime();
+        analytics.assert(actual, 5.111);
       });
     });
   });

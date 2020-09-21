@@ -135,6 +135,10 @@ AdobeAnalytics.prototype.initialize = function() {
   // In case this has been defined already
   window.s_account = window.s_account || options.reportSuiteId;
 
+  // Initialize a window object that can be used to update the playhead value of a session
+  // WITHOUT sending several 'Video Content Playing' events. (see line 1242)
+  window._segHBPlayheads = {};
+
   // Load the larger Heartbeat script only if the customer has it enabled in settings.
   // This file is considerably bigger, so this check is necessary.
   if (options.heartbeatTrackingServerUrl) {
@@ -617,6 +621,14 @@ function updateContextData(facade, options) {
   var contextProperties = extractProperties(facade, options, 'context');
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
+      return;
+    }
+
+    // If context data values are booleans then stringify them.
+    // Adobe's SDK seems to reject a false boolean value. Stringifying is
+    // acceptable since these values are appended as query strings anyway.
+    if (typeof value === 'boolean') {
+      addContextDatum(key, value.toString());
       return;
     }
 
@@ -1236,7 +1248,17 @@ function initHeartbeat(track) {
   mediaHeartbeatConfig.debugLogging = !!window._enableHeartbeatDebugLogging; // Optional beta flag for seeing debug output.
 
   mediaHeartbeatDelegate.getCurrentPlaybackTime = function() {
-    return self.playhead || 0; // TODO: Bind to the Heartbeat events we have specced.
+    var playhead = self.playhead || 0;
+
+    // We allow implementions to set the playhead value of a video session on a shared
+    // window object. This allows us to relay the playhead to AA's heartbeat SDK several
+    // times a second, without relying on a 'Video Content Playing' event to update the position.
+    var sessions = window._segHBPlayheads || {};
+    if (sessions[props.session_id]) {
+      playhead = sessions[props.session_id];
+    }
+
+    return playhead;
   };
 
   mediaHeartbeatDelegate.getQoSObject = function() {
@@ -1317,9 +1339,7 @@ function heartbeatVideoStart(track) {
       chapterObj,
       chapterCustomMetadata
     );
-    this.mediaHeartbeats[
-      props.session_id || 'default'
-    ].chapterInProgress = true;
+    this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = true;
   }
 }
 
@@ -1332,8 +1352,6 @@ function heartbeatVideoComplete(track) {
     videoAnalytics.MediaHeartbeat.Event.ChapterComplete
   );
   this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = false;
-
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackComplete();
 }
 
 function heartbeatVideoPaused(track) {
@@ -1347,9 +1365,8 @@ function heartbeatSessionEnd(track) {
   populateHeartbeat.call(this, track);
 
   var props = track.properties();
-  this.mediaHeartbeats[
-    props.session_id || 'default'
-  ].heartbeat.trackSessionEnd();
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackComplete();
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackSessionEnd();
 
   // Remove the session from memory when it's all over.
   delete this.mediaHeartbeats[props.session_id || 'default'];
@@ -1514,6 +1531,15 @@ function createCustomVideoMetadataContext(track, options) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
+
+    // If context data values are booleans then stringify them.
+    // Adobe's SDK seems to reject a false boolean value. Stringifying is
+    // acceptable since these values are appended as query strings anyway.
+    if (typeof value === 'boolean') {
+      contextData[key] = value.toString();
+      return;
+    }
+
     contextData[key] = value;
   }, extractedProperties);
   return contextData;
