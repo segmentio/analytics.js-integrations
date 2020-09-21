@@ -31,7 +31,7 @@ var Floodlight = (module.exports = integration('DoubleClick Floodlight')
   )
   .tag(
     'doubleclick id',
-    '<img src="//cm.g.doubleclick.net/pixel?google_cm&google_nid={{ googleNetworkId }}&segment_write_key={{ segmentWriteKey }}&user_id={{ userId }}&anonymous_id={{ anonymousId }}&google_hm={{ partnerProvidedId }}"/>'
+    '<img src="//cm.g.doubleclick.net/pixel?google_nid={{ googleNetworkId }}&segment_write_key={{ segmentWriteKey }}&user_id={{ userId }}&anonymous_id={{ anonymousId }}&google_hm={{ partnerProvidedId }}"/>'
   ));
 
 /**
