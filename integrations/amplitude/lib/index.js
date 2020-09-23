@@ -238,7 +238,7 @@ Amplitude.prototype.setTraits = function(traits) {
 
 Amplitude.prototype.track = logEvent;
 
-function logEvent(track, dontSetRevenue) {
+function logEvent(track, dontSetRevenue, callback) {
   this.setDeviceIdFromAnonymousId(track);
 
   var props = track.properties();
@@ -277,7 +277,7 @@ function logEvent(track, dontSetRevenue) {
       .getInstance()
       .logEventWithGroups(event, props, options.groups);
   } else {
-    window.amplitude.getInstance().logEvent(event, props);
+    window.amplitude.getInstance().logEvent(event, props, callback);
   }
 
   // Ideally, user's will track revenue using an Order Completed event.
