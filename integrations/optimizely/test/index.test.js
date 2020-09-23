@@ -29,7 +29,9 @@ function executeAsyncTest(done, test) {
 }
 
 /**
- *
+ * Since our integration is unaware of whether Segment is integrated with a Web or Edge page,
+ * we are now adding initialize listeners. In these tests, we must activate analytics.initialize()
+ * by invoking the listener's handler
  * @api private
  * @param {*} prePushStub the stub of the prePushed global
  */
@@ -135,6 +137,7 @@ var mockWindowOptimizely = function() {
 
     get: function() {
       return {
+        // mock API calls that reflect what Optimizely public APIs return
         getCampaignStates: function(options) {
           if (!options.isActive) {
             throw new Error('Incorrect call to getCampaignStates');
@@ -208,6 +211,7 @@ var mockWindowEdge = function() {
 
     get: function() {
       return {
+        // mock API calls that reflect what Optimizely public APIs return
         getActiveExperiments: function() {
           var data = _.filter(window.optimizelyEdge.edgeMockData, {
             isActive: true
@@ -236,18 +240,19 @@ var mockWindowEdge = function() {
           /* eslint-enable no-param-reassign */
         },
         getRedirectInfo: function() {
-          // var campaigns = this.getCampaignStates({ isActive: true });
-          // var campaignIds = Object.keys(campaigns);
-          // for (var i = 0; i < campaignIds.length; i++) {
-          //   var id = campaignIds[i];
-          //   if (campaigns[id].visitorRedirected) {
-          //     return {
-          //       experimentId: campaigns[id].experiment.id,
-          //       variationId: campaigns[id].variation.id,
-          //       referrer: 'barstools.com'
-          //     };
-          //   }
-          // }
+          var data = _.filter(window.optimizelyEdge.edgeMockData, {
+            isActive: true
+          });
+
+          for (var i = 0; i < data.length; i++) {
+            if (data[i].visitorRedirected) {
+              return {
+                experimentId: data[i].id,
+                variationId: data[i].variation.id,
+                referrer: 'barstools.com'
+              };
+            }
+          }
           return null;
         }
       };
@@ -300,7 +305,6 @@ describe('Optimizely', function() {
     optimizely.reset();
     sandbox();
     sinon.restore();
-    sinon.reset();
   });
 
   describe('#initialize', function() {
@@ -317,6 +321,8 @@ describe('Optimizely', function() {
       sinon.assert.calledOnce(preEdgePushStub);
     });
 
+    // fragile; stub history is not resetting quick enough, but these tests are passing on its own
+    // and in its current order
     context('when Optimizely Web is initialized', function() {
       beforeEach(function() {
         mockWindowOptimizely();
@@ -340,6 +346,8 @@ describe('Optimizely', function() {
       });
     });
 
+    // fragile; stub history is not resetting quick enough, but these tests are passing on its own
+    // and in its current order
     context('when Optimizely Edge is initialized', function() {
       beforeEach(function() {
         mockWindowEdge();
@@ -349,6 +357,8 @@ describe('Optimizely', function() {
       it('should call initEdgeIntegration', function(done) {
         executeAsyncTest(done, function() {
           sinon.assert.calledOnce(Optimizely.prototype.initEdgeIntegration);
+          // no need to check that initWebIntegration is not called, since it will never be called if
+          // Edge exists on the page.
         });
       });
 
@@ -964,21 +974,26 @@ describe('Optimizely', function() {
   describe('#initEdgeIntegration', function() {
     beforeEach(function() {
       sinon.stub(optimizely, 'sendEdgeExperimentToSegment');
+      sinon.stub(optimizely, 'setRedirectInfo');
     });
 
     context('before the Edge microsnippet has loaded', function() {
       var prePushStub;
 
       beforeEach(function() {
+        prePushStub = sinon.stub();
+        window.optimizelyEdge = {
+          push: prePushStub
+        };
+
         optimizely.initEdgeIntegration();
       });
 
-      // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip('if a redirect experiment has executed', function() {
+      context('if a redirect experiment has executed', function() {
         beforeEach(function() {
           mockWindowEdge();
           // Make sure window.optimizely.getRedirectInfo returns something
-          window.optimizelyEdge.edgeMockData[2347102720].isActive = true;
+          window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
         });
 
         it('eventually captures redirect info', function() {
@@ -1008,10 +1023,10 @@ describe('Optimizely', function() {
       });
 
       // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip("if a redirect experiment hasn't executed", function() {
+      context("if a redirect experiment hasn't executed", function() {
         beforeEach(function() {
           // by default mock data has no redirect experiments active
-          mockWindowOptimizely();
+          mockWindowEdge();
         });
 
         it('does not capture redirect info', function() {
@@ -1045,7 +1060,7 @@ describe('Optimizely', function() {
 
         beforeEach(function() {
           // Make sure the code is actually listening for experiments
-          var experimentDecidedCalls = _.filter(preEdgePushStub.getCalls(), {
+          var experimentDecidedCalls = _.filter(prePushStub.getCalls(), {
             args: [
               {
                 type: 'addListener',
@@ -1117,12 +1132,12 @@ describe('Optimizely', function() {
       });
 
       // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip('if a redirect experiment has executed', function() {
+      context('if a redirect experiment has executed', function() {
         beforeEach(function() {
           // Make sure window.optimizely.getRedirectInfo returns something
-          window.optimizely.newMockData[2347102720].isActive = true;
+          window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
 
-          optimizely.initWebIntegration();
+          optimizely.initEdgeIntegration();
         });
 
         it('immediately captures redirect info', function() {
@@ -1136,15 +1151,15 @@ describe('Optimizely', function() {
         it('captures redirect info _before_ tracking decisions', function() {
           sinon.assert.callOrder(
             optimizely.setRedirectInfo,
-            optimizely.sendWebDecisionToSegment
+            optimizely.sendEdgeExperimentToSegment
           );
         });
       });
 
       // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip("if a redirect experiment hasn't executed", function() {
+      context("if a redirect experiment hasn't executed", function() {
         beforeEach(function() {
-          optimizely.initWebIntegration();
+          optimizely.initEdgeIntegration();
         });
 
         it('does not capture redirect info', function() {
@@ -1205,6 +1220,7 @@ describe('Optimizely', function() {
 
         context('and the experiment is active', function() {
           beforeEach(function() {
+            mockWindowEdge();
             window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
 
             handler({
@@ -1338,11 +1354,11 @@ describe('Optimizely', function() {
       });
 
       // Edge does not have a way to retrieve redirect info
-      it.skip('should send redirect experiment data via `.track()`', function(done) {
+      it('should send redirect experiment data via `.track()`', function(done) {
         // Enable just the campaign with redirect variation
-        window.optimizely.newMockData[2347102720].isActive = true;
-        window.optimizely.newMockData[7547101713].isActive = false;
-        window.optimizely.newMockData[2542102702].isActive = false;
+        window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
+        window.optimizelyEdge.edgeMockData[7547682694].isActive = false;
+        window.optimizelyEdge.edgeMockData[1111182111].isActive = false;
         var context = {
           integration: optimizelyContext,
           page: { referrer: 'barstools.com' }
@@ -1352,16 +1368,11 @@ describe('Optimizely', function() {
           assert.deepEqual(analytics.track.args[0], [
             'Experiment Viewed',
             {
-              campaignName: 'Get Rich or Die Tryin',
-              campaignId: '2347102720',
               experimentId: '7522212694',
               experimentName: 'Wells Fargo Scam',
               variationId: '7551111120',
               variationName: 'Variation Corruption #1884',
-              audienceId: '7100568438',
-              audienceName: 'Middle Class',
-              referrer: 'barstools.com',
-              isInCampaignHoldback: false
+              referrer: 'barstools.com'
             },
             context
           ]);
@@ -1590,6 +1601,50 @@ describe('Optimizely', function() {
   describe('#page', function() {
     beforeEach(function() {
       analytics.initialize();
+    });
+
+    context('when Optimizely Edge is implemented', function() {
+      beforeEach(function() {
+        window.optimizelyEdge = {
+          push: sinon.stub(),
+          get: sinon.stub()
+        };
+      });
+
+      it('should send an event for a named page', function() {
+        var referrer = window.document.referrer;
+        analytics.page('Home');
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'Viewed Home Page',
+          tags: {
+            name: 'Home',
+            path: '/context.html',
+            referrer: referrer,
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html'
+          }
+        });
+      });
+
+      it('should send an event for a named and categorized page', function() {
+        var referrer = window.document.referrer;
+        analytics.page('Blog', 'New Integration');
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'Viewed Blog New Integration Page',
+          tags: {
+            name: 'New Integration',
+            category: 'Blog',
+            path: '/context.html',
+            referrer: referrer,
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html'
+          }
+        });
+      });
     });
 
     context('when Optimizely Web is implemented', function() {
