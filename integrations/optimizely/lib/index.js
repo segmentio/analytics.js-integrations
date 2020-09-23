@@ -77,22 +77,7 @@ Optimizely.prototype.initialize = function() {
     handler: function() {
       // We have to check this because Edge microsnippets currently process
       // window.optimizely calls and not just window.optimizelyEdge calls.
-      if (window.optimizelyEdge && window.optimizelyEdge.get) {
-        // Initialize the Edge integration if that hasn't been done already
-        edgePush({
-          type: 'integration',
-          // Flag source of integration (requested by Optimizely)
-          OAuthClientId: '5360906403'
-        });
-
-        // Initialize listeners for Optimizely Edge decisions.
-        // We're calling this on the next tick to be safe so we don't hold up
-        // initializing the integration even though the function below is designed to be async,
-        // just want to be extra safe
-        tick(function() {
-          self.initEdgeIntegration();
-        });
-      } else if (window.optimizely && window.optimizely.get) {
+      if (!(window.optimizelyEdge && window.optimizelyEdge.get)) {
         // Initialize the Web integration
         push({
           type: 'integration',

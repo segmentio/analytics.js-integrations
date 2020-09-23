@@ -308,6 +308,15 @@ describe('Optimizely', function() {
   });
 
   describe('#initialize', function() {
+    var args = {
+      type: 'addListener',
+      filter: {
+        type: 'lifecycle',
+        name: 'initialized'
+      },
+      handler: sinon.match.any
+    };
+
     beforeEach(function(done) {
       sinon.stub(Optimizely.prototype, 'initWebIntegration');
       sinon.stub(Optimizely.prototype, 'initEdgeIntegration');
@@ -317,8 +326,8 @@ describe('Optimizely', function() {
     });
 
     it('should push initialize listener to window.optimizely and window.optimizelyEdge', function() {
-      sinon.assert.calledOnce(preWebPushStub);
-      sinon.assert.calledOnce(preEdgePushStub);
+      sinon.assert.calledOnceWithExactly(preWebPushStub, args);
+      sinon.assert.calledOnceWithExactly(preEdgePushStub, args);
     });
 
     // fragile; stub history is not resetting quick enough, but these tests are passing on its own
