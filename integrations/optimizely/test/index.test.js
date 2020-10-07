@@ -29,6 +29,31 @@ function executeAsyncTest(done, test) {
 }
 
 /**
+ * Since our integration is unaware of whether Segment is integrated with a Web or Edge page,
+ * we are now adding initialize listeners. In these tests, we must activate analytics.initialize()
+ * by invoking the listener's handler
+ * @api private
+ * @param {*} prePushStub the stub of the prePushed global
+ */
+function invokeHandler(prePushStub) {
+  var initializedCalls = _.filter(prePushStub.getCalls(), {
+    args: [
+      {
+        type: 'addListener',
+        filter: {
+          type: 'lifecycle',
+          name: 'initialized'
+        }
+      }
+    ]
+  });
+
+  assert.equal(initializedCalls.length, 1);
+  // Actually simulate an 'initialized' event.
+  initializedCalls[0].args[0].handler();
+}
+
+/**
  * Test account: han@segment.com
  */
 
@@ -112,6 +137,7 @@ var mockWindowOptimizely = function() {
 
     get: function() {
       return {
+        // mock API calls that reflect what Optimizely public APIs return
         getCampaignStates: function(options) {
           if (!options.isActive) {
             throw new Error('Incorrect call to getCampaignStates');
@@ -185,6 +211,7 @@ var mockWindowEdge = function() {
 
     get: function() {
       return {
+        // mock API calls that reflect what Optimizely public APIs return
         getActiveExperiments: function() {
           var data = _.filter(window.optimizelyEdge.edgeMockData, {
             isActive: true
@@ -211,6 +238,22 @@ var mockWindowEdge = function() {
             return activeExperiments;
           }, {});
           /* eslint-enable no-param-reassign */
+        },
+        getRedirectInfo: function() {
+          var data = _.filter(window.optimizelyEdge.edgeMockData, {
+            isActive: true
+          });
+
+          for (var i = 0; i < data.length; i++) {
+            if (data[i].visitorRedirected) {
+              return {
+                experimentId: data[i].id,
+                variationId: data[i].variation.id,
+                referrer: 'barstools.com'
+              };
+            }
+          }
+          return null;
         }
       };
     },
@@ -226,8 +269,8 @@ var optimizelyContext = {
 };
 
 describe('Optimizely', function() {
-  this.timeout(0);
-
+  var preWebPushStub;
+  var preEdgePushStub;
   var analytics;
   var optimizely;
   var options = {
@@ -244,7 +287,16 @@ describe('Optimizely', function() {
     analytics.use(Optimizely);
     analytics.use(tester);
     analytics.add(optimizely);
-    window.optimizely = [];
+
+    preEdgePushStub = sinon.stub();
+    window.optimizelyEdge = {
+      push: preEdgePushStub
+    };
+
+    preWebPushStub = sinon.stub();
+    window.optimizely = {
+      push: preWebPushStub
+    };
   });
 
   afterEach(function() {
@@ -253,6 +305,79 @@ describe('Optimizely', function() {
     optimizely.reset();
     sandbox();
     sinon.restore();
+  });
+
+  describe('#initialize', function() {
+    var args = {
+      type: 'addListener',
+      filter: {
+        type: 'lifecycle',
+        name: 'initialized'
+      },
+      handler: sinon.match.any
+    };
+
+    beforeEach(function(done) {
+      sinon.stub(Optimizely.prototype, 'initWebIntegration');
+      sinon.stub(Optimizely.prototype, 'initEdgeIntegration');
+
+      analytics.once('ready', done);
+      analytics.initialize();
+    });
+
+    it('should push initialize listener to window.optimizely and window.optimizelyEdge', function() {
+      sinon.assert.calledOnceWithExactly(preWebPushStub, args);
+      sinon.assert.calledOnceWithExactly(preEdgePushStub, args);
+    });
+
+    // fragile; stub history is not resetting quick enough, but these tests are passing on its own
+    // and in its current order
+    context('when Optimizely Web is initialized', function() {
+      beforeEach(function() {
+        mockWindowOptimizely();
+        invokeHandler(preWebPushStub);
+      });
+
+      it('should call initWebIntegration and not call initEdgeIntegration', function(done) {
+        executeAsyncTest(done, function() {
+          sinon.assert.calledOnce(Optimizely.prototype.initWebIntegration);
+          sinon.assert.notCalled(Optimizely.prototype.initEdgeIntegration);
+        });
+      });
+
+      it('should flag source of integration', function() {
+        sinon.assert.calledWith(window.optimizely.push, {
+          type: 'integration',
+          OAuthClientId: '5360906403'
+        });
+        // initial call to push `initialize` listener
+        sinon.assert.calledOnce(window.optimizelyEdge.push);
+      });
+    });
+
+    // fragile; stub history is not resetting quick enough, but these tests are passing on its own
+    // and in its current order
+    context('when Optimizely Edge is initialized', function() {
+      beforeEach(function() {
+        mockWindowEdge();
+        invokeHandler(preEdgePushStub);
+      });
+
+      it('should call initEdgeIntegration', function(done) {
+        executeAsyncTest(done, function() {
+          sinon.assert.calledOnce(Optimizely.prototype.initEdgeIntegration);
+          // no need to check that initWebIntegration is not called, since it will never be called if
+          // Edge exists on the page.
+        });
+      });
+
+      it('should flag source of integration', function() {
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'integration',
+          OAuthClientId: '5360906403'
+        });
+      });
+    });
   });
 
   describe('#setRedirectInfo', function() {
@@ -645,7 +770,9 @@ describe('Optimizely', function() {
     //         with particular arguments.
 
     beforeEach(function() {
+      analytics.initialize();
       mockWindowOptimizely();
+      invokeHandler(preWebPushStub);
     });
 
     context('options.variations', function() {
@@ -855,14 +982,8 @@ describe('Optimizely', function() {
 
   describe('#initEdgeIntegration', function() {
     beforeEach(function() {
-      window.optimizelyEdge = [];
       sinon.stub(optimizely, 'sendEdgeExperimentToSegment');
-      sinon.stub(window.optimizely, 'push');
-    });
-
-    afterEach(function() {
-      delete window.optimizelyEdge;
-      sinon.reset();
+      sinon.stub(optimizely, 'setRedirectInfo');
     });
 
     context('before the Edge microsnippet has loaded', function() {
@@ -870,19 +991,18 @@ describe('Optimizely', function() {
 
       beforeEach(function() {
         prePushStub = sinon.stub();
-        window.optimizely = {
+        window.optimizelyEdge = {
           push: prePushStub
         };
 
         optimizely.initEdgeIntegration();
       });
 
-      // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip('if a redirect experiment has executed', function() {
+      context('if a redirect experiment has executed', function() {
         beforeEach(function() {
           mockWindowEdge();
           // Make sure window.optimizely.getRedirectInfo returns something
-          window.optimizelyEdge.edgeMockData[2347102720].isActive = true;
+          window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
         });
 
         it('eventually captures redirect info', function() {
@@ -912,10 +1032,10 @@ describe('Optimizely', function() {
       });
 
       // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip("if a redirect experiment hasn't executed", function() {
+      context("if a redirect experiment hasn't executed", function() {
         beforeEach(function() {
           // by default mock data has no redirect experiments active
-          mockWindowOptimizely();
+          mockWindowEdge();
         });
 
         it('does not capture redirect info', function() {
@@ -949,7 +1069,7 @@ describe('Optimizely', function() {
 
         beforeEach(function() {
           // Make sure the code is actually listening for experiments
-          var campaignDecidedCalls = _.filter(prePushStub.getCalls(), {
+          var experimentDecidedCalls = _.filter(prePushStub.getCalls(), {
             args: [
               {
                 type: 'addListener',
@@ -960,9 +1080,9 @@ describe('Optimizely', function() {
               }
             ]
           });
-          assert.equal(campaignDecidedCalls.length, 1);
+          assert.equal(experimentDecidedCalls.length, 1);
           // We'll call this later in order to simulate the 'campaignDecided' event.
-          handler = campaignDecidedCalls[0].args[0].handler;
+          handler = experimentDecidedCalls[0].args[0].handler;
         });
 
         context('and the experiment is active', function() {
@@ -1021,12 +1141,12 @@ describe('Optimizely', function() {
       });
 
       // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip('if a redirect experiment has executed', function() {
+      context('if a redirect experiment has executed', function() {
         beforeEach(function() {
           // Make sure window.optimizely.getRedirectInfo returns something
-          window.optimizely.newMockData[2347102720].isActive = true;
+          window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
 
-          optimizely.initWebIntegration();
+          optimizely.initEdgeIntegration();
         });
 
         it('immediately captures redirect info', function() {
@@ -1040,15 +1160,15 @@ describe('Optimizely', function() {
         it('captures redirect info _before_ tracking decisions', function() {
           sinon.assert.callOrder(
             optimizely.setRedirectInfo,
-            optimizely.sendWebDecisionToSegment
+            optimizely.sendEdgeExperimentToSegment
           );
         });
       });
 
       // Optimizely Edge is not supporting an API to get redirect information.
-      context.skip("if a redirect experiment hasn't executed", function() {
+      context("if a redirect experiment hasn't executed", function() {
         beforeEach(function() {
-          optimizely.initWebIntegration();
+          optimizely.initEdgeIntegration();
         });
 
         it('does not capture redirect info', function() {
@@ -1089,7 +1209,7 @@ describe('Optimizely', function() {
 
           // Make sure the code is actually listening for campaign decisions
           var campaignDecidedCalls = _.filter(
-            window.optimizely.push.getCalls(),
+            window.optimizelyEdge.push.getCalls(),
             {
               args: [
                 {
@@ -1109,6 +1229,7 @@ describe('Optimizely', function() {
 
         context('and the experiment is active', function() {
           beforeEach(function() {
+            mockWindowEdge();
             window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
 
             handler({
@@ -1158,12 +1279,9 @@ describe('Optimizely', function() {
 
   describe('#sendEdgeDecisionToSegment', function() {
     beforeEach(function() {
-      window.optimizelyEdge = [];
+      analytics.initialize();
       mockWindowEdge();
-    });
-
-    afterEach(function() {
-      delete window.optimizelyEdge;
+      invokeHandler(preEdgePushStub);
     });
 
     context('options.sendRevenueOnlyForOrderCompleted', function() {
@@ -1245,11 +1363,11 @@ describe('Optimizely', function() {
       });
 
       // Edge does not have a way to retrieve redirect info
-      it.skip('should send redirect experiment data via `.track()`', function(done) {
+      it('should send redirect experiment data via `.track()`', function(done) {
         // Enable just the campaign with redirect variation
-        window.optimizely.newMockData[2347102720].isActive = true;
-        window.optimizely.newMockData[7547101713].isActive = false;
-        window.optimizely.newMockData[2542102702].isActive = false;
+        window.optimizelyEdge.edgeMockData[7522212694].isActive = true;
+        window.optimizelyEdge.edgeMockData[7547682694].isActive = false;
+        window.optimizelyEdge.edgeMockData[1111182111].isActive = false;
         var context = {
           integration: optimizelyContext,
           page: { referrer: 'barstools.com' }
@@ -1259,16 +1377,11 @@ describe('Optimizely', function() {
           assert.deepEqual(analytics.track.args[0], [
             'Experiment Viewed',
             {
-              campaignName: 'Get Rich or Die Tryin',
-              campaignId: '2347102720',
               experimentId: '7522212694',
               experimentName: 'Wells Fargo Scam',
               variationId: '7551111120',
               variationName: 'Variation Corruption #1884',
-              audienceId: '7100568438',
-              audienceName: 'Middle Class',
-              referrer: 'barstools.com',
-              isInCampaignHoldback: false
+              referrer: 'barstools.com'
             },
             context
           ]);
@@ -1319,6 +1432,8 @@ describe('Optimizely', function() {
         window.optimizely = {
           push: sinon.stub()
         };
+        mockWindowOptimizely();
+        invokeHandler(preWebPushStub);
       });
 
       it('should send an event', function() {
@@ -1369,16 +1484,8 @@ describe('Optimizely', function() {
 
     context('when Optimizely Edge microsnippet is initialized', function() {
       beforeEach(function() {
-        window.optimizelyEdge = {
-          push: sinon.stub()
-        };
-        window.optimizely = {
-          push: sinon.stub()
-        };
-      });
-
-      afterEach(function() {
-        delete window.optimizelyEdge;
+        mockWindowEdge();
+        invokeHandler(preEdgePushStub);
       });
 
       it('should send an event', function() {
@@ -1390,7 +1497,11 @@ describe('Optimizely', function() {
         });
 
         // does not send a duplicate event under Web
-        sinon.assert.notCalled(window.optimizely.push);
+        sinon.assert.neverCalledWith(window.optimizely.push, {
+          type: 'event',
+          eventName: 'event',
+          tags: {}
+        });
       });
     });
 
@@ -1501,6 +1612,50 @@ describe('Optimizely', function() {
       analytics.initialize();
     });
 
+    context('when Optimizely Edge is implemented', function() {
+      beforeEach(function() {
+        window.optimizelyEdge = {
+          push: sinon.stub(),
+          get: sinon.stub()
+        };
+      });
+
+      it('should send an event for a named page', function() {
+        var referrer = window.document.referrer;
+        analytics.page('Home');
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'Viewed Home Page',
+          tags: {
+            name: 'Home',
+            path: '/context.html',
+            referrer: referrer,
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html'
+          }
+        });
+      });
+
+      it('should send an event for a named and categorized page', function() {
+        var referrer = window.document.referrer;
+        analytics.page('Blog', 'New Integration');
+        sinon.assert.calledWith(window.optimizelyEdge.push, {
+          type: 'event',
+          eventName: 'Viewed Blog New Integration Page',
+          tags: {
+            name: 'New Integration',
+            category: 'Blog',
+            path: '/context.html',
+            referrer: referrer,
+            search: '',
+            title: '',
+            url: 'http://localhost:9876/context.html'
+          }
+        });
+      });
+    });
+
     context('when Optimizely Web is implemented', function() {
       beforeEach(function() {
         window.optimizely = {
@@ -1541,58 +1696,6 @@ describe('Optimizely', function() {
             url: 'http://localhost:9876/context.html'
           }
         });
-      });
-    });
-  });
-
-  describe('#initialize on Web', function() {
-    beforeEach(function(done) {
-      sinon.stub(Optimizely.prototype, 'initWebIntegration');
-      sinon.stub(window.optimizely, 'push');
-      analytics.once('ready', done);
-      analytics.initialize();
-      analytics.page();
-    });
-
-    it('should call initWebIntegration', function(done) {
-      executeAsyncTest(done, function() {
-        sinon.assert.calledWith(optimizely.initWebIntegration);
-      });
-    });
-
-    it('should flag source of integration', function() {
-      sinon.assert.calledWith(window.optimizely.push, {
-        type: 'integration',
-        OAuthClientId: '5360906403'
-      });
-    });
-  });
-
-  // causes another test suite to fail (#sendWebDecisionToSegment).
-  describe('#initialize on Edge', function() {
-    beforeEach(function(done) {
-      window.optimizelyEdge = [];
-      sinon.stub(Optimizely.prototype, 'initEdgeIntegration');
-      sinon.stub(window.optimizelyEdge, 'push');
-      analytics.once('ready', done);
-      analytics.initialize();
-      analytics.page();
-    });
-
-    afterEach(function() {
-      delete window.optimizelyEdge;
-    });
-
-    it('should call initEdgeIntegration', function(done) {
-      executeAsyncTest(done, function() {
-        sinon.assert.calledWith(optimizely.initEdgeIntegration);
-      });
-    });
-
-    it('should flag source of integration', function() {
-      sinon.assert.calledWith(window.optimizelyEdge.push, {
-        type: 'integration',
-        OAuthClientId: '5360906403'
       });
     });
   });

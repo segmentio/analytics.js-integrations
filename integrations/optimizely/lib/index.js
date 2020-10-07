@@ -77,22 +77,7 @@ Optimizely.prototype.initialize = function() {
     handler: function() {
       // We have to check this because Edge microsnippets currently process
       // window.optimizely calls and not just window.optimizelyEdge calls.
-      if (window.optimizelyEdge && window.optimizelyEdge.get) {
-        // Initialize the Edge integration if that hasn't been done already
-        edgePush({
-          type: 'integration',
-          // Flag source of integration (requested by Optimizely)
-          OAuthClientId: '5360906403'
-        });
-
-        // Initialize listeners for Optimizely Edge decisions.
-        // We're calling this on the next tick to be safe so we don't hold up
-        // initializing the integration even though the function below is designed to be async,
-        // just want to be extra safe
-        tick(function() {
-          self.initEdgeIntegration();
-        });
-      } else if (window.optimizely && window.optimizely.get) {
+      if (!(window.optimizelyEdge && window.optimizelyEdge.get)) {
         // Initialize the Web integration
         push({
           type: 'integration',
@@ -330,6 +315,14 @@ Optimizely.prototype.sendEdgeExperimentToSegment = function(experimentState) {
       variationId: variation.id
     };
 
+    if (this.redirectInfo) {
+      // Legacy. It's more accurate to use context.page.referrer or window.optimizelyEffectiveReferrer.
+      // TODO: Maybe only set this if experiment.id matches this.redirectInfo.experimentId?
+      props.referrer = this.redirectInfo.referrer;
+
+      context.page = { referrer: this.redirectInfo.referrer };
+    }
+
     // For Google's nonInteraction flag
     if (this.options.nonInteraction) props.nonInteraction = 1;
 
@@ -453,6 +446,29 @@ Optimizely.prototype.initWebIntegration = function() {
 Optimizely.prototype.initEdgeIntegration = function() {
   var self = this;
 
+  var checkReferrer = function() {
+    var edgeState =
+      window.optimizelyEdge.get && window.optimizelyEdge.get('state');
+    if (edgeState) {
+      self.setRedirectInfo(edgeState.getRedirectInfo());
+    } else {
+      edgePush({
+        type: 'addListener',
+        filter: {
+          type: 'lifecycle',
+          name: 'initialized'
+        },
+        handler: function() {
+          edgeState =
+            window.optimizelyEdge.get && window.optimizelyEdge.get('state');
+          if (edgeState) {
+            self.setRedirectInfo(edgeState.getRedirectInfo());
+          }
+        }
+      });
+    }
+  };
+
   /**
    * At any moment, a new Edge experiment can be activated (manual or conditional activation).
    * This function registers a listener that listens to newly activated Edge experiment and
@@ -505,12 +521,7 @@ Optimizely.prototype.initEdgeIntegration = function() {
     }
   };
 
-  // Normally, we would like to check referrer info, but we don't provide
-  // a 'getRedirectInfo' API in Edge. We will skip checking if an
-  // experiment is from a redirect.
-  //
-  // Additionally, because a page event requires redirect info,
-  // we will not be sending such event.
+  checkReferrer();
   registerCurrentlyActiveEdgeExperiment();
   registerFutureActiveEdgeExperiment();
 };
