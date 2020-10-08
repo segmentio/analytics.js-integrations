@@ -1,3 +1,9 @@
+1.5.3 / 2020-09-22
+==================
+
+  * remove google_cm param from dcf match tag
+  * remove additional unused params
+
 1.5.2 / 2020-05-29
 ==================
 
