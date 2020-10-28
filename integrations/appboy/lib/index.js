@@ -43,6 +43,10 @@ var Appboy = (module.exports = integration('Appboy')
   .tag(
     'v2',
     '<script src="https://js.appboycdn.com/web-sdk/2.4/appboy.min.js">'
+  )
+  .tag(
+    'v2.7',
+    '<script src="https://js.appboycdn.com/web-sdk/2.7/appboy.min.js">'
   ));
 
 Appboy.prototype.appboyInitialize = function(userId, options, config) {
@@ -56,7 +60,7 @@ Appboy.prototype.appboyInitialize = function(userId, options, config) {
 };
 
 Appboy.prototype.initialize = function() {
-  if (appboyUtil.isVersionTwo(this.options)) {
+  if (appboyUtil.isMajorVersionTwo(this.options)) {
     this.initializeV2();
   } else {
     this.initializeV1();
@@ -160,7 +164,8 @@ Appboy.prototype.initializeV2 = function() {
     this.appboyInitialize(userId, options, config);
   }
 
-  this.load('v2', this.ready);
+  var versionTag = Number(options.version) === 2.7 ? 'v2.7' : 'v2';
+  this.load(versionTag, this.ready);
 };
 
 /**

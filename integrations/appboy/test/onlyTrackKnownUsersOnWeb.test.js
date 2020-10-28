@@ -91,6 +91,22 @@ describe('Appboy with onlyTrackKnownUsersOnWeb enabled', function() {
       analytics.initialize();
     });
 
+    it('should use initializeV2 if version is set to 2.7', function(done) {
+      var V1spy = sinon.spy(appboy, 'initializeV1');
+      var V2spy = sinon.spy(appboy, 'initializeV2');
+      appboy.options.version = 2.7;
+      analytics.once('ready', function() {
+        try {
+          assert(V2spy.called);
+          assert(!V1spy.called);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+      analytics.initialize();
+    });
+
     describe('initializeV1', function() {
       it('should call changeUser if userID is present', function(done) {
         analytics.user().id('user-id');
