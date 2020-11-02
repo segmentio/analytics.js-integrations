@@ -22,13 +22,13 @@ var appboyUtil = {
     return customEndpoint;
   },
 
-  isVersionTwo: function(options) {
-    return Number(options.version) === 2;
+  isMajorVersionTwo: function(options) {
+    return Math.floor(Number(options.version)) === 2;
   },
 
   getConfig: function(options) {
     var config = {};
-    if (appboyUtil.isVersionTwo(options)) {
+    if (appboyUtil.isMajorVersionTwo(options)) {
       // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
       config = {
         safariWebsitePushId: options.safariWebsitePushId,
