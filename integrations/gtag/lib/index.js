@@ -190,6 +190,9 @@ GTAG.prototype.initialize = function() {
   }
 
   this.load({ accountId: accountId }, function() {
+    // https://stackoverflow.com/questions/59256532/what-is-the-js-gtags-js-command
+    window.gtag('js', new Date());
+
     // Default routing.
     for (var i = 0; i < config.length; i++) {
       window.gtag(config[i][0], config[i][1], config[i][2]);
