@@ -92,6 +92,10 @@ GTAG.prototype.initialize = function() {
   window.gtag = function() {
     window.gtagDataLayer.push(arguments);
   };
+  // This line is in all of the gtag examples but not well documented. Seems like a requirement when loading the tag.
+  // Best I could find:
+  // https://stackoverflow.com/questions/59256532/what-is-the-js-gtags-js-command
+  window.gtag('js', new Date());
 
   var config = [];
   var that = this;
