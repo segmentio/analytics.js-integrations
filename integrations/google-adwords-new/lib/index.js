@@ -36,10 +36,6 @@ var GoogleAdWordsNew = (module.exports = integration('Google AdWords New')
 
 GoogleAdWordsNew.prototype.initialize = function() {
   var self = this;
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function() {
-    window.dataLayer.push(arguments);
-  };
 
   var config = {};
   if (this.options.sendPageView === false)
@@ -47,17 +43,31 @@ GoogleAdWordsNew.prototype.initialize = function() {
   if (this.options.conversionLinker === false)
     config.conversion_linker = this.options.conversionLinker; // not recommended to set this by GA docs — less accurate measurements
 
-  this.load(function() {
-    window.gtag('js', new Date());
+  // Initialize as usual if gtag is not already on the page. Otherwise, only load configs.
+  if (!window.gtag) {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function() {
+      window.dataLayer.push(arguments);
+    };
 
+    this.load(function() {
+      window.gtag('js', new Date());
+      loadConfig(self.options, config);
+      self.ready();
+    });
+  } else {
+    loadConfig(self.options, config);
+    self.ready();
+  }
+
+  function loadConfig(options, config) {
     // ad personalization must be disabled before any 'config' statements
     // https://support.google.com/analytics/answer/9050852?hl=en
-    if (self.options.disableAdPersonalization)
+    if (options.disableAdPersonalization)
       window.gtag('set', 'allow_ad_personalization_signals', false);
 
-    window.gtag('config', self.options.accountId, config);
-    self.ready();
-  });
+    window.gtag('config', options.accountId, config);
+  }
 };
 
 /**
