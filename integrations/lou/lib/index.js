@@ -55,7 +55,10 @@ Lou.prototype.loaded = function() {
  */
 
 Lou.prototype.identify = function(identify) {
-  window.LOU.identify(identify.userId(), identify.traits());
+  var traits = identify.traits();
+  delete traits.id;
+
+  window.LOU.identify(identify.userId(), traits);
 };
 
 /**

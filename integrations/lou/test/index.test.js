@@ -7,8 +7,6 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var Lou = require('../lib/');
 
-var noop = function() {};
-
 describe('Lou', function() {
   var analytics;
   var lou;
@@ -47,7 +45,11 @@ describe('Lou', function() {
 
   describe('before loading', function() {
     beforeEach(function() {
-      analytics.stub(lou, 'load');
+      analytics.spy(lou, 'load');
+    });
+
+    afterEach(function() {
+      lou.reset();
     });
 
     describe('#initialize', function() {
@@ -56,20 +58,8 @@ describe('Lou', function() {
         analytics.page();
       });
 
-      it('should add the account token', function() {
-        analytics.assert.equal(window.chmln.accountToken, options.apiKey);
-      });
-
       it('should call #load', function() {
-        analytics.initialize();
-        analytics.page();
         analytics.called(lou.load);
-      });
-
-      it('should be ready', function() {
-        analytics.initialize();
-        analytics.page();
-        analytics.called(lou.ready);
       });
 
       it('should create window.LOU', function() {
@@ -101,29 +91,6 @@ describe('Lou', function() {
 
       it('should continue as normal', function() {
         analytics.called(lou.load);
-        analytics.called(lou.ready);
-      });
-    });
-  });
-
-  describe('before loaded', function() {
-    beforeEach(function() {
-      lou.load = noop;
-      analytics.initialize();
-      analytics.page();
-    });
-
-    describe('on identify', function() {
-      beforeEach(function() {
-        analytics.identify('id');
-      });
-
-      it('should store the identify', function() {
-        analytics.assert.equal(
-          Array.prototype.slice.call(window.chmln.identify_a).length,
-          1
-        );
-        analytics.assert.equal('id', window.chmln.identify_a[0][0]);
       });
     });
   });
