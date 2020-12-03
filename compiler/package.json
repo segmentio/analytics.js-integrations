@@ -86,6 +86,7 @@
     "@segment/analytics.js-integration-linkedin-insight-tag": "file:../integrations/linkedin-insight-tag",
     "@segment/analytics.js-integration-livechat": "file:../integrations/livechat",
     "@segment/analytics.js-integration-localytics": "file:../integrations/localytics",
+    "@segment/analytics.js-integration-lou": "file:../integrations/lou",
     "@segment/analytics.js-integration-lucky-orange": "file:../integrations/lucky-orange",
     "@segment/analytics.js-integration-lytics": "file:../integrations/lytics",
     "@segment/analytics.js-integration-madkudu": "file:../integrations/madkudu",
