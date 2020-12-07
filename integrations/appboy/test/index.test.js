@@ -145,6 +145,24 @@ describe('Appboy', function() {
       analytics.initialize();
     });
 
+    it('should use initializeV3 if version is set to 3.1', function(done) {
+      var V1spy = sinon.spy(appboy, 'initializeV1');
+      var V2spy = sinon.spy(appboy, 'initializeV2');
+      var V3spy = sinon.spy(appboy, 'initializeV3');
+      appboy.options.version = 3.1;
+      analytics.once('ready', function() {
+        try {
+          assert(V3spy.called);
+          assert(!V2spy.called);
+          assert(!V1spy.called);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+      analytics.initialize();
+    });
+
     it('should set the sdk endpoint to a custom URI if one is provided', function(done) {
       appboy.options.customEndpoint = 'https://my.custom.endpoint.com';
       var spy = sinon.spy(appboy, 'initializeTester');
