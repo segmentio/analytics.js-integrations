@@ -317,6 +317,8 @@ Segment.prototype.normalize = function(message) {
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
+    msg._metadata.bundledConfigs = this.options.bundledConfigs;
+    msg._metadata.unbundledConfigs = this.options.unbundledConfigs;
   }
   this.debug('normalized %o', msg);
   this.ampId(ctx);
