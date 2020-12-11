@@ -1,3 +1,8 @@
+2.2.5 / 2020-12-11
+==================
+
+  * Update snippet to the most recent version, including new setVars and anonymize functionality
+
 2.2.4 / 2020-04-02
 ==================
 
