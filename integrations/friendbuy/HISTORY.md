@@ -1,4 +1,4 @@
-1.0.8 / 2020-08-24
+1.1.0 / 2020-12-11
 ==================
 
   * Relay merchant-specific customer traits to the Friendbuy destination
