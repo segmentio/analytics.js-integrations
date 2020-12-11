@@ -1457,10 +1457,10 @@
     component-cookie "^1.1.2"
     component-url "^0.2.1"
 
-"@segment/tracktor@0.12.0":
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.12.0.tgz#2df0a1f8dad87e13ca4afac51655d6bac7c0c95f"
-  integrity sha512-yOGcYD33y0Wo1qHIA+IFIHcxk0GoRrQwCjpuaKZf2rnz0puZoseSGPdbIX47BgMLSSgEYnBoW3s5aUpCRdkEkw==
+"@segment/tracktor@0.12.1":
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.12.1.tgz#ca3e868f8b51c7da585764a482874addc31ea3e1"
+  integrity sha512-M9/XhBOHzerK1ZoiL/wOaM4gmzBOV6e2Z/xeic85qjKtiFSqNOBthlpyEGfEDKo6niEVBQm6wn86HgcAEkMDAg==
   dependencies:
     element-matches-polyfill "^1.0.0"
     whatwg-fetch "^3.0.0"
@@ -5079,9 +5079,9 @@ inherits@2.0.1:
   integrity sha1-sX0I0ya0Qj5Wjv9xn5GwscvfafE=
 
 ini@^1.3.2, ini@^1.3.4, ini@~1.3.0:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
-  integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.7.tgz#a09363e1911972ea16d7a8851005d84cf09a9a84"
+  integrity sha512-iKpRpXP+CrP2jyrxvg1kMUpXDyRUFDWurxbnVT1vQPx+Wz9uCYsMIqYuSBLV+PAaZG/d7kRLKRFc9oDMsH+mFQ==
 
 init-package-json@^1.10.3:
   version "1.10.3"
