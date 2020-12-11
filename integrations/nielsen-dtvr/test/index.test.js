@@ -90,6 +90,7 @@ describe('NielsenDTVR', function() {
     beforeEach(function(done) {
       analytics.once('ready', done);
       analytics.initialize();
+      analytics.track('Video Content Started', { load_type: 'linear' });
     });
 
     describe('options', function() {
@@ -224,7 +225,7 @@ describe('NielsenDTVR', function() {
             asset_id: '123',
             ad_asset_id: null,
             channel: 'segment',
-            load_type: 'dynamic',
+            load_type: 'linear',
             position: 1,
             id3: '1',
             livestream: false
@@ -241,9 +242,20 @@ describe('NielsenDTVR', function() {
           analytics.called(nielsenDTVR.client.ggPM, 'loadMetadata', {
             type: 'content',
             channelName: 'segment',
-            adModel: '2'
+            adModel: '1'
           });
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
+        });
+
+        it('should NOT send video content started if `load_type` is `dynamic`', function() {
+          props.load_type = 'dynamic';
+          analytics.track('Video Content Started', props);
+          analytics.didNotCall(nielsenDTVR.client.ggPM, 'loadMetadata', {
+            type: 'content',
+            channelName: 'segment',
+            adModel: '1'
+          });
+          analytics.didNotCall(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
         });
 
         it('should call end before starting a new content stream if the previous stream was not ended correctly', function() {
@@ -251,7 +263,7 @@ describe('NielsenDTVR', function() {
             asset_id: '123',
             ad_asset_id: null,
             channel: 'segment',
-            load_type: 'dynamic',
+            load_type: 'linear',
             position: 1,
             id3: '1',
             livestream: true

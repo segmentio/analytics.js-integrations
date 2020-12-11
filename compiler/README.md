@@ -1,4 +1,4 @@
-# Analaytics.js-Integrations Tester
+# Analytics.js-Integrations Tester
 
 This is a simple command line tool that supports building and testing
 Analytics.js locally.
@@ -25,11 +25,12 @@ To get started, simply run `./compile --writeKey=<YOUR WRITE KEY>`.
   Usage: ./compile [options]
 
   Options:
-
-    -w, --write-key <writeKey>  Writekey of target Segment source [Required]
-    -p, --port [port]           Set a port to serve the local ajs file from (default: 3000)
-    -s, --settings <settings>   Relative path to custom integrations settings file
-    -h, --help                  Output usage information
+    -w, --writeKey <writeKey>    Segment writeKey to for viewing events in the debugger
+    -s, --settings <settings>    (Optional) Relative path to custom integrations settings file
+    -c, --cdnDomain <cdnDomain>  Segment CDN domain (default: "http://cdn.segment.com")
+    -n, --noRebuild              Skips yarn rebuild
+    -p, --port <port>            Set a port to serve the local ajs file from (default: 3000)
+    -h, --help                   output usage information
 ```
 
 # Build Process

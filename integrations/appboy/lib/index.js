@@ -9,6 +9,7 @@ var Track = require('segmentio-facade').Track;
 var each = require('@ndhoule/each');
 var del = require('obj-case').del;
 var clone = require('@ndhoule/clone');
+var appboyUtil = require('./appboyUtil');
 
 /**
  * Expose `Appboy` integration.
@@ -34,6 +35,7 @@ var Appboy = (module.exports = integration('Appboy')
   .option('customEndpoint', '')
   .option('version', 1)
   .option('logPurchaseWhenRevenuePresent', false)
+  .option('onlyTrackKnownUsersOnWeb', false)
   .tag(
     'v1',
     '<script src="https://js.appboycdn.com/web-sdk/1.6/appboy.min.js">'
@@ -41,34 +43,31 @@ var Appboy = (module.exports = integration('Appboy')
   .tag(
     'v2',
     '<script src="https://js.appboycdn.com/web-sdk/2.4/appboy.min.js">'
+  )
+  .tag(
+    'v2.7',
+    '<script src="https://js.appboycdn.com/web-sdk/2.7/appboy.min.js">'
   ));
 
-Appboy.prototype.initialize = function() {
-  var options = this.options;
-  var customEndpoint;
-  // Setup custom endpoints
-  if (options.customEndpoint) {
-    var endpoint = options.customEndpoint;
-    var regex = new RegExp('^(http|https)://', 'i');
-    customEndpoint =
-      (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
-  } else if (options.datacenter === 'eu') {
-    customEndpoint = 'https://sdk.fra-01.braze.eu/api/v3';
-  }
+Appboy.prototype.appboyInitialize = function(userId, options, config) {
+  window.appboy.initialize(options.apiKey, config);
 
-  if (Number(options.version) === 2) {
-    this.initializeV2(customEndpoint);
+  if (options.automaticallyDisplayMessages)
+    window.appboy.display.automaticallyShowNewInAppMessages();
+  if (userId) window.appboy.changeUser(userId);
+
+  window.appboy.openSession();
+};
+
+Appboy.prototype.initialize = function() {
+  if (appboyUtil.isMajorVersionTwo(this.options)) {
+    this.initializeV2();
   } else {
-    this.initializeV1(customEndpoint);
+    this.initializeV1();
   }
 };
-/**
- * Initialize v1.
- *
- * @api public
- */
 
-Appboy.prototype.initializeV1 = function(customEndpoint) {
+Appboy.prototype.initializeV1 = function() {
   var options = this.options;
   var self = this;
   var userId = this.analytics.user().id();
@@ -79,7 +78,7 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
     window.appboy = {};
     for (
       var s = 'destroy toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib'.split(
-          ' '
+        ' '
         ),
         i = 0;
       i < s.length;
@@ -93,9 +92,9 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
     }
     appboy.initialize = function() {
       console &&
-        console.error(
-          'Appboy cannot be loaded - this is usually due to strict corporate firewalls or ad blockers.'
-        );
+      console.error(
+        'Appboy cannot be loaded - this is usually due to strict corporate firewalls or ad blockers.'
+      );
     };
     appboy.getUser = function() {
       return new appboy.ab.User();
@@ -110,50 +109,18 @@ Appboy.prototype.initializeV1 = function(customEndpoint) {
   this._shim = window.appboy.initialize;
 
   this.load('v1', function() {
-    var config = {};
-    var datacenterMappings = {
-      us: 'https://sdk.iad-01.braze.com',
-      us02: 'https://sdk.iad-02.braze.com',
-      us03: 'https://sdk.iad-03.braze.com',
-      eu: 'https://sdk.fra-01.braze.eu'
-    };
-    if (options.safariWebsitePushId)
-      config.safariWebsitePushId = options.safariWebsitePushId;
-    if (options.enableHtmlInAppMessages) config.enableHtmlInAppMessages = true;
-
-    // Setup custom endpoints
-    if (options.customEndpoint) {
-      var endpoint = options.customEndpoint;
-      var regex = new RegExp('^(http|https)://', 'i');
-      config.baseUrl =
-        (regex.test(endpoint) ? endpoint : 'https://' + endpoint) + '/api/v3';
-    } else {
-      config.baseUrl =
-        (datacenterMappings[options.datacenter] ||
-          'https://sdk.iad-01.braze.com') + '/api/v3';
+    if (appboyUtil.shouldOpenSession(userId, options)) {
+      self.hasBeenInitialized = true;
+      var config = appboyUtil.getConfig(options);
+      self.initializeTester(options.apiKey, config);
+      self.appboyInitialize(userId, options, config);
     }
 
-    if (customEndpoint) config.baseUrl = customEndpoint;
-
-    self.initializeTester(options.apiKey, config);
-    window.appboy.initialize(options.apiKey, config);
-
-    if (options.automaticallyDisplayMessages)
-      window.appboy.display.automaticallyShowNewInAppMessages();
-    if (userId) window.appboy.changeUser(userId);
-
-    window.appboy.openSession();
     self.ready();
   });
 };
 
-/**
- * Initialize v2.
- *
- * @api public
- */
-
-Appboy.prototype.initializeV2 = function(customEndpoint) {
+Appboy.prototype.initializeV2 = function() {
   var options = this.options;
   var userId = this.analytics.user().id();
 
@@ -163,7 +130,7 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
     window.appboyQueue = [];
     for (
       var s = 'initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates logCardImpressions logCardClick logFeedDisplayed requestInAppMessageRefresh logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages submitFeedback trackLocation stopWebTracking resumeWebTracking wipeData ab ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.Card ab.ClassicCard ab.CaptionedImage ab.Banner ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed sharedLib'.split(
-          ' '
+        ' '
         ),
         i = 0;
       i < s.length;
@@ -177,8 +144,8 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
         k = k[l[j]];
       k[l[j]] = new Function(
         'return function ' +
-          m.replace(/\./g, '_') +
-          '(){appboyQueue.push(arguments); return true}'
+        m.replace(/\./g, '_') +
+        '(){appboyQueue.push(arguments); return true}'
       )();
     }
     appboy.getUser = function() {
@@ -190,36 +157,22 @@ Appboy.prototype.initializeV2 = function(customEndpoint) {
   })(window, document, 'script');
   /* eslint-enable */
 
-  // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
-  var config = {
-    safariWebsitePushId: options.safariWebsitePushId,
-    enableHtmlInAppMessages: options.enableHtmlInAppMessages,
-    allowCrawlerActivity: options.allowCrawlerActivity,
-    doNotLoadFontAwesome: options.doNotLoadFontAwesome,
-    enableLogging: options.enableLogging,
-    localization: options.localization,
-    minimumIntervalBetweenTriggerActionsInSeconds:
-      Number(options.minimumIntervalBetweenTriggerActionsInSeconds) || 30,
-    openInAppMessagesInNewTab: options.openInAppMessagesInNewTab,
-    openNewsFeedCardsInNewTab: options.openNewsFeedCardsInNewTab,
-    requireExplicitInAppMessageDismissal:
-      options.requireExplicitInAppMessageDismissal,
-    serviceWorkerLocation: options.serviceWorkerLocation,
-    sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
-  };
+  if (appboyUtil.shouldOpenSession(userId, options)) {
+    this.hasBeenInitialized = true;
+    var config = appboyUtil.getConfig(options);
+    this.initializeTester(options.apiKey, config);
+    this.appboyInitialize(userId, options, config);
+  }
 
-  if (customEndpoint) config.baseUrl = customEndpoint;
+  var versionTag = Number(options.version) === 2.7 ? 'v2.7' : 'v2';
+  this.load(versionTag, this.ready);
+};
 
-  this.initializeTester(options.apiKey, config);
-  window.appboy.initialize(options.apiKey, config);
-
-  if (options.automaticallyDisplayMessages)
-    window.appboy.display.automaticallyShowNewInAppMessages();
-  if (userId) window.appboy.changeUser(userId);
-
-  window.appboy.openSession();
-
-  this.load('v2', this.ready);
+/**
+ * @returns {boolean} true if integration should handle event.
+ */
+Appboy.prototype.shouldHandleEvent = function() {
+  return !this.options.onlyTrackKnownUsersOnWeb || this.hasBeenInitialized;
 };
 
 // This is used to test window.appboy.initialize
@@ -231,19 +184,11 @@ Appboy.prototype.initializeTester = function() {};
  * @api private
  * @return {boolean}
  */
-
 Appboy.prototype.loaded = function() {
   var options = this.options;
   if (Number(options.version) === 2) return window.appboyQueue === null;
   return window.appboy && window.appboy.initialize !== this._shim;
 };
-
-/**
- * Identify.
- *
- * @api public
- * @param {Identify} identify
- */
 
 Appboy.prototype.identify = function(identify) {
   var userId = identify.userId();
@@ -256,6 +201,24 @@ Appboy.prototype.identify = function(identify) {
   var lastName = identify.lastName();
   var phone = identify.phone();
   var traits = clone(identify.traits());
+
+  var options = this.options;
+
+  if (
+    this.options.onlyTrackKnownUsersOnWeb &&
+    userId &&
+    !this.hasBeenInitialized // To avoid calling this more than once.
+  ) {
+    // Rerun initial initialization.
+    this.hasBeenInitialized = true;
+    var config = appboyUtil.getConfig(options);
+    this.initializeTester(options.apiKey, config);
+    this.appboyInitialize(userId, options, config);
+  }
+
+  if (this.options.onlyTrackKnownUsersOnWeb && !this.hasBeenInitialized) {
+    return;
+  }
 
   if (userId) {
     window.appboy.changeUser(userId);
@@ -355,6 +318,9 @@ Appboy.prototype.identify = function(identify) {
  */
 
 Appboy.prototype.group = function(group) {
+  if (!this.shouldHandleEvent()) {
+    return;
+  }
   var userId = group.userId();
   var groupIdKey = 'ab_segment_group_' + group.groupId();
 
@@ -374,6 +340,9 @@ Appboy.prototype.group = function(group) {
  */
 
 Appboy.prototype.track = function(track) {
+  if (!this.shouldHandleEvent()) {
+    return;
+  }
   var userId = track.userId();
   var eventName = track.event();
   var properties = track.properties();
@@ -408,6 +377,9 @@ Appboy.prototype.track = function(track) {
  */
 
 Appboy.prototype.page = function(page) {
+  if (!this.shouldHandleEvent()) {
+    return;
+  }
   var settings = this.options;
   if (!settings.trackAllPages && !settings.trackNamedPages) return;
   if (settings.trackNamedPages && !page.name()) return;
@@ -435,6 +407,9 @@ Appboy.prototype.page = function(page) {
  */
 
 Appboy.prototype.orderCompleted = function(track) {
+  if (!this.shouldHandleEvent()) {
+    return;
+  }
   var userId = track.userId();
   var products = track.products();
   var currencyCode = track.currency();
