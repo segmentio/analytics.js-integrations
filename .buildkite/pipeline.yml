@@ -7,7 +7,6 @@ steps:
       - yarn install --frozen-lockfile
       - yarn lint || true
       - yarn test
-      - yarn test:ci
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
