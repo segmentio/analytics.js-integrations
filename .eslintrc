@@ -17,7 +17,10 @@
     "no-shadow": "warn",
     "no-plusplus": "off",
     "no-template-curly-in-string": "warn",
-    "no-useless-escape": "warn"
+    "no-useless-escape": "warn",
+    "no-return-assign": "warn",
+    "no-unused-vars": "warn",
+    "no-param-reassign": "warn"
   },
   "overrides": [
     {

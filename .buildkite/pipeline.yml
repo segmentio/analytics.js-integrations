@@ -5,7 +5,7 @@ steps:
     command:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
-      - yarn lint
+      - yarn lint || true
       - yarn test
       - yarn test:ci
     plugins:
