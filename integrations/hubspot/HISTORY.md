@@ -1,3 +1,8 @@
+2.2.2 / 2020-12-14
+===================
+
+  * Bump segmentio-facade to ^3.2.7
+
 2.2.1 / 2018-11-14
 ==================
   * Fix script loading behavior to resolve issue with the Forms SDK and ad blockers.
