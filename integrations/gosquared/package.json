@@ -28,7 +28,7 @@
     "component-each": "^0.2.6",
     "omit": "harrietgrace/omit",
     "pick": "ianstormtaylor/pick",
-    "segmentio-facade": "^3.0.3"
+    "segmentio-facade": "^3.2.7"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",

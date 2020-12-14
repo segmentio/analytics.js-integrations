@@ -26,7 +26,7 @@
   "dependencies": {
     "@segment/analytics.js-integration": "^3.1.0",
     "component-each": "^0.2.6",
-    "segmentio-facade": "^3.0.3"
+    "segmentio-facade": "^3.2.7"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.8.2",

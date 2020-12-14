@@ -30,7 +30,7 @@
     "global-queue": "^1.0.1",
     "next-tick": "^0.2.2",
     "obj-case": "^0.2.0",
-    "segmentio-facade": "^3.0.3"
+    "segmentio-facade": "^3.2.7"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",
