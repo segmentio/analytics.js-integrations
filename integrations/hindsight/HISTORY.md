@@ -1,5 +1,5 @@
 
-1.2.0 / 2020-09-14
+1.2.0 / 2020-12-15
 =============
 
   * Adding custom_tracking_domain option
