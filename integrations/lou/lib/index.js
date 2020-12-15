@@ -17,11 +17,6 @@ var Lou = (module.exports = integration('Lou')
   .global('LOU')
   .option('organizationId', null));
 
-// .tag(
-//   'lou',
-//   '<script src="//run.louassist.com/v2.5.1-m?id={{organizationId}}">'
-// ));
-
 /**
  * Initialize.
  *
@@ -49,7 +44,7 @@ Lou.prototype.loaded = function() {
 };
 
 /**
- * Load the Appcues library.
+ * Load the Lou library.
  *
  * @api private
  * @param {Function} callback
