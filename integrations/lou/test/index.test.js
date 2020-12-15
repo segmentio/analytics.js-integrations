@@ -11,7 +11,7 @@ describe('Lou', function() {
   var analytics;
   var lou;
   var options = {
-    apiKey: 'AvyQ4N2p-FOb5ceEb3w0RT-segment-integration'
+    organizationId: '832234'
   };
 
   beforeEach(function() {

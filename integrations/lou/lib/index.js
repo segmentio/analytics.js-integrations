@@ -5,6 +5,7 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
+var load = require('@segment/load-script');
 
 /**
  * Expose `Lou` integration.
@@ -14,11 +15,12 @@ var Lou = (module.exports = integration('Lou')
   .readyOnInitialize()
   .readyOnLoad()
   .global('LOU')
-  .option('organizationId', null)
-  .tag(
-    'lou',
-    '<script src="//run.louassist.com/v2.5.1-m?id={{organizationId}}">'
-  ));
+  .option('organizationId', null));
+
+// .tag(
+//   'lou',
+//   '<script src="//run.louassist.com/v2.5.1-m?id={{organizationId}}">'
+// ));
 
 /**
  * Initialize.
@@ -32,8 +34,7 @@ Lou.prototype.initialize = function() {
     track: function() {}
   };
   window.LOU = window.LOU || LOU;
-
-  this.load('lou', this.ready);
+  this.load(this.ready);
 };
 
 /**
@@ -45,6 +46,23 @@ Lou.prototype.initialize = function() {
 
 Lou.prototype.loaded = function() {
   return !!window.LOU;
+};
+
+/**
+ * Load the Appcues library.
+ *
+ * @api private
+ * @param {Function} callback
+ */
+
+Lou.prototype.load = function(callback) {
+  var id = this.options.organizationId;
+
+  if (id) {
+    load('//run.louassist.com/v2.5.1-m?id=' + id, callback);
+  } else {
+    callback();
+  }
 };
 
 /**
