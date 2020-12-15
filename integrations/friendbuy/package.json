@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-friendbuy",
   "description": "The FriendBuy analytics.js integration.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -28,7 +28,7 @@
     "is": "^3.2.1",
     "obj-case": "^0.2.0",
     "reject": "0.0.1",
-    "segmentio-facade": "^3.2.2",
+    "segmentio-facade": "^3.2.7",
     "to-no-case": "^1.0.2"
   },
   "devDependencies": {
