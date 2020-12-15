@@ -11,7 +11,7 @@ describe('Hindsight', function() {
   var options = {
     pixel_code:
       'cHVzaG1haWx8NDQ2MDM5OHw0NDYwMzkyOjY1NzU2OXw0NDYwMzkzOjY1NzU2OHw0NDYwMzk5',
-    custom_tracking_domain: 'metrics.getrockerbox.com'
+    customTrackingDomain: 'metrics.getrockerbox.com'
   };
 
   beforeEach(function() {

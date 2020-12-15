@@ -12,8 +12,8 @@ var each = require('@ndhoule/each');
 var Hindsight = (module.exports = integration('Hindsight')
   .global('RB')
   .option('pixel_code', '')
-  .option('custom_tracking_domain', '')
-  .option('enable_cookie_sync', true)
+  .option('customTrackingDomain', '')
+  .option('enableCookieSync', true)
   .tag('<script src="https://{{ host }}/assets/{{ lib }}.js">'));
 
 /**
@@ -31,10 +31,10 @@ Hindsight.prototype.initialize = function() {
     };
   window.RB.source = this.options.pixel_code;
 
-  var hasCustomDomain = !!this.options.custom_tracking_domain;
-  var enableCookieSync = this.options.enable_cookie_sync;
+  var hasCustomDomain = !!this.options.customTrackingDomain;
+  var enableCookieSync = this.options.enableCookieSync;
   var scriptHost = hasCustomDomain
-    ? this.options.custom_tracking_domain
+    ? this.options.customTrackingDomain
     : 'getrockerbox.com';
   var scriptLib = hasCustomDomain && enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
   var tagParams = {
