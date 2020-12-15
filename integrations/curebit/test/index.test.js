@@ -81,7 +81,7 @@ describe('Curebit', function() {
       analytics.load(curebit, done);
     });
 
-    it('should load with custom url', function(done) {
+    it.skip('should load with custom url', function(done) {
       curebit.options.customUrl = '/base/test/support/alternate-script.js';
       analytics.load(curebit, done);
     });
