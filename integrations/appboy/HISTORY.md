@@ -1,5 +1,5 @@
 1.16.0 / 2020-12-07
-
+===================
 * Adds support for Braze 3.1 via version option
 
 1.15.0 / 2020-10-28
