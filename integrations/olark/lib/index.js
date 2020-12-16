@@ -184,7 +184,7 @@ Olark.prototype.attachListeners = function() {
   api('chat.onMessageToVisitor', function(opts) {
     self.analytics.track(
       'Live Chat Message Received',
-      (opts.automated === true ? { nonInteraction: 1 } : {}),
+      ((opts.message && opts.message.automated === true) ? { nonInteraction: 1 } : {}),
       {
         context: { integration: integrationContext },
         integrations: { Olark: false }
