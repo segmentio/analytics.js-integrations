@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-livechat",
   "description": "The Livechat analytics.js integration.",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -29,7 +29,7 @@
     "component-each": "^0.2.6",
     "do-when": "^1.0.0",
     "next-tick": "^0.2.2",
-    "segmentio-facade": "^3.0.3"
+    "segmentio-facade": "^3.2.7"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",

@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-curebit",
   "description": "The Curebit analytics.js integration.",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -30,7 +30,7 @@
     "component-bind": "^1.0.0",
     "do-when": "^1.0.0",
     "global-queue": "^1.0.1",
-    "segmentio-facade": "^3.0.2",
+    "segmentio-facade": "^3.2.7",
     "throttleit": "0.0.2"
   },
   "devDependencies": {
