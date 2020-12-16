@@ -1,3 +1,8 @@
+2.1.0 / 2020-12-16
+==================
+
+  * Updated the `Live Chat Message Received` event to add `nonInteraction: 1` prop for automated olark messages. This will prevent automated pop-ups counting as interactive events in GA massively skewing the bounce rate calculation.
+
 2.0.0 / 2016-06-21
 ==================
 
