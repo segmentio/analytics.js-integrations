@@ -347,7 +347,7 @@ Segment.prototype.ampId = function(ctx) {
 
 Segment.prototype.enqueue = function(path, message, fn) {
   var url = 'https://' + this.options.apiHost + path;
-  var headers = { 'Content-Type': 'text/plain' };
+  var headers = { 'Content-Type': 'text/plain; charset=utf-8' };
   var msg = this.normalize(message);
 
   // Print a log statement when messages exceed the maximum size. In the future,
