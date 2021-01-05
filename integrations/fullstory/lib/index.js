@@ -20,6 +20,7 @@ var FullStory = (module.exports = integration('FullStory')
   .option('trackAllPages', false)
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
+  .option('trackPagesWithEvents', false)
   .tag(
     '<script async src="https://edge.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
   ));
@@ -35,11 +36,11 @@ var apiSource = 'segment';
  * Initialize.
  */
 FullStory.prototype.initialize = function() {
-  window['_fs_debug'] = this.options.debug;
-  window['_fs_host'] = 'fullstory.com';
-  window['_fs_script'] = 'edge.fullstory.com/s/fs.js';
-  window['_fs_org'] = this.options.org
-  window['_fs_namespace'] = 'FS';
+  window._fs_debug = this.options.debug;
+  window._fs_host = 'fullstory.com';
+  window._fs_script = 'edge.fullstory.com/s/fs.js';
+  window._fs_org = this.options.org;
+  window._fs_namespace = 'FS';
 
   /* eslint-disable */
   /* istanbul ignore next */
@@ -116,16 +117,36 @@ FullStory.prototype.page = function(page) {
   var category = page.category();
   var name = page.fullName();
   var opts = this.options;
+  var trackProps = page.track().properties();
 
   if (name && opts.trackNamedPages) {
     // named pages
-    this.track(page.track(name));
+    if (opts.trackPagesWithEvents) {
+      this.track(page.track(name));
+    }
+
+    window.FS.setVars(
+      'page',
+      Object.assign(trackProps, { pageName: name }),
+      apiSource
+    );
   } else if (category && opts.trackCategorizedPages) {
     // categorized pages
-    this.track(page.track(category));
+    if (opts.trackPagesWithEvents) {
+      this.track(page.track(category));
+    }
+
+    window.FS.setVars(
+      'page',
+      Object.assign(trackProps, { pageName: category }),
+      apiSource
+    );
   } else if (opts.trackAllPages) {
     // all pages
-    this.track(page.track());
+    if (opts.trackPagesWithEvents) {
+      this.track(page.track());
+    }
+    window.FS.setVars('page', trackProps, apiSource);
   }
 };
 
