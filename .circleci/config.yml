@@ -93,7 +93,7 @@ jobs:
           command: yarn install --frozen-lockfile
       - run:
           name: Run Linter (not enforcing for now)
-          command: yarn lint
+          command: yarn lint || true
       - run:
           name: Run Tests
           command: yarn test
