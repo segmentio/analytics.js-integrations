@@ -1,3 +1,7 @@
+4.3.0 / 2020-01-13
+==================
+
+  * Append `bundledConfigIds` and `unbundledConfigIds` to messages
 
 4.0.0 / 2019-03-08
 ==================
