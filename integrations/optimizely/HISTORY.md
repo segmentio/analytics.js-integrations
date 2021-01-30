@@ -1,4 +1,13 @@
 
+4.0.0 / 2020-06-12
+==================
+
+  * Don't attempt to interface with Optimizely Classic Web, since Classic is finally dead
+  * Prepare to support Optimizely Edge, an alternative to Optimizely Web
+  * Drop all references to customCampaignProperties. It seems to have been documented [here](https://segment.com/docs/connections/destinations/catalog/optimizely-web/#settings) but it couldn't possibly have worked.
+  * Generally refactor the code and tests.
+  * If there is an effective referrer for the current page load, include it when tracking future campaigns and not just when tracking current campaigns.
+
 3.5.0 / 2019-12-28
 ==================
 

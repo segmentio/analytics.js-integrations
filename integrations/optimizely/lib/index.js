@@ -22,9 +22,7 @@ var Optimizely = (module.exports = integration('Optimizely')
   .option('variations', false) // send data via `.identify()`
   .option('listen', true) // send data via `.track()`
   .option('nonInteraction', false)
-  .option('sendRevenueOnlyForOrderCompleted', true)
-  .option('customExperimentProperties', {})
-  .option('customCampaignProperties', {}));
+  .option('sendRevenueOnlyForOrderCompleted', true));
 
 /**
  * The name and version for this integration.
@@ -38,9 +36,6 @@ var optimizelyContext = {
 /**
  * Initialize.
  *
- * https://www.optimizely.com/docs/api#function-calls
- * https://jsfiddle.net/ushmw723/ <- includes optimizely snippets for capturing campaign and experiment data
- *
  * @api public
  */
 
@@ -51,38 +46,29 @@ Optimizely.prototype.initialize = function() {
     type: 'integration',
     OAuthClientId: '5360906403'
   });
-  // Initialize listeners for both Classic and New Optimizely
-  // crazying binding because that's just how javascript works
+  // Initialize listeners for Optimizely Web decisions.
   // We're caling this on the next tick to be safe so we don't hold up
   // initializing the integration even though the function below is designed to be async,
   // just want to be extra safe
   tick(function() {
-    Optimizely.initOptimizelyIntegration({
-      referrerOverride: self.setEffectiveReferrer.bind(self),
-      sendExperimentData: self.sendClassicDataToSegment.bind(self),
-      sendCampaignData: self.sendNewDataToSegment.bind(self)
-    });
+    self.initWebIntegration();
   });
 
   this.ready();
 };
 
 /**
- * Track. The Optimizely X Web event API accepts a single payload object.
- *        It works with Classic Optimizely as well.
+ * Track.
  *
- * Optimizely X:  https://developers.optimizely.com/x/solutions/javascript/reference/index.html#function_setevent
+ * If Optimizely Web or Optimizely Edge is implemented on the page, its JS API can accept a custom event.
+ * https://docs.developers.optimizely.com/web/docs/event
+ * https://docs.developers.optimizely.com/performance-edge/reference/event
  *
- * The new-style X API is forward compatible from Optimizely Classic to Optimizely X.
- *   - Classic will correctly consume the tags object to identify the revenue
- *   - In bundled mode, it will be forwarded along to the X API with the entire payload
- *
- * If the Optimizely X Fullstack JavaScript SDK is being used we should pass along
- * the event to it. Any properties in the track object will be passed along as event tags.
+ * If the Optimizely Full Stack JavaScript SDK is initialized on the page, its API can also accept a custom event.
+ * Any properties in the track object will be passed along as event tags.
  * If the userId is not passed into the options object of the track call, we'll
  * attempt to use the userId of the track event, which is set using the analytics.identify call.
- *
- * https://developers.optimizely.com/x/solutions/sdks/reference/?language=javascript#tracking
+ * https://docs.developers.optimizely.com/full-stack/docs/track-javascript
  *
  * @api public
  * @param {Track} track
@@ -108,7 +94,6 @@ Optimizely.prototype.track = function(track) {
     eventProperties.revenue = Math.round(eventProperties.revenue * 100);
   }
 
-  // Use the new-style API (which is compatible with Classic and X)
   var eventName = track.event().replace(/:/g, '_'); // can't have colons so replacing with underscores
   var payload = {
     type: 'event',
@@ -116,8 +101,10 @@ Optimizely.prototype.track = function(track) {
     tags: eventProperties
   };
 
+  // Track via Optimizely Web
   push(payload);
 
+  // Track via Optimizely Full Stack
   var optimizelyClientInstance = window.optimizelyClientInstance;
   if (optimizelyClientInstance && optimizelyClientInstance.track) {
     var optimizelyOptions = track.options('Optimizely');
@@ -141,8 +128,6 @@ Optimizely.prototype.track = function(track) {
 /**
  * Page.
  *
- * https://www.optimizely.com/docs/api#track-event
- *
  * @api public
  * @param {Page} page
  */
@@ -164,145 +149,12 @@ Optimizely.prototype.page = function(page) {
 };
 
 /**
- * sendClassicDataToSegment (Optimizely Classic)
- *
- * This function is executed for each experiment created in Classic Optimizely that is running on the page.
- * This function will also be executed for any experiments activated at a later stage since initOptimizelyIntegration
- * attached listeners on the page
- *
- * @api private
- * @param {Object} experimentState: contains all information regarding experiments
- * @param {Object} experimentState.experiment: the experiment running on the page
- * @param {String} experimentState.experiment.name: name of the experiment
- * @param {String} experimentState.experiment.id: ID of the experiment
- * @param {String} experimentState.experiment.referrer: available if effective referrer if experiment is a redirect
- * @param {Array} experimentState.variations: the variations the current user on page is seeing
- * @param {String} experimentState.variations[].name: the name of the variation
- * @param {String} experimentState.variations[].id: the ID of the variation
- * @param {Object} experimentState.sections: the sections for the experiment (only defined for multivariate experiments) keyed by sectionId
- * @param {String} experimentState.sections[sectionId].name: the name of section
- * @param {Array} experimentState.sections[sectionId].variation_ids: the IDs of the variations in the section
- *
- */
-
-Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
-  var experiment = experimentState.experiment;
-  var variations = experimentState.variations;
-  var sections = experimentState.sections;
-  var context = { integration: optimizelyContext }; // backward compatibility
-
-  // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-  var variationsMap = foldl(
-    function(results, variation) {
-      var res = results;
-      res[variation.id] = variation.name;
-      return res;
-    },
-    {},
-    variations
-  );
-
-  // Sorting for consistency across browsers
-  var variationIds = keys(variationsMap).sort();
-  var variationNames = values(variationsMap).sort();
-
-  // Send data via `.track()`
-  if (this.options.listen) {
-    var props = {
-      experimentId: experiment.id,
-      experimentName: experiment.name,
-      variationId: variationIds.join(), // eg. '123' or '123,455'
-      variationName: variationNames.join(', ') // eg. 'Variation X' or 'Variation 1, Variation 2'
-    };
-
-    // If this was a redirect experiment and the effective referrer is different from document.referrer,
-    // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
-    // `experiment.referrer` would be google.com/ad here NOT `tb12.com`.
-    if (experiment.referrer) {
-      props.referrer = experiment.referrer;
-      context.page = { referrer: experiment.referrer };
-    }
-
-    // When there is a multivariate experiment
-    if (sections) {
-      // Since `sections` include all the possible sections on the page, we need to find the names of the sections
-      // if any of its variations were used. Experiments could display variations from multiple sections.
-      // The global optimizely data object does not expose a mapping between which section(s) were involved within an experiment.
-      // So we will build our own mapping to quickly get the section name(s) and id(s) for any displayed variation.
-      var activeSections = {};
-      var variationIdsToSectionsMap = foldl(
-        function(results, section, sectionId) {
-          var res = results;
-          each(function(variationId) {
-            res[variationId] = { id: sectionId, name: section.name };
-          }, section.variation_ids);
-          return res;
-        },
-        {},
-        sections
-      );
-      for (var j = 0; j < variationIds.length; j++) {
-        var activeVariation = variationIds[j];
-        var activeSection = variationIdsToSectionsMap[activeVariation];
-        if (activeSection)
-          activeSections[activeSection.id] = activeSection.name;
-      }
-
-      // Sorting for consistency across browsers
-      props.sectionId = keys(activeSections)
-        .sort()
-        .join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
-      props.sectionName = values(activeSections)
-        .sort()
-        .join(', ');
-    }
-
-    // For Google's nonInteraction flag
-    if (this.options.nonInteraction) props.nonInteraction = 1;
-
-    // If customExperimentProperties is provided overide the props with it.
-    // If valid customExperimentProperties present it will override existing props.
-    var customExperimentProperties = this.options.customExperimentProperties;
-    var customPropsKeys = Object.keys(customExperimentProperties);
-    var data = window.optimizely && window.optimizely.data;
-
-    if (data && customPropsKeys.length) {
-      for (var index = 0; index < customPropsKeys.length; index++) {
-        var segmentProp = customPropsKeys[index];
-        var optimizelyProp = customExperimentProperties[segmentProp];
-        if (typeof data[optimizelyProp] !== 'undefined') {
-          props[segmentProp] = data[optimizelyProp];
-        }
-      }
-    }
-
-    // Send to Segment
-    this.analytics.track('Experiment Viewed', props, context);
-  }
-
-  // Send data via `.identify()` (not recommended!)
-  // TODO: deprecate this feature
-  if (this.options.variations) {
-    // Note: The only "breaking" behavior is that now there will be an `.identify()` call per active experiment
-    // Legacy behavior was that we would look up all active experiments on the page after init and send one `.identify()` call
-    // with all experiment/variation data as traits.
-    // New behavior will call `.identify()` per active experiment with isolated experiment/variation data for that single experiment
-    // However, since traits are cached, subsequent experiments that trigger `.identify()` calls will likely contain previous experiment data
-    var traits = {};
-    traits['Experiment: ' + experiment.name] = variationNames.join(', '); // eg. 'Variation X' or 'Variation 1, Variation 2'
-
-    // Send to Segment
-    this.analytics.identify(traits);
-  }
-};
-
-/**
- * sendNewDataToSegment (Optimizely X)
+ * sendWebDecisionToSegment (Optimizely X)
  *
  * This function is called for each experiment created in New Optimizely that are running on the page.
  * New Optimizely added a dimension called "Campaigns" that encapsulate over the Experiments. So a campaign can have multiple experiments.
  * Multivariate experiments are no longer supported in New Optimizely.
- * This function will also be executed for any experiments activated at a later stage since initOptimizelyIntegration
+ * This function will also be executed for any experiments activated at a later stage since initWebIntegration
  * attached listeners on the page
  *
  * @api private
@@ -321,8 +173,7 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
  * @param {String} campaignState.variation.name: the name of the variation
  * @param {String} campaignState.isInCampaignHoldback: whether the visitor is in the Campaign holdback
  */
-
-Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
+Optimizely.prototype.sendWebDecisionToSegment = function(campaignState) {
   var experiment = campaignState.experiment;
   var variation = campaignState.variation;
   var context = { integration: optimizelyContext }; // backward compatibility
@@ -360,31 +211,16 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
       isInCampaignHoldback: campaignState.isInCampaignHoldback
     };
 
-    // If this was a redirect experiment and the effective referrer is different from document.referrer,
-    // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
-    // `experiment.referrer` would be google.com/ad here NOT `tb12.com`.
-    if (experiment.referrer) {
-      props.referrer = experiment.referrer;
-      context.page = { referrer: experiment.referrer };
+    if (this.redirectInfo) {
+      // Legacy. It's more accurate to use context.page.referrer or window.optimizelyEffectiveReferrer.
+      // TODO: Maybe only set this if experiment.id matches this.redirectInfo.experimentId?
+      props.referrer = this.redirectInfo.referrer;
+
+      context.page = { referrer: this.redirectInfo.referrer };
     }
 
     // For Google's nonInteraction flag
     if (this.options.nonInteraction) props.nonInteraction = 1;
-
-    // If customCampaignProperties is provided overide the props with it.
-    // If valid customCampaignProperties present it will override existing props.
-    var customCampaignProperties = this.options.customCampaignProperties;
-    var customPropsKeys = Object.keys(customCampaignProperties);
-    var data = window.optimizely && window.optimizely.newMockData;
-    if (data && customPropsKeys.length) {
-      for (var index = 0; index < customPropsKeys.length; index++) {
-        var segmentProp = customPropsKeys[index];
-        var optimizelyProp = customCampaignProperties[segmentProp];
-        if (typeof data[optimizelyProp] !== 'undefined') {
-          props[segmentProp] = data[optimizelyProp];
-        }
-      }
-    }
 
     // Send to Segment
     this.analytics.track('Experiment Viewed', props, context);
@@ -407,7 +243,7 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
 };
 
 /**
- * setEffectiveReferrer
+ * setRedirectInfo
  *
  * This function is called when a redirect experiment changed the effective referrer value where it is different from the `document.referrer`.
  * This is a documented caveat for any mutual customers that are using redirect experiments.
@@ -415,216 +251,99 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
  * their Segment snippet.
  *
  * @apr private
- * @param {string} referrer
+ * @param {Object?} redirectInfo
+ * @param {String} redirectInfo.experimentId
+ * @param {String} redirectInfo.variationId
+ * @param {String} redirectInfo.referrer
  */
-
-Optimizely.prototype.setEffectiveReferrer = function(referrer) {
-  if (referrer) {
-    window.optimizelyEffectiveReferrer = referrer;
-    return referrer;
+Optimizely.prototype.setRedirectInfo = function(redirectInfo) {
+  if (redirectInfo) {
+    this.redirectInfo = redirectInfo;
+    window.optimizelyEffectiveReferrer = redirectInfo.referrer;
   }
 };
 
 /**
- * initOptimizelyIntegration(handlers)
- *
- * This function was provided by Optimizely's Engineering team. The function below once initialized can detect which version of
- * Optimizely a customer is using and call the appropriate callback functions when an experiment runs on the page.
- * Instead of Segment looking up the experiment data, we can now just bind Segment APIs to their experiment listener/handlers!
+ * This function fetches all active Optimizely Web campaigns and experiments,
+ * invoking the sendWebDecisionToSegment callback for each one.
  *
  * @api private
- * @param {Object} handlers
- * @param {Function} referrerOverride: called if the effective refferer value differs from the current `document.referrer` due to a
- * invocation of a redirect experiment on the page
- * @param {Function} sendExperimentData: called for every running experiment on the page (Classic)
- * @param {Function} sendCampaignData: called for every running campaign on the page (New)
  */
+Optimizely.prototype.initWebIntegration = function() {
+  var self = this;
 
-Optimizely.initOptimizelyIntegration = function(handlers) {
   /**
-   * `initClassicOptimizelyIntegration` fetches all the experiment data from the classic Optimizely client
-   * and calls the functions provided in the arguments with the data that needs to
-   * be used for sending information. It is recommended to leave this function as is
-   * and to create your own implementation of the functions referrerOverride and
-   * sendExperimentData.
-   *
-   * @param {Function} referrerOverride - This function is called if the effective referrer value differs from
-   *   the current document.referrer value. The only argument provided is the effective referrer value.
-   * @param {Function} sendExperimentData - This function is called for every running experiment on the page.
-   *   The function is called with all the relevant ids and names.
+   * If the visitor got to the current page via an Optimizely redirect variation,
+   * record the "effective referrer", i.e. the URL that referred the visitor to the
+   * _pre-redirect_ page.
    */
-  var initClassicOptimizelyIntegration = function(
-    referrerOverride,
-    sendExperimentData
-  ) {
-    var data = window.optimizely && window.optimizely.data;
-    var state = data && data.state;
+  var checkReferrer = function() {
+    var state = window.optimizely.get && window.optimizely.get('state');
     if (state) {
-      var activeExperiments = state.activeExperiments;
-      if (state.redirectExperiment) {
-        var redirectExperimentId = state.redirectExperiment.experimentId;
-        var index = -1;
-        for (var i = 0; i < state.activeExperiments.length; i++) {
-          if (state.activeExperiments[i] === redirectExperimentId) {
-            index = i;
-            break;
+      self.setRedirectInfo(state.getRedirectInfo());
+    } else {
+      push({
+        type: 'addListener',
+        filter: {
+          type: 'lifecycle',
+          name: 'initialized'
+        },
+        handler: function() {
+          state = window.optimizely.get && window.optimizely.get('state');
+          if (state) {
+            self.setRedirectInfo(state.getRedirectInfo());
           }
         }
-        if (index === -1) {
-          activeExperiments.push(redirectExperimentId);
-        }
-        referrerOverride(state.redirectExperiment.referrer);
-      }
-
-      for (var k = 0; k < activeExperiments.length; k++) {
-        var currentExperimentId = activeExperiments[k];
-        var activeExperimentState = {
-          experiment: {
-            id: currentExperimentId,
-            name: data.experiments[currentExperimentId].name
-          },
-          variations: [],
-          /** Segment added code */
-          // we need to send sectionName for multivariate experiments
-          sections: data.sections
-          /**/
-        };
-
-        /** Segment added code */
-        // for backward compatability since we send referrer with the experiment properties
-        if (
-          state.redirectExperiment &&
-          currentExperimentId === state.redirectExperiment.experimentId &&
-          state.redirectExperiment.referrer
-        ) {
-          activeExperimentState.experiment.referrer =
-            state.redirectExperiment.referrer;
-        }
-        /**/
-
-        var variationIds =
-          state.variationIdsMap[activeExperimentState.experiment.id];
-        for (var j = 0; j < variationIds.length; j++) {
-          var id = variationIds[j];
-          var name = data.variations[id].name;
-          activeExperimentState.variations.push({
-            id: id,
-            name: name
-          });
-        }
-        sendExperimentData(activeExperimentState);
-      }
+      });
     }
   };
 
   /**
-   * This function fetches all the campaign data from the new Optimizely client
-   * and calls the functions provided in the arguments with the data that needs to
-   * be used for sending information. It is recommended to leave this function as is
-   * and to create your own implementation of the functions referrerOverride and
-   * sendCampaignData.
-   *
-   * @param {Function} referrerOverride - This function is called if the effective referrer value differs from
-   *   the current document.referrer value. The only argument provided is the effective referrer value.
-   * @param {Function} sendCampaignData - This function is called for every running campaign on the page.
-   *   The function is called with the campaignState for the activated campaign
+   * A campaign or experiment can be activated after we have initialized.
+   * This function registers a listener that listens to newly activated campaigns and
+   * handles them.
    */
-  var initNewOptimizelyIntegration = function(
-    referrerOverride,
-    sendCampaignData
-  ) {
-    var newActiveCampaign = function(id, referrer) {
-      var state = window.optimizely.get && window.optimizely.get('state');
-      if (state) {
-        var activeCampaigns = state.getCampaignStates({
-          isActive: true
-        });
-        var campaignState = activeCampaigns[id];
-        // Segment added code: in case this is a redirect experiment
-        if (referrer) campaignState.experiment.referrer = referrer;
-        sendCampaignData(campaignState);
-      }
-    };
-
-    var checkReferrer = function() {
-      var state = window.optimizely.get && window.optimizely.get('state');
-      if (state) {
-        var referrer =
-          state.getRedirectInfo() && state.getRedirectInfo().referrer;
-
-        if (referrer) {
-          referrerOverride(referrer);
-          return referrer; // Segment added code: so I can pass this referrer value in cb
+  var registerFutureActiveCampaigns = function() {
+    push({
+      type: 'addListener',
+      filter: {
+        type: 'lifecycle',
+        name: 'campaignDecided'
+      },
+      handler: function(event) {
+        var campaignId = event.data.campaign.id;
+        var state = window.optimizely.get && window.optimizely.get('state');
+        if (!state) {
+          return;
         }
-      }
-    };
-
-    /**
-     * At any moment, a new campaign can be activated (manual or conditional activation).
-     * This function registers a listener that listens to newly activated campaigns and
-     * handles them.
-     */
-    var registerFutureActiveCampaigns = function() {
-      window.optimizely = window.optimizely || [];
-      window.optimizely.push({
-        type: 'addListener',
-        filter: {
-          type: 'lifecycle',
-          name: 'campaignDecided'
-        },
-        handler: function(event) {
-          var id = event.data.campaign.id;
-          newActiveCampaign(id);
+        // Make sure the campaign actually activated (rather than producing a null decision)
+        var activeCampaigns = state.getCampaignStates({ isActive: true });
+        if (!activeCampaigns[campaignId]) {
+          return;
         }
-      });
-    };
-
-    /**
-     * If this code is running after Optimizely on the page, there might already be
-     * some campaigns active. This function makes sure all those campaigns are
-     * handled.
-     */
-    var registerCurrentlyActiveCampaigns = function() {
-      window.optimizely = window.optimizely || [];
-      var state = window.optimizely.get && window.optimizely.get('state');
-      if (state) {
-        var referrer = checkReferrer();
-        var activeCampaigns = state.getCampaignStates({
-          isActive: true
-        });
-        for (var id in activeCampaigns) {
-          if ({}.hasOwnProperty.call(activeCampaigns, id)) {
-            // Segment modified code: need to pass down referrer in the cb for backward compat reasons
-            if (referrer) {
-              newActiveCampaign(id, referrer);
-            } else {
-              newActiveCampaign(id);
-            }
-          }
-        }
-      } else {
-        window.optimizely.push({
-          type: 'addListener',
-          filter: {
-            type: 'lifecycle',
-            name: 'initialized'
-          },
-          handler: function() {
-            checkReferrer();
-          }
-        });
+        self.sendWebDecisionToSegment(activeCampaigns[campaignId]);
       }
-    };
-    registerCurrentlyActiveCampaigns();
-    registerFutureActiveCampaigns();
+    });
   };
 
-  initClassicOptimizelyIntegration(
-    handlers.referrerOverride,
-    handlers.sendExperimentData
-  );
-  initNewOptimizelyIntegration(
-    handlers.referrerOverride,
-    handlers.sendCampaignData
-  );
+  /**
+   * If this code is running after Optimizely on the page, there might already be
+   * some campaigns or experiments active. This function retrieves and handlers them.
+   */
+  var registerCurrentlyActiveCampaigns = function() {
+    window.optimizely = window.optimizely || [];
+    var state = window.optimizely.get && window.optimizely.get('state');
+    if (state) {
+      var activeCampaigns = state.getCampaignStates({
+        isActive: true
+      });
+      each(function(campaignState) {
+        self.sendWebDecisionToSegment(campaignState);
+      }, activeCampaigns);
+    }
+  };
+
+  checkReferrer();
+  registerCurrentlyActiveCampaigns();
+  registerFutureActiveCampaigns();
 };
