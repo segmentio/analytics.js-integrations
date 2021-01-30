@@ -241,6 +241,24 @@ describe('Segment.io', function() {
         Segment.global = window;
       });
 
+      it('should filter non-standard .campaign items', function() {
+        Segment.global = { navigator: {}, location: {} };
+        Segment.global.location.search =
+          '?utm_source=source&utm_medium=medium&utm_term=term&utm_content=content&utm_campaign=name&utm_random=random';
+        Segment.global.location.hostname = 'localhost';
+        segment.normalize(object);
+        analytics.assert(object);
+        analytics.assert(object.context);
+        analytics.assert(object.context.campaign);
+        analytics.assert(object.context.campaign.source === 'source');
+        analytics.assert(object.context.campaign.medium === 'medium');
+        analytics.assert(object.context.campaign.term === 'term');
+        analytics.assert(object.context.campaign.content === 'content');
+        analytics.assert(object.context.campaign.name === 'name');
+        analytics.assert(object.context.campaign.random === undefined);
+        Segment.global = window;
+      });
+
       it('should allow override of .campaign', function() {
         Segment.global = { navigator: {}, location: {} };
         Segment.global.location.search =

@@ -301,7 +301,7 @@ Segment.prototype.normalize = function(message) {
   }
   // if user provides campaign via context, do not overwrite with UTM qs param
   if (query && !ctx.campaign) {
-    ctx.campaign = utm(query);
+    ctx.campaign = utm.strict(query);
   }
   this.referrerId(query, ctx);
   msg.userId = msg.userId || user.id();
