@@ -35,7 +35,7 @@ steps:
           paths: ['node_modules/']
           s3_bucket_name: 'segment-buildkite-cache'
       - docker#v3.3.0:
-          image: circleci/node:12.18-browsers
+          image: saucelabs/sauce-connect
           user: root
           environment:
             - NPM_TOKEN
