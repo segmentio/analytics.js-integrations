@@ -5,3 +5,5 @@ coverage/
 package-lock.json
 *.xml
 yarn-error.log
+dist/
+build/
