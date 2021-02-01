@@ -23,6 +23,25 @@ steps:
             - NPM_TOKEN
             - CHROME-BIN=google-chrome
 
+  - label: 'SauceLabs'
+    soft_fail: true
+    command:
+      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      - yarn install --frozen-lockfile
+      - yarn test:ci
+    plugins:
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ['node_modules/']
+          s3_bucket_name: 'segment-buildkite-cache'
+      - docker#v3.3.0:
+          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
+          user: root
+          environment:
+            - NPM_TOKEN
+            - SAUCE_USERNAME
+            - SAUCE_ACCESS_KEY
+
   - label: '🔒 Snyk Security Check'
     agents:
       queue: v1
