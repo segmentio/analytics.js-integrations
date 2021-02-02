@@ -101,7 +101,7 @@ async function uploadAssets() {
     const isVendor = fileName.includes('vendor');
 
     if (isVendor) {
-      return putObject(fileName, true);
+      return putObject(fileName, undefined, true);
     }
 
     const f = fileName.split('/');
