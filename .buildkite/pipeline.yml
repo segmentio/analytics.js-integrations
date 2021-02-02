@@ -1,5 +1,5 @@
 env:
-  SEGMENT_CONTEXTS: 'snyk,npm,aws-credentials,ecr'
+  SEGMENT_CONTEXTS: 'snyk,npm,aws-credentials,ecr,saucelabs,npm-publish'
   SEGMENT_BUILDKITE_IMAGE: 'analytics-next-ci-agent'
 
 steps:
@@ -26,6 +26,8 @@ steps:
   - label: 'SauceLabs'
     soft_fail: true
     command:
+      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      - yarn install --ignore-engines
       - yarn test:ci
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:

@@ -1,0 +1,55 @@
+{
+  "name": "@convertflow/analytics.js-integration-convertflow",
+  "description": "The ConvertFlow analytics.js integration.",
+  "version": "1.0.3",
+  "keywords": [
+    "analytics.js",
+    "analytics.js-integration",
+    "segment",
+    "convertflow"
+  ],
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "karma start",
+    "test:ci": "karma start karma.conf-ci.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonathandenney/analytics.js-integration-convertflow.git"
+  },
+  "author": "Segment <friends@segment.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/jonathandenney/analytics.js-integration-convertflow/issues"
+  },
+  "homepage": "https://github.com/jonathandenney/analytics.js-integration-convertflow#readme",
+  "dependencies": {
+    "@ndhoule/foldl": "^2.0.1",
+    "@segment/analytics.js-integration": "^2.1.1",
+    "camelcase": "^3.0.0",
+    "is": "^3.1.0"
+  },
+  "devDependencies": {
+    "@segment/analytics.js-core": "^3.0.0",
+    "@segment/analytics.js-integration-tester": "^3.1.1",
+    "@segment/clear-env": "^2.1.1",
+    "browserify": "^16.2.3",
+    "browserify-istanbul": "^2.0.0",
+    "eslint": "^2.9.0",
+    "eslint-plugin-mocha": "^2.2.0",
+    "eslint-plugin-require-path-exists": "^1.1.5",
+    "istanbul": "^0.4.3",
+    "karma": "^4.1.0",
+    "karma-browserify": "^6.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-sauce-launcher": "^2.0.2",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-summary-reporter": "^1.6.0",
+    "mocha": "^2.2.5",
+    "npm-check": "^5.2.1",
+    "phantomjs-prebuilt": "^2.1.7",
+    "watchify": "^3.7.0"
+  }
+}
