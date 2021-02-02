@@ -2160,16 +2160,6 @@
   dependencies:
     jkroso-type "1.1.0"
 
-"@segment/eslint-config@^3.1.1":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@segment/eslint-config/-/eslint-config-3.5.0.tgz#d9eb7cb7aa9950e04a12bc37f9813beb34cb7620"
-  integrity sha1-2et8t6qZUOBKErw3+YE76zTLdiA=
-
-"@segment/eslint-config@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@segment/eslint-config/-/eslint-config-4.0.0.tgz#574a6a02e2e5eaadd4e0cd559be7e3c9bc77273b"
-  integrity sha512-8GPCq2ugIpGEl9imZaXkFl6Q1lydSo0xqCGmnr3JbtQuP8xklJY85b8AllIC0J6WnAj7ft0w7EY9jDdbl9Vyhg==
-
 "@segment/fmt@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@segment/fmt/-/fmt-1.0.0.tgz#7b2db58a12d8420b0a004889af048ab22765557f"

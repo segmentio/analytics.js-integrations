@@ -29,7 +29,6 @@
   "devDependencies": {
     "@segment/analytics.js-integration-tester": "^3.1.0",
     "@segment/clear-env": "^2.0.0",
-    "@segment/eslint-config": "^4.0.0",
     "browserify": "^16.2.3",
     "browserify-istanbul": "^3.0.1",
     "codecov": "^3.1.0",
