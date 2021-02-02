@@ -11,7 +11,7 @@ steps:
       apt-get update && apt-get install -y moreutils
       npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       echo '--- yarn install'
-      yarn install --frozen-lockfile | ts
+      yarn install --verbose --frozen-lockfile | ts
 
       echo '--- yarn test'
       yarn test
