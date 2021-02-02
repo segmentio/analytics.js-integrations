@@ -7,14 +7,11 @@ steps:
     agents:
       queue: v1
     command: |
+      # for ts
+      apt-get update && apt-get install -y moreutils
       npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       echo '--- yarn install'
-      find node_modules | sort > node_modules.old
-      yarn install --frozen-lockfile
-      find node_modules | sort > node_modules.new
-
-      echo '--- node_modules diff'
-      diff node_modules.old node_modules.new
+      yarn install --frozen-lockfile | ts
 
       echo '--- yarn test'
       yarn test
