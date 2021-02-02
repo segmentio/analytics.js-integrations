@@ -66,8 +66,8 @@ async function uploadAssets() {
 
   let manifest = {};
 
-  const key = (fileName) => {
-    return path.join('next-integrations', fileName)
+  const key = fileName => {
+    return path.join('next-integrations', fileName);
   };
 
   const putObject = async (
@@ -101,7 +101,7 @@ async function uploadAssets() {
     const isVendor = fileName.includes('vendor');
 
     if (isVendor) {
-      return putObject(fileName);
+      return putObject(fileName, true);
     }
 
     const f = fileName.split('/');

@@ -23,9 +23,7 @@ files.forEach(file => {
   const vendorPath = last(vendor[0].split('build'));
 
   const dynamic = `
-window['${libraryName}Deps'] = [
-  "${vendorPath}",
-]
+window['${libraryName}Deps'] = ["${vendorPath}"]
 
 window['${libraryName}Loader'] = function() {
   return ${fs.readFileSync(file).toString()}
