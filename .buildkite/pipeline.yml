@@ -6,10 +6,18 @@ steps:
   - label: ':hammer: Build and Test'
     agents:
       queue: v1
-    command:
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
-      - yarn install --frozen-lockfile
-      - yarn test
+    command: |
+      npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      echo '--- yarn install'
+      find node_modules | sort > node_modules.old
+      yarn install --frozen-lockfile
+      find node_modules | sort > node_modules.new
+
+      echo '--- node_modules diff'
+      diff node_modules.old node_modules.new
+
+      echo '--- yarn test'
+      yarn test
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
