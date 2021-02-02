@@ -1,5 +1,5 @@
 env:
-  SEGMENT_CONTEXTS: 'snyk,npm,aws-credentials,ecr'
+  SEGMENT_CONTEXTS: 'snyk,npm,aws-credentials,ecr,saucelabs,npm-publish'
   SEGMENT_BUILDKITE_IMAGE: 'analytics-next-ci-agent'
 
 steps:
