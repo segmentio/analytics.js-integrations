@@ -1,7 +1,6 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
-var JSON = require('json3');
 var TvSquared = require('../lib/');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');

@@ -9,7 +9,6 @@ var integration = require('@segment/analytics.js-integration');
 var toSnakeCase = require('to-snake-case');
 var is = require('is');
 var foldl = require('@ndhoule/foldl');
-var json = require('json3');
 var isostring = require('isostring');
 var time = require('unix-time');
 
@@ -43,7 +42,35 @@ var Woopra = (module.exports = integration('Woopra')
 
 Woopra.prototype.initialize = function() {
   /* eslint-disable */
-  (function () { var i, s, z, w = window, d = document, a = arguments, q = 'script', f = ['config', 'track', 'identify', 'visit', 'push', 'call'], c = function () { var i, self = this; self._e = []; for (i = 0; i < f.length; i++) { (function (f) { self[f] = function () { self._e.push([f].concat(Array.prototype.slice.call(arguments, 0))); return self; }; })(f[i]); } }; w._w = w._w || {}; for (i = 0; i < a.length; i++) { w._w[a[i]] = w[a[i]] = w[a[i]] || new c(); } })('woopra');
+  (function() {
+    var i,
+      s,
+      z,
+      w = window,
+      d = document,
+      a = arguments,
+      q = 'script',
+      f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
+      c = function() {
+        var i,
+          self = this;
+        self._e = [];
+        for (i = 0; i < f.length; i++) {
+          (function(f) {
+            self[f] = function() {
+              self._e.push(
+                [f].concat(Array.prototype.slice.call(arguments, 0))
+              );
+              return self;
+            };
+          })(f[i]);
+        }
+      };
+    w._w = w._w || {};
+    for (i = 0; i < a.length; i++) {
+      w._w[a[i]] = w[a[i]] = w[a[i]] || new c();
+    }
+  })('woopra');
   /* eslint-enable */
 
   this.load(this.ready);
