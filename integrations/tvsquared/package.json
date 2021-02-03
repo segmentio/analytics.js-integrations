@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-tvsquared",
   "description": "The Tvsquared analytics.js integration.",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
