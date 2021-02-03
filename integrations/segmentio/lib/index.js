@@ -64,7 +64,9 @@ var Segment = (exports = module.exports = integration('Segment.io')
   .option('saveCrossDomainIdInLocalStorage', true)
   .option('retryQueue', true)
   .option('addBundledMetadata', false)
-  .option('unbundledIntegrations', []));
+  .option('unbundledIntegrations', []))
+  .option('unbundledIntegrationIds', [])
+  .option('maybeBundledConfigIds', []);
 
 /**
  * Get the store.
@@ -315,10 +317,27 @@ Segment.prototype.normalize = function(message) {
   }
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
+
+    // Generate a list of bundled config IDs using the intersection of
+    // bundled destination names and maybe bundled config IDs.
+    var bundledConfigIds = []
+    for (var i = 0; i < bundled.length; i++) {
+      var name = bundled[i]
+      if (!maybeBundledConfigIds[name]) {
+        continue
+      }
+
+      for (var i = 0; i < maybeBundledConfigIds[name].length; i++) {
+        var id = maybeBundledConfigIds[name][i]
+        bundledConfigIds.push(id)
+      }
+    }
+
+
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
-    msg._metadata.bundledConfigIds = this.options.bundledConfigIds;
+    msg._metadata.bundledConfigIds = bundledConfigIds;
     msg._metadata.unbundledConfigIds = this.options.unbundledConfigIds;
   }
   this.debug('normalized %o', msg);
