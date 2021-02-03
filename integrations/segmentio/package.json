@@ -36,7 +36,6 @@
     "component-clone": "^0.2.2",
     "component-cookie": "^1.1.2",
     "component-type": "^1.2.1",
-    "json3": "^3.3.2",
     "uuid": "^2.0.2",
     "yields-store": "^1.0.2"
   },
@@ -55,8 +54,8 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
-    "watchify": "^3.11.1",
     "proclaim": "^3.4.1",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "watchify": "^3.11.1"
   }
 }
