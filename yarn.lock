@@ -2210,17 +2210,16 @@
     next-tick "^0.2.2"
     script-onload "^1.0.2"
 
-"@segment/localstorage-retry@^1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@segment/localstorage-retry/-/localstorage-retry-1.2.2.tgz#d141fab7212fd3efb0ee19bf7eb16b1e38930af3"
-  integrity sha1-0UH6tyEv0++w7hm/frFrHjiTCvM=
+"@segment/localstorage-retry@^1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@segment/localstorage-retry/-/localstorage-retry-1.2.5.tgz#6e378160d0c9d02d4e0d17cea9cb200f36e26f19"
+  integrity sha512-wQ9HxNsEcWNotrBImO7fHTPThWg7lnymmdMqhnT2z6jCiNqHmDeK0ivnh+klomXI8AwAX4OpI0BO5cfNIS5nCw==
   dependencies:
+    "@lukeed/uuid" "^2.0.0"
     "@ndhoule/each" "^2.0.1"
     "@ndhoule/keys" "^2.0.0"
     component-emitter "^1.2.1"
     debug "^0.7.4"
-    json3 "^3.3.2"
-    uuid "^3.0.1"
 
 "@segment/prevent-default@^1.0.0":
   version "1.0.0"
@@ -2240,6 +2239,15 @@
     "@segment/base64-encode" "^2.0.2"
     has-cors "^1.1.0"
     json3 "^3.3.2"
+    jsonp "^0.2.0"
+
+"@segment/send-json@^4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@segment/send-json/-/send-json-4.0.2.tgz#69dc4d320be6a6c7c904b44568b33b79ab293620"
+  integrity sha512-HFNr6FB+mvBDC+ZcQCMblOuaLE+b0D7mk5hgkIhcun2+S0AucL0HsD50P6PnncZrinc7AXHIoAcfWLn8FEPtlg==
+  dependencies:
+    "@segment/base64-encode" "^2.0.2"
+    has-cors "^1.1.0"
     jsonp "^0.2.0"
 
 "@segment/spy@^1.0.0":
