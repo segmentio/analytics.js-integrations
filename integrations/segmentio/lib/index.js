@@ -15,7 +15,7 @@ var protocol = require('@segment/protocol');
 var send = require('@segment/send-json');
 var topDomain = require('@segment/top-domain');
 var utm = require('@segment/utm-params');
-var uuid = require('uuid').v4;
+var uuid = require('@lukeed/uuid').v4;
 var Queue = require('@segment/localstorage-retry');
 
 const json = JSON;

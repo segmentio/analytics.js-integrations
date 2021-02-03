@@ -36,7 +36,7 @@
     "component-clone": "^0.2.2",
     "component-cookie": "^1.1.2",
     "component-type": "^1.2.1",
-    "uuid": "^2.0.2",
+    "@lukeed/uuid": "^2.0.0",
     "yields-store": "^1.0.2"
   },
   "devDependencies": {
@@ -44,7 +44,6 @@
     "@segment/analytics.js-integration-tester": "^2.0.0",
     "@segment/clear-env": "^2.0.0",
     "browserify": "^16.2.3",
-    "eslint": "^5.16.0",
     "karma": "^4.1.0",
     "karma-browserify": "^6.0.0",
     "karma-chrome-launcher": "^2.2.0",
