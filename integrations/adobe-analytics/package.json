@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-adobe-analytics",
   "description": "The Adobe Analytics analytics.js integration.",
-  "version": "1.16.3",
+  "version": "1.16.5",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -26,14 +26,11 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/each": "^2.0.1",
-    "@ndhoule/extend": "^2.0.0",
-    "@ndhoule/map": "^2.0.1",
-    "@segment/analytics.js-integration": "^3.0.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "@segment/to-iso-string": "^1.0.1",
     "@segment/trample": "^0.2.0",
     "obj-case": "^0.2.0",
-    "segmentio-facade": "^3.2.7",
+    "@segment/facade": "^3.3.1",
     "type-of": "^2.0.1"
   },
   "devDependencies": {

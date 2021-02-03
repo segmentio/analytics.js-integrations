@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 
 /**
@@ -52,8 +51,9 @@ AdLearnOpenPlatform.prototype.track = function(track) {
   var productIds = this.productIds(track.products());
 
   var events = this.events(track.event());
+
   var self = this;
-  each(function(event) {
+  events.forEach(event => {
     return self.load('conversion', {
       type: event,
       userId: userId || '',
@@ -61,7 +61,7 @@ AdLearnOpenPlatform.prototype.track = function(track) {
       total: total || '',
       productIds: productIds || ''
     });
-  }, events);
+  })
 };
 
 /**
@@ -74,9 +74,11 @@ AdLearnOpenPlatform.prototype.track = function(track) {
 AdLearnOpenPlatform.prototype.productIds = function(products) {
   // TODO(ndhoule): Refactor into pluck(products, 'id')
   var ids = [];
-  each(function(product) {
-    ids.push(product.id);
-  }, products);
+
+  products.forEach(product => {
+    ids.push(product.id)
+  })
+
   return ids.join(',');
 };
 

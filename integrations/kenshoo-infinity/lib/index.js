@@ -6,10 +6,7 @@
 
 var integration = require('@segment/analytics.js-integration');
 var reject = require('reject');
-var each = require('@ndhoule/each');
 var remove = require('obj-case').del;
-var extend = require('@ndhoule/extend');
-var keys = require('@ndhoule/keys');
 var trample = require('@segment/trample');
 
 /**
@@ -79,12 +76,12 @@ KenshooInfinity.prototype.track = function(track) {
     promoCode: limitChars(promoCode, 1024)
   });
 
-  params = extend(params, customProperties);
+  params = { ...params, ...customProperties };
   // All string values must be encoded
   var encodedParams = {};
-  each(function(value, key) {
-    encodedParams[key] = encodeURIComponent(value);
-  }, params);
+  Object.keys(params).forEach(key => {
+    encodedParams[key] = encodeURIComponent(params[key]);
+  })
 
   window.kenshoo.trackConversion(subdomain, cid, encodedParams);
 };
@@ -116,17 +113,17 @@ function limitChars(string, limit) {
 function format(properties) {
   var ret = {};
   // Sort keys alphabetically and take the first 15
-  var sortedKeys = keys(properties)
+  var sortedKeys = Object.keys(properties)
     .sort()
     .slice(0, 15);
-  each(function(key) {
+  sortedKeys.forEach(function(key) {
     // Replace all whitespace with underscores
     var formattedKey = key.replace(/\s/g, '_');
     // Remove all non-alphnumeric/underscores
     formattedKey = formattedKey.replace(/\W/g, '');
     formattedKey = limitChars(formattedKey, 100);
     ret[formattedKey] = limitChars(properties[key], 1024);
-  }, sortedKeys);
+  });
 
   return ret;
 }

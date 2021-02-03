@@ -5,8 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var each = require('@ndhoule/each');
-var foldl = require('@ndhoule/foldl');
 var qs = require('component-querystring');
 var find = require('obj-case').find;
 var toNoCase = require('to-no-case');
@@ -89,8 +87,8 @@ Floodlight.prototype.track = function(track) {
   var self = this;
 
   // Prepare tag params for each mapped Floodlight Activity
-  var tags = foldl(
-    function(conversions, tag) {
+
+  var tags = mappedEvents.reduce(function (conversions, tag) { 
       var type = tag.type || settings.groupTag;
       var event = tag.event;
       var cat = tag.cat || settings.activityTag;
@@ -99,7 +97,7 @@ Floodlight.prototype.track = function(track) {
 
       // Find matching properties if any
       var matchedVariables = {};
-      each(function(variable) {
+      tag.customVariable.forEach(variable => {
         var floodlightProp = variable.value;
         var segmentProp = variable.key.match(/{{(.*)}}/) || variable.key;
         if (variable.key.includes('$')) {
@@ -110,11 +108,11 @@ Floodlight.prototype.track = function(track) {
         if (Array.isArray(segmentProp) && segmentProp[0] === 'products') {
           segmentProp = segmentProp.pop();
           var productPropArray = [];
-          each(function(product) {
+          track.products().forEach(product => {
             if (product[segmentProp]) {
               productPropArray.push(product[segmentProp]);
             }
-          }, track.products());
+          });
           segmentPropValue = productPropArray.join(',');
         } else if (Array.isArray(segmentProp)) {
           segmentProp = segmentProp.pop();
@@ -130,7 +128,7 @@ Floodlight.prototype.track = function(track) {
         if (segmentPropValue) {
           matchedVariables[floodlightProp] = segmentPropValue;
         }
-      }, tag.customVariable);
+      });
 
       var customVariables = qs.stringify(matchedVariables).replace(/&/g, ';');
       if (tag.customVariable.length) customVariables = ';' + customVariables;
@@ -152,9 +150,9 @@ Floodlight.prototype.track = function(track) {
         // you need to enable order ID reporting for sales tag inside dbl click UI if you want this to work properly
         var quantity = 0;
         if (track.products().length) {
-          each(function(product) {
+          track.products().forEach(product => {
             quantity += product.quantity || 0;
-          }, track.products());
+          });
         } else if (properties.quantity) {
           quantity = properties.quantity;
         }
@@ -171,16 +169,13 @@ Floodlight.prototype.track = function(track) {
       conversions.push(tagParams);
 
       return conversions;
-    },
-    [],
-    mappedEvents
-  );
+  }, [])
 
   // Fire each tag
-  each(function(tagParams) {
+  tags.forEach(tagParams => {
     if (tagParams._type === 'sales') return self.load('sales', tagParams);
     return self.load('counter', tagParams);
-  }, tags);
+  });
 };
 
 /**

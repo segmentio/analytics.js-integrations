@@ -10,7 +10,6 @@
 var integration = require('@segment/analytics.js-integration');
 var each = require('component-each');
 var is = require('is');
-var extend = require('@ndhoule/extend');
 var toISOString = require('@segment/to-iso-string');
 var toString = Object.prototype.toString; // in case this method has been overridden by the user
 
@@ -144,7 +143,7 @@ function clean(obj) {
 
       // arrays of objects (eg. `products` array)
       if (toString.call(value) === '[object Array]') {
-        ret = extend(ret, trample(k, value));
+        ret = {...ret, ...trample(k, value)};
         continue;
       }
 
@@ -154,7 +153,7 @@ function clean(obj) {
         continue;
       }
 
-      ret = extend(ret, trample(k, value));
+      ret = { ...ret, ...trample(k, value)};
     }
   }
   // json

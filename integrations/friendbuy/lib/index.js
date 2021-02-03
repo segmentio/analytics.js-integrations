@@ -7,7 +7,6 @@
 var integration = require('@segment/analytics.js-integration');
 var find = require('obj-case').find;
 var reject = require('reject');
-var each = require('@ndhoule/each');
 var Facade = require('segmentio-facade').Track;
 var normalize = require('to-no-case');
 var is = require('is');
@@ -86,12 +85,12 @@ FriendBuy.prototype.page = function(page) {
     // The parameters option is a collection of key-value pairs. These values are added to referral links for the associated widget to facilitate tracking and reporting on referral traffic.
     // The idea is to dynamically set values for defined keys by looking up properties by the provided fields
     var parameters = {};
-    each(function(pair) {
+    widgetSettings.parameters.forEach(function(pair) {
       var segmentKey = pair.key;
       var fbKey = pair.value;
       var value = page.proxy('properties.' + segmentKey);
       if (value) return (parameters[fbKey] = value);
-    }, widgetSettings.parameters);
+    });
 
     if (!is.empty(parameters)) config.parameters = parameters;
 
@@ -103,7 +102,7 @@ FriendBuy.prototype.page = function(page) {
 
   // Load site wide widgets additional if widget ID is provided
   if (this.options.siteWideWidgets.length) {
-    each(function(setting) {
+    this.options.siteWideWidgets.forEach(function(setting) {
       var widget = setting.value || setting || {};
       var commands = ['widget', widget.id];
       if (widget.selector) commands.push(widget.selector);
@@ -114,18 +113,18 @@ FriendBuy.prototype.page = function(page) {
         }
       };
       var parameters = {};
-      each(function(pair) {
+      widget.parameters.forEach(function(pair) {
         var segmentKey = pair.key;
         var fbKey = pair.value;
         var value = page.proxy('properties.' + segmentKey);
         if (value) return (parameters[fbKey] = value);
-      }, widget.parameters);
+      });
 
       if (!is.empty(parameters)) configs.parameters = parameters;
 
       commands.push(configs);
       window.friendbuy.push(commands);
-    }, this.options.siteWideWidgets);
+    });
   }
 };
 
@@ -178,7 +177,7 @@ FriendBuy.prototype.orderCompleted = function(track) {
   window.friendbuy.push(['track', 'order', orderDetail]);
 
   var orderList = [];
-  each(function(item) {
+  track.products().forEach(function(item) {
     var i = new Facade({ properties: item });
 
     if (i.sku()) {
@@ -190,7 +189,7 @@ FriendBuy.prototype.orderCompleted = function(track) {
         })
       );
     }
-  }, track.products());
+  });
 
   window.friendbuy.push(['track', 'products', orderList]);
 };
@@ -219,13 +218,13 @@ function get(events, name) {
   var ret = {};
   var pageName = normalize(name || '');
 
-  each(function(widget) {
+  events.forEach(function(widget) {
     if (widget.value && pageName === normalize(widget.value.name)) {
       ret = widget.value;
     } else if (pageName === normalize(widget.name)) {
       ret = widget;
     }
-  }, events);
+  });
 
   return ret;
 }

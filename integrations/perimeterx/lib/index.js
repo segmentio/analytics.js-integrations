@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var each = require('@ndhoule/each');
 
 /**
  * Expose `Perimeterx` integration.
@@ -67,9 +66,9 @@ Perimeterx.prototype.identify = function(identify) {
   var customTraits = this.options.customTraits;
   var traits = identify.traits();
 
-  each(function(trait, key) {
+  Object.keys(customTraits).forEach(key => {
     if (traits[key]) {
-      window[trait] = traits[key];
+      window[customTraits[key]] = traits[key];
     }
-  }, customTraits);
+  })
 };

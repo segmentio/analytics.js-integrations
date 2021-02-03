@@ -3,8 +3,6 @@
 var integration = require('@segment/analytics.js-integration');
 var tick = require('next-tick');
 var objCase = require('obj-case');
-var each = require('@ndhoule/each');
-var objectKeys = require('@ndhoule/keys');
 
 /**
  * Expose `Elevio` integration.
@@ -53,11 +51,11 @@ Elevio.prototype.identify = function(identify) {
 
   var removeTraits = ['id', 'name', 'firstName', 'lastName', 'email'];
 
-  each(function(traitItem) {
+  removeTraits.forEach(function(traitItem) {
     if (traits.hasOwnProperty(traitItem)) {
       objCase.del(traits, traitItem);
     }
-  }, removeTraits);
+  });
 
   var user = {};
   user.via = 'segment';
@@ -65,7 +63,7 @@ Elevio.prototype.identify = function(identify) {
   if (name) user.name = name;
   if (plan) user.plan = [plan];
   if (plan) user.groups = [plan];
-  if (objectKeys(traits).length > 0) user.traits = traits;
+  if (Object.keys(traits).length > 0) user.traits = traits;
   window._elev.user = user;
   if (typeof window._elev.setUser === 'function') {
     window._elev.setUser(user);

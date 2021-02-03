@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var clone = require('@ndhoule/clone');
 
 /**
  * Expose `Keen IO` integration.
@@ -144,7 +143,7 @@ Keen.prototype.identify = function(identify) {
   props = this.addons(props, identify);
   this.client.setGlobalProperties(function() {
     // Clone the props so the Keen Client can't manipulate the ref
-    return clone(props);
+    return { ...props };
   });
 };
 

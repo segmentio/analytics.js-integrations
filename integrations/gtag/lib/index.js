@@ -7,7 +7,6 @@
 var integration = require('@segment/analytics.js-integration');
 var Track = require('segmentio-facade').Track;
 var reject = require('reject');
-var defaults = require('@ndhoule/defaults');
 var extend = require('extend');
 
 /**
@@ -260,7 +259,11 @@ GTAG.prototype.track = function(track, params) {
     return;
   }
   var contextOpts = track.options(this.name);
-  var opts = defaults(params || {}, contextOpts);
+  var opts = params ? {
+    ...contextOpts,
+    ...params
+  } : contextOpts
+    
   var props = track.properties();
   props.event = event;
 

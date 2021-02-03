@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var useHttps = require('use-https');
-var each = require('@ndhoule/each');
 var is = require('is');
 
 /**
@@ -80,9 +79,11 @@ CleverTap.prototype.identify = function(identify) {
   var traits = identify.traits(traitAliases);
   // sdk does not accept objects
   var supportedTraits = {};
-  each(function(value, key) {
-    if (!is.object(value)) supportedTraits[key] = value;
-  }, traits);
+
+  Object.keys(traits).forEach(key => {
+    if (!is.object(traits[key])) supportedTraits[key] = traits[key];
+  })
+
   window.clevertap.profile.push({
     Site: supportedTraits
   });
@@ -112,9 +113,9 @@ CleverTap.prototype.track = function(track) {
   var props = track.properties();
   // sdk does not accept any objects or arrays
   var supportedProps = {};
-  each(function(value, key) {
-    if (!is.object(value) && !is.array(value)) supportedProps[key] = value;
-  }, props);
+  Object.keys(props).forEach(key => {
+    if (!is.object(props[key]) && !is.array(props[key])) supportedProps[key] = props[key];
+  })
   window.clevertap.event.push(track.event(), supportedProps);
 };
 

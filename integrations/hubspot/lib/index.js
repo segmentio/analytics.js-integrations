@@ -8,7 +8,6 @@ var Identify = require('segmentio-facade').Identify;
 var convert = require('@segment/convert-dates');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('_hsq');
-var each = require('@ndhoule/each');
 
 /**
  * Expose `HubSpot` integration.
@@ -147,9 +146,7 @@ function convertDates(properties) {
 
 function formatTraits(traits) {
   var ret = {};
-  each(function(value, key) {
-    // Using split/join due to IE 11 failing to properly support regex in str.replace()
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/@@replace
+  Object.keys(traits).forEach(key => {
     var k = key
       .toLowerCase()
       .split(' ')
@@ -166,8 +163,8 @@ function formatTraits(traits) {
       .join('_') // form feeds
       .split('\r')
       .join('_'); // Carriage returns
-    ret[k] = value;
-  }, traits);
+    ret[k] = traits[key];
+  })
 
   return ret;
 }

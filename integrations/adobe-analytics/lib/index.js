@@ -4,9 +4,9 @@
  * Dependencies
  */
 
+
 var integration = require('@segment/analytics.js-integration');
 var dot = require('obj-case');
-var each = require('@ndhoule/each');
 var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
@@ -275,7 +275,11 @@ AdobeAnalytics.prototype.page = function(page) {
   // Check if any properties match mapped eVar, prop, or hVar in options
   var props = extractProperties(page, this.options);
   // Attach them to window.s and push to dynamicKeys
-  each(update, props);
+
+  const propsKeys = Object.keys(props)
+  propsKeys.forEach(function(key) {
+    update(props[key], key)
+  })
 
   // Update `s.contextData`
   updateContextData(page, this.options);
@@ -451,7 +455,10 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   calculateTimestamp(msg, this.options);
 
   var mappedProps = extractProperties(msg, this.options);
-  each(update, mappedProps);
+  const mappedPropsKeys = Object.keys(mappedProps)
+  mappedPropsKeys.forEach(function(key) {
+    update(mappedProps[key], key)
+  })
 
   if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
 
@@ -559,27 +566,27 @@ function setEventsString(
 
   if (eventsMap.length > 0) {
     // iterate through event map and pull adobe events corresponding to the incoming segment event
-    each(function(eventMapping) {
+    eventsMap.forEach(function(eventMapping) {
       if (eventMapping.segmentEvent.toLowerCase() === event) {
-        each(function(event) {
+        eventMapping.adobeEvents.forEach(function(event) {
           if (adobeEvents.indexOf(event) <= 0) {
             adobeEvents.push(event);
           }
         }, eventMapping.adobeEvents);
       }
-    }, eventsMap);
+    });
   }
 
   if (merchEventsMap.length > 0) {
     // append adobeEvents with merchMap (currency and counter events)
-    each(function(merchMapping) {
+    merchEventsMap.forEach(function(merchMapping) {
       var merchMap = mapMerchEvents(merchMapping, properties);
-      each(function(merchEvent) {
+      merchMap.forEach(function(merchEvent) {
         if (adobeEvents.indexOf(merchEvent) <= 0) {
           adobeEvents.push(merchEvent);
         }
-      }, merchMap);
-    }, merchEventsMap);
+      });
+    });
   }
 
   adobeEvents = adobeEvents.filter(function(item) {
@@ -609,9 +616,10 @@ function updateContextData(facade, options) {
   var propertyPrefix = options.customDataPrefix
     ? options.customDataPrefix + '.'
     : '';
-  each(function(value, key) {
-    addContextDatum(propertyPrefix + key, value);
-  }, properties);
+
+  Object.keys(properties).forEach(function(key) {
+    addContextDatum(propertyPrefix + key, properties[key])
+  })
 
   // Context variables named in settings.
   //
@@ -619,21 +627,26 @@ function updateContextData(facade, options) {
   // look at *all* our mappings, but only the `contextValues` mapping should be
   // used here.
   var contextProperties = extractProperties(facade, options, 'context');
-  each(function(value, key) {
-    if (!key || value === undefined || value === null || value === '') {
+  Object.keys(contextProperties).forEach(function(key) {
+    if (
+      !key ||
+      contextProperties[key] === undefined ||
+      contextProperties[key] === null ||
+      contextProperties[key] === ''
+    ) {
       return;
     }
 
     // If context data values are booleans then stringify them.
     // Adobe's SDK seems to reject a false boolean value. Stringifying is
     // acceptable since these values are appended as query strings anyway.
-    if (typeof value === 'boolean') {
-      addContextDatum(key, value.toString());
+    if (typeof contextProperties[key] === 'boolean') {
+      addContextDatum(key, contextProperties[key].toString());
       return;
     }
 
-    addContextDatum(key, value);
-  }, contextProperties);
+    addContextDatum(key, contextProperties[key]);
+  });
 }
 
 /**
@@ -776,9 +789,9 @@ function getMerchConfig(msg, settings) {
 */
 
 function dedupeMerchEventSettings(configMerchEvents) {
-  var dedupeSettings = {};
-  each(function(eventObject) {
-    var existingEventObject = dedupeSettings[eventObject.adobeEvent];
+  const dedupeSettings = {};
+  configMerchEvents.forEach(function(eventObject) {
+    const existingEventObject = dedupeSettings[eventObject.adobeEvent];
     if (
       !existingEventObject ||
       (existingEventObject.valueScope === 'product' &&
@@ -786,7 +799,7 @@ function dedupeMerchEventSettings(configMerchEvents) {
     ) {
       dedupeSettings[eventObject.adobeEvent] = eventObject;
     }
-  }, configMerchEvents);
+  });
 
   var res = [];
   for (var adobeEvent in dedupeSettings) {
@@ -805,9 +818,9 @@ function dedupeMerchEventSettings(configMerchEvents) {
  */
 
 function clearKeys(keys) {
-  each(function(linkVar) {
+  keys.forEach(linkVar => {
     delete window.s[linkVar];
-  }, keys);
+  });
   // Clears the array passed in
   keys.length = 0; //eslint-disable-line
 }
@@ -844,7 +857,10 @@ function extractProperties(facade, options, propType) {
 
   // Iterate through each variable mappings to find matching props
   for (var x = 0; x < mappings.length; x++) {
-    each(match, mappings[x]);
+    const keys = Object.keys(mappings[x])
+    keys.forEach(key => {
+      match(mappings[x][key], key)
+    })
   }
 
   function match(mappedValue, mappedKey) {
@@ -1054,7 +1070,7 @@ function mapProductEvents(merchEvents, props, product) {
   var merchMap = [];
   var eventString;
 
-  each(function(event) {
+  merchEvents.forEach(event => {
     if (event.valueScope === 'product') {
       // Respect what the customer configures in the setting.
       // ex. products.cart_id
@@ -1076,7 +1092,7 @@ function mapProductEvents(merchEvents, props, product) {
         merchMap.push(eventString);
       }
     }
-  }, merchEvents);
+  });
 
   return merchMap.join('|');
 }
@@ -1104,7 +1120,7 @@ function mapProductEvents(merchEvents, props, product) {
 function mapProductEVars(productEVars, props, product) {
   var eVars = [];
 
-  each(function(eVar) {
+  productEVars.forEach(eVar => {
     // Respect what the customer configures in the setting. ex. products.cart_id
     // Only check products if "products." configured in settings.
     if (eVar.key.startsWith('products.')) {
@@ -1115,7 +1131,7 @@ function mapProductEVars(productEVars, props, product) {
     } else if (eVar.key in props) {
       eVars.push(eVar.value + '=' + props[eVar.key]);
     }
-  }, productEVars);
+  });
 
   return eVars.join('|');
 }
@@ -1177,10 +1193,12 @@ function isFunction(fn) {
 /* eslint-disable */
 function lowercaseKeys(obj) {
   obj = obj || {};
-  each(function(value, key) {
-    delete obj[key];
-    obj[key.toLowerCase()] = value;
-  }, obj);
+
+  Object.keys(obj).forEach(key => {
+    obj[key.toLowerCase()] = obj[key];
+    delete obj[key]
+  })
+
   return obj;
 }
 /* eslint-disable */
@@ -1527,21 +1545,23 @@ function createCustomVideoMetadataContext(track, options) {
 
   //Check properties & context object for `settings.contextValue` mappings to assign custom metadata
   var extractedProperties = extractProperties(track, options, 'mergedPropContext');
-  each(function(value, key) {
-    if (!key || value === undefined || value === null || value === '') {
+
+  Object.keys(extractedProperties).forEach(key => {
+    if (!key || extractedProperties[key] === undefined || extractedProperties[key] === null || extractedProperties[key] === '') {
       return;
     }
 
     // If context data values are booleans then stringify them.
     // Adobe's SDK seems to reject a false boolean value. Stringifying is
     // acceptable since these values are appended as query strings anyway.
-    if (typeof value === 'boolean') {
-      contextData[key] = value.toString();
+    if (typeof extractedProperties[key] === 'boolean') {
+      contextData[key] = extractedProperties[key].toString();
       return;
     }
 
-    contextData[key] = value;
-  }, extractedProperties);
+    contextData[key] = extractedProperties[key];
+  })
+
   return contextData;
 }
 

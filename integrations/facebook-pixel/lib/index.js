@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var each = require('@ndhoule/each');
 var reject = require('reject');
 var camel = require('to-camel-case');
 var is = require('is');
@@ -174,16 +173,16 @@ FacebookPixel.prototype.track = function(track) {
   // standard conversion events, mapped to one of 9 standard events
   // "Purchase" requires a currency parameter;
   // send full transformed payload
-  each(function(event) {
+  standard.forEach(function(event) {
     if (event === 'Purchase') payload.currency = track.currency(); // defaults to 'USD'
     window.fbq('trackSingle', self.options.pixelId, event, payload, {
       eventID: track.proxy('messageId')
     });
-  }, standard);
+  });
 
   // legacy conversion events — mapped to specific "pixelId"s
   // send only currency and value
-  each(function(event) {
+  legacy.forEach(function(event) {
     window.fbq(
       'trackSingle',
       self.options.pixelId,
@@ -194,7 +193,7 @@ FacebookPixel.prototype.track = function(track) {
       },
       { eventID: track.proxy('messageId') }
     );
-  }, legacy);
+  });
 };
 
 /**
@@ -258,7 +257,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
   );
 
   // fall through for mapped legacy conversions
-  each(function(event) {
+  this.legacyEvents(track.event()).forEach(function(event) {
     window.fbq(
       'trackSingle',
       self.options.pixelId,
@@ -269,7 +268,7 @@ FacebookPixel.prototype.productListViewed = function(track) {
       },
       { eventID: track.proxy('messageId') }
     );
-  }, this.legacyEvents(track.event()));
+  });
 };
 
 /**
@@ -312,7 +311,7 @@ FacebookPixel.prototype.productViewed = function(track) {
   );
 
   // fall through for mapped legacy conversions
-  each(function(event) {
+  this.legacyEvents(track.event()).forEach(function(event) {
     window.fbq(
       'trackSingle',
       self.options.pixelId,
@@ -325,7 +324,7 @@ FacebookPixel.prototype.productViewed = function(track) {
       },
       { eventID: track.proxy('messageId') }
     );
-  }, this.legacyEvents(track.event()));
+  });
 };
 
 /**
@@ -368,7 +367,7 @@ FacebookPixel.prototype.productAdded = function(track) {
   );
 
   // fall through for mapped legacy conversions
-  each(function(event) {
+  this.legacyEvents(track.event()).forEach(function(event) {
     window.fbq(
       'trackSingle',
       self.options.pixelId,
@@ -381,7 +380,7 @@ FacebookPixel.prototype.productAdded = function(track) {
       },
       { eventID: track.proxy('messageId') }
     );
-  }, this.legacyEvents(track.event()));
+  });
 };
 
 /**
@@ -438,7 +437,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
   );
 
   // fall through for mapped legacy conversions
-  each(function(event) {
+  this.legacyEvents(track.event()).forEach(function(event) {
     window.fbq(
       'trackSingle',
       self.options.pixelId,
@@ -449,7 +448,7 @@ FacebookPixel.prototype.orderCompleted = function(track) {
       },
       { eventID: track.proxy('messageId') }
     );
-  }, this.legacyEvents(track.event()));
+  });
 };
 
 FacebookPixel.prototype.productsSearched = function(track) {
@@ -470,7 +469,7 @@ FacebookPixel.prototype.productsSearched = function(track) {
   );
 
   // fall through for mapped legacy conversions
-  each(function(event) {
+  this.legacyEvents(track.event()).forEach(function(event) {
     window.fbq(
       'trackSingle',
       self.options.pixelId,
@@ -481,7 +480,7 @@ FacebookPixel.prototype.productsSearched = function(track) {
       },
       { eventID: track.proxy('messageId') }
     );
-  }, this.legacyEvents(track.event()));
+  });
 };
 
 FacebookPixel.prototype.checkoutStarted = function(track) {
@@ -532,7 +531,7 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
   );
 
   // fall through for mapped legacy conversions
-  each(function(event) {
+  this.legacyEvents(track.event()).forEach(function(event) {
     window.fbq(
       'trackSingle',
       self.options.pixelId,
@@ -543,7 +542,7 @@ FacebookPixel.prototype.checkoutStarted = function(track) {
       },
       { eventID: track.proxy('messageId') }
     );
-  }, this.legacyEvents(track.event()));
+  });
 };
 
 /**

@@ -10,7 +10,6 @@ var tick = require('next-tick');
 var Track = require('segmentio-facade').Track;
 var foldl = require('@ndhoule/foldl');
 var remove = require('obj-case').del;
-var extend = require('@ndhoule/extend');
 
 /**
  * Expose `Klaviyo` integration.
@@ -142,7 +141,7 @@ Klaviyo.prototype.orderCompleted = function(track) {
   // strip standard props and leave custom props only
   var topLevelCustomProps = filter(track, whitelist);
 
-  payload = extend(payload, topLevelCustomProps);
+  payload = { ...payload, ...topLevelCustomProps };
 
   push('track', track.event(), payload);
 
@@ -180,7 +179,7 @@ function filter(facade, list) {
  */
 
 function formatItems(track) {
-  return foldl(
+  return track.products().reduce(
     function(payloads, props) {
       var product = new Track({ properties: props });
       var itemWhitelist = [
@@ -217,13 +216,12 @@ function formatItems(track) {
       var identifier = product.productId() || product.id() || product.sku();
       item.$event_id = track.orderId() + '_' + identifier;
 
-      item = extend(item, itemCustomProps);
+      item = { ...item, ...itemCustomProps };
       payloads.push(item);
 
       return payloads;
     },
-    [],
-    track.products()
+    []
   );
 }
 
@@ -236,7 +234,7 @@ function formatItems(track) {
  */
 
 function formatProducts(products) {
-  return foldl(
+  return products.reduce(
     function(payloads, props) {
       var product = new Track({ properties: props });
       var whitelist = [
@@ -268,15 +266,14 @@ function formatProducts(products) {
         ProductURL: product.proxy('properties.productUrl'),
         ImageURL: product.proxy('properties.imageUrl')
       });
-      item = extend(item, customProps);
+      item = { ...item, ...customProps };
       payloads.items.push(item);
       payloads.categories.push(product.category());
       payloads.names.push(product.name());
 
       return payloads;
     },
-    { categories: [], names: [], items: [] },
-    products
+    { categories: [], names: [], items: [] }
   );
 }
 
@@ -289,15 +286,14 @@ function formatProducts(products) {
  */
 
 function reject(obj) {
-  return foldl(
-    function(res, val, key) {
+  return Object.keys(obj).reduce(
+    function(res, key) {
       var result = res;
-      if (val !== undefined) {
-        result[key] = val;
+      if (obj[key] !== undefined) {
+        result[key] = obj[key];
       }
       return result;
     },
-    {},
-    obj
+    {}
   );
 }

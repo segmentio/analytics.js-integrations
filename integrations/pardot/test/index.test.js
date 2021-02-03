@@ -1,7 +1,6 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
 var qs = require('component-querystring');
 var sandbox = require('@segment/clear-env');
@@ -116,17 +115,15 @@ describe('Pardot', function() {
 
 // TODO: jank way to check
 function madeRequestWith(variables) {
-  variables = extend(
-    {},
-    {
-      account_id: '77777',
-      campaign_id: '99999',
-      pi_opt_in: undefined,
-      ver: 3,
-      visitor_id: undefined
-    },
-    variables
-  );
+  variables = {
+    account_id: '77777',
+    campaign_id: '99999',
+    pi_opt_in: undefined,
+    ver: 3,
+    visitor_id: undefined,
+    ...variables
+  }
+  
   return !!document.querySelector(
     'script[src="http://pi.pardot.com/analytics?' +
       qs.stringify(variables) +

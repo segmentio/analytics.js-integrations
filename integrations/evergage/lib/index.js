@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('_aaq');
 
@@ -62,9 +61,9 @@ Evergage.prototype.page = function(page) {
   var name = page.name();
   if (name) push('namePage', name);
 
-  each(function(value, key) {
-    push('setCustomField', key, value, 'page');
-  }, props);
+  Object.keys(props).forEach(key => {
+    push('setCustomField', key, props[key], 'page');
+  })
 
   window.Evergage.init(true);
 };
@@ -87,9 +86,9 @@ Evergage.prototype.identify = function(identify) {
     name: 'userName'
   });
 
-  each(function(value, key) {
-    push('setUserField', key, value, 'page');
-  }, traits);
+  Object.keys(traits).forEach(key => {
+    push('setUserField', key, traits[key], 'page');
+  })
 };
 
 /**
@@ -105,9 +104,9 @@ Evergage.prototype.group = function(group) {
   if (!id) return;
 
   push('setCompany', id);
-  each(function(value, key) {
-    push('setAccountField', key, value, 'page');
-  }, props);
+  Object.keys(props).forEach(key => {
+    push('setAccountField', key, props[key], 'page');
+  })
 };
 
 /**

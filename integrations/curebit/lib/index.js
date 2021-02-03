@@ -7,7 +7,6 @@
 var Identify = require('segmentio-facade').Identify;
 var Track = require('segmentio-facade').Track;
 var bind = require('component-bind');
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var iso = require('@segment/to-iso-string');
 var push = require('global-queue')('_curebitq');
@@ -167,7 +166,7 @@ Curebit.prototype.orderCompleted = function(track) {
     userId: user.id()
   });
 
-  each(function(product) {
+  products.forEach(product => {
     var track = new Track({ properties: product });
     items.push({
       product_id: track.productId() || track.id() || track.sku(),
@@ -177,7 +176,7 @@ Curebit.prototype.orderCompleted = function(track) {
       title: track.name(),
       url: product.url
     });
-  }, products);
+  });
 
   push('register_purchase', {
     order_date: iso(props.date || new Date()),

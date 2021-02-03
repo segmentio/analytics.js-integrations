@@ -6,7 +6,6 @@
 
 var Identify = require('segmentio-facade').Identify;
 var Track = require('segmentio-facade').Track;
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var qs = require('component-querystring');
 
@@ -79,7 +78,7 @@ Bronto.prototype.orderCompleted = function(track) {
   var email = identify.email();
 
   // items
-  each(function(product) {
+  products.forEach(product => {
     var track = new Track({ properties: product });
     items.push({
       item_id: track.productId() || track.id() || track.sku(),
@@ -87,7 +86,7 @@ Bronto.prototype.orderCompleted = function(track) {
       quantity: track.quantity(),
       amount: track.price()
     });
-  }, products);
+  })
 
   // add conversion
   this.bta.addOrder({

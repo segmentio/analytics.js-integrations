@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-optimizely",
   "description": "The Optimizely analytics.js integration.",
-  "version": "3.5.0",
+  "version": "3.5.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -24,11 +24,7 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/each": "^2.0.1",
-    "@ndhoule/foldl": "^2.0.1",
-    "@ndhoule/keys": "^2.0.0",
-    "@ndhoule/values": "^2.0.1",
-    "@segment/analytics.js-integration": "^3.0.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "global-queue": "^1.0.1",
     "next-tick": "^1.0.0"
   },

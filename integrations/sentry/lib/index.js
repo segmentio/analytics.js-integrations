@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var foldl = require('@ndhoule/foldl');
 
 /**
  * Expose `Sentry` integration.
@@ -141,20 +140,20 @@ Sentry.prototype.identify = function(identify) {
  */
 
 function reject(obj) {
-  return foldl(
-    function(result, val, key) {
+  return Object.keys(obj).reduce(
+    function(result, key) {
       var payload = result;
 
       // strip any null or empty string values
-      if (val !== null && val !== '' && !is.array(val)) {
-        payload[key] = val;
+      if (obj[key] !== null && obj[key] !== '' && !is.array(obj[key])) {
+        payload[key] = obj[key];
       }
       // strip any empty arrays
-      if (is.array(val)) {
+      if (is.array(obj[key])) {
         var ret = [];
         // strip if there's only an empty string or null in the array since the settings UI lets you save additional rows even though some may be empty strings
-        for (var x = 0; x < val.length; x++) {
-          if (val[x] !== null && val[x] !== '') ret.push(val[x]);
+        for (var x = 0; x < obj[key].length; x++) {
+          if (obj[key][x] !== null && obj[key][x] !== '') ret.push(obj[key][x]);
         }
         if (!is.empty(ret)) {
           payload[key] = ret;
@@ -162,7 +161,6 @@ function reject(obj) {
       }
       return payload;
     },
-    {},
-    obj
+    {}
   );
 }

@@ -5,10 +5,8 @@
 // https://developer.omniture.com/en_US/forum/general-topic-forum/difference-between-s-t-and-s-t1
 
 var dot = require('obj-case');
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var iso = require('@segment/to-iso-string');
-var map = require('@ndhoule/map');
 var type = require('type-of');
 
 /**
@@ -199,7 +197,7 @@ Omniture.prototype.track = function(track) {
     } else {
       var products = properties.products;
       if (products && type(products) === 'array') {
-        var productStrings = map(formatProduct, products);
+        var productStrings = products.map(formatProduct);
         update(productStrings.join(', '), 'products');
       }
     }
@@ -207,7 +205,9 @@ Omniture.prototype.track = function(track) {
 
   // Set props and eVars for event properties
   var props = extractProperties(properties, this.options);
-  each(update, props);
+  Object.keys(props).forEach(key => {
+    update(props[key], key)
+  })
 
   // Set eVar for event name
   var eventEVar = dot(this.options.eVars, track.event());
@@ -279,7 +279,9 @@ Omniture.prototype.page = function(page) {
   }
 
   var props = extractProperties(properties, this.options);
-  each(update, props);
+  Object.keys(props).forEach(key => {
+    update(props[key], key)
+  })
 
   // actually make the "page" request, just a single "t" no "tl"
   window.s.t();
@@ -299,7 +301,7 @@ function aliasEvent(name, events) {
   var aliased = null;
 
   // First attempt to look through omniture events
-  each(function(value, key) {
+  Object.keys(omnitureEventMap).forEach(key => {
     if (name === key) {
       aliased = key;
       return;
@@ -313,7 +315,7 @@ function aliasEvent(name, events) {
         return;
       }
     }
-  }, omnitureEventMap);
+  })
 
   if (aliased) return aliased;
 
@@ -362,9 +364,9 @@ function isEmptyString(str) {
  */
 
 function clearKeys(keys) {
-  each(function(linkVar) {
+  keys.forEach(function(linkVar) {
     delete window.s[linkVar];
-  }, keys);
+  });
   keys.length = 0;
 }
 
@@ -380,30 +382,30 @@ function extractProperties(props, options) {
   var result = {};
 
   // 1. map eVars
-  each(function(mappedValue, mappedKey) {
-    var value = dot(props, mappedKey);
+  Object.keys(options.eVars).forEach(key => {
+    var value = dot(props, key);
     // for backwards compatibility
-    if (value != null) result[mappedValue] = value;
-  }, options.eVars);
+    if (value != null) result[options.eVars[key]] = value;
+  })
 
   // 2. map props
-  each(function(mappedValue, mappedKey) {
-    var value = dot(props, mappedKey);
-    if (value != null) result[mappedValue] = value;
-  }, options.props);
+  Object.keys(options.props).forEach(key => {
+    var value = dot(props, key);
+    if (value != null) result[options.props[key]] = value;
+  })
 
   // 3. map hVars
-  each(function(mappedValue, mappedKey) {
-    var value = dot(props, mappedKey);
-    if (value != null) result[mappedValue] = value;
-  }, options.hVars);
+  Object.keys(options.hVars).forEach(key => {
+    var value = dot(props, key);
+    if (value != null) result[options.hVars[key]] = value;
+  })
 
   // 4. map basic properties
   // they don't have a specific mapping, but
   // named it like omniture does
-  each(function(value, key) {
+  Object.keys(props).forEach(key => {
     if (/prop\d+/i.test(key) || /eVar\d+/i.test(key) || /hier\d+/i.test(key)) {
-      result[key] = value;
+      result[key] = props[key];
       return;
     }
     var prop = dot(options.props, key);
@@ -411,10 +413,10 @@ function extractProperties(props, options) {
     var hVar = dot(options.hVars, key);
     // Add case for mirroring a prop post check.
     if (!eVar && prop) eVar = options.eVars[prop];
-    if (prop) result[prop] = value;
-    if (eVar) result[eVar] = value;
-    if (hVar) result[hVar] = value;
-  }, props);
+    if (prop) result[prop] = props[key];
+    if (eVar) result[eVar] = props[key];
+    if (hVar) result[hVar] = props[key];
+  })
 
   return result;
 }
@@ -429,9 +431,9 @@ function extractProperties(props, options) {
 
 function lowercaseKeys(obj) {
   obj = obj || {};
-  each(function(value, key) {
+  Object.keys(obj).forEach(key => {
+    obj[key.toLowerCase()] = obj[key];
     delete obj[key];
-    obj[key.toLowerCase()] = value;
-  }, obj);
+  })
   return obj;
 }

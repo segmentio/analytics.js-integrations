@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('$CVO');
 
@@ -62,13 +61,13 @@ Convertro.prototype.track = function(track) {
   var events = this.events(track.event());
   var revenue = track.revenue();
   var total = track.total();
-  each(function(type) {
+  events.forEach(type => {
     push('trackEvent', {
       amount: total || revenue,
       id: track.orderId(),
       type: type
     });
-  }, events);
+  });
 };
 
 /**

@@ -6,7 +6,6 @@
 
 var Page = require('segmentio-facade').Page;
 var convert = require('@segment/convert-dates');
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
 var iso = require('@segment/to-iso-string');
 
@@ -154,7 +153,7 @@ Totango.prototype.go = function(options) {
   };
 
   options = options || {};
-  options = extend({}, defs, options);
+  options = { ...defs, ...options };
 
   window.totango.go(options);
 };

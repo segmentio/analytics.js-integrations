@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('_fbq');
 
@@ -69,10 +68,10 @@ Facebook.prototype.track = function(track) {
   var revenue = track.revenue() || 0;
   var self = this;
 
-  each(function(event) {
+  events.forEach(function(event) {
     push('track', event, {
       currency: self.options.currency,
       value: revenue.toFixed(2)
     });
-  }, events);
+  });
 };

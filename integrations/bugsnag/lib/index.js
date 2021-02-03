@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var isObject = require('isobject');
-var extend = require('@ndhoule/extend');
 
 /**
  * UMD ?
@@ -81,5 +80,7 @@ Bugsnag.prototype.loaded = function() {
 
 Bugsnag.prototype.identify = function(identify) {
   window.Bugsnag.user = window.Bugsnag.user || {};
-  extend(window.Bugsnag.user, identify.traits());
+  window.Bugsnag.user = {
+    ...window.Bugsnag.user, ...identify.traits()
+  };
 };

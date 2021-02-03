@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('_errs');
 
@@ -68,5 +67,8 @@ Errorception.prototype.identify = function(identify) {
   var traits = identify.traits();
   window._errs = window._errs || [];
   window._errs.meta = window._errs.meta || {};
-  extend(window._errs.meta, traits);
+  window._errs.meta = {
+    ...window._errs.meta,
+    ...traits
+  }
 };

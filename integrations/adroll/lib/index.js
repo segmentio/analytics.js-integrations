@@ -4,10 +4,7 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
-var foldl = require('@ndhoule/foldl');
 var integration = require('@segment/analytics.js-integration');
-var map = require('@ndhoule/map');
 var snake = require('to-snake-case');
 var useHttps = require('use-https');
 
@@ -103,7 +100,7 @@ AdRoll.prototype.track = function(track) {
     // If this is an unmapped event, fall back on a snakeized event name
     if (!events.length) events = [track.event()];
     // legacy (v1) behavior is to snakeize all mapped `events` values
-    events = map(snake, events);
+    events = events.map(snake);
   }
 
   if (userId) data.user_id = userId;
@@ -133,7 +130,7 @@ AdRoll.prototype.productViewed = AdRoll.prototype.productAdded = function(
     // If this is an unmapped event, fall back on a snakeized event name
     if (!events.length) events = [track.event()];
     // legacy (v1) behavior is to snakeize all mapped `events` values
-    events = map(snake, events);
+    events = events.map(snake);
   }
 
   if (userId) data.user_id = userId;
@@ -165,7 +162,7 @@ AdRoll.prototype.orderCompleted = function(track) {
     // If this is an unmapped event, fall back on a snakeized event name
     if (!events.length) events = [track.event()];
     // legacy (v1) behavior is to snakeize all mapped `events` values
-    events = map(snake, events);
+    events = events.map(snake);
   }
 
   if (userId) data.user_id = userId;
@@ -181,11 +178,12 @@ AdRoll.prototype.orderCompleted = function(track) {
  */
 
 function sendConversion(events, d) {
-  each(function(segmentId) {
-    var data = d;
-    data.adroll_segments = segmentId;
+  const eventsKeys = Object.keys(events)
+  eventsKeys.forEach(key => {
+    const data = d
+    data.adroll_segments = events[key];
     window.__adroll.record_user(data);
-  }, events);
+  })
 }
 
 /**
@@ -197,11 +195,13 @@ function sendConversion(events, d) {
 
 function formulateData(track, alias) {
   var aliases = alias || {};
-  var ret = foldl(function(props, val, key) {
-    var properties = props;
-    properties[snake(key)] = val;
-    return properties;
-  }, track.properties(aliases));
 
-  return ret;
+  var obj = track.properties(aliases)
+  var keys = Object.keys(obj)
+
+  return keys.reduce(function (props, key) {
+    var properties = props;
+    properties[snake(key)] = obj[key];
+    return properties;
+  }, {})
 }

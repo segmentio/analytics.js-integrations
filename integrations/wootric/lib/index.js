@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var foldl = require('@ndhoule/foldl');
 var is = require('is');
 var integration = require('@segment/analytics.js-integration');
 var omit = require('omit');
@@ -177,14 +176,13 @@ function survey(email, createdAt, properties, eventName) {
   window.wootricSettings.event_name = eventName;
 
   // Convert keys to Wootric format
-  var newProperties = foldl(
-    function(results, value, key) {
+  var newProperties = Object.keys(properties).reduce(
+    function(results,  key) {
       var r = results;
-      r[convertKey(key, value)] = is.date(value) ? convertDate(value) : value;
+      r[convertKey(key, properties[key])] = is.date(properties[key]) ? convertDate(properties[key]) : properties[key];
       return r;
     },
-    {},
-    properties
+    {}
   );
 
   window.wootricSettings.properties = omit(

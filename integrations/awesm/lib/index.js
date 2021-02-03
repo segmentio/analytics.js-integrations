@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 
 /**
@@ -54,7 +53,7 @@ Awesm.prototype.loaded = function() {
 Awesm.prototype.track = function(track) {
   var user = this.analytics.user();
   var goals = this.events(track.event());
-  each(function(goal) {
+  goals.forEach(goal => {
     window.AWESM.convert(goal, track.cents(), null, user.id());
-  }, goals);
+  })
 };

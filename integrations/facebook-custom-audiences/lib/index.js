@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('_fbq');
-var foldl = require('@ndhoule/foldl');
 var Track = require('segmentio-facade').Track;
 
 /**
@@ -124,15 +123,14 @@ FacebookCustomAudiences.prototype.productAdded = function(track) {
  */
 
 FacebookCustomAudiences.prototype.orderCompleted = function(track) {
-  var contentIds = foldl(
+  var contentIds = track.products().reduce(
     function(ret, product) {
       var item = new Track({ properties: product });
       var id = item.productId() || item.id() || item.sku() || '';
       ret.push(id);
       return ret;
     },
-    [],
-    track.products()
+    []
   );
 
   push('track', 'Purchase', {

@@ -10,7 +10,6 @@ var del = require('obj-case').del;
 var includes = require('@ndhoule/includes');
 var integration = require('@segment/analytics.js-integration');
 var iso = require('@segment/to-iso-string');
-var pick = require('@ndhoule/pick');
 var is = require('is');
 var indexOf = require('component-indexof');
 
@@ -505,4 +504,15 @@ function unionArrays(x, y) {
     obj[y[i]] = y[i];
   }
   return Object.keys(obj);
+}
+
+function pick(props, o) {
+  const keys = Object.keys(o).filter(k => props.includes(k))
+  const ret = {}
+
+  keys.forEach(k => {
+    ret[k] = o[k]
+  })
+
+  return ret
 }

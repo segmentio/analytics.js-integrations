@@ -2,7 +2,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var each = require('@ndhoule/each');
 
 /**
  * Expose `Hindsight`
@@ -85,10 +84,11 @@ Hindsight.prototype.identify = function(identify) {
 
 function format(props) {
   var ret = {};
-  each(function(value, key) {
-    ret[key] = is.object(value) ? window.JSON.stringify(value) : value;
-    return ret[key];
-  }, props);
+  Object.keys(props).forEach(key => {
+    return (ret[key] = is.object(props[key])
+      ? window.JSON.stringify(props[key])
+      : props[key]);
+  });
 
   return ret;
 }

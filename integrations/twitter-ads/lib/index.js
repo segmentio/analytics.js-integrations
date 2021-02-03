@@ -5,12 +5,9 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var defaults = require('@ndhoule/defaults');
-var foldl = require('@ndhoule/foldl');
 var each = require('component-each');
 var get = require('obj-case');
 var Track = require('segmentio-facade').Track;
-var extend = require('@ndhoule/extend');
 
 /**
  * Expose `TwitterAds`.
@@ -123,7 +120,7 @@ TwitterAds.prototype.productViewed = function(product) {
       content_category: product.category()
     };
 
-    payload = extend(payload, setStatus(props));
+    payload = { ...payload, ...setStatus(props) };
 
     window.twq('track', 'ViewContent', payload);
   }
@@ -150,7 +147,7 @@ TwitterAds.prototype.productAdded = function(product) {
       content_name: product.name()
     };
 
-    payload = extend(payload, setStatus(props));
+    payload = { ...payload, ...setStatus(props) };
 
     window.twq('track', 'AddToCart', payload);
   }
@@ -168,9 +165,9 @@ TwitterAds.prototype.productAdded = function(product) {
 TwitterAds.prototype.orderCompleted = function(track) {
   var identifier = this.options.identifier; // 'sku' or 'productId'
   // add up all the quantities of each product
-  var sumOfQuantities = foldl(function(cartQuantity, product) {
+  var sumOfQuantities = track.products().reduce(function(cartQuantity, product) {
     return cartQuantity + (get(product, 'quantity') || 0);
-  }, 0, track.products());
+  }, 0);
 
   this.fireLegacyConversionTags(track, { quantity: sumOfQuantities });
 
@@ -187,17 +184,17 @@ TwitterAds.prototype.orderCompleted = function(track) {
 
     if (track.revenue()) payload.value = track.revenue().toFixed(2);
 
-    payload = extend(payload, setStatus(track.properties()));
+    payload = { ...payload, ...setStatus(track.properties()) };
 
     // Content Ids and Name needs some data massaging
-    var content = foldl(function(ret, item) {
+    var content = track.products().reduce(function(ret, item) {
       var product = new Track({ properties: item });
       var contentId = product[identifier]();
       ret.ids.push(contentId);
       ret.names.push(product.name());
 
       return ret;
-    }, { ids: [], names: [] }, track.products());
+    }, { ids: [], names: [] });
 
     // Sorting for browser consistency
     payload.content_ids = content.ids.sort();
@@ -228,7 +225,7 @@ TwitterAds.prototype.productAddedToWishlist = function(product) {
       content_ids: [product[identifier]()]
     };
 
-    payload = extend(payload, setStatus(props));
+    payload = { ...payload, ...setStatus(props) };
 
     window.twq('track', 'AddToWishlist', payload);
   }
@@ -245,9 +242,9 @@ TwitterAds.prototype.productAddedToWishlist = function(product) {
 
 TwitterAds.prototype.checkoutStarted = function(track) {
   // add up all the quantities of each product
-  var sumOfQuantities = foldl(function(cartQuantity, product) {
+  var sumOfQuantities = track.products().reduce(function(cartQuantity, product) {
     return cartQuantity + (get(product, 'quantity') || 0);
-  }, 0, track.products());
+  }, 0);
 
   this.fireLegacyConversionTags(track, { quantity: sumOfQuantities });
 
@@ -255,7 +252,7 @@ TwitterAds.prototype.checkoutStarted = function(track) {
     var identifier = this.options.identifier; // sku or productId
 
     // Content Ids and Name needs some data massaging
-    var content = foldl(function(ret, item) {
+    var content = track.products().reduce(function(ret, item) {
       var product = new Track({ properties: item });
       var contentId = product[identifier]();
       ret.ids.push(contentId);
@@ -263,7 +260,7 @@ TwitterAds.prototype.checkoutStarted = function(track) {
       ret.categories.push(product.category());
 
       return ret;
-    }, { ids: [], names: [], categories: [] }, track.products());
+    }, { ids: [], names: [], categories: [] });
 
     // Sorting for browser consistency
     var payload = {
@@ -272,7 +269,7 @@ TwitterAds.prototype.checkoutStarted = function(track) {
       content_category: content.categories.join(', ')
     };
 
-    payload = extend(payload, setStatus(track.properties()));
+    payload = { ...payload, ...setStatus(track.properties()) };
 
     window.twq('track', 'InitiateCheckout', payload);
   }
@@ -290,7 +287,7 @@ TwitterAds.prototype.checkoutStarted = function(track) {
 TwitterAds.prototype.paymentInfoEntered = function(track) {
   this.fireLegacyConversionTags(track);
 
-  var payload = extend({}, setStatus(track.properties()));
+  var payload = { ...setStatus(track.properties()) };
 
   if (this.options.universalTagPixelId) window.twq('track', 'AddPaymentInfo', payload);
 };
@@ -317,7 +314,10 @@ TwitterAds.prototype.fireLegacyConversionTags = function(track, override) {
     };
 
     // Allow for overriding default tag params mapping
-    if (override) tagParams = defaults(override, tagParams);
+    if (override) tagParams = {
+      ...tagParams,
+      ...override
+    }
 
     self.load('singleTag', tagParams);
   });

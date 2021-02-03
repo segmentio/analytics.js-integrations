@@ -4,10 +4,6 @@
  * Module dependencies.
  */
 
-var keys = require('@ndhoule/keys');
-var values = require('@ndhoule/values');
-var foldl = require('@ndhoule/foldl');
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('optimizely', { wrap: false });
 var tick = require('next-tick');
@@ -192,19 +188,18 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
   var context = { integration: optimizelyContext }; // backward compatibility
 
   // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-  var variationsMap = foldl(
+  var variationsMap = variations.reduce(
     function(results, variation) {
       var res = results;
       res[variation.id] = variation.name;
       return res;
     },
-    {},
-    variations
+    {}
   );
 
   // Sorting for consistency across browsers
-  var variationIds = keys(variationsMap).sort();
-  var variationNames = values(variationsMap).sort();
+  var variationIds = Object.keys(variationsMap).sort();
+  var variationNames = Object.values(variationsMap).sort();
 
   // Send data via `.track()`
   if (this.options.listen) {
@@ -230,16 +225,15 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
       // The global optimizely data object does not expose a mapping between which section(s) were involved within an experiment.
       // So we will build our own mapping to quickly get the section name(s) and id(s) for any displayed variation.
       var activeSections = {};
-      var variationIdsToSectionsMap = foldl(
-        function(results, section, sectionId) {
+      var variationIdsToSectionsMap = Object.keys(sections).reduce(
+        function(results, sectionId) {
           var res = results;
-          each(function(variationId) {
-            res[variationId] = { id: sectionId, name: section.name };
-          }, section.variation_ids);
+          sections[sectionId].variation_ids.forEach(function(variationId) {
+            res[variationId] = { id: sectionId, name: sections[sectionId].name };
+          });
           return res;
         },
-        {},
-        sections
+        {}
       );
       for (var j = 0; j < variationIds.length; j++) {
         var activeVariation = variationIds[j];
@@ -249,10 +243,10 @@ Optimizely.prototype.sendClassicDataToSegment = function(experimentState) {
       }
 
       // Sorting for consistency across browsers
-      props.sectionId = keys(activeSections)
+      props.sectionId = Object.keys(activeSections)
         .sort()
         .join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
-      props.sectionName = values(activeSections)
+      props.sectionName = Object.values(activeSections)
         .sort()
         .join(', ');
     }
@@ -328,21 +322,20 @@ Optimizely.prototype.sendNewDataToSegment = function(campaignState) {
   var context = { integration: optimizelyContext }; // backward compatibility
 
   // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-  var audiencesMap = foldl(
+  var audiencesMap = campaignState.audiences.reduce(
     function(results, audience) {
       var res = results;
       res[audience.id] = audience.name;
       return res;
     },
-    {},
-    campaignState.audiences
+    {}
   );
 
   // Sorting for consistency across browsers
-  var audienceIds = keys(audiencesMap)
+  var audienceIds = Object.keys(audiencesMap)
     .sort()
     .join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
-  var audienceNames = values(audiencesMap)
+  var audienceNames = Object.values(audiencesMap)
     .sort()
     .join(', ');
 

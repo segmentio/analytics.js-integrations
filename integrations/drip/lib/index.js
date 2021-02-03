@@ -7,7 +7,6 @@
 var integration = require('@segment/analytics.js-integration');
 var isObject = require('isobject');
 var push = require('global-queue')('_dcq');
-var each = require('@ndhoule/each');
 var find = require('obj-case').find;
 
 /**
@@ -100,10 +99,10 @@ Drip.prototype.identify = function(identify) {
 
 function format(obj) {
   var ret = {};
-  each(function(value, key) {
+  Object.keys(obj).forEach(key => {
     var formattedKey = key.replace(/\s/g, '_');
-    ret[formattedKey] = value;
-  }, obj);
+    ret[formattedKey] = obj[key];
+  })
 
   return ret;
 }

@@ -6,7 +6,6 @@ var tester = require('@segment/analytics.js-integration-tester');
 var plugin = require('../lib/');
 var sandbox = require('@segment/clear-env');
 var fmt = require('@segment/fmt');
-var each = require('@ndhoule/each');
 
 describe('Yellowhammer', function() {
   var Yellowhammer = plugin;
@@ -88,7 +87,7 @@ describe('Yellowhammer', function() {
         var loadedFirstTag = false;
         var loadedSecondTag = false;
         var integration = analytics.integration();
-        each(function(el) {
+        integration.load.returns.forEach(function(el) {
           if (
             el.src ===
             'https://jump.omnitarget.com/' +
@@ -107,7 +106,7 @@ describe('Yellowhammer', function() {
             loadedSecondTag = true;
           }
           done();
-        }, integration.load.returns);
+        });
         analytics.assert(loadedFirstTag);
         analytics.assert(loadedSecondTag);
       });

@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var defaults = require('@ndhoule/defaults');
 
 /**
  * Expose `TrackJS`.
@@ -43,7 +42,10 @@ TrackJS.prototype.initialize = function() {
   var user = this.analytics.user();
   opts.userId = user.id() || '';
   window._trackJs = window._trackJs || {};
-  window._trackJs = defaults(window._trackJs, opts);
+  window._trackJs = {
+    ...opts,
+    ...window._trackJs, 
+  }
   this.load(this.ready);
 };
 

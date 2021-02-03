@@ -5,10 +5,7 @@
  */
 
 var domify = require('domify');
-var each = require('@ndhoule/each');
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
-var json = require('json3');
 
 /**
  * Expose `Extole` integration.
@@ -68,7 +65,7 @@ Extole.prototype.track = function(track) {
     return this.debug('No events found for %s', event);
   }
 
-  each(function(extoleEvent) {
+  extoleEvents.forEach(function(extoleEvent) {
     self._registerConversion(
       self._createConversionTag({
         type: extoleEvent,
@@ -80,7 +77,7 @@ Extole.prototype.track = function(track) {
         )
       })
     );
-  }, extoleEvents);
+  });
 };
 
 /**
@@ -131,14 +128,12 @@ Extole.prototype._formatConversionParams = function(
     properties['tag:cart_value'] = total;
   }
 
-  return extend(
-    {
-      'tag:segment_event': event,
-      e: email,
-      partner_conversion_id: userId
-    },
-    properties
-  );
+  return {
+    'tag:segment_event': event,
+    e: email,
+    partner_conversion_id: userId,
+    ...properties
+  }
 };
 
 /**
@@ -151,7 +146,7 @@ Extole.prototype._formatConversionParams = function(
 Extole.prototype._createConversionTag = function(conversion) {
   return domify(
     '<script type="extole/conversion">' +
-      json.stringify(conversion) +
+      JSON.stringify(conversion) +
       '</script>'
   );
 };

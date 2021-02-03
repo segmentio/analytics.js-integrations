@@ -5,7 +5,6 @@
  */
 
 var Track = require('segmentio-facade').Track;
-var defaults = require('@ndhoule/defaults');
 var dot = require('obj-case');
 var each = require('component-each');
 var integration = require('@segment/analytics.js-integration');
@@ -302,8 +301,17 @@ GA.prototype.identify = function(identify) {
 GA.prototype.track = function(track, options) {
   var contextOpts = track.options(this.name);
   var interfaceOpts = this.options;
-  var opts = defaults(options || {}, contextOpts);
-  opts = defaults(opts, interfaceOpts);
+
+  var opts = options ? {
+    ...contextOpts,
+    ...options
+  } : contextOpts
+
+  opts = {
+    ...interfaceOpts,
+    ...opts
+  }
+
   var props = track.properties();
   var campaign = track.proxy('context.campaign') || {};
   var self = this;

@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var each = require('@ndhoule/each');
 var toNoCase = require('to-no-case');
 
 /**
@@ -66,7 +65,7 @@ Yellowhammer.prototype.track = function(track) {
   }
   var self = this;
 
-  each(function(event) {
+  events.forEach(function(event) {
     var user = self.analytics.user();
     var userId = user.id() || user.anonymousId();
     var revenue = (track.revenue() || 0).toFixed(2);
@@ -82,5 +81,5 @@ Yellowhammer.prototype.track = function(track) {
       pixelId: event.pixelId,
       revenue: revenue
     });
-  }, events);
+  });
 };

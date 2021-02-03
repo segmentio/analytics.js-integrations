@@ -1,13 +1,12 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var AdRoll = require('../lib');
 
-each(
+[1, 2].forEach(
   function(version) {
     describe('Adroll - Common (' + version + ')', function() {
       var adroll;
@@ -248,6 +247,5 @@ each(
         });
       });
     });
-  },
-  [1, 2]
+  }
 );

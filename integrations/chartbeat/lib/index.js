@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var defaults = require('@ndhoule/defaults');
 var integration = require('@segment/analytics.js-integration');
 var onBody = require('on-body');
 
@@ -106,10 +105,11 @@ Chartbeat.prototype._initialize = function() {
   var script = this.options.video ? 'chartbeat_video.js' : 'chartbeat.js';
 
   window._sf_async_config.useCanonical = true;
-  defaults(window._sf_async_config, {
+  window._sf_async_config = {
+    ...window._sf_async_config,
     domain: this.options.domain,
     uid: this.options.uid
-  });
+  }
 
   onBody(function() {
     window._sf_endpt = new Date().getTime();

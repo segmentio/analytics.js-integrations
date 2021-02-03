@@ -6,11 +6,8 @@
 
 var ads = require('@segment/ad-params');
 var clone = require('component-clone');
-var cookie = require('component-cookie');
-var extend = require('@ndhoule/extend');
+var JSCookie = require('js-cookie');
 var integration = require('@segment/analytics.js-integration');
-var json = require('json3');
-var keys = require('@ndhoule/keys');
 var localstorage = require('yields-store');
 var protocol = require('@segment/protocol');
 var send = require('@segment/send-json');
@@ -25,7 +22,7 @@ var Queue = require('@segment/localstorage-retry');
 
 var cookieOptions = {
   // 1 year
-  maxage: 31536000000,
+  maxage: '31536000000',
   secure: false,
   path: '/'
 };
@@ -64,6 +61,21 @@ var Segment = (exports = module.exports = integration('Segment.io')
   .option('retryQueue', true)
   .option('addBundledMetadata', false)
   .option('unbundledIntegrations', []));
+
+var cookie = function(name, value, options){
+  switch (arguments.length) {
+    case 3:
+    case 2:
+      if (value === null) {
+        return JSCookie.remove(name, { path: ''})
+      }
+      return JSCookie.set(name, value, options);
+    case 1:
+      return JSCookie.get(name);
+    default:
+      return JSCookie.get();
+  }
+};
 
 /**
  * Get the store.
@@ -118,7 +130,7 @@ exports.sendJsonWithTimeout = function(url, obj, headers, timeout, fn) {
   for (var k in headers) {
     req.setRequestHeader(k, headers[k]);
   }
-  req.send(json.stringify(obj));
+  req.send(JSON.stringify(obj));
 
   function done() {
     if (req.readyState === 4) {
@@ -313,7 +325,7 @@ Segment.prototype.normalize = function(message) {
     msg._metadata = { failedInitializations: failedInitializations };
   }
   if (this.options.addBundledMetadata) {
-    var bundled = keys(this.analytics.Integrations);
+    var bundled = Object.keys(this.analytics.Integrations);
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
@@ -354,7 +366,7 @@ Segment.prototype.enqueue = function(path, message, fn) {
 
   // Print a log statement when messages exceed the maximum size. In the future,
   // we may consider dropping this event on the client entirely.
-  if (json.stringify(msg).length > MAX_SIZE) {
+  if (JSON.stringify(msg).length > MAX_SIZE) {
     this.debug('message must be less than 32kb %O', msg);
   }
 
@@ -418,14 +430,14 @@ Segment.prototype.referrerId = function(query, ctx) {
   var stored = this.cookie('s:context.referrer');
   var ad;
 
-  if (stored) stored = json.parse(stored);
+  if (stored) stored = JSON.parse(stored);
   if (query) ad = ads(query);
 
   ad = ad || stored;
 
   if (!ad) return;
-  ctx.referrer = extend(ctx.referrer || {}, ad);
-  this.cookie('s:context.referrer', json.stringify(ad));
+  ctx.referrer = ctx.referrer ? { ...ctx.referrer, ...ad } : { ...ad };
+  this.cookie('s:context.referrer', JSON.stringify(ad));
 };
 
 /**
@@ -681,7 +693,7 @@ function getJson(url, callback) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE) {
       if (xhr.status >= 200 && xhr.status < 300) {
-        callback(null, xhr.responseText ? json.parse(xhr.responseText) : null);
+        callback(null, xhr.responseText ? JSON.parse(xhr.responseText) : null);
       } else {
         callback(xhr.statusText || 'Unknown Error', null);
       }

@@ -4,13 +4,7 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
-var entries = require('@ndhoule/entries');
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
-var map = require('@ndhoule/map');
-var pick = require('@ndhoule/pick');
-var values = require('@ndhoule/values');
 
 /**
  * Map of special #track properties to their default Adometry shorthands.
@@ -56,18 +50,22 @@ Adometry.prototype.track = function(track) {
 
   var self = this;
   var placementIds = this.events(event);
-  var aliases = extend({}, this.options.aliases, TRACK_SPECIAL_PROPERTIES);
+  var aliases = {
+    ...this.options.aliases,
+    ...TRACK_SPECIAL_PROPERTIES
+  };
   var properties = track.properties(aliases);
-  var filteredProperties = pick(values(aliases), properties);
 
-  each(function(placementId) {
+  var filteredProperties = pick(Object.values(aliases), properties);
+
+  placementIds.forEach(placementId => {
     self.load('track', {
       advertiserId: self.options.advertiserId,
       campaignId: self.options.campaignId,
       placementId: placementId,
       properties: self._hashify(filteredProperties, 'cus.')
     });
-  }, placementIds);
+  })
 };
 
 /**
@@ -99,7 +97,7 @@ Adometry.prototype.page = function(page) {
 // TODO: Move into a lib file and test separately once we have multi-file support
 Adometry.prototype._hashify = function(props, prefix) {
   prefix = prefix || '';
-  props = entries(props);
+  props = Object.entries(props || {});
 
   if (!props || !props.length) {
     return '';
@@ -107,8 +105,19 @@ Adometry.prototype._hashify = function(props, prefix) {
 
   return (
     ';' +
-    map(function(prop) {
+    props.map(function(prop) {
       return prefix + prop[0] + ':' + prop[1];
-    }, props).join(';')
+    }).join(';')
   );
 };
+
+function pick(props, o) {
+  const keys = Object.keys(o).filter(k => props.includes(k))
+  const ret = {}
+
+  keys.forEach(k => {
+    ret[k] = o[k]
+  })
+
+  return ret
+}

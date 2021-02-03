@@ -2,12 +2,10 @@
 
 var Analytics = require('@segment/analytics.js-core').constructor;
 var Parsely = require('../lib/');
-var each = require('@ndhoule/each');
 var filter = require('array-filter');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
-var json = require('json3');
 
 describe('Parsely', function() {
   var analytics;
@@ -32,9 +30,9 @@ describe('Parsely', function() {
     analytics.restore();
     analytics.reset();
     parsely.reset();
-    each(function(element) {
+    filter(document.head.getElementsByTagName('meta'), isParselyMetaTag).forEach(function(element) {
       document.head.removeChild(element);
-    }, filter(document.head.getElementsByTagName('meta'), isParselyMetaTag));
+    });
     sandbox();
   });
 
@@ -139,7 +137,7 @@ describe('Parsely', function() {
           author: 'Chris Sperandio'
         });
         var args = window.PARSELY.beacon.trackPageView.args;
-        analytics.deepEqual(json.parse(args[0][0].metadata), {
+        analytics.deepEqual(JSON.parse(args[0][0].metadata), {
           authors: ['Chris Sperandio'],
           link: 'http://localhost:9876/context.html',
           page_type: 'post',
@@ -171,7 +169,7 @@ describe('Parsely', function() {
           ptype: 'index'
         });
         var args = window.PARSELY.beacon.trackPageView.args;
-        analytics.deepEqual(json.parse(args[0][0].metadata), {
+        analytics.deepEqual(JSON.parse(args[0][0].metadata), {
           section: 'father stretch my hands pt.1',
           image_url: 'started from the bottom',
           pub_date_tmsp: 'running back',

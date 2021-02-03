@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
 
 /**
@@ -124,6 +123,9 @@ RollbarIntegration.prototype.identify = function(identify) {
 
   var rollbar = window.Rollbar;
   var person = { id: uid };
-  extend(person, identify.traits());
+  person = {
+    ...person, 
+    ...identify.traits()
+  };
   rollbar.configure({ payload: { person: person } });
 };

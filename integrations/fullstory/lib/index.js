@@ -5,7 +5,6 @@
  */
 
 var camel = require('camelcase');
-var foldl = require('@ndhoule/foldl');
 var integration = require('@segment/analytics.js-integration');
 
 /**
@@ -80,19 +79,16 @@ FullStory.prototype.loaded = function() {
 FullStory.prototype.identify = function(identify) {
   var traits = identify.traits({ name: 'displayName' });
 
-  var newTraits = foldl(
-    function(results, value, key) {
+   var newTraits = Object.keys(traits).reduce(function (results, key) {
       var rs = results;
       if (key !== 'id') {
         rs[
           key === 'displayName' || key === 'email' ? key : camelCaseField(key)
-        ] = value;
+        ] = traits[key];
       }
       return rs;
-    },
-    {},
-    traits
-  );
+   }, {})
+
   if (identify.userId()) {
     window.FS.identify(String(identify.userId()), newTraits, apiSource);
   } else {

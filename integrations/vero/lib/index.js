@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var cookie = require('component-cookie');
+var cookie = require('js-cookie');
 var integration = require('@segment/analytics.js-integration');
 var push = require('global-queue')('_veroq');
 
@@ -31,7 +31,7 @@ Vero.prototype.initialize = function() {
   // basically, they have window.addEventListener('unload')
   // which then saves their "command_store", which is an array.
   // so we just want to create that initially so we can reload the tests.
-  if (!cookie('__veroc4')) cookie('__veroc4', '[]');
+  if (!cookie.get('__veroc4')) cookie.set('__veroc4', '[]');
   push('init', { api_key: this.options.apiKey });
   this.load(this.ready);
 };

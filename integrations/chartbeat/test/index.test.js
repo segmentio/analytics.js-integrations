@@ -1,7 +1,6 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
@@ -62,16 +61,11 @@ describe('Chartbeat', function() {
       });
 
       it('should create window._sf_async_config', function() {
-        var expected = extend(
-          {},
-          {
-            uid: options.uid,
-            domain: options.domain
-          },
-          {
-            useCanonical: true
-          }
-        );
+        var expected = {
+          uid: options.uid,
+          domain: options.domain,
+          useCanonical: true
+        }
 
         analytics.page();
         analytics.deepEqual(window._sf_async_config, expected);
@@ -79,14 +73,11 @@ describe('Chartbeat', function() {
 
       it('should inherit global window._sf_async_config defaults', function() {
         window._sf_async_config = { setting: true };
-        var expected = extend(
-          {},
-          { uid: options.uid, domain: options.domain },
-          {
-            setting: true,
-            useCanonical: true
-          }
-        );
+        var expected = {
+          uid: options.uid, domain: options.domain,
+          setting: true,
+          useCanonical: true
+        }
 
         analytics.page();
         analytics.deepEqual(window._sf_async_config, expected);

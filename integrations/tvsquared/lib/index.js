@@ -1,6 +1,5 @@
 'use strict';
 
-var JSON = require('json3');
 var integration = require('@segment/analytics.js-integration');
 var useHttps = require('use-https');
 

@@ -8,7 +8,6 @@ var each = require('component-each');
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
 var push = require('global-queue')('_kmq');
-var extend = require('@ndhoule/extend');
 var del = require('obj-case').del;
 
 /**
@@ -281,7 +280,7 @@ function clean(obj) {
         }
       }
 
-      ret = extend(ret, flattenedObj);
+      ret = { ...ret, ...flattenedObj };
       delete ret[k];
     }
   }

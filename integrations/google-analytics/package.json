@@ -24,8 +24,7 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/defaults": "^2.0.1",
-    "@segment/analytics.js-integration": "^3.1.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "component-each": "^0.2.6",
     "extend": "^3.0.1",
     "global-queue": "^1.0.1",
@@ -34,7 +33,7 @@
     "obj-case": "^0.2.0",
     "object-component": "0.0.3",
     "reject": "0.0.1",
-    "segmentio-facade": "^3.2.7",
+    "@segment/facade": "^3.3.1",
     "use-https": "^0.1.1"
   },
   "devDependencies": {

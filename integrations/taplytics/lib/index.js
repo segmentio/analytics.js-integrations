@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var keys = require('@ndhoule/keys');
 var push = require('global-queue')('_tlq');
 
 /**
@@ -62,7 +61,7 @@ Taplytics.prototype.identify = function(identify) {
 
   if (userId) attrs.id = userId;
 
-  if (keys(attrs).length) {
+  if (Object.keys(attrs).length) {
     push('identify', attrs);
   }
 };
@@ -85,7 +84,7 @@ Taplytics.prototype.group = function(group) {
   if (traits) attrs.groupTraits = traits;
   if (userId) attrs.id = userId;
 
-  if (keys(attrs).length) push('identify', attrs);
+  if (Object.keys(attrs).length) push('identify', attrs);
 };
 
 /**

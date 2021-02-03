@@ -139,13 +139,9 @@ Blueshift.prototype.alias = function(alias) {
  */
 
 function removeBlankAttributes(obj) {
-  return foldl(
-    function(r, val, key) {
+  return Object.keys(obj).reduce(function (r, key) {
       var results = r;
-      if (val !== null && val !== undefined) results[key] = val;
+      if (obj[key] !== null && obj[key] !== undefined) results[key] = obj[key];
       return results;
-    },
-    {},
-    obj
-  );
+  }, {})
 }

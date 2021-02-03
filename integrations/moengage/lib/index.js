@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var del = require('obj-case').del;
-var each = require('@ndhoule/each');
 var when = require('do-when');
 var reject = require('reject');
 var find = require('obj-case').find;
@@ -127,7 +126,7 @@ MoEngage.prototype.identify = function(identify) {
   };
   var traits = reject(identify.traits()); // strip undefined/null
 
-  each(function(value, key) {
+  Object.keys(traits).forEach(key => {
     // handle username and name especially
     if (key === 'name') {
       // MoEngage asked to map `name` to `add_user_name` for their existing user base
@@ -141,16 +140,16 @@ MoEngage.prototype.identify = function(identify) {
       var trait = identify[key]();
       self._client[method](trait);
     }
-  }, traits);
+  })
 
   // send custom traits so remove all semantic traits
-  each(function(value, key) {
+  Object.keys(traitsMethodMap).forEach(key => {
     del(traits, key);
-  }, traitsMethodMap);
+  })
 
-  each(function(value, key) {
-    self._client.add_user_attribute(key, value);
-  }, traits);
+  Object.keys(traits).forEach(key => {
+    self._client.add_user_attribute(key, traits[key]);
+  })
 };
 
 /**

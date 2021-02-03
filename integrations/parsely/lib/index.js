@@ -7,9 +7,7 @@
 var integration = require('@segment/analytics.js-integration');
 var when = require('do-when');
 var reject = require('reject');
-var json = require('json3');
 var is = require('is');
-var defaults = require('@ndhoule/defaults');
 
 /**
  * Expose `Parsely` integration.
@@ -85,7 +83,7 @@ Parsely.prototype.page = function(page) {
     if (tags && !is.array(tags)) metadata.tags = [tags];
 
     // strip any undefined or nulls
-    data.metadata = json.stringify(reject(metadata));
+    data.metadata = JSON.stringify(reject(metadata));
   }
 
   window.PARSELY.beacon.trackPageView(data);
@@ -139,7 +137,10 @@ Parsely.prototype.videoPlaybackPaused = function(track) {
     var urlOverride = track.proxy('context.page.url');
     var metadata = this.parseVideoMetadata(track);
 
-    metadata = defaults(metadata, CURRENT_VIDEO_METADATA);
+    metadata = {
+      ...CURRENT_VIDEO_METADATA,
+      ...metadata
+    }
 
     window.PARSELY.video.trackPause(vidId, metadata, urlOverride);
   }

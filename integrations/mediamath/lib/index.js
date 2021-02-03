@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var qs = require('component-querystring');
-var foldl = require('@ndhoule/foldl');
 var each = require('component-each');
 var toNoCase = require('to-no-case');
 
@@ -85,7 +84,7 @@ MediaMath.prototype.track = function(track) {
     // front-load query accumulator with empty string defaults
     // so that resulting qs will be formatted correctly
     // without omission of mandatory keys (&v1=&v2=&v3=&s1=&s2=&s3=)
-    var query = foldl(
+    var query = queryParamPropertyMap.reduce(
       function(query, kv) {
         var property = kv && kv.key;
         var mappedKey = kv && kv.value;
@@ -113,8 +112,7 @@ MediaMath.prototype.track = function(track) {
         s1: '',
         s2: '',
         s3: ''
-      },
-      queryParamPropertyMap
+      }
     );
 
     self.load('conversion', { query: qs.stringify(query) });

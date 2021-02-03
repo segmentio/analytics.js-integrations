@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-criteo",
   "description": "The Criteo analytics.js integration.",
-  "version": "1.2.2",
+  "version": "1.2.6",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -23,11 +23,7 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/each": "^2.0.1",
-    "@ndhoule/extend": "^2.0.0",
-    "@ndhoule/pick": "^2.0.0",
-    "@ndhoule/values": "^2.0.1",
-    "@segment/analytics.js-integration": "^3.2.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "is": "^3.2.1",
     "is-email": "^1.0.0",
     "md5": "^2.2.1",

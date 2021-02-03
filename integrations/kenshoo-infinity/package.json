@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-kenshoo-infinity",
   "description": "The Kenshoo Infinity analytics.js integration.",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -25,10 +25,7 @@
   },
   "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/kenshoo-infinity#readme",
   "dependencies": {
-    "@ndhoule/each": "^2.0.1",
-    "@ndhoule/extend": "^2.0.0",
-    "@ndhoule/keys": "^2.0.0",
-    "@segment/analytics.js-integration": "^3.2.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "@segment/trample": "^0.2.0",
     "obj-case": "^0.2.0",
     "reject": "0.0.1"

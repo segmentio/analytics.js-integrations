@@ -5,14 +5,9 @@
  */
 
 var convertDates = require('@segment/convert-dates');
-var defaults = require('@ndhoule/defaults');
 var del = require('obj-case').del;
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var extend = require('@ndhoule/extend');
-var clone = require('@ndhoule/clone');
-var each = require('@ndhoule/each');
-var pick = require('@ndhoule/pick');
 
 /**
  * Expose `Intercom` integration.
@@ -97,7 +92,10 @@ Intercom.prototype.identify = function(identify) {
   }
 
   if (traits.company) {
-    defaults(traits.company, group.traits());
+    traits.company = {
+      ...group.traits(),
+      ...traits.company
+    }
   }
 
   // name
@@ -154,10 +152,10 @@ Intercom.prototype.group = function(group) {
   // format nested custom traits
   props = formatNestedCustomTraits(props, settings);
 
-  var traits = extend(
-    { company: props },
-    hideDefaultLauncher(integrationSettings)
-  );
+  var traits = {
+    company: props,
+    ...hideDefaultLauncher(integrationSettings)
+  }
 
   api('update', traits);
 };
@@ -187,7 +185,7 @@ Intercom.prototype.track = function(track) {
   // format Nested custom traits
   props = formatNestedCustomTraits(props, settings);
 
-  props = extend(props, revenueData);
+  props = { ...props, ...revenueData};
   del(props, 'revenue');
   del(props, 'currency');
 
@@ -214,7 +212,7 @@ Intercom.prototype.bootOrUpdate = function(opts, integrationSettings) {
     options.widget = { activator: activator };
   }
   // Check for selective showing of messenger option
-  options = extend(options, hideDefaultLauncher(integrationSettings));
+  options = { ...options, ...hideDefaultLauncher(integrationSettings) };
 
   api(method, options);
   this.booted = true;
@@ -266,24 +264,24 @@ function formatNestedCustomTraits(obj, settings) {
   var semanticTraits = basicIntercomTraits.concat(richLinkProperties);
 
   // clone traits so we don't modify the original object
-  var customTraits = clone(obj);
+  var customTraits = { ...obj };
 
   // filter out semanticTraits so that we only format custom nested traits
-  each(function(trait) {
+  semanticTraits.forEach(function(trait) {
     del(customTraits, trait);
-  }, semanticTraits);
+  });
 
   // create object without custom traits to merge with formatted custom traits in the end
   var standardTraits = pick(semanticTraits, obj);
 
   // drop any arrays or objects
   var supportedTraits = {};
-  each(function(value, key) {
-    if (!is.object(value) && !is.array(value)) supportedTraits[key] = value;
-  }, customTraits);
+  Object.keys(customTraits).forEach(function(key) {
+    if (!is.object(customTraits[key]) && !is.array(customTraits[key])) supportedTraits[key] = customTraits[key];
+  })
 
   // combine all the traits
-  return extend(supportedTraits, standardTraits);
+  return { ...supportedTraits, ...standardTraits };
 }
 
 /**
@@ -310,4 +308,15 @@ function hideDefaultLauncher(options) {
   if (setting === undefined || typeof setting !== 'boolean') return ret;
   ret.hide_default_launcher = setting;
   return ret;
+}
+
+function pick(props, o) {
+  const keys = Object.keys(o).filter(k => props.includes(k))
+  const ret = {}
+
+  keys.forEach(k => {
+    ret[k] = o[k]
+  })
+
+  return ret
 }

@@ -19,10 +19,10 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@segment/analytics.js-integration": "^3.2.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "is": "^3.2.1",
     "obj-case": "^0.2.0",
-    "segmentio-facade": "^3.2.7"
+    "@segment/facade": "^3.3.1"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.8.2",

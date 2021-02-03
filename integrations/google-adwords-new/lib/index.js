@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var each = require('@ndhoule/each');
 var find = require('obj-case');
 var reject = require('reject');
 var extend = require('extend');
@@ -94,9 +93,9 @@ GoogleAdWordsNew.prototype.page = function(page) {
     pageName
   );
 
-  each(function(mappedConversion) {
+  mappedConversions.forEach(function(mappedConversion) {
     sendPageLoadConversion(mappedConversion.id, mappedConversion.override);
-  }, mappedConversions);
+  });
 
   function sendPageLoadConversion(id, override) {
     var semanticMetadata = reject({
@@ -139,7 +138,7 @@ GoogleAdWordsNew.prototype.track = function(track) {
     track.event()
   );
 
-  each(function(mappedConversion) {
+  mappedConversions.forEach(function(mappedConversion) {
     var properties = track.properties({ orderId: 'transaction_id' });
     var metadata = extend(properties, {
       send_to:
@@ -149,7 +148,7 @@ GoogleAdWordsNew.prototype.track = function(track) {
     });
     // metadata shouldn't contain PII — warning by Google
     return window.gtag('event', eventName, metadata);
-  }, mappedConversions);
+  });
 };
 
 /**
@@ -170,7 +169,7 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
     track.event()
   );
 
-  each(function(mappedConversion) {
+  mappedConversions.forEach(function(mappedConversion) {
     var properties = track.properties({
       orderId: 'transaction_id',
       order_id: 'transaction_id',
@@ -184,7 +183,7 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
     });
     // metadata shouldn't contain PII — warning by Google
     return window.gtag('event', eventName, metadata);
-  }, mappedConversions);
+  });
 };
 
 /**
@@ -196,7 +195,7 @@ GoogleAdWordsNew.prototype.orderCompleted = function(track) {
 
 function matchConversion(mappedConversions, segmentEvent) {
   var ret = [];
-  each(function(setting) {
+  mappedConversions.forEach(function(setting) {
     var conversion = setting.value || setting;
 
     // to prevent common casing mistakes in our UI
@@ -209,7 +208,7 @@ function matchConversion(mappedConversions, segmentEvent) {
 
       ret.push(con);
     }
-  }, mappedConversions);
+  });
 
   return ret;
 }

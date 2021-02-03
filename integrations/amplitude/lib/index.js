@@ -9,7 +9,6 @@ var integration = require('@segment/analytics.js-integration');
 var topDomain = require('@segment/top-domain');
 var when = require('do-when');
 var is = require('is');
-var each = require('@ndhoule/each');
 var Track = require('segmentio-facade').Track;
 
 /**
@@ -186,9 +185,9 @@ Amplitude.prototype.identify = function(identify) {
   if (!is.empty(mapQueryParams)) {
     // since we accept any arbitrary property name and we dont have conditional UI components
     // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
-    each(function(value, key) {
+    Object.keys(mapQueryParams).forEach(function(key) {
       traits[key] = query;
-    }, mapQueryParams);
+    });
   }
 
   this.setTraits(traits);
@@ -252,24 +251,25 @@ function logEvent(track, dontSetRevenue) {
     var type;
     // since we accept any arbitrary property name and we dont have conditional UI components
     // in the app where we can limit users to only add a single mapping, so excuse the temporary jank
-    each(function(value, key) {
+    Object.keys(mapQueryParams).forEach(function(key) {
       // add query params to either `user_properties` or `event_properties`
-      type = value;
+      type = mapQueryParams[key];
       if (type === 'user_properties') {
         params[key] = query;
       } else {
         props[key] = query;
       }
-    }, mapQueryParams);
+    });
 
     if (type === 'user_properties')
       window.amplitude.getInstance().setUserProperties(params);
   }
 
   // Append extra fields to event_props
-  each(function(prop, field) {
-    props[prop] = track.proxy(field);
-  }, this.options.appendFieldsToEventProps);
+  var appendFieldsToEventProps = this.options.appendFieldsToEventProps;
+  Object.keys(appendFieldsToEventProps).forEach(function(field) {
+    props[appendFieldsToEventProps[field]] = track.proxy(field);
+  });
 
   // track the event
   if (options.groups) {
@@ -320,7 +320,7 @@ Amplitude.prototype.orderCompleted = function(track) {
   logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
 
   // Loop through products array.
-  each(
+  products.forEach(
     function(product) {
       var price = product.price;
       var quantity = product.quantity;
@@ -340,8 +340,7 @@ Amplitude.prototype.orderCompleted = function(track) {
         this.setRevenue(mapRevenueAttributes(new Track(clonedTrack)));
       }
       logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
-    }.bind(this),
-    products
+    }.bind(this)
   );
 };
 

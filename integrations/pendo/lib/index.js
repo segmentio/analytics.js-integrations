@@ -6,7 +6,6 @@
 
 var Group = require('segmentio-facade').Group;
 var Identify = require('segmentio-facade').Identify;
-var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
 var obj = require('obj-case');
 
@@ -104,7 +103,7 @@ function _identify(identify, group) {
     ? pendoifyAnonymousId(identify.anonymousId())
     : identify.userId();
 
-  var vObj = extend({ id: id }, identify.traits());
+  var vObj = { id, ...identify.traits()};
   var options = { visitor: vObj };
 
   var groupTraits = group.traits();
@@ -115,11 +114,14 @@ function _identify(identify, group) {
     options.parentAccount = parentAccount;
   }
 
-  var account = extend({ id: group.groupId() }, groupTraits);
+  var account = { id: group.groupId(), ...groupTraits };
   options.account = account;
 
   // Pick up everything else
-  extend(window.pendo_options, options);
+  window.pendo_options = {
+    ...window.pendo_options,
+    ...options
+  };
 
   // Identify is smart. It will only identify if things actually changed.
   // Given we are passing an options object, it will also call updateOptions()

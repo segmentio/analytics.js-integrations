@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var each = require('@ndhoule/each');
 var integration = require('@segment/analytics.js-integration');
 var querystring = require('component-querystring');
 var useHttps = require('use-https');
@@ -49,9 +48,9 @@ AppNexus.prototype.track = function(track) {
     }
   }
   var self = this;
-  each(function(event) {
+  events.forEach(event => {
     return self.conversion(track, event);
-  }, events);
+  })
 };
 
 /**
@@ -73,9 +72,9 @@ AppNexus.prototype.conversion = function(track, event) {
     value: (revenue || 0).toFixed(2)
   };
 
-  each(function(value, key) {
-    vars[value] = track.proxy('properties.' + key);
-  }, params);
+  Object.keys(params).forEach(key => {
+    vars[params[key]] = track.proxy('properties.' + key);
+  })
 
   var name = useHttps() ? 'https' : 'http';
 

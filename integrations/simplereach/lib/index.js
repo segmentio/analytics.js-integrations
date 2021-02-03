@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 
-var defaults = require('@ndhoule/defaults');
 var integration = require('@segment/analytics.js-integration');
 
 /**
@@ -27,10 +26,13 @@ var SimpleReach = (module.exports = integration('SimpleReach')
 
 SimpleReach.prototype.initialize = function() {
   window.__reach_config = window.__reach_config || {};
-  defaults(window.__reach_config, {
+
+  window.__reach_config = {
     pid: this.options.pid,
-    reach_tracking: false
-  });
+    reach_tracking: false,
+    ...window.__reach_config
+  }
+
   this.load(this.ready);
 };
 
@@ -54,10 +56,11 @@ SimpleReach.prototype.loaded = function() {
  */
 
 SimpleReach.prototype.page = function(page) {
-  defaults(window.__reach_config, {
+  window.__reach_config = {
     url: page.url(),
-    title: page.title()
-  });
+    title: page.title(),
+    ...window.__reach_config
+  }
 
   if (window.__reach_config.url === false) {
     window.__reach_config.url = page.url();

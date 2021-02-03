@@ -8,8 +8,6 @@ var each = require('component-each');
 var integration = require('@segment/analytics.js-integration');
 var toSnakeCase = require('to-snake-case');
 var is = require('is');
-var foldl = require('@ndhoule/foldl');
-var json = require('json3');
 var isostring = require('isostring');
 var time = require('unix-time');
 
@@ -127,17 +125,16 @@ Woopra.prototype.track = function(track) {
  */
 
 function stringifyNested(obj) {
-  return foldl(
-    function(results, value, key) {
+  return Object.keys(obj).reduce(
+    function(results, key) {
       if (is.array(obj[key])) {
-        results[key] = json.stringify(obj[key]);
+        results[key] = JSON.stringify(obj[key]);
       } else {
         results[key] = obj[key];
       }
       return results;
     },
-    {},
-    obj
+    {}
   );
 }
 

@@ -13,7 +13,7 @@
     "test": "karma start",
     "test:ci": "karma start karma.conf-ci.js"
   },
-  "author": "Segment \u003cfriends@segment.com\u003e",
+  "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/livechat#readme",
   "bugs": {
@@ -24,12 +24,12 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@segment/analytics.js-integration": "^2.1.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "component-clone": "^0.2.2",
     "component-each": "^0.2.6",
     "do-when": "^1.0.0",
     "next-tick": "^0.2.2",
-    "segmentio-facade": "^3.2.7"
+    "@segment/facade": "^3.3.1"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",

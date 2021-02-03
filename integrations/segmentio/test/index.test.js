@@ -1,10 +1,9 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
-var JSON = require('json3');
 var Segment = require('../lib/');
 var assert = require('proclaim');
-var cookie = require('component-cookie');
+var JSCookie = require('js-cookie');
 var integration = require('@segment/analytics.js-integration');
 var protocol = require('@segment/protocol');
 var sandbox = require('@segment/clear-env');
@@ -21,6 +20,23 @@ var lolex = require('lolex');
 // better/more robust way of intercepting and canceling AJAX requests to avoid
 // this hackery
 var isPhantomJS = /PhantomJS/.test(window.navigator.userAgent);
+
+
+var cookie = function(name, value, options){
+  switch (arguments.length) {
+    case 3:
+    case 2:
+      if (value === null) {
+        return JSCookie.remove(name, { path: ''})
+      }
+      return JSCookie.set(name, value, options);
+    case 1:
+      return JSCookie.get(name);
+    default:
+      return JSCookie.get();
+  }
+};
+
 
 describe('Segment.io', function() {
   var segment;

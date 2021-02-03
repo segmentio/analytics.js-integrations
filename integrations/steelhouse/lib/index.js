@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var Track = require('segmentio-facade').Track;
-var foldl = require('@ndhoule/foldl');
 var each = require('component-each');
 
 /**
@@ -56,7 +55,7 @@ Steelhouse.prototype.track = function(track) {
   var referrer = track.proxy('context.page.referrer') || '';
   var href = track.proxy('context.page.url') || '';
 
-  var productInfo = foldl(
+  var productInfo = track.products().reduce(
     function(info, product) {
       product = new Track({ properties: product });
       info.skus.push(product.sku());
@@ -64,8 +63,7 @@ Steelhouse.prototype.track = function(track) {
       info.prices.push(product.price());
       return info;
     },
-    { skus: [], quantities: [], prices: [] },
-    track.products()
+    { skus: [], quantities: [], prices: [] }
   );
 
   var advertiserId = this.options.advertiserId;

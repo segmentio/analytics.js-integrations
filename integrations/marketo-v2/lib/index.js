@@ -10,7 +10,7 @@ var is = require('is');
 var jsonp = require('jsonp');
 var url = require('component-url');
 var when = require('do-when');
-var each = require('@ndhoule/each');
+
 // mapping of Standard Marketo API names: restAPIName: soapAPIName
 var apiNameMapping = {
   annualRevenue: 'AnnualRevenue',
@@ -198,7 +198,7 @@ Marketo.prototype.identify = function(identify) {
     }
   }
 
-  each(function(trait) {
+  settings.traits.forEach(function(trait) {
     var segmentTrait = trait.value
       ? trait.value.segmentTrait
       : trait.segmentTrait;
@@ -214,7 +214,7 @@ Marketo.prototype.identify = function(identify) {
     if (traits[segmentTrait] !== undefined) {
       traitsToSendMarketo[marketoField] = traits[segmentTrait];
     }
-  }, settings.traits);
+  });
 
   // associate the lead on the client-side so that
   // we can track to the same user

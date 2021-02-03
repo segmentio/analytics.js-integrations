@@ -6,7 +6,6 @@
 
 var integration = require('@segment/analytics.js-integration');
 var uncase = require('to-no-case');
-var foldl = require('@ndhoule/foldl');
 var Identify = require('segmentio-facade').Identify;
 
 /**
@@ -91,9 +90,12 @@ Outbound.prototype.identify = function(identify) {
 
   var userId = identify.userId() || identify.anonymousId();
 
-  var attributes = foldl(
-    function(acc, val, key) {
-      if (!specialTraits.hasOwnProperty(uncase(key))) acc.attributes[key] = val;
+  var obj = identify.traits()
+  var keys = Object.keys(obj)
+
+  var attributes = keys.reduce(
+    function(acc, key) {
+      if (!specialTraits.hasOwnProperty(uncase(key))) acc.attributes[key] = obj[key];
       return acc;
     },
     {
@@ -103,7 +105,6 @@ Outbound.prototype.identify = function(identify) {
       firstName: identify.firstName(),
       lastName: identify.lastName()
     },
-    identify.traits()
   );
 
   window.outbound.identify(userId, attributes);

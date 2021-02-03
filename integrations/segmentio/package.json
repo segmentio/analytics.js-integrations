@@ -24,19 +24,16 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/extend": "^2.0.0",
-    "@ndhoule/keys": "^2.0.0",
     "@segment/ad-params": "^1.0.0",
-    "@segment/analytics.js-integration": "^2.1.0",
+    "@segment/analytics.js-integration": "^3.3.2",
     "@segment/localstorage-retry": "^1.2.2",
     "@segment/protocol": "^1.0.0",
     "@segment/send-json": "^3.0.0",
     "@segment/top-domain": "^3.0.0",
     "@segment/utm-params": "^2.0.0",
     "component-clone": "^0.2.2",
-    "component-cookie": "^1.1.2",
+    "js-cookie": "^2.2.1",
     "component-type": "^1.2.1",
-    "json3": "^3.3.2",
     "uuid": "^2.0.2",
     "yields-store": "^1.0.2"
   },

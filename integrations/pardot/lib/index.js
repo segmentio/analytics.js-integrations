@@ -4,8 +4,7 @@
  * Module dependencies.
  */
 
-var cookie = require('component-cookie');
-var each = require('@ndhoule/each');
+var cookie = require('js-cookie');
 var integration = require('@segment/analytics.js-integration');
 var load = require('@segment/load-script');
 var querystring = require('component-querystring');
@@ -94,9 +93,9 @@ Pardot.prototype.getRequestVariables = function() {
   var variables = {
     account_id: window.piAId,
     campaign_id: window.piCId,
-    pi_opt_in: cookie('pi_opt_in' + (this.options.piAId - 1e3)),
+    pi_opt_in: cookie.get('pi_opt_in' + (this.options.piAId - 1e3)),
     ver: 3,
-    visitor_id: cookie('visitor_id' + (this.options.piAId - 1e3))
+    visitor_id: cookie.get('visitor_id' + (this.options.piAId - 1e3))
   };
 
   // get all the query parameters
@@ -106,9 +105,9 @@ Pardot.prototype.getRequestVariables = function() {
   var queryKeys = ['pi_email'];
 
   // add all the query params to our variables list
-  each(function(key) {
+  queryKeys.forEach(function(key) {
     if (key in queryParams) variables[key] = queryParams[key];
-  }, queryKeys);
+  });
 
   // now check global variables
   if (window.piIncludeInActivities !== undefined) {

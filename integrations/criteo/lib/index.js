@@ -1,10 +1,6 @@
 'use strict';
 
 var objCase = require('obj-case');
-var extend = require('@ndhoule/extend');
-var values = require('@ndhoule/values');
-var pick = require('@ndhoule/pick');
-var each = require('@ndhoule/each');
 var md5 = require('md5');
 var isEmail = require('is-email');
 var useHttps = require('use-https');
@@ -79,10 +75,10 @@ Criteo.prototype.page = function(page) {
   var payload = [];
   var supportingPageData = this.options.supportingPageData;
   var properties = page.properties(this.options.supportingPageData);
-  var extraData = pick(values(supportingPageData), properties);
+  var extraData = pick(Object.values(supportingPageData), properties);
 
   if (!is.empty(extraData)) {
-    window.criteo_q.push(extend(extraData, { event: 'setData' }));
+    window.criteo_q.push({ ...extraData, event: 'setData' });
   }
 
   if (url === homeUrl || pageName === 'home' || path === '/') {
@@ -145,10 +141,10 @@ Criteo.prototype.productListViewed = function(track) {
   var products = track.products() || [];
   var productIds = [];
 
-  each(function(product) {
+  products.forEach(product => {
     var id = objCase.find(product, 'productId');
     if (id) productIds.push(id);
-  }, products);
+  });
 
   var event = [{ event: 'viewList', item: productIds }];
   var payload = [];
@@ -227,15 +223,15 @@ Criteo.prototype.setExtraData = function() {
   // Add supporting user data.
   var supportingUserData = this.options.supportingUserData;
 
-  each(function(value, key) {
+  Object.keys(supportingUserData).forEach(key => {
     var trait = objCase.find(traits, key);
 
-    if (trait) extraData[value] = trait;
-  }, supportingUserData);
+    if (trait) extraData[supportingUserData[key]] = trait;
+  })
 
   if (!is.empty(extraData)) {
     // { event: "setData", ui_membership: "free", ui_age: "30"}
-    ret.push(extend(extraData, { event: 'setData' }));
+    ret.push({ ...extraData, event: 'setData' });
   }
 
   return ret;
@@ -280,4 +276,15 @@ function getDeviceType() {
     return 'm';
   }
   return 'd';
+}
+
+function pick(props, o) {
+  const keys = Object.keys(o).filter(k => props.includes(k))
+  const ret = {}
+
+  keys.forEach(k => {
+    ret[k] = o[k]
+  })
+
+  return ret
 }
