@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-boomtrain",
   "description": "The Boomtrain analytics.js integration.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

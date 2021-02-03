@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-foxmetrics",
   "description": "The Foxmetrics analytics.js integration.",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

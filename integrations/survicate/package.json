@@ -1,7 +1,7 @@
 {
   "name": "@survicate/analytics.js-integration-survicate",
   "description": "The Survicate analytics.js integration.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

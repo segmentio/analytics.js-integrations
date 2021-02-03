@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-keen-io",
   "description": "The Keen Io analytics.js integration.",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

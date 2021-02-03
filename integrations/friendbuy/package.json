@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-friendbuy",
   "description": "The FriendBuy analytics.js integration.",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

@@ -1,7 +1,7 @@
 {
   "name": "@convertflow/analytics.js-integration-convertflow",
   "description": "The ConvertFlow analytics.js integration.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

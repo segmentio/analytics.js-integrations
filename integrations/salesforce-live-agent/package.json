@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-salesforce-live-agent",
   "description": "The Salesforce Live Agent analytics.js integration.",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

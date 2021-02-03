@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-mixpanel",
   "description": "The Mixpanel analytics.js integration.",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
