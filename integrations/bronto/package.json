@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-bronto",
   "description": "The Bronto analytics.js integration.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@segment/analytics.js-integration": "^3.3.2",
-    "component-querystring": "^2.0.0",
-    "@segment/facade": "^3.3.1"
+    "@segment/facade": "^3.3.1",
+    "component-querystring": "^2.0.0"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",

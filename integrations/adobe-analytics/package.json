@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-adobe-analytics",
   "description": "The Adobe Analytics analytics.js integration.",
-  "version": "1.16.5",
+  "version": "1.16.6",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -27,10 +27,10 @@
   },
   "dependencies": {
     "@segment/analytics.js-integration": "^3.3.2",
+    "@segment/facade": "^3.3.1",
     "@segment/to-iso-string": "^1.0.1",
     "@segment/trample": "^0.2.0",
     "obj-case": "^0.2.0",
-    "@segment/facade": "^3.3.1",
     "type-of": "^2.0.1"
   },
   "devDependencies": {

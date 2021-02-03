@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-google-tag-manager",
   "description": "The Google Tag Manager analytics.js integration.",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

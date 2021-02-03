@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-aptrinsic",
   "description": "The Aptrinsic analytics.js integration.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@segment/analytics.js-integration": "^3.3.2",
-    "next-tick": "^0.2.2",
     "@segment/facade": "^3.3.1",
+    "next-tick": "^0.2.2",
     "use-https": "^0.1.1"
   },
   "devDependencies": {

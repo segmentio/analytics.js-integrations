@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-moengage",
   "description": "The MoEngage analytics.js integration.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

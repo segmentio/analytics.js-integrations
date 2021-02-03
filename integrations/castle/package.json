@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-castle",
   "description": "The Castle analytics.js integration.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

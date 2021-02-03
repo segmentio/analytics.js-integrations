@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-adometry",
   "description": "The Adometry analytics.js integration.",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

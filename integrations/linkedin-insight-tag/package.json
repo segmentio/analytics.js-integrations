@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-linkedin-insight-tag",
   "description": "The LinkedIn Insight Tag analytics.js integration.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

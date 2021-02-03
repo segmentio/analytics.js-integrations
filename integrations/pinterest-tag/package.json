@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-pinterest-tag",
   "description": "The Pinterest Tag analytics.js integration.",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

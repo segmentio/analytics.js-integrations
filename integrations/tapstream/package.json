@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-tapstream",
   "description": "The Tapstream analytics.js integration.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
