@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@segment/analytics.js-integration": "^2.1.0",
-    "json3": "^3.3.2",
     "use-https": "^0.1.1"
   },
   "devDependencies": {

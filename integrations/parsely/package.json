@@ -30,7 +30,6 @@
     "array-filter": "^1.0.0",
     "do-when": "^1.0.0",
     "is": "3.2.1",
-    "json3": "^3.3.2",
     "reject": "0.0.1"
   },
   "devDependencies": {

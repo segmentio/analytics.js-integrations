@@ -7,7 +7,7 @@
 var integration = require('@segment/analytics.js-integration');
 var when = require('do-when');
 var reject = require('reject');
-var json = require('json3');
+var json = JSON;
 var is = require('is');
 var defaults = require('@ndhoule/defaults');
 
