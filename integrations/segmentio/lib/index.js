@@ -323,6 +323,9 @@ Segment.prototype.normalize = function(message) {
     var bundledConfigIds = []
     for (var i = 0; i < bundled.length; i++) {
       var name = bundled[i]
+      if (!maybeBundledConfigIds) {
+        break
+      }
       if (!maybeBundledConfigIds[name]) {
         continue
       }

@@ -478,6 +478,29 @@ describe('Segment.io', function() {
           assert(object);
           assert(!object._metadata);
         });
+
+        it('should add a list of unbundled destination config ids when `addBundledMetadata` is set', function() {
+          segment.options.addBundledMetadata = true;
+          segment.options.unbundledConfigIds = ['config1'];
+          segment.normalize(object);
+
+          assert(object);
+          assert(object._metadata);
+          assert.deepEqual(object._metadata.unbundledConfigIds, ['config1']);
+        });
+
+        it('should generate and add a list of bundled destination config ids when `addBundledMetadata` is set', function() {
+          segment.options.addBundledMetadata = true;
+          segment.options.maybeBundledConfigIds = {
+            'other': ['config21'],
+            'slack': ['slack99'] // should be ignored
+          };
+          segment.normalize(object);
+
+          assert(object);
+          assert(object._metadata);
+          assert.deepEqual(object._metadata.bundledConfigIds, ['config21']);
+        });
       });
 
       it('should pick up messageId from AJS', function() {
