@@ -18,7 +18,7 @@ var utm = require('@segment/utm-params');
 var uuid = require('@lukeed/uuid').v4;
 var Queue = require('@segment/localstorage-retry');
 
-const json = JSON;
+var json = JSON;
 
 /**
  * Cookie options
@@ -65,8 +65,8 @@ var Segment = (exports = module.exports = integration('Segment.io')
   .option('retryQueue', true)
   .option('addBundledMetadata', false)
   .option('unbundledIntegrations', []))
-  .option('unbundledIntegrationIds', [])
-  .option('maybeBundledConfigIds', []);
+  .option('unbundledConfigIds', [])
+  .option('maybeBundledConfigIds', {});
 
 /**
  * Get the store.
@@ -317,6 +317,7 @@ Segment.prototype.normalize = function(message) {
   }
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
+    var maybeBundledConfigIds = this.options.maybeBundledConfigIds
 
     // Generate a list of bundled config IDs using the intersection of
     // bundled destination names and maybe bundled config IDs.
@@ -330,8 +331,8 @@ Segment.prototype.normalize = function(message) {
         continue
       }
 
-      for (var i = 0; i < maybeBundledConfigIds[name].length; i++) {
-        var id = maybeBundledConfigIds[name][i]
+      for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
+        var id = maybeBundledConfigIds[name][j]
         bundledConfigIds.push(id)
       }
     }
@@ -339,8 +340,8 @@ Segment.prototype.normalize = function(message) {
 
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
-    msg._metadata.unbundled = this.options.unbundledIntegrations;
     msg._metadata.bundledConfigIds = bundledConfigIds;
+    msg._metadata.unbundled = this.options.unbundledIntegrations;
     msg._metadata.unbundledConfigIds = this.options.unbundledConfigIds;
   }
   this.debug('normalized %o', msg);
