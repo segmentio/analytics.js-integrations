@@ -340,8 +340,8 @@ Segment.prototype.normalize = function(message) {
 
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
-    msg._metadata.bundledConfigIds = bundledConfigIds;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
+    msg._metadata.bundledConfigIds = bundledConfigIds;
     msg._metadata.unbundledConfigIds = this.options.unbundledConfigIds;
   }
   this.debug('normalized %o', msg);
