@@ -1,4 +1,4 @@
-4.4.1 / 2020-02-05
+4.4.0 / 2020-02-05
 ==================
 
   * Removes the `bundledConfigIds` _setting_ and instead generates `bundledConfigIds` using the intersection
