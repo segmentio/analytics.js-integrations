@@ -115,7 +115,7 @@ VWO.prototype.replay = function() {
 VWO.prototype.roots = function() {
   var analytics = this.analytics;
   var self = this;
-
+  var identifyCalled = false;
   rootExperiments(function(err, data) {
     each(data, function(experimentId, variationName) {
       const uuid = window.VWO.data.vin.uuid;
@@ -127,7 +127,10 @@ VWO.prototype.roots = function() {
 
       if (self.options.experimentNonInteraction) props.nonInteraction = 1;
       
-      analytics.identify({userId: uuid});
+      if(identifyCalled === false) {
+        analytics.identify({userId: uuid});
+        identifyCalled = true;
+      }
       analytics.track('Experiment Viewed', props, {
         context: { integration: integrationContext }
       });
