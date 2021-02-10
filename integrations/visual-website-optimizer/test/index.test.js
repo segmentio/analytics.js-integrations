@@ -30,6 +30,13 @@ describe('Visual Website Optimizer', function() {
       }
     };
     window._vis_opt_queue = [];
+    window.VWO = {
+      data: {
+        vin: {
+          uuid: 1
+        }
+      }
+    };
   });
 
   afterEach(function() {
@@ -132,18 +139,16 @@ describe('Visual Website Optimizer', function() {
       vwo.options.listen = true;
       analytics.initialize();
       analytics.page();
-      
 
       tick(function() {
         window._vis_opt_queue[1]();
-        analytics.identify({userId: 'testing'});
-        // analytics.called(analytics.identify, { 'userId': 'testing' });
         analytics.called(
           analytics.track,
           'Experiment Viewed',
           {
             experimentId: '1',
-            variationName: 'Variation'
+            variationName: 'Variation',
+            vwoUserId: 1
           },
           {
             context: {
@@ -203,6 +208,7 @@ describe('Visual Website Optimizer', function() {
           {
             experimentId: '1',
             variationName: 'Variation',
+            vwoUserId: 1,
             nonInteraction: 1
           },
           {
@@ -262,7 +268,8 @@ describe('Visual Website Optimizer', function() {
           'Experiment Viewed',
           {
             experimentId: '1',
-            variationName: 'Variation'
+            variationName: 'Variation',
+            vwoUserId: 1
           },
           {
             context: {
