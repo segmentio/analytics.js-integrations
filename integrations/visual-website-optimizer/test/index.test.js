@@ -125,16 +125,19 @@ describe('Visual Website Optimizer', function() {
   describe('#roots', function() {
     beforeEach(function() {
       analytics.stub(analytics, 'track');
+      analytics.stub(analytics, 'identify');
     });
 
     it('should send active experiments if experiment is ready', function(done) {
       vwo.options.listen = true;
       analytics.initialize();
       analytics.page();
+      
 
       tick(function() {
         window._vis_opt_queue[1]();
-
+        analytics.identify({userId: 'testing'});
+        // analytics.called(analytics.identify, { 'userId': 'testing' });
         analytics.called(
           analytics.track,
           'Experiment Viewed',
