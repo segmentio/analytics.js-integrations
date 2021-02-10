@@ -128,7 +128,7 @@ VWO.prototype.roots = function() {
       if (self.options.experimentNonInteraction) props.nonInteraction = 1;
       
       if(identifyCalled === false) {
-        analytics.identify({userId: uuid});
+        analytics.identify({vwoUserId: uuid});
         identifyCalled = true;
       }
       analytics.track('Experiment Viewed', props, {

@@ -203,7 +203,7 @@ describe('Visual Website Optimizer', function() {
         analytics.called(
           analytics.identify,
           {
-            userId: 1
+            vwoUserId: 1
           }
         );
 
@@ -222,7 +222,7 @@ describe('Visual Website Optimizer', function() {
         analytics.didNotCall(
           analytics.identify,
           {
-            userId: 1
+            vwoUserId: 1
           }
         );
 
