@@ -480,16 +480,6 @@ describe('Segment.io', function() {
           assert(!object._metadata);
         });
 
-        it('should add a list of unbundled destination config ids when `addBundledMetadata` is set', function() {
-          segment.options.addBundledMetadata = true;
-          segment.options.unbundledConfigIds = ['config1'];
-          segment.normalize(object);
-
-          assert(object);
-          assert(object._metadata);
-          assert.deepEqual(object._metadata.unbundledConfigIds, ['config1']);
-        });
-
         it('should generate and add a list of bundled destination config ids when `addBundledMetadata` is set', function() {
           segment.options.addBundledMetadata = true;
           segment.options.maybeBundledConfigIds = {
@@ -500,7 +490,7 @@ describe('Segment.io', function() {
 
           assert(object);
           assert(object._metadata);
-          assert.deepEqual(object._metadata.bundledConfigIds, ['config21']);
+          assert.deepEqual(object._metadata.bundledIds, ['config21']);
         });
 
         it('should generate a list of multiple bundled destination config ids when `addBundledMetadata` is set', function() {
@@ -514,7 +504,7 @@ describe('Segment.io', function() {
 
           assert(object);
           assert(object._metadata);
-          assert.deepEqual(object._metadata.bundledConfigIds, ['config21', 'anotherConfig99']);
+          assert.deepEqual(object._metadata.bundledIds, ['config21', 'anotherConfig99']);
         });
       });
 
