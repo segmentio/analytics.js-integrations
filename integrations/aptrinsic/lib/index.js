@@ -14,8 +14,14 @@ var integration = require('@segment/analytics.js-integration');
 var Aptrinsic = (module.exports = integration('Aptrinsic')
   .global('aptrinsic')
   .option('apiKey', '')
+  .option('region', 'global')
   .tag(
+    'global', 
     '<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a={{ apiKey }}">'
+  )
+  .tag(
+    'eu', 
+    '<script src="https://web-sdk-eu.aptrinsic.com/api/aptrinsic.js?a={{ apiKey }}">'
   ));
 
 /**
@@ -32,7 +38,8 @@ Aptrinsic.prototype.initialize = function() {
       window.aptrinsic.q.push(arguments);
     };
   window.aptrinsic.p = apiKey;
-  this.load(this.ready);
+  var tagName = this.options.region === 'eu' ? 'eu' : 'global';
+  this.load(tagName, this.ready);
 };
 
 /**
