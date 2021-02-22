@@ -44,10 +44,45 @@ describe('Aptrinsic', function() {
   });
 
   describe('before loading', function() {
-    describe('#initialize', function() {
+    describe('#initialize default region', function() {
       it('should create window.aptrinsic', function() {
         analytics.initialize();
         analytics.assert(aptrinsic.loaded());
+      });
+      it('should load global script by default', function() {
+        analytics.spy(aptrinsic, 'load');
+        analytics.initialize();
+        analytics.loaded(
+          '<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a=AP-YAQYR6RUCNGM-1">'
+        );
+      });
+    });
+    describe('#initialize global', function() {
+      it('should create window.aptrinsic', function() {
+        analytics.initialize();
+        analytics.assert(aptrinsic.loaded());
+      });
+      it('should load global script', function() {
+        analytics.spy(aptrinsic, 'load');
+        aptrinsic.options.region = 'global'
+        analytics.initialize();
+        analytics.loaded(
+          '<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a=AP-YAQYR6RUCNGM-1">'
+        );
+      });
+    });
+    describe('#initialize eu', function() {
+      it('should create window.aptrinsic', function() {
+        analytics.initialize();
+        analytics.assert(aptrinsic.loaded());
+      });
+      it('should load eu script', function() {
+        analytics.spy(aptrinsic, 'load');
+        aptrinsic.options.region = 'eu'
+        analytics.initialize();
+        analytics.loaded(
+          '<script src="https://web-sdk-eu.aptrinsic.com/api/aptrinsic.js?a=AP-YAQYR6RUCNGM-1">'
+        );
       });
     });
   });
