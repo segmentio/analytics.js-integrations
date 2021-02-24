@@ -103,7 +103,7 @@ exports.sendJsonWithTimeout = function(url, obj, headers, timeout, fn) {
   // unlikely to happen in production, but we're being safe to preserve backward
   // compatibility.
   if (send.type !== 'xhr') {
-    send(url, obj, headers, fn);
+    send(url, obj, headers, timeout, fn);
     return;
   }
 
@@ -391,7 +391,7 @@ Segment.prototype.enqueue = function(path, message, fn) {
       msg: msg
     });
   } else {
-    send(url, msg, headers, function(err, res) {
+    send(url, msg, headers, 1000, function(err, res) {
       self.debug('sent %O, received %O', msg, [err, res]);
       if (fn) {
         if (err) return fn(err);
