@@ -9,16 +9,15 @@ var clone = require('component-clone');
 var cookie = require('component-cookie');
 var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
+var json = require('json3');
 var keys = require('@ndhoule/keys');
 var localstorage = require('yields-store');
 var protocol = require('@segment/protocol');
 var send = require('@segment/send-json');
 var topDomain = require('@segment/top-domain');
 var utm = require('@segment/utm-params');
-var uuid = require('@lukeed/uuid').v4;
+var uuid = require('uuid').v4;
 var Queue = require('@segment/localstorage-retry');
-
-var json = JSON;
 
 /**
  * Cookie options

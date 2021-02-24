@@ -1,6 +1,7 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
+var JSON = require('json3');
 var Segment = require('../lib/');
 var assert = require('proclaim');
 var cookie = require('component-cookie');
