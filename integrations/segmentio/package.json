@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-segmentio",
   "description": "The Segmentio analytics.js integration.",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -28,15 +28,16 @@
     "@ndhoule/keys": "^2.0.0",
     "@segment/ad-params": "^1.0.0",
     "@segment/analytics.js-integration": "^2.1.0",
-    "@segment/localstorage-retry": "^1.2.5",
+    "@segment/localstorage-retry": "^1.2.2",
     "@segment/protocol": "^1.0.0",
-    "@segment/send-json": "^4.0.2",
+    "@segment/send-json": "^3.0.0",
     "@segment/top-domain": "^3.0.0",
     "@segment/utm-params": "^2.0.0",
     "component-clone": "^0.2.2",
     "component-cookie": "^1.1.2",
     "component-type": "^1.2.1",
-    "@lukeed/uuid": "^2.0.0",
+    "json3": "^3.3.2",
+    "uuid": "^2.0.2",
     "yields-store": "^1.0.2"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "@segment/analytics.js-integration-tester": "^2.0.0",
     "@segment/clear-env": "^2.0.0",
     "browserify": "^16.2.3",
+    "eslint": "^5.16.0",
     "karma": "^4.1.0",
     "karma-browserify": "^6.0.0",
     "karma-chrome-launcher": "^2.2.0",
@@ -53,8 +55,8 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
+    "watchify": "^3.11.1",
     "proclaim": "^3.4.1",
-    "sinon": "^1.17.4",
-    "watchify": "^3.11.1"
+    "sinon": "^1.17.4"
   }
 }
