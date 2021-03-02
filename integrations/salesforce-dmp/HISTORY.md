@@ -2,7 +2,7 @@
 2.0.3 / 2018-10-10
 ==================
 
-  * Add logic to prevent errors when an un-whitelisted `track` event is invoked 
+  * Add logic to prevent errors when a `track` event that is not allowed is invoked 
     while the `sendEventNames` option is set to `true`.
 
 2.0.2 / 2018-07-09

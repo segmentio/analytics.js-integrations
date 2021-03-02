@@ -263,7 +263,7 @@ describe('AdWords', function() {
         ]);
       });
 
-      it('should send only the remarketing tag if no conversions are mapped but is whitelisted', function() {
+      it('should send only the remarketing tag if no conversions are mapped but are allowed in settings', function() {
         adwords.options.eventMappings = [
           {
             value: {

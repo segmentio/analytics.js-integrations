@@ -72,19 +72,19 @@ TvSquared.prototype.track = function(track) {
 
   // FIXME: Our Segment.com UI currently has a bug that will keep at least one empty string in an input array if it's activated, but then all deleted.
   // This parses empty inputs to avoid trying to send 'properties.' through track.proxy().
-  var whitelist = this.options.trackWhitelist.slice();
-  for (var i = 0; i < whitelist.length; i++) {
-    if (whitelist[i] === '') {
-      whitelist.splice(i, 1);
+  var allowlist = this.options.trackWhitelist.slice();
+  for (var i = 0; i < allowlist.length; i++) {
+    if (allowlist[i] === '') {
+      allowlist.splice(i, 1);
     }
   }
 
-  // This should only run if there's a whitelist. If there's no whitelist, all events will be sent.
-  for (i = 0; i < whitelist.length; i++) {
-    // If there is a whitelist and we find the event, break out and continue.
-    if (event.toUpperCase() === whitelist[i].toUpperCase()) break;
-    // Otherwise, if we're at the last element, it's not in the whitelist. Return early.
-    if (i === whitelist.length - 1) return;
+  // This should only run if there's an allowlist. If there's no allowlist, all events will be sent.
+  for (var j = 0; j < allowlist.length; j++) {
+    // If there is an allowlist and we find the event, break out and continue.
+    if (event.toUpperCase() === allowlist[j].toUpperCase()) break;
+    // Otherwise, if we're at the last element, it's not in the allowlist. Return early.
+    if (j === allowlist.length - 1) return;
   }
 
   var session = { user: track.userId() || track.anonymousId() || '' };
@@ -99,15 +99,15 @@ TvSquared.prototype.track = function(track) {
   var cmArr = this.options.customMetrics.slice();
   // FIXME: Our Segment.com UI currently has a bug that will keep at least one empty string in an input array if it's activated, but then all deleted.
   // This parses empty inputs to avoid trying to send 'properties.' through track.proxy().
-  for (i = 0; i < cmArr.length; i++) {
-    if (cmArr[i] === '') {
-      cmArr.splice(i, 1);
+  for (var k = 0; k < cmArr.length; k++) {
+    if (cmArr[k] === '') {
+      cmArr.splice(k, 1);
     }
   }
   if (cmArr.length) {
     // If the user has specified they want to use specific additional metrics, then we'll try to find them.
-    for (var j = 0; j < cmArr.length; j++) {
-      var key = cmArr[j];
+    for (var x = 0; x < cmArr.length; x++) {
+      var key = cmArr[x];
       var value = track.proxy('properties.' + key);
       if (value) {
         action[key] = value;

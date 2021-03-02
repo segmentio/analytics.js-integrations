@@ -11,11 +11,6 @@ describe('Intercom', function() {
   var intercom;
   var options = {
     appId: 'a3vy8ufv',
-    blacklisted: {
-      stringifyMe: 'stringify',
-      flattenMe: 'flatten',
-      dropMe: 'drop'
-    },
     defaultMethod: 'flatten',
     richLinkProperties: []
   };

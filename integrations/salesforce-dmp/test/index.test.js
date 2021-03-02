@@ -201,7 +201,7 @@ describe('Salesforce DMP V2', function() {
       // previously SFDMP would throw an error if a customer invoked an
       // unmapped `track` event while `sendEventNames` setting was enabled
       // this edge case has been resolved, but we test for it anyway
-      it('does not throw an error if `sendEventNames` setting is enabled but no track events are whitelisted', function() {
+      it('does not throw an error if `sendEventNames` setting is enabled but no track events are allowed', function() {
         var edgeCaseOptions = {
           confId: '123',
           useV2LogicClient: true,

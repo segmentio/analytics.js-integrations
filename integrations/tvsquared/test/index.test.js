@@ -242,7 +242,7 @@ describe('TV Squared', function() {
         );
       });
 
-      it('should send whitelisted events if a whitelist is defined', function() {
+      it('should send allowed events if an allowlist is defined', function() {
         // HACK(ndhoule): Should find a better way to set userId
         var userId = '12345';
         analytics.user().anonymousId(userId);
@@ -288,7 +288,7 @@ describe('TV Squared', function() {
         );
       });
 
-      it('should not send non-whitelisted events if a whitelist is defined', function() {
+      it('should not send non-allowed events if an allowlist is defined', function() {
         // HACK(ndhoule): Should find a better way to set userId
         var userId = '12345';
         analytics.user().anonymousId(userId);
@@ -311,7 +311,7 @@ describe('TV Squared', function() {
         analytics.assert(window._tvq.length === 3);
       });
 
-      it('should send all events if no whitelist is defined', function() {
+      it('should send all events if no allowlist is defined', function() {
         // HACK(ndhoule): Should find a better way to set userId
         var userId = '12345';
         analytics.user().anonymousId(userId);

@@ -127,7 +127,7 @@ Klaviyo.prototype.orderCompleted = function(track) {
     Items: products.items
   };
 
-  var whitelist = [
+  var allowlist = [
     '$event_id',
     '$value',
     'orderId',
@@ -140,7 +140,7 @@ Klaviyo.prototype.orderCompleted = function(track) {
     'products'
   ];
   // strip standard props and leave custom props only
-  var topLevelCustomProps = filter(track, whitelist);
+  var topLevelCustomProps = filter(track, allowlist);
 
   payload = extend(payload, topLevelCustomProps);
 
@@ -183,7 +183,7 @@ function formatItems(track) {
   return foldl(
     function(payloads, props) {
       var product = new Track({ properties: props });
-      var itemWhitelist = [
+      var itemAllowlist = [
         '$event_id',
         '$value',
         'name',
@@ -200,7 +200,7 @@ function formatItems(track) {
       ];
 
       // filter standard item props so we can merge custom props later
-      var itemCustomProps = filter(product, itemWhitelist);
+      var itemCustomProps = filter(product, itemAllowlist);
 
       var item = reject({
         $value: product.price(),
@@ -239,7 +239,7 @@ function formatProducts(products) {
   return foldl(
     function(payloads, props) {
       var product = new Track({ properties: props });
-      var whitelist = [
+      var allowlist = [
         'id',
         'product_id',
         'productId',
@@ -255,7 +255,7 @@ function formatProducts(products) {
         'imageUrl'
       ];
       // filter standard traits to merge custom props later
-      var customProps = filter(product, whitelist);
+      var customProps = filter(product, allowlist);
 
       var item = reject({
         id: product.productId() || product.id(),

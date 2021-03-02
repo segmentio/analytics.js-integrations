@@ -61,7 +61,7 @@ var dateFields = [
  * FB does not allow sending PII data with events. They provide a list of what they consider PII here:
  * https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking
  * We need to check each property key to see if it matches what FB considers to be a PII property and strip it from the payload.
- * User's can override this by manually whitelisting keys they are ok with sending through in their integration settings.
+ * User's can override this by manually allowing keys they are ok with sending through in their integration settings.
  */
 var defaultPiiProperties = [
   'email',
