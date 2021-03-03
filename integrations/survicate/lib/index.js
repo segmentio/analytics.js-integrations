@@ -8,7 +8,7 @@ var integration = require('@segment/analytics.js-integration');
 var when = require('do-when');
 var del = require('obj-case').del;
 var is = require('is');
-var snake = require('change-case').snake;
+var snake = require('change-case').snakeCase;
 var each = require('@ndhoule/each');
 
 
