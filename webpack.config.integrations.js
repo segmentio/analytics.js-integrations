@@ -21,6 +21,9 @@ files.forEach(function(file) {
   entries[file] = filePath;
 });
 
+// tv-squared is named improperly, so we'll need to alias it to match the actual destination name
+entries['tv-squared'] = entries['tvsquared'];
+
 var plugins = [
   new CompressionPlugin({
     cache: true,
