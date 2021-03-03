@@ -30,7 +30,7 @@ window['${libraryName}Loader'] = function() {
 }
 `.trim();
 
-  const filename = file.replace('.js', '.dynamic.js');
+  const filename = file.replace(/\.js$/, '.dynamic.js');
   fs.writeFileSync(filename + '.gz', zlib.gzipSync(dynamic));
   fs.writeFileSync(filename, dynamic);
 });
