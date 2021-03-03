@@ -1,7 +1,7 @@
 {
   "name": "@survicate/analytics.js-integration-survicate",
   "description": "The Survicate analytics.js integration.",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -22,7 +22,7 @@
   "dependencies": {
     "@segment/analytics.js-integration": "^2.1.0",
     "do-when": "^1.0.0",
-    "change-case": "^4.1.2",
+    "change-case": "^3.1.0",
     "@ndhoule/each": "^2.0.1",
     "is": "^3.3.0"
   },
