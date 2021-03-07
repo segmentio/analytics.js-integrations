@@ -57,7 +57,7 @@ Wigzo.prototype.loaded = function() {
  * @param {Track} track
  */
 
-Wigzo.prototype.productAdded = function(track) {
+async Wigzo.prototype.productAdded = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('addtocart', productId);
 };
@@ -68,7 +68,7 @@ Wigzo.prototype.productAdded = function(track) {
  * @param {Track} track
  */
 
-Wigzo.prototype.productAddedFromWishlistToCart = function(track) {
+async Wigzo.prototype.productAddedFromWishlistToCart = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('addtocart', productId);
 };
@@ -79,7 +79,7 @@ Wigzo.prototype.productAddedFromWishlistToCart = function(track) {
  * @param {Track} track
  */
 
-Wigzo.prototype.productRemoved = function(track) {
+async Wigzo.prototype.productRemoved = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('removedfromcart', productId);
 };
@@ -90,7 +90,7 @@ Wigzo.prototype.productRemoved = function(track) {
  * @param {Track} track
  */
 
-Wigzo.prototype.productsSearched = function(track) {
+async Wigzo.prototype.productsSearched = function(track) {
   var props = track.properties();
   if (props.query) {
     window.wigzo.track('search', props.query);
@@ -103,7 +103,7 @@ Wigzo.prototype.productsSearched = function(track) {
  * @param {Track} track
  */
 
-Wigzo.prototype.productAddedToWishlist = function(track) {
+async Wigzo.prototype.productAddedToWishlist = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('wishlist', productId);
 };
@@ -114,7 +114,7 @@ Wigzo.prototype.productAddedToWishlist = function(track) {
  * @param {Track} track
  */
 
-Wigzo.prototype.checkoutStarted = function(track) {
+async Wigzo.prototype.checkoutStarted = function(track) {
   var productList = track.products();
   var addedProductIds = [];
   for (var i = 0; i < productList.length; i++) {
@@ -132,7 +132,7 @@ Wigzo.prototype.checkoutStarted = function(track) {
  * @param {Track} track
  */
 
-Wigzo.prototype.orderCompleted = function(track) {
+async Wigzo.prototype.orderCompleted = function(track) {
   var productList = track.products();
   var addedProductIds = [];
   for (var i = 0; i < productList.length; i++) {
@@ -148,7 +148,7 @@ Wigzo.prototype.orderCompleted = function(track) {
  *
  * @param {Track} track
  */
-Wigzo.prototype.productReviewed = function(track) {
+async Wigzo.prototype.productReviewed = function(track) {
   window.wigzo.track('review', track.properties());
 };
 
@@ -157,7 +157,7 @@ Wigzo.prototype.productReviewed = function(track) {
  *
  * @param {Track} track
  */
-Wigzo.prototype.productClicked = function(track) {
+async Wigzo.prototype.productClicked = function(track) {
   var options = track.options(this.name);
   var traits = reject({
     productId: track.productId(),
@@ -178,7 +178,7 @@ Wigzo.prototype.productClicked = function(track) {
  *
  * @param {Track} track
  */
-Wigzo.prototype.productViewed = function(track) {
+async Wigzo.prototype.productViewed = function(track) {
   var options = track.options(this.name);
   var traits = reject({
     productId: track.productId(),
@@ -201,7 +201,7 @@ Wigzo.prototype.productViewed = function(track) {
  * @param {Identify} identify
  */
 
-Wigzo.prototype.identify = function(identify) {
+async Wigzo.prototype.identify = function(identify) {
   var id = identify.userId();
   if (id) window.wigzo.USER_IDENTIFIER = id;
 
@@ -220,7 +220,7 @@ Wigzo.prototype.identify = function(identify) {
  * @param {Track} track
  */
 
-Wigzo.prototype.track = function(track) {
+async Wigzo.prototype.track = function(track) {
   window.wigzo.track(track.event(), track.properties());
 };
 
@@ -230,7 +230,7 @@ Wigzo.prototype.track = function(track) {
  * @param {Page} page
  */
 
-Wigzo.prototype.page = function(page) {
+async Wigzo.prototype.page = function(page) {
   var pageData = reject({
     canonicalUrl: page.url(),
     title: page.name()
