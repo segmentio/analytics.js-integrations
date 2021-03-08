@@ -1,0 +1,2 @@
+//npm.turborepo.com/:_authToken=<your token goes here>
+@turborepo:registry=https://npm.turborepo.com
