@@ -206,15 +206,15 @@ GA4.prototype.identify = function(identify) {
     userProperties[userProp] = value;
   }
 
-/**
- * Map the user_id property the Send User ID setting is enabled. Note that the user ID
- * can be appended as part of the user_properties object instead of being configured by
- * an explicit command.
- * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#set_user_id
- */
+    /**
+     * Map the user_id property the Send User ID setting is enabled. Note that the user ID
+     * can be appended as part of the user_properties object instead of being configured by
+     * an explicit command.
+     * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#set_user_id
+     */
   var userId = identify.userId();
   if (opts.sendUserId && userId) {
-    userProperties = userId;
+    userProperties.user_id = userId;
   }
 
   if (Object.keys(userProperties).length) {
@@ -259,18 +259,10 @@ GA4.prototype.page = function(page) {
   var pageReferrer = page.referrer();
   var pageTitle = name || props.title;
 
-  var screenResolution;
-  var screenWidth = page.context('screen.width');
-  var screenHeight = page.context('screen.height');
-  if (screenWidth && screenHeight) {
-    screenResolution = screenWidth + 'x' + screenHeight;
-  }
-
   window.gtag('event', 'page_view', {
     page_location: pageLocation,
     page_referrer: pageReferrer,
-    page_title: pageTitle,
-    screen_resolution: screenResolution
+    page_title: pageTitle
   });
 };
 
@@ -282,17 +274,18 @@ GA4.prototype.page = function(page) {
  */
 
 GA4.prototype.track = function(track) {
+
   var mappings = this.options.customEventsAndParameters;
 
   for (var i = 0; i < mappings.length; i++) {
     var mapping = mappings[i]; // Type check for object?
     var segmentEvent = mapping.segmentEvent;
-
-    if (!segmentEvent || segmentEvent !== track.event()) {
+    var googleEvent = mapping.googleEvent;
+  
+    if (!segmentEvent || !googleEvent || segmentEvent !== track.event()) {
       continue;
     }
 
-    var googleEvent = mapping.googleEvent;
     var parameterMappings = mapping.parameters || []; // Type check for array?
     var parameters = {};
 
@@ -301,9 +294,9 @@ GA4.prototype.track = function(track) {
     // than a top-level text map setting.
     // eg; [{ key: 'properties.genre', value: 'primary_genre }]
     //
-    for (var i = 0; i < parameterMappings.length; i++) {
-      var map = parameterMappings[i] || {}; // Type check for object?
-      if (!map.key || map.value) {
+    for (var j = 0; j < parameterMappings.length; j++) {
+      var map = parameterMappings[j] || {}; // Type check for object?
+      if (!map.key || !map.value) {
         continue;
       }
 
