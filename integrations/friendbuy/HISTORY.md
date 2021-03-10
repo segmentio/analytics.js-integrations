@@ -4,6 +4,11 @@
   * Relay merchant-specific customer traits to the Friendbuy destination
   * Fix pre-existing linting errors
 
+1.0.8 / 2020-12-14
+===================
+
+  * Bump segmentio-facade to ^3.2.7
+
 1.0.7 / 2018-02-23
 ==================
 

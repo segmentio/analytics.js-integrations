@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-google-analytics",
   "description": "The Google Analytics analytics.js integration.",
-  "version": "2.18.3",
+  "version": "2.18.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -27,14 +27,14 @@
     "@ndhoule/defaults": "^2.0.1",
     "@segment/analytics.js-integration": "^3.1.0",
     "component-each": "^0.2.6",
-    "extend": "^3.0.1",
+    "extend": "^3.0.2",
     "global-queue": "^1.0.1",
     "is": "^3.1.0",
     "lodash": "^4.17.4",
     "obj-case": "^0.2.0",
     "object-component": "0.0.3",
     "reject": "0.0.1",
-    "segmentio-facade": "^3.1.0",
+    "segmentio-facade": "^3.2.7",
     "use-https": "^0.1.1"
   },
   "devDependencies": {

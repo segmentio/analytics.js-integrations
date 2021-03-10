@@ -1,12 +1,33 @@
 env:
-  SEGMENT_CONTEXTS: 'snyk,aws-credentials,ecr,saucelabs,npm-publish'
+  SEGMENT_CONTEXTS: 'snyk,npm,aws-credentials,ecr,saucelabs,npm-publish'
+  SEGMENT_BUILDKITE_IMAGE: 'analytics-next-ci-agent'
+
 steps:
   - label: ':hammer: Build and Test'
+    agents:
+      queue: v1
     command:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
-      - yarn lint
       - yarn test
+    plugins:
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ['node_modules/']
+          s3_bucket_name: 'segment-buildkite-cache'
+          save: true
+      - docker#v3.3.0:
+          image: circleci/node:12.18-browsers
+          user: root
+          environment:
+            - NPM_TOKEN
+            - CHROME-BIN=google-chrome
+
+  - label: 'SauceLabs'
+    soft_fail: true
+    command:
+      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      - yarn install --ignore-engines
       - yarn test:ci
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
@@ -21,14 +42,41 @@ steps:
             - SAUCE_USERNAME
             - SAUCE_ACCESS_KEY
 
-  - label: ':hammer: Synk Setup'
+  - label: '🔒 Snyk Security Check'
+    agents:
+      queue: v1
     plugins:
-      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.3.0:
+      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.2.0:
           runtime: npm
           fail-on: upgradable
-          severity-threshold: high
 
   - wait: ~
+
+  - label: ':cloud: Upload Assets to stage bucket'
+    branches: master staging
+    agents:
+      queue: v1
+    command:
+      - echo "--- Upload"
+      - NODE_ENV=production ./.buildkite/upload.sh
+    plugins:
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ['node_modules/']
+          s3_bucket_name: 'segment-buildkite-cache'
+
+  - label: ':cloud: Upload Assets to production bucket'
+    branches: master
+    agents:
+      queue: v1
+    command:
+      - echo "--- Upload"
+      - NODE_ENV=production ./.buildkite/publish.sh
+    plugins:
+      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
+          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
+          paths: ['node_modules/']
+          s3_bucket_name: 'segment-buildkite-cache'
 
   - label: ':cloud: Publish'
     branches: master
@@ -39,8 +87,4 @@ steps:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
           paths: ['node_modules/']
-      - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-          user: root
-          environment:
-            - NPM_TOKEN
+          s3_bucket_name: 'segment-buildkite-cache'

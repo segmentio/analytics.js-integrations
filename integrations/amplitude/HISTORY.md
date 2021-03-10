@@ -1,3 +1,8 @@
+
+# 3.3.1 / 2020-12-14
+
+- Bump segmentio-facade to ^3.2.7
+
 # 3.3.0 / 2019-10-09
 
 - Add support for versionName setting, this will allow user to specify version.

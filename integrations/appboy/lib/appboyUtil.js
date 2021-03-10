@@ -22,14 +22,22 @@ var appboyUtil = {
     return customEndpoint;
   },
 
-  isVersionTwo: function(options) {
-    return Number(options.version) === 2;
+  getMajorVersion: function(options) {
+    return Math.floor(Number(options.version));
   },
-
+  isMajorVersionTwo: function(options) {
+    return appboyUtil.getMajorVersion(options) === 2;
+  },
+  isMajorVersionThree: function(options) {
+    return appboyUtil.getMajorVersion(options) === 3;
+  },
   getConfig: function(options) {
     var config = {};
-    if (appboyUtil.isVersionTwo(options)) {
-      // https://js.appboycdn.com/web-sdk/2.0/doc/module-appboy.html#.initialize
+    if (
+      appboyUtil.isMajorVersionTwo(options) ||
+      appboyUtil.isMajorVersionThree(options)
+    ) {
+      // https://js.appboycdn.com/web-sdk/3.1/doc/module-appboy.html#.initialize
       config = {
         safariWebsitePushId: options.safariWebsitePushId,
         enableHtmlInAppMessages: options.enableHtmlInAppMessages,

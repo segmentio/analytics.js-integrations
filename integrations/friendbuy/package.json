@@ -28,7 +28,7 @@
     "is": "^3.2.1",
     "obj-case": "^0.2.0",
     "reject": "0.0.1",
-    "segmentio-facade": "^3.2.2",
+    "segmentio-facade": "^3.2.7",
     "to-no-case": "^1.0.2"
   },
   "devDependencies": {
