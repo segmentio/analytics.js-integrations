@@ -124,8 +124,9 @@ exports.sendJsonWithTimeout = function(url, obj, headers, timeout, fn) {
 
   function done() {
     if (req.readyState === 4) {
-      // Fail on 429 and 5xx HTTP errors
-      if (req.status === 429 || (req.status >= 500 && req.status < 600)) {
+      // For XHRHttpRequests, a Network error is represented as a status code of 0.
+      // Fail on 0, 429 and 5xx HTTP errors
+      if (req.status === 0 || req.status === 429 || (req.status >= 500 && req.status < 600)) {
         fn(new Error('HTTP Error ' + req.status + ' (' + req.statusText + ')'));
       } else {
         fn(null, req);

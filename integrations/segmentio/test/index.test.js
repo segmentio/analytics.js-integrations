@@ -1593,7 +1593,7 @@ describe('Segment.io', function() {
         xhr.restore();
       });
 
-      [429, 500, 503].forEach(function(code) {
+      [0, 429, 500, 503].forEach(function(code) {
         it('should throw on ' + code + ' HTTP errors', function(done) {
           if (send.type !== 'xhr') return done();
 
