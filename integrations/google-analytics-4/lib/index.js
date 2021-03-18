@@ -24,6 +24,28 @@ var GA4 = (module.exports = integration('Google Analytics 4')
   .option('disableGoogleAnalytics', false)
   .option('sendUserId', false)
   .option('userProperties', {})
+  /**
+   * Custom Events and Parameters setting. This setting is used by the track
+   * handler to map Segment events and fields to Google analytics events and parameters.
+   *
+   * Example:
+   * [
+   *   {
+   *     "googleEvent": "new_episode",
+   *     "parameters": [
+   *       {
+   *         "key": "properties.title",
+   *         "value": "title"
+   *       },
+   *       {
+   *         "key": "properties.genre",
+   *         "value": "genre"
+   *       }
+   *     ],
+   *     "segmentEvent": "Started Episode"
+   *   }
+   * ]
+   */
   .option('customEventsAndParameters', [])
   .tag(
     '<script src="//www.googletagmanager.com/gtag/js?id={{ measurementId }}&l=ga4DataLayer">'
@@ -174,12 +196,12 @@ GA4.prototype.identify = function(identify) {
     userProperties[userProp] = value;
   }
 
-    /**
-     * Map the user_id property the Send User ID setting is enabled. Note that the user ID
-     * can be appended as part of the user_properties object instead of being configured by
-     * an explicit command.
-     * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#set_user_id
-     */
+  /**
+   * Map the user_id property the Send User ID setting is enabled. Note that the user ID
+   * can be appended as part of the user_properties object instead of being configured by
+   * an explicit command.
+   * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#set_user_id
+   */
   var userId = identify.userId();
   if (opts.sendUserId && userId) {
     userProperties.user_id = userId;
