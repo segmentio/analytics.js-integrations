@@ -197,11 +197,9 @@ GA4.prototype.identify = function(identify) {
  * @param {Facade.Group} group
  */
 GA4.prototype.group = function(group) {
-  var props = reject({
+  window.gtag('event', 'join_group', {
     group_id: group.groupId()
   });
-
-  window.gtag('event', 'join_group', props);
 };
 
 /**
