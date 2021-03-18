@@ -222,7 +222,6 @@ GA4.prototype.page = function(page) {
   var props = page.properties();
   var name = page.fullName();
 
-  // var language = ;
   var pageLocation = props.url;
   var pageReferrer = page.referrer();
   var pageTitle = name || props.title;
