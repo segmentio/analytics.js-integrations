@@ -13,9 +13,9 @@ var GA4 = (module.exports = integration('Google Analytics 4')
   .global('gtag')
   .global('ga4DataLayer')
   .option('measurementIds', [])
-  .option('cookieDomainName', '')
-  .option('cookiePrefix', '')
-  .option('cookieExpiration', 0)
+  .option('cookieDomainName', 'auto')
+  .option('cookiePrefix', '_ga')
+  .option('cookieExpiration', 63072000)
   .option('cookieUpdate', true)
   .option('cookieFlags', '')
   .option('disablePageViewMeasurement', true)
@@ -42,128 +42,96 @@ GA4.prototype.initialize = function() {
     window.ga4DataLayer.push(arguments);
   };
 
-  // This line is in all of the gtag examples but is not well documented. Research says
-  // says that it is is related to deduplication.
-  // https://stackoverflow.com/questions/59256532/what-is-the-js-gtags-js-command
+  /**
+   * This line is in all of the gtag examples but is not well documented. Research
+   * says that it is is related to deduplication.
+   * https://stackoverflow.com/questions/59256532/what-is-the-js-gtags-js-command
+   */
   window.gtag('js', new Date());
 
-  var config = [];
   var opts = this.options;
   var measurementIds = opts.measurementIds;
 
-  // Avoid loading and configuring gtag.js if any are true:
-  //   - Disable Google Analytics setting is enabled
-  //   - No measurement IDs are configured
+  /**
+   * Avoid loading and configuring gtag.js if any are true:
+   *  - Disable Google Analytics setting is enabled
+   *  - No measurement IDs are configured
+   */
   if (!measurementIds.length || opts.disableGoogleAnalytics) {
     return;
   }
 
-  // Measurement IDs
-  // https://developers.google.com/analytics/devguides/collection/ga4#add_an_additional_google_analytics_property_to_an_existing_tag
-  for (var i = 0; i < measurementIds.length; i++) {
-    config.push(['config', measurementIds[i]]);
-  }
+  var config = {
+    /**
+     * Disable Automatic Page View Measurement
+     * https://developers.google.com/analytics/devguides/collection/ga4/disable-page-view
+     */
+    send_page_view: !opts.disablePageViewMeasurement,
 
-  // Disable Page View Measurement
-  // https://developers.google.com/analytics/devguides/collection/ga4/disable-page-view
-  if (opts.disablePageViewMeasurement) {
-    for (var i = 0; i < measurementIds.length; i++) {
-      config.push([
-        'config',
-        measurementIds[i],
-        {
-          send_page_view: false
-        }
-      ]);
-    }
-  }
+    /**
+     * Cookie Update
+     * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_update_parameter
+     */
+    cookie_update: opts.cookieUpdate,
 
-  /**
-   * Cookie Settings
-   */
+    /**
+     * Cookie Domain Name
+     * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_domain_configuration
+     */
+    cookie_domain: opts.cookieDomainName,
 
-  // Cookie Update
-  // https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_update_parameter
-  for (var i = 0; i < measurementIds.length; i++) {
-    config.push([
-      'config',
-      measurementIds[i],
-      {
-        cookie_update: opts.cookieUpdate
-      }
-    ]);
-  }
+    /**
+     * Cookie Prefix
+     * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_prefix
+     */
+    cookie_prefix: opts.cookiePrefix,
 
-  // Cookie Domain Name
-  // https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_domain_configuration
-  if (opts.cookieDomainName) {
-    for (var i = 0; i < measurementIds.length; i++) {
-      config.push([
-        'config',
-        measurementIds[i],
-        {
-          cookie_domain: opts.cookieDomainName
-        }
-      ]);
-    }
-  }
+    /**
+     * Cookie Expiration
+     * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_expiration
+     */
+    cookie_expires: opts.cookieExpiration,
+  };
 
-  // Cookie Prefix
-  // https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_prefix
-  if (opts.cookiePrefix) {
-    for (var i = 0; i < measurementIds.length; i++) {
-      config.push([
-        'config',
-        measurementIds[i],
-        {
-          cookie_prefix: opts.cookiePrefix
-        }
-      ]);
-    }
-  }
+  var sets = [
+    /**
+     * Cookie Flags
+     * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_flags
+     */
+    [{ cookie_flags: opts.cookieFlags }],
 
-  // Cookie Expiration
-  // https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_expiration
-  if (opts.cookieExpiration) {
-    for (var i = 0; i < measurementIds.length; i++) {
-      config.push([
-        'config',
-        measurementIds[i],
-        {
-          cookie_expires: opts.cookieExpiration
-        }
-      ]);
-    }
-  }
+    /**
+     * Disable All Advertising
+     * https://developers.google.com/analytics/devguides/collection/ga4/display-features#disable_all_advertising_features
+     */
+    ['allow_google_signals', !opts.disableAllAdvertisingFeatures],
 
-  // Cookie Flags
-  // https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_flags
-  if (opts.cookieFlags) {
-    config.push(['set', { cookie_flags: opts.cookieFlags }]);
-  }
+    /**
+     * Disable Advertising Personalization
+     * https://developers.google.com/analytics/devguides/collection/ga4/display-features#disable_advertising_personalization
+     */
+    ['allow_ad_personalization_signals', !opts.disableAdvertisingPersonalization]
+  ];
 
-  /**
-   * Privacy and Advertising Settings
-   */
-
-  // Disable All Advertising
-  // https://developers.google.com/analytics/devguides/collection/ga4/display-features#disable_all_advertising_features
-  if (opts.disableAllAdvertisingFeatures) {
-    config.push(['set', 'allow_google_signals', false]);
-  }
-
-  // Disable Advertising Personalization
-  // https://developers.google.com/analytics/devguides/collection/ga4/display-features#disable_advertising_personalization
-  if (opts.disableAdvertisingPersonalization) {
-    config.push(['set', 'allow_ad_personalization_signals', false]);
-  }
-
-  // Load gtag.js using the first measurement ID, then configure
-  // using the `config` commands built above.
+  // Load gtag.js using the first measurement ID, then configure using the `config` commands built above.
   var self = this;
   this.load({ measurementId: measurementIds[0] }, function() {
-    for (var i = 0; i < config.length; i++) {
-      window.gtag.apply(null, config[i]);
+    /**
+     * Measurement IDs.
+     * The same configuration information is shared across all measurement IDs.
+     * https://developers.google.com/analytics/devguides/collection/ga4#add_an_additional_google_analytics_property_to_an_existing_tag
+     */
+    for (var i = 0; i < measurementIds.length; i++) {
+      window.gtag('config', measurementIds[i], config)
+
+    }
+
+    /**
+     * Set persistent values shared across all gtag.js usage.
+     * https://developers.google.com/gtagjs/reference/api#set
+     */
+    for (var i = 0; i < sets.length; i++) {
+      window.gtag.apply(null, sets[i]);
     }
 
     self.ready();

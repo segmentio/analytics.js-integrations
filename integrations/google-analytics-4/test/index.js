@@ -15,7 +15,7 @@ describe('Google Analytics 4', function () {
     var ga4;
 
     var settings = {
-        measurementIds: ['GA-100', 'GA-200']
+        measurementIds: ['G-100', 'G-200']
     };
 
     beforeEach(function () {
@@ -40,9 +40,9 @@ describe('Google Analytics 4', function () {
                 .global('gtag')
                 .global('ga4DataLayer')
                 .option('measurementIds', [])
-                .option('cookieDomainName', '')
-                .option('cookiePrefix', '')
-                .option('cookieExpiration', 0)
+                .option('cookieDomainName', 'auto')
+                .option('cookiePrefix', '_ga')
+                .option('cookieExpiration', 63072000)
                 .option('cookieUpdate', true)
                 .option('cookieFlags', '')
                 .option('disablePageViewMeasurement', true)
@@ -55,18 +55,13 @@ describe('Google Analytics 4', function () {
         );
     });
 
-    describe('before loading', function () {
-        var loadArgs;
-
+    describe('loading', function () {
         beforeEach(function () {
-            analytics.stub(ga4, 'load', function (args, callback) {
-                loadArgs = args;
-                callback();
-            });
+            analytics.spy(ga4, 'load');
         });
 
-        afterEach(function () {
-            loadArgs = null;
+        it('should load', function (done) {
+            analytics.load(ga4, done);
         });
 
         describe('#initialize', function () {
@@ -98,121 +93,72 @@ describe('Google Analytics 4', function () {
 
             it('should load gtag.js with the first measurement ID', function () {
                 analytics.initialize();
-                analytics.called(ga4.load);
-
-                analytics.deepEqual(loadArgs, {
-                    measurementId: ga4.options.measurementIds[0]
-                });
-            });
-
-            it('should configure all measurement IDs', function () {
-                analytics.initialize();
-
-                analytics.deepEqual(toArray(window.ga4DataLayer[1]), [
-                    'config',
-                    'GA-100'
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[2]), [
-                    'config',
-                    'GA-200'
-                ]);
-            });
-
-            it('should disable page view measurement for all measurement IDs', function () {
-                ga4.options.disablePageViewMeasurement = true;
-                analytics.initialize();
-
-                analytics.deepEqual(toArray(window.ga4DataLayer[3]), [
-                    'config',
-                    'GA-100',
-                    { send_page_view: false }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[4]), [
-                    'config',
-                    'GA-200',
-                    { send_page_view: false }
-                ]);
-            });
-
-            it('should set cookie related setting for all measurement IDs', function () {
-                ga4.options.disablePageViewMeasurement = false; // Reduces the data layer queue depth
-                ga4.options.cookieUpdate = false;
-                ga4.options.cookieDomainName = 'ajs.test'
-                ga4.options.cookiePrefix = 'test_prefix'
-                ga4.options.cookieExpiration = 21
-                ga4.options.cookieFlags = 'SameSite=None;Secure'
-                analytics.initialize();
-                analytics.deepEqual(toArray(window.ga4DataLayer[3]), [
-                    'config',
-                    'GA-100',
-                    { cookie_update: false }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[4]), [
-                    'config',
-                    'GA-200',
-                    { cookie_update: false }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[5]), [
-                    'config',
-                    'GA-100',
-                    { cookie_domain: 'ajs.test' }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[6]), [
-                    'config',
-                    'GA-200',
-                    { cookie_domain: 'ajs.test' }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[7]), [
-                    'config',
-                    'GA-100',
-                    { cookie_prefix: 'test_prefix' }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[8]), [
-                    'config',
-                    'GA-200',
-                    { cookie_prefix: 'test_prefix' }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[9]), [
-                    'config',
-                    'GA-100',
-                    { cookie_expires: 21 }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[10]), [
-                    'config',
-                    'GA-200',
-                    { cookie_expires: 21 }
-                ]);
-                analytics.deepEqual(toArray(window.ga4DataLayer[11]), [
-                    'set',
-                    { cookie_flags: 'SameSite=None;Secure' }
-                ]);
-            });
-
-            it('should disable all advertising features', function () {
-                ga4.options.disableAllAdvertisingFeatures = true;
-                analytics.initialize();
-                analytics.deepEqual(toArray(window.ga4DataLayer[7]), [
-                    'set',
-                    'allow_google_signals',
-                    false
-                ]);
-            });
-
-            it('should disable all advertising features', function () {
-                ga4.options.disableAdvertisingPersonalization = true;
-                analytics.initialize();
-                analytics.deepEqual(toArray(window.ga4DataLayer[7]), [
-                    'set',
-                    'allow_ad_personalization_signals',
-                    false
-                ]);
+                analytics.called(ga4.load)
+                analytics.loaded('<script src="http://www.googletagmanager.com/gtag/js?id=G-100&l=ga4DataLayer"></script>')
             });
         });
     });
 
-    describe('loading', function () {
-        it('should load', function (done) {
-            analytics.load(ga4, done);
+    describe('configuring', function () {
+        beforeEach(function () {
+            // Avoid loading gtag.js so it doesn't process commands sent to
+            // the data layer before we can assert their values.
+            analytics.stub(ga4, 'load', function (args, callback) {
+                callback();
+            });
+        });
+
+        it('should configure all measurement IDs', function () {
+            analytics.initialize();
+            analytics.equal(toArray(window.ga4DataLayer)[1][0], 'config')
+            analytics.equal(toArray(window.ga4DataLayer)[1][1], 'G-100')
+            analytics.equal(toArray(window.ga4DataLayer)[2][0], 'config')
+            analytics.equal(toArray(window.ga4DataLayer)[2][1], 'G-200')
+        });
+
+        it('should disable automatic page view measurement for all measurement IDs', function () {
+            ga4.options.disablePageViewMeasurement = true;
+            analytics.initialize();
+
+            analytics.equal(window.ga4DataLayer[1][2]['send_page_view'], false)
+            analytics.equal(window.ga4DataLayer[2][2]['send_page_view'], false)
+        });
+
+        it('should set cookie related setting for all measurement IDs', function () {
+            ga4.options.cookieUpdate = false;
+            ga4.options.cookieDomainName = 'ajs.test'
+            ga4.options.cookiePrefix = 'test_prefix'
+            ga4.options.cookieExpiration = 21
+            ga4.options.cookieFlags = 'SameSite=None;Secure'
+            analytics.initialize();
+
+            analytics.equal(window.ga4DataLayer[1][2]['cookie_update'], false)
+            analytics.equal(window.ga4DataLayer[2][2]['cookie_update'], false)
+
+            analytics.equal(window.ga4DataLayer[1][2]['cookie_domain'], 'ajs.test')
+            analytics.equal(window.ga4DataLayer[2][2]['cookie_domain'], 'ajs.test')
+
+            analytics.equal(window.ga4DataLayer[1][2]['cookie_prefix'], 'test_prefix')
+            analytics.equal(window.ga4DataLayer[2][2]['cookie_prefix'], 'test_prefix')
+
+            analytics.equal(window.ga4DataLayer[1][2]['cookie_expires'], 21)
+            analytics.equal(window.ga4DataLayer[2][2]['cookie_expires'], 21)
+
+            // cookie_flags uses the `set` command
+            analytics.equal(window.ga4DataLayer[3][0]['cookie_flags'], 'SameSite=None;Secure')
+
+        });
+
+        it('should disable all advertising features', function () {
+            ga4.options.disableAllAdvertisingFeatures = true;
+            analytics.initialize();
+            analytics.deepEqual(toArray(window.ga4DataLayer[4]), ['allow_google_signals', false])
+        });
+
+        it('should disable all advertising features', function () {
+            ga4.options.disableAdvertisingPersonalization = true;
+            analytics.initialize();
+            analytics.deepEqual(toArray(window.ga4DataLayer[5]), ['allow_ad_personalization_signals', false])
         });
     });
 
