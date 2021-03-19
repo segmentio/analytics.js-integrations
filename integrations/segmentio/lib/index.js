@@ -321,7 +321,7 @@ Segment.prototype.normalize = function(message) {
     // Generate a list of bundled config IDs using the intersection of
     // bundled destination names and maybe bundled config IDs.
     var bundledConfigIds = [];
-    var bundledIdsComputedAtRuntime = false
+    var bundledIdsComputedAtRuntime = false;
     for (var i = 0; i < bundled.length; i++) {
       var name = bundled[i]
       if (!maybeBundledConfigIds) {
@@ -332,7 +332,7 @@ Segment.prototype.normalize = function(message) {
       }
 
       for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
-        bundledIdsComputedAtRuntime = true
+        bundledIdsComputedAtRuntime = true;
         var id = maybeBundledConfigIds[name][j];
         bundledConfigIds.push(id);
       }
