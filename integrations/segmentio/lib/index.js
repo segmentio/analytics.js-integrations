@@ -344,6 +344,7 @@ Segment.prototype.normalize = function(message) {
     msg._metadata.bundledIds = bundledConfigIds;
     msg._metadata.maybeBundledConfigIds = maybeBundledConfigIds;
     msg._metadata.bundledIdsComputedAtRuntime = bundledIdsComputedAtRuntime;
+    msg._metadata.addBundledMetadata = this.options.addBundledMetadata;
   }
   this.debug('normalized %o', msg);
   this.ampId(ctx);
