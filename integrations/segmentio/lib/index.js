@@ -333,16 +333,17 @@ Segment.prototype.normalize = function(message) {
 
       for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
         bundledIdsComputedAtRuntime = true
-        bundledConfigIds.push(maybeBundledConfigIds[name][j]);
+        var id = maybeBundledConfigIds[name][j];
+        bundledConfigIds.push(id);
       }
     }
-
 
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
     msg._metadata.bundledIds = bundledConfigIds;
     msg._metadata.maybeBundledConfigIds = maybeBundledConfigIds;
+    msg._metadata.bundledIdsComputedAtRuntime = bundledIdsComputedAtRuntime;
   }
   this.debug('normalized %o', msg);
   this.ampId(ctx);
