@@ -314,6 +314,7 @@ Segment.prototype.normalize = function(message) {
   if (failedInitializations.length > 0) {
     msg._metadata = { failedInitializations: failedInitializations };
   }
+  var bundledIdsComputedAtRuntime = false;
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
     var maybeBundledConfigIds = this.options.maybeBundledConfigIds
@@ -321,7 +322,6 @@ Segment.prototype.normalize = function(message) {
     // Generate a list of bundled config IDs using the intersection of
     // bundled destination names and maybe bundled config IDs.
     var bundledConfigIds = []
-    var bundledIdsComputedAtRuntime = false;
     for (var i = 0; i < bundled.length; i++) {
       var name = bundled[i]
       if (!maybeBundledConfigIds) {
