@@ -320,7 +320,8 @@ Segment.prototype.normalize = function(message) {
 
     // Generate a list of bundled config IDs using the intersection of
     // bundled destination names and maybe bundled config IDs.
-    var bundledIds = [];
+    var bundledConfigIds = [];
+    var bundledIdsComputedAtRuntime = false
     for (var i = 0; i < bundled.length; i++) {
       var name = bundled[i]
       if (!maybeBundledConfigIds) {
@@ -331,7 +332,8 @@ Segment.prototype.normalize = function(message) {
       }
 
       for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
-        bundledIds.push(maybeBundledConfigIds[name][j]);
+        bundledIdsComputedAtRuntime = true
+        bundledConfigIds.push(maybeBundledConfigIds[name][j]);
       }
     }
 
@@ -339,7 +341,7 @@ Segment.prototype.normalize = function(message) {
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
-    msg._metadata.bundledIds = bundledIds;
+    msg._metadata.bundledIds = bundledConfigIds;
     msg._metadata.maybeBundledConfigIds = maybeBundledConfigIds;
   }
   this.debug('normalized %o', msg);
