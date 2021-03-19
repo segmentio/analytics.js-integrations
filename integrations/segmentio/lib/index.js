@@ -316,11 +316,11 @@ Segment.prototype.normalize = function(message) {
   }
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
-    var maybeBundledConfigIds = this.options.maybeBundledConfigIds
+    var maybeBundledConfigIds = this.options.maybeBundledConfigIds;
 
     // Generate a list of bundled config IDs using the intersection of
     // bundled destination names and maybe bundled config IDs.
-    var bundledConfigIds = []
+    var bundledIds = [];
     for (var i = 0; i < bundled.length; i++) {
       var name = bundled[i]
       if (!maybeBundledConfigIds) {
@@ -331,8 +331,7 @@ Segment.prototype.normalize = function(message) {
       }
 
       for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
-        var id = maybeBundledConfigIds[name][j]
-        bundledConfigIds.push(id)
+        bundledIds.push(maybeBundledConfigIds[name][j]);
       }
     }
 
@@ -340,7 +339,8 @@ Segment.prototype.normalize = function(message) {
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
-    msg._metadata.bundledIds = bundledConfigIds;
+    msg._metadata.bundledIds = bundledIds;
+    msg._metadata.maybeBundledConfigIds = maybeBundledConfigIds;
   }
   this.debug('normalized %o', msg);
   this.ampId(ctx);
