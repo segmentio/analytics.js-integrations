@@ -316,7 +316,7 @@ Segment.prototype.normalize = function(message) {
   }
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
-    var maybeBundledConfigIds = this.options.maybeBundledConfigIds;
+    var maybeBundledConfigIds = this.options.maybeBundledConfigIds
 
     // Generate a list of bundled config IDs using the intersection of
     // bundled destination names and maybe bundled config IDs.
