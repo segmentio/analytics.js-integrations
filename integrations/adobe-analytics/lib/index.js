@@ -117,6 +117,10 @@ AdobeAnalytics.global('s')
   .tag(
     'heartbeat',
     '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0-heartbeat.js">'
+  )
+  .tag(
+    'chromecast',
+    '<script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js">'
   );
 
 /**
@@ -139,9 +143,84 @@ AdobeAnalytics.prototype.initialize = function() {
   // WITHOUT sending several 'Video Content Playing' events. (see line 1242)
   window._segHBPlayheads = {};
 
+  // Load the more compact Chromecast SDK only if the customer has it enabled in settings
+  if (options.chromecastToggle){
+    this.load('chromecast', function() {
+      var s = window.s;
+      s.ADBMobileConfig = {
+        "marketingCloud": {
+          "org": `${options.marketingCloudOrgId}`
+        },
+        "target": {
+          "clientCode": "",
+          "timeout": 5
+        },
+        "audienceManager": {
+          "server": "obumobile5.demdex.net"
+        },
+        "analytics": {
+          "rsids": "mobile5vhl.sample.player",
+          "server": `${options.trackingServerUrl}`,
+          "ssl": false,
+          "offlineEnabled": false,
+          "charset": "UTF-8",
+          "lifecycleTimeout": 300,
+          "privacyDefault": "optedin",
+          "batchLimit": 0,
+          "timezone": "MDT",
+          "timezoneOffset": -360,
+          "referrerTimeout": 0,
+          "poi": []
+        }
+      };
+
+      if (options.heartbeatTrackingServerUrl) {
+        s.ADBMobileConfig.mediaHeartbeat = {
+          "server": `${options.heartbeatTrackingServerUrl}`,
+          "publisher": "972C898555E9F7BC7F000101@AdobeOrg",
+          "channel": "test-channel-chromecast",
+          "ssl": false,
+          "ovp": "chromecast-player",
+          "sdkVersion": "chromecast-sdk",
+          "playerName": "Chromecast"
+        };
+        // duplicate logic here, simplify. choose SDK first, then conditionally set up heartbeat params
+        // Set up for Heartbeat
+        self.mediaHeartbeats = {};
+        self.adBreakCounts = {};
+        self.qosData = {};
+        self.playhead = 0;
+        self.adBreakInProgress = false;
+        self.heartbeatEventMap = {
+          // Segment spec'd event: Heartbeat function
+          'video playback started': initHeartbeat,
+          'video content started': heartbeatVideoStart,
+          'video playback paused': heartbeatVideoPaused,
+          'video playback resumed': heartbeatVideoStart, // Treated as a 'play' as well.
+          'video content completed': heartbeatVideoComplete,
+          'video playback completed': heartbeatSessionEnd,
+          'video ad started': heartbeatAdStarted,
+          'video ad completed': heartbeatAdCompleted,
+          'video ad skipped': heartbeatAdSkipped,
+          'video playback seek started': heartbeatSeekStarted,
+          'video playback seek completed': heartbeatSeekCompleted,
+          'video playback buffer started': heartbeatBufferStarted,
+          'video playback buffer completed': heartbeatBufferCompleted,
+          'video quality updated': heartbeatQualityUpdated,
+          'video content playing': heartbeatUpdatePlayhead,
+          'video playback interrupted': heartbeatVideoPaused,
+          'video playback exited': heartbeatVideoPaused
+        };
+      };
+      console.log(window.s);
+      console.log('chromecast library loaded not');
+      console.log(s);
+      self.ready();
+    });
+  }
   // Load the larger Heartbeat script only if the customer has it enabled in settings.
   // This file is considerably bigger, so this check is necessary.
-  if (options.heartbeatTrackingServerUrl) {
+  else if (options.heartbeatTrackingServerUrl) {
     this.load('heartbeat', function() {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
