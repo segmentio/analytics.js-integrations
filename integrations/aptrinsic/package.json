@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-aptrinsic",
   "description": "The Aptrinsic analytics.js integration.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
