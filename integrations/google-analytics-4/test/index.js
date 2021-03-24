@@ -292,6 +292,13 @@ describe('Google Analytics 4', function () {
                             key: 'properties.state',
                             value: ''
                         }]
+                    },
+                    {
+                        segmentEvent: 'event1',
+                        googleEvent: 'gevent',
+                        parameters: {
+                            'invalid': 'mapping'
+                        }
                     }
                 ]
 

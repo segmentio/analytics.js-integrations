@@ -243,8 +243,6 @@ GA4.prototype.page = function(page) {
     return;
   }
 
-  // Track categorized pages setting needed here?
-
   var props = page.properties();
   var name = page.fullName();
 
@@ -271,7 +269,11 @@ GA4.prototype.track = function(track) {
   var mappings = this.options.customEventsAndParameters;
 
   for (var i = 0; i < mappings.length; i++) {
-    var mapping = mappings[i]; // Type check for object?
+    var mapping = mappings[i];
+    if (typeof mapping !== 'object') {
+      continue;
+    }
+
     var segmentEvent = mapping.segmentEvent;
     var googleEvent = mapping.googleEvent;
   
@@ -279,8 +281,12 @@ GA4.prototype.track = function(track) {
       continue;
     }
 
-    var parameterMappings = mapping.parameters || []; // Type check for array?
+    var parameterMappings = mapping.parameters || [];
     var parameters = {};
+
+    if (!(parameterMappings instanceof Array)) {
+      continue;
+    }
 
     // Map Segment event fields to Google Event Parameters.
     // Text map settings that are nested in a mixed settings take on a different shape
@@ -289,7 +295,7 @@ GA4.prototype.track = function(track) {
     //
     for (var j = 0; j < parameterMappings.length; j++) {
       var map = parameterMappings[j] || {}; // Type check for object?
-      if (!map.key || !map.value) {
+      if (typeof map !== 'object' || !map.key || !map.value) {
         continue;
       }
 
@@ -298,6 +304,6 @@ GA4.prototype.track = function(track) {
       parameters[param] = value;
     }
 
-    window.gtag('event', googleEvent, reject(parameters));
+    window.gtag('event', googleEvent, parameters);
   }
 };
