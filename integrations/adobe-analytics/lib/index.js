@@ -146,8 +146,7 @@ AdobeAnalytics.prototype.initialize = function() {
   // Load the more compact Chromecast SDK only if the customer has it enabled in settings
   if (options.chromecastToggle){
     this.load('chromecast', function() {
-      var s = window.s;
-      s.ADBMobileConfig = {
+      var ADBMobileConfig = {
         "marketingCloud": {
           "org": `${options.marketingCloudOrgId}`
         },
@@ -175,7 +174,7 @@ AdobeAnalytics.prototype.initialize = function() {
       };
 
       if (options.heartbeatTrackingServerUrl) {
-        s.ADBMobileConfig.mediaHeartbeat = {
+        ADBMobileConfig.mediaHeartbeat = {
           "server": `${options.heartbeatTrackingServerUrl}`,
           "publisher": "972C898555E9F7BC7F000101@AdobeOrg",
           "channel": "test-channel-chromecast",
@@ -212,9 +211,6 @@ AdobeAnalytics.prototype.initialize = function() {
           'video playback exited': heartbeatVideoPaused
         };
       };
-      console.log(window.s);
-      console.log('chromecast library loaded not');
-      console.log(s);
       self.ready();
     });
   }
@@ -319,50 +315,55 @@ AdobeAnalytics.prototype.page = function(page) {
 
   // Set the page name
   var pageName = page.fullName();
-  // TODO: for nameless analytics.page(), pageName is `undefined`
-  // Should we be setting or sending something else here?
-  // When window.s.pageName is not set, AA falls back on url which is bad.
-  // Not sure what happens when it is sent as `undefined` (not string)
-  // Either way, any change here would be breaking
-  window.s.pageName = pageName;
-  window.s.referrer = page.referrer();
 
-  // Visitor ID aka AA's concept of `userId`.
-  // This is not using `update()` so once it is set, it will be sent
-  // with `.track()` calls as well.
-  // visitorId is not supported for timestamped hits
-  // https://marketing.adobe.com/resources/help/en_US/sc/implement/timestamps-overview.html
-  if (!this.options.disableVisitorId) {
-    var userId = this.analytics.user().id();
-    if (userId) {
-      if (this.options.timestampOption === 'disabled')
-        window.s.visitorID = userId;
-      if (
-        this.options.timestampOption === 'hybrid' &&
-        this.options.preferVisitorId
-      )
-        window.s.visitorID = userId;
+  if (this.options.chromecastToggle) {
+    console.log(ADBMobile);
+  } else {
+    // TODO: for nameless analytics.page(), pageName is `undefined`
+    // Should we be setting or sending something else here?
+    // When window.s.pageName is not set, AA falls back on url which is bad.
+    // Not sure what happens when it is sent as `undefined` (not string)
+    // Either way, any change here would be breaking
+    window.s.pageName = pageName;
+    window.s.referrer = page.referrer();
+  
+    // Visitor ID aka AA's concept of `userId`.
+    // This is not using `update()` so once it is set, it will be sent
+    // with `.track()` calls as well.
+    // visitorId is not supported for timestamped hits
+    // https://marketing.adobe.com/resources/help/en_US/sc/implement/timestamps-overview.html
+    if (!this.options.disableVisitorId) {
+      var userId = this.analytics.user().id();
+      if (userId) {
+        if (this.options.timestampOption === 'disabled')
+          window.s.visitorID = userId;
+        if (
+          this.options.timestampOption === 'hybrid' &&
+          this.options.preferVisitorId
+        )
+          window.s.visitorID = userId;
+      }
     }
+  
+    // Attach some variables on the `window.s` to be sent with the call
+    update(pageName, 'events');
+    updateCommonVariables(page, this.options);
+  
+    calculateTimestamp(page, this.options);
+  
+    // Check if any properties match mapped eVar, prop, or hVar in options
+    var props = extractProperties(page, this.options);
+    // Attach them to window.s and push to dynamicKeys
+    each(update, props);
+  
+    // Update `s.contextData`
+    updateContextData(page, this.options);
+  
+    // actually make the "page" request, just a single "t" not "tl"
+    // "t" will send all variables on the window.s while "tl" does not
+    // "t" will increment pageviews while "tl" does not
+    window.s.t();
   }
-
-  // Attach some variables on the `window.s` to be sent with the call
-  update(pageName, 'events');
-  updateCommonVariables(page, this.options);
-
-  calculateTimestamp(page, this.options);
-
-  // Check if any properties match mapped eVar, prop, or hVar in options
-  var props = extractProperties(page, this.options);
-  // Attach them to window.s and push to dynamicKeys
-  each(update, props);
-
-  // Update `s.contextData`
-  updateContextData(page, this.options);
-
-  // actually make the "page" request, just a single "t" not "tl"
-  // "t" will send all variables on the window.s while "tl" does not
-  // "t" will increment pageviews while "tl" does not
-  window.s.t();
 };
 
 /**
