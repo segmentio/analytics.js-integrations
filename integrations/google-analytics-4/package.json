@@ -1,0 +1,55 @@
+{
+  "name": "@segment/analytics.js-integration-google-analytics-4",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "karma start"
+  },
+  "author": "Segment <friends@segment.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/google-analytics-4#readme",
+  "bugs": {
+    "url": "https://github.com/segmentio/analytics.js-integrations/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
+  },
+  "dependencies": {
+    "@ndhoule/defaults": "^2.0.1",
+    "@segment/analytics.js-integration": "^3.1.0",
+    "component-each": "^0.2.6",
+    "extend": "^3.0.2",
+    "global-queue": "^1.0.1",
+    "is": "^3.1.0",
+    "lodash": "^4.17.4",
+    "obj-case": "^0.2.0",
+    "object-component": "0.0.3",
+    "reject": "0.0.1",
+    "segmentio-facade": "^3.2.7",
+    "use-https": "^0.1.1"
+  },
+  "devDependencies": {
+    "@segment/analytics.js-core": "^3.8.2",
+    "@segment/analytics.js-integration-tester": "^3.1.1",
+    "@segment/clear-env": "^2.1.1",
+    "browserify": "^16.2.3",
+    "eslint": "^5.16.0",
+    "karma": "^4.1.0",
+    "karma-browserify": "^6.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-sauce-launcher": "^2.0.2",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-summary-reporter": "^1.6.0",
+    "mocha": "^6.1.4",
+    "to-array": "^0.1.4",
+    "watchify": "^3.7.0"
+  }
+}
