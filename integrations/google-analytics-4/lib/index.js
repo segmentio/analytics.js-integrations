@@ -153,8 +153,7 @@ GA4.prototype.initialize = function() {
      * https://developers.google.com/gtagjs/reference/api#set
      */
     for (var i = 0; i < sets.length; i++) {
-      // Copy the set args and append the command before
-      // calling gtag.js.
+      // Copy the set args and append the command before calling gtag.js.
       var args = sets[i].slice(0)
       args.unshift('set')
       window.gtag.apply(null, args);
