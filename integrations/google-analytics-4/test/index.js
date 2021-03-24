@@ -145,20 +145,19 @@ describe('Google Analytics 4', function () {
             analytics.equal(window.ga4DataLayer[2][2]['cookie_expires'], 21)
 
             // cookie_flags uses the `set` command
-            analytics.equal(window.ga4DataLayer[3][0]['cookie_flags'], 'SameSite=None;Secure')
-
+            analytics.deepEqual(toArray(window.ga4DataLayer[3]), ['set', { cookie_flags: 'SameSite=None;Secure' }])
         });
 
         it('should disable all advertising features', function () {
             ga4.options.allowAllAdvertisingFeatures = false;
             analytics.initialize();
-            analytics.deepEqual(toArray(window.ga4DataLayer[4]), ['allow_google_signals', false])
+            analytics.deepEqual(toArray(window.ga4DataLayer[4]), ['set', 'allow_google_signals', false])
         });
 
         it('should disable all advertising features', function () {
             ga4.options.allowAdvertisingPersonalization = false;
             analytics.initialize();
-            analytics.deepEqual(toArray(window.ga4DataLayer[5]), ['allow_ad_personalization_signals', false])
+            analytics.deepEqual(toArray(window.ga4DataLayer[5]), ['set', 'allow_ad_personalization_signals', false])
         });
     });
 
