@@ -145,9 +145,7 @@ describe('Google Analytics 4', function () {
             analytics.equal(window.ga4DataLayer[2][2]['cookie_expires'], 21)
 
             // cookie_flags uses the `set` command
-            analytics.equal(window.ga4DataLayer[3][0], 'set')
-            analytics.equal(window.ga4DataLayer[3][1]['cookie_flags'], 'SameSite=None;Secure')
-
+            analytics.deepEqual(toArray(window.ga4DataLayer[3]), ['set', { cookie_flags: 'SameSite=None;Secure' }])
         });
 
         it('should disable all advertising features', function () {
