@@ -22,15 +22,16 @@ files.forEach(file => {
   const libraryName = last(libraryPath.split('/')).replace('.js', '');
   const vendorPath = last(vendor[0].split('build'));
 
+  // We need this to remain a single line in order to not break source maps,
+  // as well as put the bracket at the very end, this is so we don't change the line numbers
+  // for the dynamic file
+
+  // prettier-ignore
   const dynamic = `
-window['${libraryName}Deps'] = ["${vendorPath}"]
+  window['${libraryName}Deps'] = ["${vendorPath}"];window['${libraryName}Loader'] = function() { return ${fs.readFileSync(file).toString()}
+};`.trim();
 
-window['${libraryName}Loader'] = function() {
-  return ${fs.readFileSync(file).toString()}
-}
-`.trim();
-
-  const filename = file.replace('.js', '.dynamic.js');
+  const filename = file.replace(/\.js$/, '.dynamic.js');
   fs.writeFileSync(filename + '.gz', zlib.gzipSync(dynamic));
   fs.writeFileSync(filename, dynamic);
 });
