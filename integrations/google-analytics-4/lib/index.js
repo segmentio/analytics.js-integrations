@@ -18,11 +18,11 @@ var GA4 = (module.exports = integration('Google Analytics 4')
   .option('cookieExpiration', 63072000)
   .option('cookieUpdate', true)
   .option('cookieFlags', '')
-  .option('disablePageViewMeasurement', true)
-  .option('disableAllAdvertisingFeatures', false)
-  .option('disableAdvertisingPersonalization', false)
+  .option('sendAutomaticPageViewEvent', false)
+  .option('allowAllAdvertisingFeatures', false)
+  .option('allowAdvertisingPersonalization', false)
   .option('disableGoogleAnalytics', false)
-  .option('sendUserId', false)
+  .option('googleReportingIdentity', 'device')
   .option('userProperties', {})
   /**
    * Custom Events and Parameters setting. This setting is used by the track
@@ -85,10 +85,10 @@ GA4.prototype.initialize = function() {
 
   var config = {
     /**
-     * Disable Automatic Page View Measurement
+     * Disable Google's Automatic Page View Measurement
      * https://developers.google.com/analytics/devguides/collection/ga4/disable-page-view
      */
-    send_page_view: !opts.disablePageViewMeasurement,
+    send_page_view: opts.sendAutomaticPageViewEvent,
 
     /**
      * Cookie Update
@@ -126,13 +126,13 @@ GA4.prototype.initialize = function() {
      * Disable All Advertising
      * https://developers.google.com/analytics/devguides/collection/ga4/display-features#disable_all_advertising_features
      */
-    ['allow_google_signals', !opts.disableAllAdvertisingFeatures],
+    ['allow_google_signals', opts.allowAllAdvertisingFeatures],
 
     /**
      * Disable Advertising Personalization
      * https://developers.google.com/analytics/devguides/collection/ga4/display-features#disable_advertising_personalization
      */
-    ['allow_ad_personalization_signals', !opts.disableAdvertisingPersonalization]
+    ['allow_ad_personalization_signals', opts.allowAdvertisingPersonalization]
   ];
 
   // Load gtag.js using the first measurement ID, then configure using the `config` commands built above.
@@ -197,13 +197,19 @@ GA4.prototype.identify = function(identify) {
   }
 
   /**
-   * Map the user_id property the Send User ID setting is enabled. Note that the user ID
-   * can be appended as part of the user_properties object instead of being configured by
-   * an explicit command.
+   * Map the user_id property if the Google Reporting Identity is set one of:
+   *   - By User ID, Google signals, then device (userIdSignalsAndDevice)
+   *   - By User ID and Devicea (userIdAndDevice)
+   * 
+   * Google's Reporting Identity: https://support.google.com/analytics/answer/9213390?hl=en
+   * 
+   * Note that the user ID can be appended as part of the user_properties
+   * object instead of being configured by an explicit command.
    * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#set_user_id
    */
   var userId = identify.userId();
-  if (opts.sendUserId && userId) {
+  var validReportingIdentity = opts.googleReportingIdentity === 'userIdSignalsAndDevice' || opts.googleReportingIdentity === 'userIdAndDevice'
+  if (userId && validReportingIdentity) {
     userProperties.user_id = userId;
   }
 
@@ -231,9 +237,9 @@ GA4.prototype.group = function(group) {
  * @param {Facade.Page} page
  */
 GA4.prototype.page = function(page) {
-  // If the Disable Page View Measurement setting is set to false then
+  // If the Send Google's Automatic Page View Measurement setting is set to true then
   // don't handle page calls to avoid duplicate page_view events.
-  if (!this.options.disablePageViewMeasurement) {
+  if (this.options.sendAutomaticPageViewEvent) {
     return;
   }
 

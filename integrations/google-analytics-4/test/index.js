@@ -45,11 +45,11 @@ describe('Google Analytics 4', function () {
                 .option('cookieExpiration', 63072000)
                 .option('cookieUpdate', true)
                 .option('cookieFlags', '')
-                .option('disablePageViewMeasurement', true)
-                .option('disableAllAdvertisingFeatures', false)
-                .option('disableAdvertisingPersonalization', false)
+                .option('sendAutomaticPageViewEvent', false)
+                .option('allowAllAdvertisingFeatures', false)
+                .option('allowAdvertisingPersonalization', false)
                 .option('disableGoogleAnalytics', false)
-                .option('sendUserId', false)
+                .option('googleReportingIdentity', 'device')
                 .option('userProperties', {})
                 .option('customEventsAndParameters', [])
         );
@@ -117,7 +117,7 @@ describe('Google Analytics 4', function () {
         });
 
         it('should disable automatic page view measurement for all measurement IDs', function () {
-            ga4.options.disablePageViewMeasurement = true;
+            ga4.options.sendAutomaticPageViewEvent = false;
             analytics.initialize();
 
             analytics.equal(window.ga4DataLayer[1][2]['send_page_view'], false)
@@ -150,13 +150,13 @@ describe('Google Analytics 4', function () {
         });
 
         it('should disable all advertising features', function () {
-            ga4.options.disableAllAdvertisingFeatures = true;
+            ga4.options.allowAllAdvertisingFeatures = false;
             analytics.initialize();
             analytics.deepEqual(toArray(window.ga4DataLayer[4]), ['allow_google_signals', false])
         });
 
         it('should disable all advertising features', function () {
-            ga4.options.disableAdvertisingPersonalization = true;
+            ga4.options.allowAdvertisingPersonalization = false;
             analytics.initialize();
             analytics.deepEqual(toArray(window.ga4DataLayer[5]), ['allow_ad_personalization_signals', false])
         });
@@ -189,7 +189,7 @@ describe('Google Analytics 4', function () {
             })
 
             it('should map the user ID', function () {
-                ga4.options.sendUserId = true
+                ga4.options.googleReportingIdentity = 'userIdAndDevice'
                 analytics.identify('user1');
                 analytics.called(window.gtag, 'set', 'user_properties', {
                     user_id: 'user1'
@@ -225,7 +225,7 @@ describe('Google Analytics 4', function () {
               });
 
             it('should not send events when disablePageViewMeasurement is disabled', function() {
-                ga4.options.disablePageViewMeasurement = false
+                ga4.options.sendAutomaticPageViewEvent = true
                 analytics.page('Home');
                 analytics.didNotCall(window.gtag, 'event', 'page_view')
             });
