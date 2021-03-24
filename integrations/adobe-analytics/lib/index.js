@@ -146,7 +146,8 @@ AdobeAnalytics.prototype.initialize = function() {
   // Load the more compact Chromecast SDK only if the customer has it enabled in settings
   if (options.chromecastToggle){
     this.load('chromecast', function() {
-      var ADBMobileConfig = {
+      var ADBMobileConfig = window.ADBMobileConfig;
+      ADBMobileConfig = {
         "marketingCloud": {
           "org": `${options.marketingCloudOrgId}`
         },
@@ -158,7 +159,7 @@ AdobeAnalytics.prototype.initialize = function() {
           "server": "obumobile5.demdex.net"
         },
         "analytics": {
-          "rsids": "mobile5vhl.sample.player",
+          "rsids": `${options.reportSuiteId}`,
           "server": `${options.trackingServerUrl}`,
           "ssl": false,
           "offlineEnabled": false,
@@ -211,6 +212,7 @@ AdobeAnalytics.prototype.initialize = function() {
           'video playback exited': heartbeatVideoPaused
         };
       };
+      console.log('library loaded');
       self.ready();
     });
   }
