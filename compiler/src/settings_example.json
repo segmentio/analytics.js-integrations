@@ -1,7 +1,11 @@
 {
   "integrations": {
-    "Google Analytics": {
-      "serversideTrackingId": "foobar"
+    "Adobe Analytics": {
+      "chromecastToggle": true,
+      "trackingServerUrl": "exchangepartnersegment.sc.omtrdc.net",
+      "reportSuiteId": "sgmnatechromecast",
+      "heartbeatTrackingServerUrl": "exchangepartnersegment.sc.omtrdc.net",
+      "marketingCloudOrgId": "B3CB46FC57C6C8F77F000101@AdobeOrg"
     }
   }
 }
