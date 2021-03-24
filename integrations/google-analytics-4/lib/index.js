@@ -294,7 +294,7 @@ GA4.prototype.track = function(track) {
     // eg; [{ key: 'properties.genre', value: 'primary_genre }]
     //
     for (var j = 0; j < parameterMappings.length; j++) {
-      var map = parameterMappings[j] || {}; // Type check for object?
+      var map = parameterMappings[j] || {};
       if (typeof map !== 'object' || !map.key || !map.value) {
         continue;
       }
