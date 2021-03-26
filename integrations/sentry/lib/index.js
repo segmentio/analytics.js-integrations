@@ -28,12 +28,12 @@ var Sentry = (module.exports = integration('Sentry')
   .option('debug', false)
   .tag(
     'sentry',
-    '<script src="https://browser.sentry-cdn.com/5.12.1/bundle.min.js" integrity="sha384-y+an4eARFKvjzOivf/Z7JtMJhaN6b+lLQ5oFbBbUwZNNVir39cYtkjW1r6Xjbxg3" crossorigin="anonymous"></script>'
+    '<script src="https://browser.sentry-cdn.com/5.12.1/bundle.tracing.min.js" integrity="sha384-gDTsbUCgFQKbxNZj/RvveTOuAPZgNMjQzMdsD2TI/7YSPN+r49xERr43VxADcGVV" crossorigin="anonymous"></script>'
   )
   // Sentry.Integrations.RewriteFrames plugin: https://docs.sentry.io/platforms/javascript/#rewriteframes
   .tag(
     'plugin',
-    '<script src="https://browser.sentry-cdn.com/5.12.1/rewriteframes.min.js" crossorigin="anonymous"></script>'
+    '<script src="https://browser.sentry-cdn.com/5.12.1/rewriteframes.min.js" integrity="sha384-OGtEOqdWrmESHKrzGY/+Uf6hcr2FtZP4qdy2sCESccdGlCiqJVGxiNQadw8VFzBx" crossorigin="anonymous"></script>'
   ));
 
 /**
