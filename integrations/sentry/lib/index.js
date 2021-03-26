@@ -25,15 +25,16 @@ var Sentry = (module.exports = integration('Sentry')
   .option('maxMessageLength', null) // deprecated
   .option('logger', null)
   .option('customVersionProperty', null)
+  .option('tracesSampleRate', null)
   .option('debug', false)
   .tag(
     'sentry',
-    '<script src="https://browser.sentry-cdn.com/5.12.1/bundle.tracing.min.js" integrity="sha384-gDTsbUCgFQKbxNZj/RvveTOuAPZgNMjQzMdsD2TI/7YSPN+r49xERr43VxADcGVV" crossorigin="anonymous"></script>'
+    '<script src="https://browser.sentry-cdn.com/5.30.0/bundle.tracing.min.js" integrity="sha384-Wmp0Jx28tGfR086jrVwifMRcSWk8HQW4TWQ6XsNtI90pVj0dgkH9r2+pI3L2CLf6" crossorigin="anonymous"></script>'
   )
   // Sentry.Integrations.RewriteFrames plugin: https://docs.sentry.io/platforms/javascript/#rewriteframes
   .tag(
     'plugin',
-    '<script src="https://browser.sentry-cdn.com/5.12.1/rewriteframes.min.js" integrity="sha384-OGtEOqdWrmESHKrzGY/+Uf6hcr2FtZP4qdy2sCESccdGlCiqJVGxiNQadw8VFzBx" crossorigin="anonymous"></script>'
+    '<script src="https://browser.sentry-cdn.com/5.30.0/rewriteframes.min.js" integrity="sha384-22utNfjd1bJOgWt7yrPsUIWR7gluO23PO7d2m30lqrmnj5DH3OmVa8fwcwZhbfPp" crossorigin="anonymous"></script>'
   ));
 
 /**
@@ -59,6 +60,7 @@ Sentry.prototype.initialize = function() {
     // https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/integrations/inboundfilters.ts#L12
     ignoreErrors: this.options.ignoreErrors,
     integrations: [],
+    tracesSampleRate: this.options.tracesSampleRate,
     debug: this.options.debug
   };
 
@@ -100,6 +102,12 @@ Sentry.prototype.initialize = function() {
               return frame;
             }
           })
+        );
+      }
+
+      if (typeof config.tracesSampleRate === 'number') {
+        config.integrations.push(
+          new window.Sentry.Integrations.BrowserTracing()
         );
       }
 
