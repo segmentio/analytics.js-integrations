@@ -40,7 +40,7 @@ async function uploadAssets() {
     .map(i => `id=${i}`)
     .join(',');
 
-  const sha = require('child_process').execSync('git rev-parse HEAD').toString().trim();
+  const sha = require('child_process').execSync('git rev-parse --short HEAD').toString().trim();
 
   if (bucket === undefined) {
     throw new Error('bucket required');
