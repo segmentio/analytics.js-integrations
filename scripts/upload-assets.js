@@ -132,7 +132,7 @@ async function uploadAssets() {
 
   await Promise.all(uploads);
 
-  await s3 // upload manifest file
+  await s3 // upload "latest" manifest file
     .putObject({
       Bucket: bucket,
       Key: key('/manifest-latest.json'),
@@ -144,7 +144,7 @@ async function uploadAssets() {
     })
     .promise();
 
-  await s3 // upload manifest file
+  await s3 // upload hash manifest file
     .putObject({
       Bucket: bucket,
       Key: key(`/manifest-${sha}.json`),
