@@ -40,6 +40,8 @@ async function uploadAssets() {
     .map(i => `id=${i}`)
     .join(',');
 
+  const sha = require('child_process').execSync('git rev-parse --short HEAD').toString().trim();
+
   if (bucket === undefined) {
     throw new Error('bucket required');
   }
@@ -130,10 +132,22 @@ async function uploadAssets() {
 
   await Promise.all(uploads);
 
-  await s3 // upload manifest file
+  await s3 // upload "latest" manifest file
     .putObject({
       Bucket: bucket,
-      Key: key('/manifest.json'),
+      Key: key('/manifest-latest.json'),
+      Body: zlib.gzipSync(JSON.stringify(manifest)),
+      ContentEncoding: process.env.CONTENT_ENCODING,
+      GrantRead: cfCanonicalUserIdsParsed,
+      GrantFullControl: `id=${platformCanonicalUserId}`,
+      ContentType: 'application/json'
+    })
+    .promise();
+
+  await s3 // upload hash manifest file
+    .putObject({
+      Bucket: bucket,
+      Key: key(`/manifest-${sha}.json`),
       Body: zlib.gzipSync(JSON.stringify(manifest)),
       ContentEncoding: process.env.CONTENT_ENCODING,
       GrantRead: cfCanonicalUserIdsParsed,
