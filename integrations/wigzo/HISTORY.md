@@ -1,7 +1,7 @@
 1.4.0 / 2021-01-08
 ==================
 
-  * Made functions async for better load time
+  * Made script loading async for better load time
 
 1.3.0 / 2017-10-13
 ==================
