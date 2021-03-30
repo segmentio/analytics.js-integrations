@@ -11,7 +11,7 @@ var when = require('do-when');
 var Wigzo = (module.exports = integration('Wigzo')
   .global('wigzo')
   .option('orgToken', '')
-  .tag('tracker', '<script src="https://app.wigzo.com/wigzo.compressed.js">'));
+  .tag('tracker', '<script async src="https://app.wigzo.com/wigzo.compressed.js">'));
 
 /**
  * Initialize Wigzo
@@ -57,7 +57,7 @@ Wigzo.prototype.loaded = function() {
  * @param {Track} track
  */
 
-async Wigzo.prototype.productAdded = function(track) {
+Wigzo.prototype.productAdded = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('addtocart', productId);
 };
@@ -68,7 +68,7 @@ async Wigzo.prototype.productAdded = function(track) {
  * @param {Track} track
  */
 
-async Wigzo.prototype.productAddedFromWishlistToCart = function(track) {
+Wigzo.prototype.productAddedFromWishlistToCart = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('addtocart', productId);
 };
@@ -79,7 +79,7 @@ async Wigzo.prototype.productAddedFromWishlistToCart = function(track) {
  * @param {Track} track
  */
 
-async Wigzo.prototype.productRemoved = function(track) {
+Wigzo.prototype.productRemoved = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('removedfromcart', productId);
 };
@@ -90,7 +90,7 @@ async Wigzo.prototype.productRemoved = function(track) {
  * @param {Track} track
  */
 
-async Wigzo.prototype.productsSearched = function(track) {
+Wigzo.prototype.productsSearched = function(track) {
   var props = track.properties();
   if (props.query) {
     window.wigzo.track('search', props.query);
@@ -103,7 +103,7 @@ async Wigzo.prototype.productsSearched = function(track) {
  * @param {Track} track
  */
 
-async Wigzo.prototype.productAddedToWishlist = function(track) {
+Wigzo.prototype.productAddedToWishlist = function(track) {
   var productId = track.productId();
   if (productId) window.wigzo.track('wishlist', productId);
 };
@@ -114,7 +114,7 @@ async Wigzo.prototype.productAddedToWishlist = function(track) {
  * @param {Track} track
  */
 
-async Wigzo.prototype.checkoutStarted = function(track) {
+Wigzo.prototype.checkoutStarted = function(track) {
   var productList = track.products();
   var addedProductIds = [];
   for (var i = 0; i < productList.length; i++) {
@@ -132,7 +132,7 @@ async Wigzo.prototype.checkoutStarted = function(track) {
  * @param {Track} track
  */
 
-async Wigzo.prototype.orderCompleted = function(track) {
+Wigzo.prototype.orderCompleted = function(track) {
   var productList = track.products();
   var addedProductIds = [];
   for (var i = 0; i < productList.length; i++) {
@@ -148,7 +148,7 @@ async Wigzo.prototype.orderCompleted = function(track) {
  *
  * @param {Track} track
  */
-async Wigzo.prototype.productReviewed = function(track) {
+Wigzo.prototype.productReviewed = function(track) {
   window.wigzo.track('review', track.properties());
 };
 
@@ -157,7 +157,7 @@ async Wigzo.prototype.productReviewed = function(track) {
  *
  * @param {Track} track
  */
-async Wigzo.prototype.productClicked = function(track) {
+Wigzo.prototype.productClicked = function(track) {
   var options = track.options(this.name);
   var traits = reject({
     productId: track.productId(),
@@ -178,7 +178,7 @@ async Wigzo.prototype.productClicked = function(track) {
  *
  * @param {Track} track
  */
-async Wigzo.prototype.productViewed = function(track) {
+Wigzo.prototype.productViewed = function(track) {
   var options = track.options(this.name);
   var traits = reject({
     productId: track.productId(),
@@ -201,7 +201,7 @@ async Wigzo.prototype.productViewed = function(track) {
  * @param {Identify} identify
  */
 
-async Wigzo.prototype.identify = function(identify) {
+Wigzo.prototype.identify = function(identify) {
   var id = identify.userId();
   if (id) window.wigzo.USER_IDENTIFIER = id;
 
@@ -220,7 +220,7 @@ async Wigzo.prototype.identify = function(identify) {
  * @param {Track} track
  */
 
-async Wigzo.prototype.track = function(track) {
+Wigzo.prototype.track = function(track) {
   window.wigzo.track(track.event(), track.properties());
 };
 
@@ -230,7 +230,7 @@ async Wigzo.prototype.track = function(track) {
  * @param {Page} page
  */
 
-async Wigzo.prototype.page = function(page) {
+Wigzo.prototype.page = function(page) {
   var pageData = reject({
     canonicalUrl: page.url(),
     title: page.name()
