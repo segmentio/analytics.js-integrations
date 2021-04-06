@@ -1,21 +1,18 @@
 {
-  "name": "@segment/analytics.js-integration-aptrinsic",
-  "description": "The Aptrinsic analytics.js integration.",
-  "version": "1.1.0",
-  "keywords": [
-    "analytics.js",
-    "analytics.js-integration",
-    "segment",
-    "Aptrinsic"
-  ],
+  "name": "@segment/analytics.js-integration-google-analytics-4",
+  "version": "0.0.2",
+  "description": "",
   "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
   "scripts": {
-    "test": "karma start",
-    "test:ci": "karma start karma.conf-ci.js"
+    "test": "karma start"
   },
   "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/aptrinsic#readme",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/google-analytics-4#readme",
   "bugs": {
     "url": "https://github.com/segmentio/analytics.js-integrations/issues"
   },
@@ -24,15 +21,23 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@segment/analytics.js-integration": "^2.1.0",
-    "next-tick": "^0.2.2",
+    "@ndhoule/defaults": "^2.0.1",
+    "@segment/analytics.js-integration": "^3.1.0",
+    "component-each": "^0.2.6",
+    "extend": "^3.0.2",
+    "global-queue": "^1.0.1",
+    "is": "^3.1.0",
+    "lodash": "^4.17.4",
+    "obj-case": "^0.2.0",
+    "object-component": "0.0.3",
+    "reject": "0.0.1",
     "segmentio-facade": "^3.2.7",
     "use-https": "^0.1.1"
   },
   "devDependencies": {
-    "@segment/analytics.js-core": "^3.0.0",
-    "@segment/analytics.js-integration-tester": "^3.0.0",
-    "@segment/clear-env": "^2.0.0",
+    "@segment/analytics.js-core": "^3.8.2",
+    "@segment/analytics.js-integration-tester": "^3.1.1",
+    "@segment/clear-env": "^2.1.1",
     "browserify": "^16.2.3",
     "eslint": "^5.16.0",
     "karma": "^4.1.0",
@@ -44,6 +49,7 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
-    "watchify": "^3.11.1"
+    "to-array": "^0.1.4",
+    "watchify": "^3.7.0"
   }
 }
