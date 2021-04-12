@@ -1,21 +1,18 @@
 {
-  "name": "@segment/analytics.js-integration-google-analytics",
-  "description": "The Google Analytics analytics.js integration.",
-  "version": "2.18.4",
-  "keywords": [
-    "analytics.js",
-    "analytics.js-integration",
-    "segment",
-    "google-analytics"
-  ],
+  "name": "@segment/analytics.js-integration-google-analytics-4",
+  "version": "0.0.2",
+  "description": "",
   "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
   "scripts": {
-    "test": "karma start",
-    "test:ci": "karma start karma.conf-ci.js"
+    "test": "karma start"
   },
   "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/google-analytics#readme",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/google-analytics-4#readme",
   "bugs": {
     "url": "https://github.com/segmentio/analytics.js-integrations/issues"
   },

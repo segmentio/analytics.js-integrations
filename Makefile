@@ -36,3 +36,9 @@ build-and-upload: build
 build-and-publish: build
 	make publish-assets
 .PHONY: build-and-publish
+
+local-server:
+	yarn build
+	node ./scripts/build-shells.js
+	npx serve
+.PHONY: local-server
