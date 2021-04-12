@@ -39,6 +39,7 @@ steps:
           user: root
           environment:
             - NPM_TOKEN
+            - TURBOREPO_TOKEN
             - SAUCE_USERNAME
             - SAUCE_ACCESS_KEY
 

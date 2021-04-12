@@ -11,9 +11,12 @@
   ],
   "scripts": {
     "upload-assets": "node scripts/upload-assets.js",
-    "lint": "lerna exec --since master --no-bail -- npx eslint . --ext .js",
-    "test": "lerna run --concurrency 1 --since master test --stream -- --single-run --reporters summary --log-level error",
-    "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
+    "lint": "lerna run lint --since master --no-bail",
+    "test": "lerna run --concurrency 1 --since master test --stream",
+    "test:ci": "lerna run --concurrency 1 --stream --since master test:ci",
+    "turbo-lint": "turbo run lint --since=master --continue",
+    "turbo-test": "turbo run test --since=master --concurrency=1",
+    "turbo-test:ci": "turbo run test:ci --since=master --concurrency=1",
     "compile": "webpack --config webpack.config.integrations.js && webpack --config webpack.config.middleware.js",
     "build": "rm -rf build && yarn compile"
   },
@@ -26,6 +29,7 @@
     "compression-webpack-plugin": "^6.0.1",
     "concurrently": "^5.3.0",
     "eslint": "^7.12.1",
+    "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^6.14.0",
     "eslint-plugin-prettier": "^3.1.4",
     "fs-extra": "^9.0.1",
@@ -39,5 +43,15 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   },
-  "dependencies": {}
+  "optionalDependencies": {
+    "turbo": "^0.3.15"
+  },
+  "dependencies": {},
+  "turbo": {
+    "npmClient": "yarn",
+    "baseBranch": "origin/master",
+    "cacheStorageConfig": {
+      "provider": "local"
+    }
+  }
 }

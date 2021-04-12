@@ -12,8 +12,9 @@
   ],
   "main": "lib/index.js",
   "scripts": {
-    "test": "karma start",
-    "test:ci": "karma start karma.conf-ci.js"
+    "test": "karma start --single-run --reporters summary --log-level error",
+    "test:ci": "karma start karma.conf-ci.js --log-level error",
+    "lint": "TIMING=1 eslint . --ext .js"
   },
   "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
