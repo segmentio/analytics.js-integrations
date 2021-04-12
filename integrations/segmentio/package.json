@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-segmentio",
   "description": "The Segmentio analytics.js integration.",
-  "version": "4.4.1",
+  "version": "4.4.2-beta.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -32,7 +32,6 @@
     "@segment/protocol": "^1.0.0",
     "@segment/send-json": "^3.0.0",
     "@segment/top-domain": "^3.0.0",
-    "@segment/utm-params": "^2.0.0",
     "component-clone": "^0.2.2",
     "component-cookie": "^1.1.2",
     "component-type": "^1.2.1",
