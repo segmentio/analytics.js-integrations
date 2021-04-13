@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-nanigans",
   "description": "The Nanigans analytics.js integration.",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -27,7 +27,7 @@
     "@segment/analytics.js-integration": "^2.1.0",
     "component-querystring": "^2.0.0",
     "js-sha256": "^0.3.0",
-    "segmentio-facade": "^3.0.3",
+    "segmentio-facade": "^3.2.7",
     "to-no-case": "^1.0.1"
   },
   "devDependencies": {

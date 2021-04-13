@@ -8,7 +8,7 @@ var domify = require('domify');
 var each = require('@ndhoule/each');
 var extend = require('@ndhoule/extend');
 var integration = require('@segment/analytics.js-integration');
-var json = require('json3');
+var json = JSON;
 
 /**
  * Expose `Extole` integration.
