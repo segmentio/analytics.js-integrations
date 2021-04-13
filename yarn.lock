@@ -1787,13 +1787,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@segment/ad-params@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@segment/ad-params/-/ad-params-1.0.0.tgz#e02ded70a7f8db952af03c21208f47201b86bc95"
-  integrity sha1-4C3tcKf425Uq8DwhII9HIBuGvJU=
-  dependencies:
-    component-querystring "^2.0.0"
-
 "@segment/alias@^1.0.0", "@segment/alias@^1.0.1", "@segment/alias@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@segment/alias/-/alias-1.0.2.tgz#1ce0d2a28df59706a1b5c92fb99c0c48adc22ec1"

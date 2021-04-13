@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var ads = require('@segment/ad-params');
+var ads = require('./ads');
 var clone = require('component-clone');
 var cookie = require('component-cookie');
 var extend = require('@ndhoule/extend');

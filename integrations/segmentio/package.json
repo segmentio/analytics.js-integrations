@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-segmentio",
   "description": "The Segmentio analytics.js integration.",
-  "version": "4.4.2-beta.1",
+  "version": "4.4.2-beta.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -26,7 +26,6 @@
   "dependencies": {
     "@ndhoule/extend": "^2.0.0",
     "@ndhoule/keys": "^2.0.0",
-    "@segment/ad-params": "^1.0.0",
     "@segment/analytics.js-integration": "^2.1.0",
     "@segment/localstorage-retry": "^1.2.2",
     "@segment/protocol": "^1.0.0",
