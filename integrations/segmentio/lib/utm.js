@@ -1,23 +1,9 @@
 function utm(query) {
   // Polyfills
   if (!String.prototype.startsWith) {
-    Object.defineProperty(String.prototype, 'startsWith', {
-      value: function (search, rawPos) {
-        var pos = rawPos > 0 ? rawPos | 0 : 0
-        return this.substring(pos, pos + search.length) === search
-      }
-    })
-  }
-
-  if (!String.prototype.includes) {
-    String.prototype.includes = function (search, start) {
-      'use strict'
-
-      if (search instanceof RegExp) {
-        throw TypeError('first argument must not be a RegExp')
-      }
-      if (start === undefined) { start = 0 }
-      return this.indexOf(search, start) !== -1
+    String.prototype.startsWith = function(search, rawPos) {
+      var pos = rawPos > 0 ? rawPos | 0 : 0
+      return this.substring(pos, pos + search.length) === search
     }
   }
 
@@ -30,7 +16,7 @@ function utm(query) {
     var k = str.split('=')[0]
     var v = str.split('=')[1]
 
-    if (k.includes('utm_')) {
+    if (k.indexOf('utm_') !== -1) {
       var utmParam = k.substr(4)
       if (utmParam === 'campaign') {
         utmParam = 'name'
