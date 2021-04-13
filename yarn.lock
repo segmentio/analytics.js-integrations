@@ -1787,13 +1787,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@segment/ad-params@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@segment/ad-params/-/ad-params-1.0.0.tgz#e02ded70a7f8db952af03c21208f47201b86bc95"
-  integrity sha1-4C3tcKf425Uq8DwhII9HIBuGvJU=
-  dependencies:
-    component-querystring "^2.0.0"
-
 "@segment/alias@^1.0.0", "@segment/alias@^1.0.1", "@segment/alias@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@segment/alias/-/alias-1.0.2.tgz#1ce0d2a28df59706a1b5c92fb99c0c48adc22ec1"
@@ -2279,14 +2272,6 @@
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@segment/trample/-/trample-0.2.0.tgz#5b141159f67b06efaa295d2ebe240b51096134c5"
   integrity sha1-WxQRWfZ7Bu+qKV0uviQLUQlhNMU=
-
-"@segment/utm-params@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@segment/utm-params/-/utm-params-2.0.0.tgz#fea3c8a92bfba0d69e861fb3b26d7d882f139334"
-  integrity sha1-/qPIqSv7oNaehh+zsm19iC8TkzQ=
-  dependencies:
-    "@ndhoule/foldl" "^2.0.1"
-    component-querystring "^2.0.0"
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.0.2", "@sinonjs/commons@^1.4.0":
   version "1.4.0"
@@ -6526,7 +6511,7 @@ extend@3.0.1:
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.1.tgz#a755ea7bc1adfcc5a31ce7e762dbaadc5e636444"
   integrity sha1-p1Xqe8Gt/MWjHOfnYtuq3F5jZEQ=
 
-extend@3.0.2, extend@^3.0.0, extend@^3.0.1, extend@^3.0.2, extend@~3.0.2:
+extend@3.0.2, extend@^3.0.0, extend@^3.0.2, extend@~3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
