@@ -2260,6 +2260,14 @@
     component-cookie "^1.1.2"
     component-url "^0.2.1"
 
+"@segment/top-domain@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@segment/top-domain/-/top-domain-3.0.1.tgz#4c99ab061b858c8acceed4e2d84d4dfc9c2d770e"
+  integrity sha512-A8E80WlV0IXLQZ+keBiv/6yMmwW2pzXaiCcY/TUEBOAhO1kPj8PFLJC17uuN8nqxKv0rIkRGeBIgslMMT3uNfQ==
+  dependencies:
+    component-cookie "^1.1.5"
+    component-url "^0.2.1"
+
 "@segment/tracktor@0.12.1":
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.12.1.tgz#ca3e868f8b51c7da585764a482874addc31ea3e1"
@@ -4386,6 +4394,13 @@ component-cookie@^1.1.2, component-cookie@^1.1.4:
   integrity sha512-j6rzl+vHDTowvYz7Al3V0ud84O2l4YqGdA9qMj1W1nlZ5yWi7EhOd7ZSPzWFM25gZgv2OxWh6JlJYfsz2+XYow==
   dependencies:
     debug "2.2.0"
+
+component-cookie@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/component-cookie/-/component-cookie-1.1.5.tgz#27757fae4b27370138378ec754ca8d457bd47040"
+  integrity sha512-+D1nKIL6UfbYBoUeHVVdmd+I+BhgjjMQtT5cHp7HLAdpVi+7GZSvbYPItYaNgTeta5znlC8PJsBFZSY1mf57ZA==
+  dependencies:
+    debug "^2.6.9"
 
 component-each@*, component-each@^0.2.6:
   version "0.2.6"
