@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var ads = require('@segment/ad-params');
+var ads = require('./ads');
 var clone = require('component-clone');
 var cookie = require('component-cookie');
 var extend = require('@ndhoule/extend');
@@ -15,7 +15,7 @@ var localstorage = require('yields-store');
 var protocol = require('@segment/protocol');
 var send = require('@segment/send-json');
 var topDomain = require('@segment/top-domain');
-var utm = require('@segment/utm-params');
+var utm = require('./utm');
 var uuid = require('uuid').v4;
 var Queue = require('@segment/localstorage-retry');
 

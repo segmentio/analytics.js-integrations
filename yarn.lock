@@ -1787,13 +1787,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@segment/ad-params@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@segment/ad-params/-/ad-params-1.0.0.tgz#e02ded70a7f8db952af03c21208f47201b86bc95"
-  integrity sha1-4C3tcKf425Uq8DwhII9HIBuGvJU=
-  dependencies:
-    component-querystring "^2.0.0"
-
 "@segment/alias@^1.0.0", "@segment/alias@^1.0.1", "@segment/alias@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@segment/alias/-/alias-1.0.2.tgz#1ce0d2a28df59706a1b5c92fb99c0c48adc22ec1"
@@ -2267,6 +2260,14 @@
     component-cookie "^1.1.2"
     component-url "^0.2.1"
 
+"@segment/top-domain@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@segment/top-domain/-/top-domain-3.0.1.tgz#4c99ab061b858c8acceed4e2d84d4dfc9c2d770e"
+  integrity sha512-A8E80WlV0IXLQZ+keBiv/6yMmwW2pzXaiCcY/TUEBOAhO1kPj8PFLJC17uuN8nqxKv0rIkRGeBIgslMMT3uNfQ==
+  dependencies:
+    component-cookie "^1.1.5"
+    component-url "^0.2.1"
+
 "@segment/tracktor@0.12.1":
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/@segment/tracktor/-/tracktor-0.12.1.tgz#ca3e868f8b51c7da585764a482874addc31ea3e1"
@@ -2279,14 +2280,6 @@
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@segment/trample/-/trample-0.2.0.tgz#5b141159f67b06efaa295d2ebe240b51096134c5"
   integrity sha1-WxQRWfZ7Bu+qKV0uviQLUQlhNMU=
-
-"@segment/utm-params@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@segment/utm-params/-/utm-params-2.0.0.tgz#fea3c8a92bfba0d69e861fb3b26d7d882f139334"
-  integrity sha1-/qPIqSv7oNaehh+zsm19iC8TkzQ=
-  dependencies:
-    "@ndhoule/foldl" "^2.0.1"
-    component-querystring "^2.0.0"
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.0.2", "@sinonjs/commons@^1.4.0":
   version "1.4.0"
@@ -4401,6 +4394,13 @@ component-cookie@^1.1.2, component-cookie@^1.1.4:
   integrity sha512-j6rzl+vHDTowvYz7Al3V0ud84O2l4YqGdA9qMj1W1nlZ5yWi7EhOd7ZSPzWFM25gZgv2OxWh6JlJYfsz2+XYow==
   dependencies:
     debug "2.2.0"
+
+component-cookie@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/component-cookie/-/component-cookie-1.1.5.tgz#27757fae4b27370138378ec754ca8d457bd47040"
+  integrity sha512-+D1nKIL6UfbYBoUeHVVdmd+I+BhgjjMQtT5cHp7HLAdpVi+7GZSvbYPItYaNgTeta5znlC8PJsBFZSY1mf57ZA==
+  dependencies:
+    debug "^2.6.9"
 
 component-each@*, component-each@^0.2.6:
   version "0.2.6"
@@ -6526,7 +6526,7 @@ extend@3.0.1:
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.1.tgz#a755ea7bc1adfcc5a31ce7e762dbaadc5e636444"
   integrity sha1-p1Xqe8Gt/MWjHOfnYtuq3F5jZEQ=
 
-extend@3.0.2, extend@^3.0.0, extend@^3.0.1, extend@^3.0.2, extend@~3.0.2:
+extend@3.0.2, extend@^3.0.0, extend@^3.0.2, extend@~3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
