@@ -6,6 +6,7 @@
   * Support for `group` calls
   * Support page related properties
   * Send `source` parameter to identify analytics.js as the caller
+  * Use new location for widget script
 
 2.0.1 / 2017-04-11
 ==================
