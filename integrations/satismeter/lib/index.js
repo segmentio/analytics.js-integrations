@@ -15,7 +15,7 @@ var SatisMeter = (module.exports = integration('SatisMeter')
   .global('satismeter')
   .option('token', '')
   .option('apiKey', '')
-  .tag('<script src="https://app.satismeter.com/satismeter.js">'));
+  .tag('<script src="https://app.satismeter.com/js">'));
 
 /**
  * Initialize.
