@@ -5,9 +5,12 @@ function utm(query) {
 
   query = query.replace(/\?/g, '&')
 
-  return query.split('&').reduce(function(acc, str) {
-    var k = str.split('=')[0]
-    var v = str.split('=')[1]
+  var split = query.split('&')
+
+  var acc = {}
+  for (var i = 0; i < split.length; i++) {
+    var k = split[i].split('=')[0]
+    var v = split[i].split('=')[1]
 
     if (k.indexOf('utm_') !== -1) {
       var utmParam = k.substr(4)
@@ -16,8 +19,9 @@ function utm(query) {
       }
       acc[utmParam] = v
     }
-    return acc
-  })
+  }
+
+  return acc
 }
 
 module.exports = utm
