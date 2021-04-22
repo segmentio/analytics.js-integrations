@@ -7,7 +7,7 @@ var filter = require('array-filter');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
-var json = require('json3');
+var json = JSON;
 
 describe('Parsely', function() {
   var analytics;

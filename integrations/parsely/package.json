@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-parsely",
   "description": "The Parsely analytics.js integration.",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -30,7 +30,6 @@
     "array-filter": "^1.0.0",
     "do-when": "^1.0.0",
     "is": "3.2.1",
-    "json3": "^3.3.2",
     "reject": "0.0.1"
   },
   "devDependencies": {

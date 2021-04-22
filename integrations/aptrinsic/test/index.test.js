@@ -44,10 +44,45 @@ describe('Aptrinsic', function() {
   });
 
   describe('before loading', function() {
-    describe('#initialize', function() {
+    describe('#initialize default dataCenter', function() {
       it('should create window.aptrinsic', function() {
         analytics.initialize();
         analytics.assert(aptrinsic.loaded());
+      });
+      it('should load united_states script by default', function() {
+        analytics.spy(aptrinsic, 'load');
+        analytics.initialize();
+        analytics.loaded(
+          '<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a=AP-YAQYR6RUCNGM-1">'
+        );
+      });
+    });
+    describe('#initialize united_states', function() {
+      it('should create window.aptrinsic', function() {
+        analytics.initialize();
+        analytics.assert(aptrinsic.loaded());
+      });
+      it('should load united_states script', function() {
+        analytics.spy(aptrinsic, 'load');
+        aptrinsic.options.dataCenter = 'united_states'
+        analytics.initialize();
+        analytics.loaded(
+          '<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a=AP-YAQYR6RUCNGM-1">'
+        );
+      });
+    });
+    describe('#initialize eu', function() {
+      it('should create window.aptrinsic', function() {
+        analytics.initialize();
+        analytics.assert(aptrinsic.loaded());
+      });
+      it('should load eu script', function() {
+        analytics.spy(aptrinsic, 'load');
+        aptrinsic.options.dataCenter = 'eu'
+        analytics.initialize();
+        analytics.loaded(
+          '<script src="https://web-sdk-eu.aptrinsic.com/api/aptrinsic.js?a=AP-YAQYR6RUCNGM-1">'
+        );
       });
     });
   });
