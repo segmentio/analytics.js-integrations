@@ -2,8 +2,8 @@
 ==================
 
   * Update snippet to the most recent version, including new setVars and anonymize functionality.
-  * Now use setVars API by default to track pages in FullStory, rather than custom events. 
-  * A new setting, trackPagesWithEvents has been added to allow tracking via events in addition to the new behavior.
+  * Now use setVars API to track pages in FullStory.
+  * A new setting, trackPagesWithEvents has been added to allow tracking via events in addition to the new behavior, to support the transition. This defaults to true.
 
 2.2.4 / 2020-04-02
 ==================
