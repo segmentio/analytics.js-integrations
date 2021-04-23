@@ -20,7 +20,7 @@ var FullStory = (module.exports = integration('FullStory')
   .option('trackAllPages', false)
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
-  .option('trackPagesWithEvents', false)
+  .option('trackPagesWithEvents', true)
   .tag(
     '<script async src="https://edge.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
   ));
