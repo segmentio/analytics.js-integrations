@@ -33,7 +33,7 @@
     "@segment/clear-env": "^2.0.0",
     "browserify": "^16.2.3",
     "eslint": "^5.16.0",
-    "extend": "^3.0.1",
+    "extend": "^3.0.2",
     "karma": "^4.1.0",
     "karma-browserify": "^6.0.0",
     "karma-chrome-launcher": "^2.2.0",
