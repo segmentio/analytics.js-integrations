@@ -23,7 +23,7 @@ var Totango = (module.exports = integration('Totango')
   .option('serviceId', null)
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .tag('<script src="//tracker.totango.com/totango3.js">'));
+  .tag('<script src="//tracker.totango.com/totango4.0.3.js">'));
 
 /**
  * Initialize.
