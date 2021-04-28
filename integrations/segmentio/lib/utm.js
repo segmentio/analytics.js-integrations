@@ -17,7 +17,7 @@ function utm(query) {
       if (utmParam === 'campaign') {
         utmParam = 'name'
       }
-      acc[utmParam] = v
+      acc[utmParam] = decodeURIComponent(v.replace(/\+/g, ' '))
     }
   }
 
