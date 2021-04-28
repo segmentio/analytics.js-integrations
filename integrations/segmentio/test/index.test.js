@@ -241,6 +241,18 @@ describe('Segment.io', function() {
         Segment.global = window;
       });
 
+      it('should decode .campaign', function() {
+        Segment.global = { navigator: {}, location: {} };
+        Segment.global.location.search =
+          '?utm_source=%5BFoo%5D';
+        segment.normalize(object);
+        analytics.assert(object);
+        analytics.assert(object.context);
+        analytics.assert(object.context.campaign);
+        analytics.assert(object.context.campaign.source === '[Foo]');
+        Segment.global = window;
+      });
+
       it('should allow override of .campaign', function() {
         Segment.global = { navigator: {}, location: {} };
         Segment.global.location.search =
