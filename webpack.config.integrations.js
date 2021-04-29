@@ -67,7 +67,10 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      domify: '/node_modules/domify/index.js'
+    }
   },
   devServer: {
     contentBase: path.resolve(__dirname, 'build')
