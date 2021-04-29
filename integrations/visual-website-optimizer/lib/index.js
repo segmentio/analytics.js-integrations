@@ -116,6 +116,7 @@ VWO.prototype.roots = function() {
   var analytics = this.analytics;
   var self = this;
   var identifyCalled = false;
+  var experimentsTracked = {};
   rootExperiments(function(err, data) {
     each(data, function(experimentId, variationName) {
       var uuid = window.VWO.data.vin.uuid;
@@ -131,9 +132,12 @@ VWO.prototype.roots = function() {
         analytics.identify({vwoUserId: uuid});
         identifyCalled = true;
       }
-      analytics.track('Experiment Viewed', props, {
-        context: { integration: integrationContext }
-      });
+      if (!experimentsTracked[experimentId]) {
+        analytics.track('Experiment Viewed', props, {
+          context: { integration: integrationContext }
+        });
+        experimentsTracked[experimentId] = true;
+      }
     });
   }, this.options.trackOnlyABExperiments);
 };
