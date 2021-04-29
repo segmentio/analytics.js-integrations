@@ -1,4 +1,4 @@
-2.4.3 / 2021-04-23
+2.4.4 / 2021-04-23
 ==================
 
   * Fix for VWO tracking, Send track call once per experiment.
