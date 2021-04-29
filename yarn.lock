@@ -5447,6 +5447,11 @@ domain-browser@~1.1.0:
   resolved "https://registry.yarnpkg.com/domain-browser/-/domain-browser-1.1.7.tgz#867aa4b093faa05f1de08c06f4d7b21fdf8698bc"
   integrity sha1-hnqksJP6oF8d4IwG9NeyH9+GmLw=
 
+domify@1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/domify/-/domify-1.4.1.tgz#2e1e813019646715deeb8d3c5de4d3ef7bddd07e"
+  integrity sha512-x18nuiDHMCZGXr4KJSRMf/TWYtiaRo6RX8KN9fEbW54mvbQ6pieUuerC2ahBg+kEp1wycFj8MPUI0WkIOw5E9w==
+
 domify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/domify/-/domify-1.4.0.tgz#11483617f764f8695975b4bdc79b14f0803b629b"
