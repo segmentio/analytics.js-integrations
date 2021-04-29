@@ -20,6 +20,7 @@ var FullStory = (module.exports = integration('FullStory')
   .option('trackAllPages', false)
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
+  .option('trackPagesWithEvents', true)
   .tag(
     '<script async src="https://edge.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
   ));
@@ -37,6 +38,7 @@ var apiSource = 'segment';
 FullStory.prototype.initialize = function() {
   window._fs_debug = this.options.debug;
   window._fs_host = 'fullstory.com';
+  window._fs_script = 'edge.fullstory.com/s/fs.js';
   window._fs_org = this.options.org;
   window._fs_namespace = 'FS';
 
@@ -47,13 +49,16 @@ FullStory.prototype.initialize = function() {
     if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
     g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
     g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+    g.anonymize=function(){g.identify(!!0)};
     g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
-    g.log = function(a,b) { g("log", [a,b]) };
+    g.log = function(a,b){g("log",[a,b])};
     g.consent=function(a){g("consent",!arguments.length||a)};
     g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
     g.clearUserCookie=function(){};
+    g.setVars=function(n, p){g('setVars',[n,p]);};
     g._w={};y='XMLHttpRequest';g._w[y]=m[y];y='fetch';g._w[y]=m[y];
     if(m[y])m[y]=function(){return g._w[y].apply(this,arguments)};
+    g._v="1.3.0";
   })(window,document,window['_fs_namespace'],'script','user');
   /* eslint-enable */
 
@@ -112,16 +117,36 @@ FullStory.prototype.page = function(page) {
   var category = page.category();
   var name = page.fullName();
   var opts = this.options;
+  var trackProps = page.track().properties();
 
   if (name && opts.trackNamedPages) {
     // named pages
-    this.track(page.track(name));
+    if (opts.trackPagesWithEvents) {
+      this.track(page.track(name));
+    }
+
+    window.FS.setVars(
+      'page',
+      Object.assign(trackProps, { pageName: name }),
+      apiSource
+    );
   } else if (category && opts.trackCategorizedPages) {
     // categorized pages
-    this.track(page.track(category));
+    if (opts.trackPagesWithEvents) {
+      this.track(page.track(category));
+    }
+
+    window.FS.setVars(
+      'page',
+      Object.assign(trackProps, { pageName: category }),
+      apiSource
+    );
   } else if (opts.trackAllPages) {
     // all pages
-    this.track(page.track());
+    if (opts.trackPagesWithEvents) {
+      this.track(page.track());
+    }
+    window.FS.setVars('page', trackProps, apiSource);
   }
 };
 
