@@ -120,7 +120,7 @@ AdobeAnalytics.global('s')
   )
   .tag(
     'chromecast',
-    '<script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js">'
+    '<script type="text/javascript" src="//cdn.jsdelivr.net/gh/Adobe-Marketing-Cloud/media-sdks/sdks/chromecast/libs/adbmobile-chromecast.min.js">'
   );
 
 /**
@@ -145,73 +145,73 @@ AdobeAnalytics.prototype.initialize = function() {
 
   // Load the more compact Chromecast SDK only if the customer has it enabled in settings
   if (options.chromecastToggle){
-    this.load('chromecast', function() {
-      var ADBMobileConfig = window.ADBMobileConfig;
-      ADBMobileConfig = {
-        "marketingCloud": {
-          "org": `${options.marketingCloudOrgId}`
-        },
-        "target": {
-          "clientCode": "",
-          "timeout": 5
-        },
-        "audienceManager": {
-          "server": "obumobile5.demdex.net"
-        },
-        "analytics": {
-          "rsids": `${options.reportSuiteId}`,
-          "server": `${options.trackingServerUrl}`,
-          "ssl": false,
-          "offlineEnabled": false,
-          "charset": "UTF-8",
-          "lifecycleTimeout": 300,
-          "privacyDefault": "optedin",
-          "batchLimit": 0,
-          "timezone": "MDT",
-          "timezoneOffset": -360,
-          "referrerTimeout": 0,
-          "poi": []
-        }
-      };
+    window.ADBMobileConfig = {
+      "marketingCloud": {
+        "org": `${options.marketingCloudOrgId}`
+      },
+      "target": {
+        "clientCode": "",
+        "timeout": 5
+      },
+      "audienceManager": {
+        "server":  `${options.trackingServerUrl}`
+      },
+      "analytics": {
+        "rsids": `${options.reportSuiteId}`,
+        "server": `${options.trackingServerUrl}`,
+        "ssl": false,
+        "offlineEnabled": false,
+        "charset": "UTF-8",
+        "lifecycleTimeout": 300,
+        "privacyDefault": "optedin",
+        "batchLimit": 0,
+        "timezone": "MDT",
+        "timezoneOffset": -360,
+        "referrerTimeout": 0,
+        "poi": []
+      }
+    };
 
-      if (options.heartbeatTrackingServerUrl) {
-        ADBMobileConfig.mediaHeartbeat = {
-          "server": `${options.heartbeatTrackingServerUrl}`,
-          "publisher": "972C898555E9F7BC7F000101@AdobeOrg",
-          "channel": "test-channel-chromecast",
-          "ssl": false,
-          "ovp": "chromecast-player",
-          "sdkVersion": "chromecast-sdk",
-          "playerName": "Chromecast"
-        };
-        // duplicate logic here, simplify. choose SDK first, then conditionally set up heartbeat params
-        // Set up for Heartbeat
-        self.mediaHeartbeats = {};
-        self.adBreakCounts = {};
-        self.qosData = {};
-        self.playhead = 0;
-        self.adBreakInProgress = false;
-        self.heartbeatEventMap = {
-          // Segment spec'd event: Heartbeat function
-          'video playback started': initHeartbeat,
-          'video content started': heartbeatVideoStart,
-          'video playback paused': heartbeatVideoPaused,
-          'video playback resumed': heartbeatVideoStart, // Treated as a 'play' as well.
-          'video content completed': heartbeatVideoComplete,
-          'video playback completed': heartbeatSessionEnd,
-          'video ad started': heartbeatAdStarted,
-          'video ad completed': heartbeatAdCompleted,
-          'video ad skipped': heartbeatAdSkipped,
-          'video playback seek started': heartbeatSeekStarted,
-          'video playback seek completed': heartbeatSeekCompleted,
-          'video playback buffer started': heartbeatBufferStarted,
-          'video playback buffer completed': heartbeatBufferCompleted,
-          'video quality updated': heartbeatQualityUpdated,
-          'video content playing': heartbeatUpdatePlayhead,
-          'video playback interrupted': heartbeatVideoPaused,
-          'video playback exited': heartbeatVideoPaused
-        };
+    if (options.heartbeatTrackingServerUrl) {
+      window.ADBMobileConfig.mediaHeartbeat = {
+        "server": `${options.heartbeatTrackingServerUrl}`,
+        "publisher": "972C898555E9F7BC7F000101@AdobeOrg",
+        "channel": "test-channel-chromecast",
+        "ssl": false,
+        "ovp": "chromecast-player",
+        "sdkVersion": "chromecast-sdk",
+        "playerName": "Chromecast"
       };
+      // duplicate logic here, simplify. choose SDK first, then conditionally set up heartbeat params
+      // Set up for Heartbeat
+      self.mediaHeartbeats = {};
+      self.adBreakCounts = {};
+      self.qosData = {};
+      self.playhead = 0;
+      self.adBreakInProgress = false;
+      self.heartbeatEventMap = {
+        // Segment spec'd event: Heartbeat function
+        'video playback started': initHeartbeat,
+        'video content started': heartbeatVideoStart,
+        'video playback paused': heartbeatVideoPaused,
+        'video playback resumed': heartbeatVideoStart, // Treated as a 'play' as well.
+        'video content completed': heartbeatVideoComplete,
+        'video playback completed': heartbeatSessionEnd,
+        'video ad started': heartbeatAdStarted,
+        'video ad completed': heartbeatAdCompleted,
+        'video ad skipped': heartbeatAdSkipped,
+        'video playback seek started': heartbeatSeekStarted,
+        'video playback seek completed': heartbeatSeekCompleted,
+        'video playback buffer started': heartbeatBufferStarted,
+        'video playback buffer completed': heartbeatBufferCompleted,
+        'video quality updated': heartbeatQualityUpdated,
+        'video content playing': heartbeatUpdatePlayhead,
+        'video playback interrupted': heartbeatVideoPaused,
+        'video playback exited': heartbeatVideoPaused
+      };
+    };
+    console.log('settings defined', this.ADBMobileConfig);
+    this.load('chromecast', function() {
       console.log('library loaded');
       self.ready();
     });
@@ -319,7 +319,17 @@ AdobeAnalytics.prototype.page = function(page) {
   var pageName = page.fullName();
 
   if (this.options.chromecastToggle) {
-    console.log(ADBMobile);
+    console.log('Chromecast SDK does not support pageviews?');
+    console.log(window.ADBMobile)
+    window.ADBMobile.config.setDebugLogging(true);
+    let customVideoMetadata = { 
+      isUserLoggedIn: "false", 
+      tvStation: "Sample TV station", 
+      programmer: "Sample programmer" 
+    };
+    let mediaObject = window.ADBMobile.media.createMediaObject('test','123',6,'test','test');
+    window.ADBMobile.media.trackSessionStart(mediaObject, customVideoMetadata);
+    console.log('test')
   } else {
     // TODO: for nameless analytics.page(), pageName is `undefined`
     // Should we be setting or sending something else here?
