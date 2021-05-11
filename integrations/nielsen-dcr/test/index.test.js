@@ -41,6 +41,7 @@ describe('NielsenDCR', function() {
         .option('adAssetIdPropertyName', '')
         .option('subbrandPropertyName', '')
         .option('clientIdPropertyName', '')
+        .option('customSectionProperty', '')
         .option('contentLengthPropertyName', 'total_length')
         .option('optout', false)
         .option('sendCurrentTimeLivestream', false)
@@ -92,6 +93,29 @@ describe('NielsenDCR', function() {
           type: 'static',
           assetid: window.location.href,
           section: 'Loaded a Page'
+        };
+        analytics.called(
+          nielsenDCR._client.ggPM,
+          'staticstart',
+          staticMetadata
+        );
+      });
+
+      it('should send static metadata with custom section name', function() {
+        var props;
+        props = {
+          custom_section_name_prop: 'Custom Page Name'
+        }
+
+        nielsenDCR.options.customSectionProperty =
+        'custom_section_name_prop';
+
+        analytics.page('Homepage', props);
+
+        var staticMetadata = {
+          type: 'static',
+          assetid: window.location.href,
+          section: 'Custom Page Name'
         };
         analytics.called(
           nielsenDCR._client.ggPM,
@@ -183,13 +207,19 @@ describe('NielsenDCR', function() {
         it('video playback interrupted during content', function() {
           analytics.track('Video Playback Interrupted', props);
           analytics.called(window.clearInterval);
-          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
         });
 
         it('video playback interrupted during ad', function() {
           analytics.track('Video Playback Interrupted', props);
           analytics.called(window.clearInterval);
-          analytics.called(nielsenDCR._client.ggPM, 'end', props.position);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
+        });
+
+        it('video playback exited', function() {
+          analytics.track('Video Playback Exited', props);
+          analytics.called(window.clearInterval);
+          analytics.called(nielsenDCR._client.ggPM, 'stop', props.position);
         });
 
         it('video playback completed', function() {
