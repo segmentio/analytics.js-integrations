@@ -243,8 +243,7 @@ describe('Segment.io', function() {
 
       it('should decode .campaign', function() {
         Segment.global = { navigator: {}, location: {} };
-        Segment.global.location.search =
-          '?utm_source=%5BFoo%5D';
+        Segment.global.location.search = '?utm_source=%5BFoo%5D';
         segment.normalize(object);
         analytics.assert(object);
         analytics.assert(object.context);
@@ -473,7 +472,11 @@ describe('Segment.io', function() {
 
           assert(object);
           assert(object._metadata);
-          assert.deepEqual(object._metadata.bundled, ['Segment.io', 'other', 'another']);
+          assert.deepEqual(object._metadata.bundled, [
+            'Segment.io',
+            'other',
+            'another'
+          ]);
         });
 
         it('should add a list of unbundled integrations when `addBundledMetadata` and `unbundledIntegrations` are set', function() {
@@ -496,8 +499,8 @@ describe('Segment.io', function() {
         it('should generate and add a list of bundled destination config ids when `addBundledMetadata` is set', function() {
           segment.options.addBundledMetadata = true;
           segment.options.maybeBundledConfigIds = {
-            'other': ['config21'],
-            'slack': ['slack99'] // should be ignored
+            other: ['config21'],
+            slack: ['slack99'] // should be ignored
           };
           segment.normalize(object);
 
@@ -509,15 +512,18 @@ describe('Segment.io', function() {
         it('should generate a list of multiple bundled destination config ids when `addBundledMetadata` is set', function() {
           segment.options.addBundledMetadata = true;
           segment.options.maybeBundledConfigIds = {
-            'other': ['config21'],
-            'another': ['anotherConfig99'],
-            'slack': ['slack99'] // should be ignored
+            other: ['config21'],
+            another: ['anotherConfig99'],
+            slack: ['slack99'] // should be ignored
           };
           segment.normalize(object);
 
           assert(object);
           assert(object._metadata);
-          assert.deepEqual(object._metadata.bundledIds, ['config21', 'anotherConfig99']);
+          assert.deepEqual(object._metadata.bundledIds, [
+            'config21',
+            'anotherConfig99'
+          ]);
         });
       });
 
@@ -845,7 +851,7 @@ describe('Segment.io', function() {
           );
 
           it(
-            'should enqueue an oversized payload',
+            'should not enqueue an oversized payload',
             sinon.test(function() {
               var spy = sinon.spy();
               xhr.onCreate = spy;
@@ -867,12 +873,7 @@ describe('Segment.io', function() {
                 payload
               );
 
-              assert(spy.calledOnce);
-              var req = spy.getCall(0).args[0];
-              assert.strictEqual(
-                JSON.parse(req.requestBody).key1749,
-                'value1749'
-              );
+              assert(spy.notCalled);
             })
           );
         });
