@@ -2726,9 +2726,9 @@ analytics-events@^1.2.0:
   integrity sha1-sDCnqCv+tF7w2qdNIM+ai6TUvcs=
 
 analytics-events@^2.0.2, analytics-events@^2.1.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/analytics-events/-/analytics-events-2.2.0.tgz#f00f55946940a6357809582f6fded6ab80034b84"
-  integrity sha1-8A9VlGlApjV4CVgvb97Wq4ADS4Q=
+  version "2.2.5"
+  resolved "https://registry.npmjs.org/analytics-events/-/analytics-events-2.2.5.tgz#7f20217a7b08d3bf719e48b62b0785064e74f71b"
+  integrity sha512-WuuEs52q/mxvM/wvLSdNA71iEqwTSnLodkwnPpzVUYzFuoR1YOujvN09ZMpkcaVhkTBK/rbfPiSpDEDD8FFD6Q==
   dependencies:
     "@ndhoule/foldl" "^2.0.1"
     "@ndhoule/map" "^2.0.1"
