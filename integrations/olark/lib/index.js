@@ -181,10 +181,10 @@ Olark.prototype.attachListeners = function() {
 
   // Callback accepts `event`
   // TODO: We might eventually send information about the event through Segment
-  api('chat.onMessageToVisitor', function() {
+  api('chat.onMessageToVisitor', function(opts) {
     self.analytics.track(
       'Live Chat Message Received',
-      {},
+      ((opts.message && opts.message.automated === true) ? { nonInteraction: 1 } : {}),
       {
         context: { integration: integrationContext },
         integrations: { Olark: false }
