@@ -35,6 +35,7 @@ describe('Heap', function() {
       integration('Heap')
         .global('heap')
         .option('appId', '')
+        .option('secureCookie', false)
     );
   });
 
@@ -73,6 +74,12 @@ describe('Heap', function() {
         analytics.assert(!window.heap);
         analytics.initialize();
         analytics.assert(window.heap.appid === options.appId);
+      });
+
+      it('should pass through options', function() {
+        heap.options.secureCookie = true;
+        analytics.initialize();
+        analytics.assert(window.heap.config.secureCookie);
       });
 
       it('should call #load', function() {
