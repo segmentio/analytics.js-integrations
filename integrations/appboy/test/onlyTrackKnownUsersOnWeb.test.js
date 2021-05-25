@@ -175,7 +175,8 @@ describe('Appboy with onlyTrackKnownUsersOnWeb enabled', function() {
           sessionTimeoutInSeconds: 30,
           serviceWorkerLocation: undefined,
           requireExplicitInAppMessageDismissal: false,
-          enableHtmlInAppMessages: false
+          enableHtmlInAppMessages: false,
+          enableSdkAuthentication: false,
         };
         analytics.once('ready', function() {
           try {

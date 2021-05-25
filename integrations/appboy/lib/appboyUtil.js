@@ -52,7 +52,8 @@ var appboyUtil = {
         requireExplicitInAppMessageDismissal:
           options.requireExplicitInAppMessageDismissal,
         serviceWorkerLocation: options.serviceWorkerLocation,
-        sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30
+        sessionTimeoutInSeconds: Number(options.sessionTimeoutInSeconds) || 30,
+        enableSdkAuthentication: options.enableSdkAuthentication || false,
       };
     } else {
       var datacenterMappings = {
