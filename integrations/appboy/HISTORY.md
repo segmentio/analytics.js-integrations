@@ -1,3 +1,9 @@
+1.17.0 / 2021-05-25
+===================
+
+* Adds support for SDK Authentication feature
+* Upgrades from v3.1 to v3.3
+
 1.16.0 / 2020-12-16
 ===================
 
