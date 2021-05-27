@@ -201,7 +201,8 @@ Appboy.prototype.initializeV3 = function() {
     this.appboyInitialize(userId, options, config);
   }
 
-  this.load('v3.3', this.ready);
+  var versionTag = Number(options.version) === 3.1 ? 'v3.1' : 'v3.3';
+  this.load(versionTag, this.ready);
 };
 
 /**
