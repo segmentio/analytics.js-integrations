@@ -46,7 +46,7 @@ var AdobeAnalytics = (module.exports = integration('Adobe Analytics'));
  * @param {*} value
  */
 
-AdobeAnalytics.sOption = function(field, value) {
+AdobeAnalytics.sOption = function (field, value) {
   var s = window.s;
   var isValid = s && has.call(s, field) && !isEmptyString(field);
 
@@ -83,7 +83,6 @@ AdobeAnalytics.global('s')
   .option('preferVisitorId', false)
   .option('heartbeatTrackingServerUrl', '')
   .option('ssl', false)
-
   .sOption('visitorID')
   .sOption('channel')
   .sOption('campaign')
@@ -129,7 +128,7 @@ AdobeAnalytics.global('s')
  * @api public
  */
 
-AdobeAnalytics.prototype.initialize = function() {
+AdobeAnalytics.prototype.initialize = function () {
   var options = this.options;
   var self = this;
 
@@ -144,21 +143,24 @@ AdobeAnalytics.prototype.initialize = function() {
   window._segHBPlayheads = {};
 
   // Load the more compact Chromecast SDK only if the customer has it enabled in settings
-  if (options.chromecastToggle){
+  if (options.chromecastToggle) {
+
+    window.ADBmobile = {};
+    window.ADBmobile.analytics = {};
     window.ADBMobileConfig = {
       "marketingCloud": {
-        "org": `${options.marketingCloudOrgId}`
+        "org": "B3CB46FC57C6C8F77F000101@AdobeOrg"
       },
       "target": {
         "clientCode": "",
         "timeout": 5
       },
       "audienceManager": {
-        "server":  `${options.trackingServerUrl}`
+        "server": "exchangepartnersegment.sc.omtrdc.net"
       },
       "analytics": {
-        "rsids": `${options.reportSuiteId}`,
-        "server": `${options.trackingServerUrl}`,
+        "rsids": `"sgmnatechromecast"`,
+        "server": "exchangepartnersegment.sc.omtrdc.net",
         "ssl": false,
         "offlineEnabled": false,
         "charset": "UTF-8",
@@ -169,57 +171,55 @@ AdobeAnalytics.prototype.initialize = function() {
         "timezoneOffset": -360,
         "referrerTimeout": 0,
         "poi": []
-      }
-    };
-
-    if (options.heartbeatTrackingServerUrl) {
-      window.ADBMobileConfig.mediaHeartbeat = {
-        "server": `${options.heartbeatTrackingServerUrl}`,
-        "publisher": "972C898555E9F7BC7F000101@AdobeOrg",
+      },
+      "mediaHeartbeat": {
+        "server": "exchangepartnersegment.hb-api.omtrdc.net",
+        "publisher": "B3CB46FC57C6C8F77F000101@AdobeOrg",
         "channel": "test-channel-chromecast",
-        "ssl": false,
+        "ssl": true,
         "ovp": "chromecast-player",
         "sdkVersion": "chromecast-sdk",
         "playerName": "Chromecast"
-      };
-      // duplicate logic here, simplify. choose SDK first, then conditionally set up heartbeat params
-      // Set up for Heartbeat
-      self.mediaHeartbeats = {};
-      self.adBreakCounts = {};
-      self.qosData = {};
-      self.playhead = 0;
-      self.adBreakInProgress = false;
-      self.heartbeatEventMap = {
-        // Segment spec'd event: Heartbeat function
-        'video playback started': initHeartbeat,
-        'video content started': heartbeatVideoStart,
-        'video playback paused': heartbeatVideoPaused,
-        'video playback resumed': heartbeatVideoStart, // Treated as a 'play' as well.
-        'video content completed': heartbeatVideoComplete,
-        'video playback completed': heartbeatSessionEnd,
-        'video ad started': heartbeatAdStarted,
-        'video ad completed': heartbeatAdCompleted,
-        'video ad skipped': heartbeatAdSkipped,
-        'video playback seek started': heartbeatSeekStarted,
-        'video playback seek completed': heartbeatSeekCompleted,
-        'video playback buffer started': heartbeatBufferStarted,
-        'video playback buffer completed': heartbeatBufferCompleted,
-        'video quality updated': heartbeatQualityUpdated,
-        'video content playing': heartbeatUpdatePlayhead,
-        'video playback interrupted': heartbeatVideoPaused,
-        'video playback exited': heartbeatVideoPaused
-      };
+      }
     };
+
+    self.mediaHeartbeats = {};
+    self.adBreakCounts = {};
+    self.qosData = {};
+    self.playhead = 0;
+    self.adBreakInProgress = false;
+
+    self.heartbeatEventMap = {
+      // Segment spec'd event: Heartbeat function
+      'video playback started': chromecastInit,
+      'video playback paused': chromecastVideoPaused,
+      'video playback resumed': chromecastVideoStart, // Treated as a 'play' as well.
+      'video playback buffer started': chromecastBufferStarted,
+      'video playback buffer completed': chromecastBufferCompleted,
+      'video playback seek started': chromecastSeekStarted,
+      'video playback seek completed': chromecastSeekCompleted,
+      'video playback completed': chromecastSessionEnd,
+      'video playback interrupted': chromecastVideoPaused,
+      'video quality updated': chromecastQualityUpdated,
+      'video content started': chromecastHeartbeatVideoStart,
+      'video content playing': chromecastUpdatePlayhead,
+      'video content completed': chromecastVideoComplete,
+      'video ad started': chromecastAdStarted,
+      'video ad skipped': chromecastAdSkipped,
+      'video ad completed': chromecastAdCompleted,
+      'video playback exited': chromecastVideoPaused
+    };
+
     console.log('settings defined', this.ADBMobileConfig);
-    this.load('chromecast', function() {
+    this.load('chromecast', function () {
       console.log('library loaded');
       self.ready();
     });
   }
   // Load the larger Heartbeat script only if the customer has it enabled in settings.
   // This file is considerably bigger, so this check is necessary.
-  else if (options.heartbeatTrackingServerUrl) {
-    this.load('heartbeat', function() {
+  if (!options.chromecastToggle && options.heartbeatTrackingServerUrl) {
+    this.load('heartbeat', function () {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
       s.trackingServerSecure =
@@ -268,8 +268,10 @@ AdobeAnalytics.prototype.initialize = function() {
 
       self.ready();
     });
-  } else {
-    this.load('default', function() {
+  }
+
+  if (!options.chromecastToggle) {
+    this.load('default', function () {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
       s.trackingServerSecure =
@@ -293,6 +295,103 @@ AdobeAnalytics.prototype.initialize = function() {
     });
   }
 };
+function chromecastHeartbeatVideoStart(track) {
+
+  window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart);
+  window.ADBMobile.media.trackPlay();
+
+}
+function chromecastVideoPaused(track) {
+  console.log('Player event: PAUSE');
+  window.ADBMobile.media.trackPause();
+
+}
+function chromecastVideoStart(track) {
+  console.log('Player event: PLAY');
+  window.ADBMobile.media.trackPlay();
+}
+function chromecastVideoComplete(track) {
+  console.log('Player event: COMPLETE');
+  window.ADBMobile.media.trackComplete();
+}
+function chromecastSessionEnd(track) {
+  console.log('Player event: VIDEO_UNLOAD');
+  window.ADBMobile.media.trackComplete();
+
+}
+function chromecastAdStarted(track) {
+  console.log('Player event: AD_START');
+  var props = track.properties();
+
+  var info = {
+    name: props.title || 'no title',
+    id: props.asset_id.toString() || 'default ad',
+    position: props.position || 1,
+    length: props.total_length || 0
+  }
+  var adInfo = window.ADBMobile.media.createAdObject(info.name, info.id, info.position, info.length);
+
+  var standardAdMetadata = {};
+  standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.video_ad_advertiser || null;
+  standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || null;
+  adInfo[ADBMobile.media.MediaObjectKey.StandardAdMetadata] = standardAdMetadata;
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdStart, adInfo, adContextData);
+
+}
+function chromecastAdCompleted(track) {
+  console.log('Player event: AD_COMPLETE');
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdComplete);
+}
+function chromecastAdSkipped(track) {
+
+}
+function chromecastSeekStarted(track) {
+  console.log('Player event: SEEK_START');
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekStart);
+}
+function chromecastSeekCompleted(track) {
+  console.log('Player event: SEEK_COMPLETE');
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekComplete);
+}
+function chromecastBufferStarted(track) {
+  console.log('Player event: BUFFER_START');
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferStart);
+}
+function chromecastQualityUpdated(track) {
+  console.log('Player event: QOS_UPDATE');
+  let qosInfo = {
+    bitrate: 50000,
+    startupTime: 1.0,
+    fps: 23,
+    droppedFrames: 0,
+  };
+  window.ADBMobile.media.createQoSObject(qosInfo.bitrate, qosInfo.droppedFrames, qosInfo.fps, qosInfo.startupTime);
+}
+
+function chromecastBufferCompleted(track) {
+  console.log('Player event: BUFFER_COMPLETE');
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferComplete);
+
+}
+function chromecastUpdatePlayhead(track) {
+  var props = track.properties();
+  window.playhead = props.position;
+}
+
+
+
+function getCurrentPlaybackTime() {
+  return window.playhead;
+};
+
+function getQoSObject() {
+  return {
+    bitrate: 50000,
+    startupTime: 1.0,
+    fps: 23,
+    droppedFrames: 0,
+  };
+};
 
 /**
  * Adobe Analytics is loaded if the `window.s_gi` function exists.
@@ -300,7 +399,8 @@ AdobeAnalytics.prototype.initialize = function() {
  * @return {Boolean} loaded
  */
 
-AdobeAnalytics.prototype.loaded = function() {
+
+AdobeAnalytics.prototype.loaded = function () {
   return !!window.s_gi;
 };
 
@@ -311,7 +411,7 @@ AdobeAnalytics.prototype.loaded = function() {
  * @param {Page} page
  */
 
-AdobeAnalytics.prototype.page = function(page) {
+AdobeAnalytics.prototype.page = function (page) {
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
@@ -319,17 +419,7 @@ AdobeAnalytics.prototype.page = function(page) {
   var pageName = page.fullName();
 
   if (this.options.chromecastToggle) {
-    console.log('Chromecast SDK does not support pageviews?');
-    console.log(window.ADBMobile)
-    window.ADBMobile.config.setDebugLogging(true);
-    let customVideoMetadata = { 
-      isUserLoggedIn: "false", 
-      tvStation: "Sample TV station", 
-      programmer: "Sample programmer" 
-    };
-    let mediaObject = window.ADBMobile.media.createMediaObject('test','123',6,'test','test');
-    window.ADBMobile.media.trackSessionStart(mediaObject, customVideoMetadata);
-    console.log('test')
+
   } else {
     // TODO: for nameless analytics.page(), pageName is `undefined`
     // Should we be setting or sending something else here?
@@ -338,7 +428,7 @@ AdobeAnalytics.prototype.page = function(page) {
     // Either way, any change here would be breaking
     window.s.pageName = pageName;
     window.s.referrer = page.referrer();
-  
+
     // Visitor ID aka AA's concept of `userId`.
     // This is not using `update()` so once it is set, it will be sent
     // with `.track()` calls as well.
@@ -356,21 +446,21 @@ AdobeAnalytics.prototype.page = function(page) {
           window.s.visitorID = userId;
       }
     }
-  
+
     // Attach some variables on the `window.s` to be sent with the call
     update(pageName, 'events');
     updateCommonVariables(page, this.options);
-  
+
     calculateTimestamp(page, this.options);
-  
+
     // Check if any properties match mapped eVar, prop, or hVar in options
     var props = extractProperties(page, this.options);
     // Attach them to window.s and push to dynamicKeys
     each(update, props);
-  
+
     // Update `s.contextData`
     updateContextData(page, this.options);
-  
+
     // actually make the "page" request, just a single "t" not "tl"
     // "t" will send all variables on the window.s while "tl" does not
     // "t" will increment pageviews while "tl" does not
@@ -385,12 +475,15 @@ AdobeAnalytics.prototype.page = function(page) {
  * @param {Track} track
  */
 
-AdobeAnalytics.prototype.track = function(track) {
+AdobeAnalytics.prototype.track = function (track) {
+  debugger;
+  console.log('=============')
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
   var eventName = track.event().toLowerCase();
-
+  console.log('=============')
+  console.log(eventName)
   // Map to Heartbeat events if enabled.
   if (this.options.heartbeatTrackingServerUrl) {
     var heartbeatFunc = this.heartbeatEventMap[eventName];
@@ -401,6 +494,7 @@ AdobeAnalytics.prototype.track = function(track) {
   }
   // Check if Segment event is mapped in settings; if not, noop
   var isMapped = this.isMapped(eventName);
+  console.log(isMapped)
   if (!isMapped) {
     return;
   }
@@ -421,12 +515,12 @@ AdobeAnalytics.prototype.track = function(track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.productViewed = function(track) {
+AdobeAnalytics.prototype.productViewed = function (track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'prodView');
 };
 
-AdobeAnalytics.prototype.productListViewed = function(track) {
+AdobeAnalytics.prototype.productListViewed = function (track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'prodView');
 };
@@ -439,7 +533,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.productAdded = function(track) {
+AdobeAnalytics.prototype.productAdded = function (track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scAdd');
 };
@@ -452,7 +546,7 @@ AdobeAnalytics.prototype.productAdded = function(track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.productRemoved = function(track) {
+AdobeAnalytics.prototype.productRemoved = function (track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scRemove');
 };
@@ -464,7 +558,7 @@ AdobeAnalytics.prototype.productRemoved = function(track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.orderCompleted = function(track) {
+AdobeAnalytics.prototype.orderCompleted = function (track) {
   clearKeys(dynamicKeys);
 
   var props = track.properties();
@@ -481,7 +575,7 @@ AdobeAnalytics.prototype.orderCompleted = function(track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.cartViewed = function(track) {
+AdobeAnalytics.prototype.cartViewed = function (track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scView');
 };
@@ -493,7 +587,7 @@ AdobeAnalytics.prototype.cartViewed = function(track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.checkoutStarted = function(track) {
+AdobeAnalytics.prototype.checkoutStarted = function (track) {
   clearKeys(dynamicKeys);
 
   var props = track.properties();
@@ -510,50 +604,82 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
  * @param {string} adobeEvent Adobe standard event
  */
 
-AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
-  var merchEvents = getMerchConfig(msg, this.options);
+AdobeAnalytics.prototype.processEvent = function (msg, adobeEvent) {
   var properties = msg.properties();
+  let adobeEvents = [];
+  debugger;
+  if (this.options.chromecastToggle) {
 
-  // sets `window.s.products`
-  setProductsString(
-    msg.event(),
-    properties,
-    adobeEvent,
-    this.options.productIdentifier,
-    merchEvents.configProductMerchEvent,
-    merchEvents.productEVars
-  );
+    if (this.options.events.length > 0) {
+      // iterate through event map and pull adobe events corresponding to the incoming segment event
+      each(function (eventMapping) {
+        if (eventMapping.segmentEvent.toLowerCase() === msg.event().toLowerCase()) {
+          debugger;
+          each(function (event) {
+            debugger
+            if (adobeEvents.indexOf(event) <= 0) {
+              debugger
+              adobeEvents.push(event);
+            }
+          }, eventMapping.adobeEvents);
+        }
+        debugger;
+      }, this.options.events);
+    }
+    each(function (adobeEventToSend) {
+      debugger
+      console.log('SENT ' + adobeEventToSend)
+      window.ADBMobile.analytics.trackAction(adobeEventToSend, properties)
+    }, adobeEvents);
 
-  updateContextData(msg, this.options);
 
-  var eVarEvent = dot(this.options.eVars, msg.event());
-  update(msg.event(), eVarEvent);
+  } else {
 
-  // sets `window.s.events`
-  setEventsString(
-    msg.event(),
-    properties,
-    this.options.events,
-    merchEvents.configMerchEvents,
-    adobeEvent
-  );
 
-  updateCommonVariables(msg, this.options);
+    var merchEvents = getMerchConfig(msg, this.options);
 
-  calculateTimestamp(msg, this.options);
 
-  var mappedProps = extractProperties(msg, this.options);
-  each(update, mappedProps);
+    // sets `window.s.products`
+    setProductsString(
+      msg.event(),
+      properties,
+      adobeEvent,
+      this.options.productIdentifier,
+      merchEvents.configProductMerchEvent,
+      merchEvents.productEVars
+    );
 
-  if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
+    updateContextData(msg, this.options);
 
-  window.s.linkTrackVars = dynamicKeys.join(',');
+    var eVarEvent = dot(this.options.eVars, msg.event());
+    update(msg.event(), eVarEvent);
 
-  // Send request off to Adobe Analytics
-  // 1st param: sets 500ms delay to give browser time, also means you are tracking something other than a href link
-  // 2nd param: 'o' means 'Other' as opposed to 'd' for 'Downloads' and 'e' for Exit links
-  // 3rd param: link name you will see in reports
-  window.s.tl(true, 'o', msg.event());
+    // sets `window.s.events`
+    setEventsString(
+      msg.event(),
+      properties,
+      this.options.events,
+      merchEvents.configMerchEvents,
+      adobeEvent
+    );
+
+    updateCommonVariables(msg, this.options);
+
+    calculateTimestamp(msg, this.options);
+
+    var mappedProps = extractProperties(msg, this.options);
+    each(update, mappedProps);
+
+    if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
+
+    window.s.linkTrackVars = dynamicKeys.join(',');
+
+    // Send request off to Adobe Analytics
+    // 1st param: sets 500ms delay to give browser time, also means you are tracking something other than a href link
+    // 2nd param: 'o' means 'Other' as opposed to 'd' for 'Downloads' and 'e' for Exit links
+    // 3rd param: link name you will see in reports
+    window.s.tl(true, 'o', msg.event());
+  }
 };
 
 /**
@@ -578,8 +704,8 @@ function updateCommonVariables(facade, options) {
   if (options.enableTrackPageName && facade.type() === 'track')
     update(
       properties.pageName ||
-        options.pageName ||
-        facade.proxy('context.page.title'),
+      options.pageName ||
+      facade.proxy('context.page.title'),
       'pageName'
     );
 }
@@ -651,9 +777,9 @@ function setEventsString(
 
   if (eventsMap.length > 0) {
     // iterate through event map and pull adobe events corresponding to the incoming segment event
-    each(function(eventMapping) {
+    each(function (eventMapping) {
       if (eventMapping.segmentEvent.toLowerCase() === event) {
-        each(function(event) {
+        each(function (event) {
           if (adobeEvents.indexOf(event) <= 0) {
             adobeEvents.push(event);
           }
@@ -664,9 +790,9 @@ function setEventsString(
 
   if (merchEventsMap.length > 0) {
     // append adobeEvents with merchMap (currency and counter events)
-    each(function(merchMapping) {
+    each(function (merchMapping) {
       var merchMap = mapMerchEvents(merchMapping, properties);
-      each(function(merchEvent) {
+      each(function (merchEvent) {
         if (adobeEvents.indexOf(merchEvent) <= 0) {
           adobeEvents.push(merchEvent);
         }
@@ -674,7 +800,7 @@ function setEventsString(
     }, merchEventsMap);
   }
 
-  adobeEvents = adobeEvents.filter(function(item) {
+  adobeEvents = adobeEvents.filter(function (item) {
     return !!item;
   });
   var value = adobeEvents.join(',');
@@ -701,7 +827,7 @@ function updateContextData(facade, options) {
   var propertyPrefix = options.customDataPrefix
     ? options.customDataPrefix + '.'
     : '';
-  each(function(value, key) {
+  each(function (value, key) {
     addContextDatum(propertyPrefix + key, value);
   }, properties);
 
@@ -711,7 +837,7 @@ function updateContextData(facade, options) {
   // look at *all* our mappings, but only the `contextValues` mapping should be
   // used here.
   var contextProperties = extractProperties(facade, options, 'context');
-  each(function(value, key) {
+  each(function (value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
@@ -828,7 +954,7 @@ function mapMerchEvents(merchEvent, props) {
 
 function getMerchConfig(msg, settings) {
   var eventName = msg.event().toLowerCase();
-  var mapping = (settings.merchEvents || []).find(function(setting) {
+  var mapping = (settings.merchEvents || []).find(function (setting) {
     return setting.segmentEvent.toLowerCase() === eventName;
   });
 
@@ -869,7 +995,7 @@ function getMerchConfig(msg, settings) {
 
 function dedupeMerchEventSettings(configMerchEvents) {
   var dedupeSettings = {};
-  each(function(eventObject) {
+  each(function (eventObject) {
     var existingEventObject = dedupeSettings[eventObject.adobeEvent];
     if (
       !existingEventObject ||
@@ -897,7 +1023,7 @@ function dedupeMerchEventSettings(configMerchEvents) {
  */
 
 function clearKeys(keys) {
-  each(function(linkVar) {
+  each(function (linkVar) {
     delete window.s[linkVar];
   }, keys);
   // Clears the array passed in
@@ -1039,7 +1165,7 @@ function mapProducts(
   properties
 ) {
   if (!Array.isArray(products)) return;
-  var productString = products.map(function(productProperties) {
+  var productString = products.map(function (productProperties) {
     var product = new Track({ properties: productProperties });
     var category = product.category() || '';
     var quantity = product.quantity() != null ? product.quantity() : 1;
@@ -1088,7 +1214,7 @@ function mapProducts(
         total,
         eventString,
         productEVarstring
-      ].map(function(value) {
+      ].map(function (value) {
         if (value == null) {
           return String(value);
         }
@@ -1097,7 +1223,7 @@ function mapProducts(
       return test.join(';');
     }
     return [category, item, quantity, total]
-      .map(function(value) {
+      .map(function (value) {
         if (value == null) {
           return String(value);
         }
@@ -1146,7 +1272,7 @@ function mapProductEvents(merchEvents, props, product) {
   var merchMap = [];
   var eventString;
 
-  each(function(event) {
+  each(function (event) {
     if (event.valueScope === 'product') {
       // Respect what the customer configures in the setting.
       // ex. products.cart_id
@@ -1196,7 +1322,7 @@ function mapProductEvents(merchEvents, props, product) {
 function mapProductEVars(productEVars, props, product) {
   var eVars = [];
 
-  each(function(eVar) {
+  each(function (eVar) {
     // Respect what the customer configures in the setting. ex. products.cart_id
     // Only check products if "products." configured in settings.
     if (eVar.key.startsWith('products.')) {
@@ -1235,12 +1361,13 @@ function getProductField(productString, product) {
  * @api private
  */
 
-AdobeAnalytics.prototype.isMapped = function(event) {
+AdobeAnalytics.prototype.isMapped = function (event) {
+  debugger;
   return (
-    (this.options.events || []).find(function(setting) {
+    (this.options.events || []).find(function (setting) {
       return setting.segmentEvent.toLowerCase() === event;
     }) ||
-    (this.options.merchEvents || []).find(function(setting) {
+    (this.options.merchEvents || []).find(function (setting) {
       return setting.segmentEvent.toLowerCase() === event;
     })
   );
@@ -1269,7 +1396,7 @@ function isFunction(fn) {
 /* eslint-disable */
 function lowercaseKeys(obj) {
   obj = obj || {};
-  each(function(value, key) {
+  each(function (value, key) {
     delete obj[key];
     obj[key.toLowerCase()] = value;
   }, obj);
@@ -1321,6 +1448,50 @@ function populateHeartbeat(track) {
   }
 }
 
+function chromecastInit(track) {
+  // var self = this; // Bound in .track()
+
+  var mediaMetadata = {
+    isUserLoggedIn: "false",
+    tvStation: "Sample TV station",
+    programmer: "Sample programmer"
+  };
+
+  let videoInfo = {
+    id: 'id',
+    name: 'name',
+    duration: 55555555,
+    streamType: 'this._streamType',
+    mediaType: 'this._mediaType'
+  }
+
+  //Enable logging
+  ADBMobile.config.setDebugLogging(true);
+
+  //Set User Id
+  ADBMobile.config.setUserIdentifier("test-UserId333333");
+
+  let delegate = {
+    getQoSObject,
+    getCurrentPlaybackTime
+  }
+
+  //Set media delegate
+  ADBMobile.media.setDelegate(delegate);
+
+  var mediaInfo = ADBMobile.media.createMediaObject('info.name', 'info.id', 643, 'VOD', 'info.mediaType');
+
+  var standardVideoMetadata = {};
+  standardVideoMetadata[ADBMobile.media.VideoMetadataKeys.SHOW] = "Sample show";
+  standardVideoMetadata[ADBMobile.media.VideoMetadataKeys.SEASON] = "Sample season";
+  mediaInfo[ADBMobile.media.MediaObjectKey.StandardMediaMetadata] = standardVideoMetadata;
+
+  //mediaInfo[ADBMobile.media.MediaObjectKey.MediaResumed] = true;
+
+  ADBMobile.media.trackSessionStart(mediaInfo, mediaMetadata);
+}
+
+
 function initHeartbeat(track) {
   var self = this; // Bound in .track()
 
@@ -1339,7 +1510,7 @@ function initHeartbeat(track) {
   mediaHeartbeatConfig.ssl = this.options.ssl;
   mediaHeartbeatConfig.debugLogging = !!window._enableHeartbeatDebugLogging; // Optional beta flag for seeing debug output.
 
-  mediaHeartbeatDelegate.getCurrentPlaybackTime = function() {
+  mediaHeartbeatDelegate.getCurrentPlaybackTime = function () {
     var playhead = self.playhead || 0;
 
     // We allow implementions to set the playhead value of a video session on a shared
@@ -1353,7 +1524,7 @@ function initHeartbeat(track) {
     return playhead;
   };
 
-  mediaHeartbeatDelegate.getQoSObject = function() {
+  mediaHeartbeatDelegate.getQoSObject = function () {
     return self.qosData;
   };
 
@@ -1446,6 +1617,11 @@ function heartbeatVideoComplete(track) {
   this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = false;
 }
 
+function chromecastVideoPaused(track) {
+  var props = track.properties();
+  ADBMobile.media.trackPause()
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackPause();
+}
 function heartbeatVideoPaused(track) {
   populateHeartbeat.call(this, track);
 
@@ -1619,7 +1795,7 @@ function createCustomVideoMetadataContext(track, options) {
 
   //Check properties & context object for `settings.contextValue` mappings to assign custom metadata
   var extractedProperties = extractProperties(track, options, 'mergedPropContext');
-  each(function(value, key) {
+  each(function (value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
