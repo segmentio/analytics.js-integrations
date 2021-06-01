@@ -10,6 +10,7 @@ var each = require('@ndhoule/each');
 var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
+const analytics = require('@segment/analytics.js-core');
 
 /**
  * hasOwnProperty reference.
@@ -149,18 +150,18 @@ AdobeAnalytics.prototype.initialize = function () {
     window.ADBmobile.analytics = {};
     window.ADBMobileConfig = {
       "marketingCloud": {
-        "org": "B3CB46FC57C6C8F77F000101@AdobeOrg"
+        "org": `${options.marketingCloudOrgId}`
       },
       "target": {
         "clientCode": "",
         "timeout": 5
       },
       "audienceManager": {
-        "server": "exchangepartnersegment.sc.omtrdc.net"
+        "server": `${options.trackingServerUrl}`
       },
       "analytics": {
-        "rsids": `"sgmnatechromecast"`,
-        "server": "exchangepartnersegment.sc.omtrdc.net",
+        "rsids": `${options.reportSuiteId}`,
+        "server": `${options.trackingServerUrl}`,
         "ssl": false,
         "offlineEnabled": false,
         "charset": "UTF-8",
@@ -173,7 +174,7 @@ AdobeAnalytics.prototype.initialize = function () {
         "poi": []
       },
       "mediaHeartbeat": {
-        "server": "exchangepartnersegment.hb-api.omtrdc.net",
+        "server": `${options.heartbeatTrackingServerUrl}`,
         "publisher": "B3CB46FC57C6C8F77F000101@AdobeOrg",
         "channel": "test-channel-chromecast",
         "ssl": true,
@@ -207,12 +208,11 @@ AdobeAnalytics.prototype.initialize = function () {
       'video ad started': chromecastAdStarted,
       'video ad skipped': chromecastAdSkipped,
       'video ad completed': chromecastAdCompleted,
-      'video playback exited': chromecastVideoPaused
+      'video playback exited': chromecastPlaybackExited
     };
 
-    console.log('settings defined', this.ADBMobileConfig);
+
     this.load('chromecast', function () {
-      console.log('library loaded');
       self.ready();
     });
   }
@@ -301,26 +301,28 @@ function chromecastHeartbeatVideoStart(track) {
   window.ADBMobile.media.trackPlay();
 
 }
+
+function chromecastPlaybackExited(track) {
+  window.ADBMobile.media.trackPause();
+  window.ADBMobile.media.trackSessionEnd();
+}
 function chromecastVideoPaused(track) {
-  console.log('Player event: PAUSE');
   window.ADBMobile.media.trackPause();
 
 }
 function chromecastVideoStart(track) {
-  console.log('Player event: PLAY');
   window.ADBMobile.media.trackPlay();
 }
 function chromecastVideoComplete(track) {
-  console.log('Player event: COMPLETE');
+
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);
   window.ADBMobile.media.trackComplete();
 }
 function chromecastSessionEnd(track) {
-  console.log('Player event: VIDEO_UNLOAD');
-  window.ADBMobile.media.trackComplete();
+  window.ADBMobile.media.trackSessionEnd();
 
 }
 function chromecastAdStarted(track) {
-  console.log('Player event: AD_START');
   var props = track.properties();
 
   var info = {
@@ -334,48 +336,56 @@ function chromecastAdStarted(track) {
   var standardAdMetadata = {};
   standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.video_ad_advertiser || null;
   standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || null;
-  adInfo[ADBMobile.media.MediaObjectKey.StandardAdMetadata] = standardAdMetadata;
-  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdStart, adInfo, adContextData);
+
+  if (adInfo) {
+    adInfo[ADBMobile.media.MediaObjectKey.StandardAdMetadata] = standardAdMetadata;
+  }
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakStart);
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdStart, adInfo);
 
 }
 function chromecastAdCompleted(track) {
-  console.log('Player event: AD_COMPLETE');
   window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdComplete);
-}
-function chromecastAdSkipped(track) {
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakComplete);
 
 }
+function chromecastAdSkipped(track) {
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdSkip);
+}
 function chromecastSeekStarted(track) {
-  console.log('Player event: SEEK_START');
   window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekStart);
 }
 function chromecastSeekCompleted(track) {
-  console.log('Player event: SEEK_COMPLETE');
   window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekComplete);
 }
 function chromecastBufferStarted(track) {
-  console.log('Player event: BUFFER_START');
-  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferStart);
+  var eventName = window.ADBMobile.media.Event.BufferStart;
+  window.ADBMobile.media.trackEvent(eventName);
 }
 function chromecastQualityUpdated(track) {
-  console.log('Player event: QOS_UPDATE');
+
+  var props = track.properties();
   let qosInfo = {
-    bitrate: 50000,
-    startupTime: 1.0,
-    fps: 23,
-    droppedFrames: 0,
+    bitrate: props.bitrate,
+    startupTime: props.startupTime,
+    fps: props.framerate,
+    droppedFrames: props.droppedFrames,
   };
+
+  window.qosInfo = qosInfo;
   window.ADBMobile.media.createQoSObject(qosInfo.bitrate, qosInfo.droppedFrames, qosInfo.fps, qosInfo.startupTime);
+
+  window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BitrateChange);
 }
 
 function chromecastBufferCompleted(track) {
-  console.log('Player event: BUFFER_COMPLETE');
   window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferComplete);
 
 }
 function chromecastUpdatePlayhead(track) {
   var props = track.properties();
   window.playhead = props.position;
+  window.ADBMobile.media.trackPlay();
 }
 
 
@@ -385,12 +395,7 @@ function getCurrentPlaybackTime() {
 };
 
 function getQoSObject() {
-  return {
-    bitrate: 50000,
-    startupTime: 1.0,
-    fps: 23,
-    droppedFrames: 0,
-  };
+  return window.qosInfo;
 };
 
 /**
@@ -419,6 +424,19 @@ AdobeAnalytics.prototype.page = function (page) {
   var pageName = page.fullName();
 
   if (this.options.chromecastToggle) {
+    //var props = extractProperties(page, this.options);
+    if (this.analytics && this.analytics.user()) {
+      var userId = this.analytics.user().id();
+      window.ADBMobile.config.setUserIdentifier(userId);
+
+    } else if (this.analytics.user().anonymousId()) {
+      var anonymousId = this.analytics.user().anonymousId();
+      window.ADBMobile.config.setUserIdentifier(anonymousId);
+    }
+
+
+
+    window.ADBMobile.analytics.trackState(pageName);
 
   } else {
     // TODO: for nameless analytics.page(), pageName is `undefined`
@@ -476,13 +494,11 @@ AdobeAnalytics.prototype.page = function (page) {
  */
 
 AdobeAnalytics.prototype.track = function (track) {
-  debugger;
-  console.log('=============')
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
   var eventName = track.event().toLowerCase();
-  console.log('=============')
+
   console.log(eventName)
   // Map to Heartbeat events if enabled.
   if (this.options.heartbeatTrackingServerUrl) {
@@ -607,27 +623,23 @@ AdobeAnalytics.prototype.checkoutStarted = function (track) {
 AdobeAnalytics.prototype.processEvent = function (msg, adobeEvent) {
   var properties = msg.properties();
   let adobeEvents = [];
-  debugger;
   if (this.options.chromecastToggle) {
 
     if (this.options.events.length > 0) {
       // iterate through event map and pull adobe events corresponding to the incoming segment event
       each(function (eventMapping) {
         if (eventMapping.segmentEvent.toLowerCase() === msg.event().toLowerCase()) {
-          debugger;
           each(function (event) {
-            debugger
             if (adobeEvents.indexOf(event) <= 0) {
-              debugger
               adobeEvents.push(event);
             }
           }, eventMapping.adobeEvents);
         }
-        debugger;
+
       }, this.options.events);
     }
     each(function (adobeEventToSend) {
-      debugger
+
       console.log('SENT ' + adobeEventToSend)
       window.ADBMobile.analytics.trackAction(adobeEventToSend, properties)
     }, adobeEvents);
@@ -1362,7 +1374,6 @@ function getProductField(productString, product) {
  */
 
 AdobeAnalytics.prototype.isMapped = function (event) {
-  debugger;
   return (
     (this.options.events || []).find(function (setting) {
       return setting.segmentEvent.toLowerCase() === event;
@@ -1449,46 +1460,64 @@ function populateHeartbeat(track) {
 }
 
 function chromecastInit(track) {
-  // var self = this; // Bound in .track()
+
+  var props = track.properties();
 
   var mediaMetadata = {
-    isUserLoggedIn: "false",
-    tvStation: "Sample TV station",
-    programmer: "Sample programmer"
+    isUserLoggedIn: analytics.user().id() != null,
+    tvStation: props.video_station_id,
+    programmer: props.program
   };
 
-  let videoInfo = {
-    id: 'id',
-    name: 'name',
-    duration: 55555555,
-    streamType: 'this._streamType',
-    mediaType: 'this._mediaType'
-  }
 
-  //Enable logging
-  ADBMobile.config.setDebugLogging(true);
+  window.ADBMobile.config.setDebugLogging(true);
 
-  //Set User Id
-  ADBMobile.config.setUserIdentifier("test-UserId333333");
-
-  let delegate = {
+  var qosInfoSettings = {
+    bitrate: props.bitrate | 1,
+    startupTime: props.startupTime | 1,
+    fps: props.framerate | 24,
+    droppedFrames: props.droppedFrames | 1,
+  };
+  var qosInfo = window.ADBMobile.media.createQoSObject(qosInfoSettings.bitrate, qosInfoSettings.droppedFrames, qosInfoSettings.fps, qosInfoSettings.startupTime);
+  window.qosInfo = qosInfo;
+  var delegate = {
     getQoSObject,
     getCurrentPlaybackTime
   }
 
-  //Set media delegate
-  ADBMobile.media.setDelegate(delegate);
+  window.ADBMobile.media.setDelegate(delegate);
+  var streamType = 'VOD'
+  if (props.livestream) {
+    streamType = 'LIVE';
+  }
 
-  var mediaInfo = ADBMobile.media.createMediaObject('info.name', 'info.id', 643, 'VOD', 'info.mediaType');
+  var mediaInfo = ADBMobile.media.createMediaObject(props.name, props.asset_id, props.video_content_length, streamType, props.video_media_type);
 
   var standardVideoMetadata = {};
-  standardVideoMetadata[ADBMobile.media.VideoMetadataKeys.SHOW] = "Sample show";
-  standardVideoMetadata[ADBMobile.media.VideoMetadataKeys.SEASON] = "Sample season";
-  mediaInfo[ADBMobile.media.MediaObjectKey.StandardMediaMetadata] = standardVideoMetadata;
 
-  //mediaInfo[ADBMobile.media.MediaObjectKey.MediaResumed] = true;
+  var showKey = 'a.media.show';
+  var seasonKey = 'a.media.season';
+  var mediaMetadataKey = 'media.standardmetadata';
 
-  ADBMobile.media.trackSessionStart(mediaInfo, mediaMetadata);
+  if (window.ADBMobile.media.VideoMetadataKeys && window.ADBMobile.media.VideoMetadataKeys.SEASON) {
+    seasonKey = window.ADBMobile.media.VideoMetadataKeys.SEASON
+  }
+  if (window.ADBMobile.media.VideoMetadataKeys && window.ADBMobile.media.VideoMetadataKeys.SHOW) {
+    showKey = window.ADBMobile.media.VideoMetadataKeys.SHOW
+  }
+  if (window.ADBMobile.media.MediaObjectKey && window.ADBMobile.media.MediaObjectKey.StandardMediaMetadata) {
+    showKey = window.ADBMobile.media.MediaObjectKey.StandardMediaMetadata
+  }
+
+  standardVideoMetadata[showKey] = props.name;
+  standardVideoMetadata[seasonKey] = props.season;
+  if (!mediaInfo) {
+    mediaInfo = {
+    }
+  }
+  mediaInfo[mediaMetadataKey] = standardVideoMetadata;
+  window.ADBMobile.media.trackSessionStart(mediaInfo, mediaMetadata);
+
 }
 
 
