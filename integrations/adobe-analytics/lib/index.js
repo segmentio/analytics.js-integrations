@@ -133,6 +133,9 @@ AdobeAnalytics.prototype.initialize = function () {
   var options = this.options;
   var self = this;
 
+
+  options.chromecastMode = true; //Hard coding this to true for this branch, will be switched to a flag/setting if merged into main
+
   // Lowercase all keys of event map for easy matching later
   if (!Array.isArray(options.events)) lowercaseKeys(options.events);
 
@@ -144,7 +147,7 @@ AdobeAnalytics.prototype.initialize = function () {
   window._segHBPlayheads = {};
 
   // Load the more compact Chromecast SDK only if the customer has it enabled in settings
-  if (options.chromecastToggle) {
+  if (options.chromecastMode) {
 
     window.ADBmobile = {};
     window.ADBmobile.analytics = {};
@@ -218,7 +221,7 @@ AdobeAnalytics.prototype.initialize = function () {
   }
   // Load the larger Heartbeat script only if the customer has it enabled in settings.
   // This file is considerably bigger, so this check is necessary.
-  if (!options.chromecastToggle && options.heartbeatTrackingServerUrl) {
+  if (!options.chromecastMode && options.heartbeatTrackingServerUrl) {
     this.load('heartbeat', function () {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
@@ -270,7 +273,7 @@ AdobeAnalytics.prototype.initialize = function () {
     });
   }
 
-  if (!options.chromecastToggle) {
+  if (!options.chromecastMode) {
     this.load('default', function () {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
@@ -423,7 +426,7 @@ AdobeAnalytics.prototype.page = function (page) {
   // Set the page name
   var pageName = page.fullName();
 
-  if (this.options.chromecastToggle) {
+  if (this.options.chromecastMode) {
     //var props = extractProperties(page, this.options);
     if (this.analytics && this.analytics.user()) {
       var userId = this.analytics.user().id();
@@ -623,7 +626,7 @@ AdobeAnalytics.prototype.checkoutStarted = function (track) {
 AdobeAnalytics.prototype.processEvent = function (msg, adobeEvent) {
   var properties = msg.properties();
   let adobeEvents = [];
-  if (this.options.chromecastToggle) {
+  if (this.options.chromecastMode) {
 
     if (this.options.events.length > 0) {
       // iterate through event map and pull adobe events corresponding to the incoming segment event
