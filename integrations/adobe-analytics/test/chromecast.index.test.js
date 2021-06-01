@@ -80,30 +80,66 @@ describe('Adobe Analytics - Chromecast', function () {
   describe('before loading', function () {
     beforeEach(function () {
       analytics.stub(adobeAnalytics, 'load');
+
+
     });
   });
 
-  // describe('loading', function () {
-  //   it('should load', function (done) {
-  //     analytics.load(adobeAnalytics, done);
-  //   });
-  // });
-
   describe('after loading', function () {
     beforeEach(function (done) {
+
+
       analytics.once('ready', done);
       analytics.initialize();
     });
 
 
-    describe('#track', function () {
-      beforeEach(function () {
-
+    describe('#page', function () {
+      it('should call trackstate with pagename when page is called', function () {
         analytics.stub(window, 'ADBMobile');
         analytics.stub(window.ADBMobile, 'analytics');
-        analytics.stub(window.ADBMobile.analytics, 'trackAction');
+        analytics.stub(window.ADBMobile.analytics, 'trackState');
+        analytics.stub(window.ADBMobile, 'config');
+        analytics.stub(window.ADBMobile.config, 'setUserIdentifier');
+        analytics.page('page name 1');
+        analytics.called(window.ADBMobile.analytics.trackState);
       });
 
+    });
+    describe('#track', function () {
+      let bufferStartSub;
+      beforeEach(function () {
+
+
+
+
+
+
+
+        analytics.stub(window.ADBMobile.analytics, 'trackAction');
+        analytics.stub(window.ADBMobile.analytics, 'createMediaObject');
+        analytics.stub(window.ADBMobile, 'media');
+        analytics.stub(window.ADBMobile.media, 'trackSessionStart');
+        analytics.stub(window.ADBMobile.media, 'trackSessionEnd');
+        analytics.stub(window.ADBMobile.media, 'setDelegate');
+        analytics.stub(window.ADBMobile.media, 'createMediaObject');
+        analytics.stub(window.ADBMobile.media, 'VideoMetadataKeys');
+        analytics.stub(window.ADBMobile.media, 'trackEvent');
+        analytics.stub(window.ADBMobile.media, 'trackPlay');
+        analytics.stub(window.ADBMobile.media, 'trackPause');
+        analytics.stub(window.ADBMobile.media, 'ChapterStart');
+        analytics.stub(window.ADBMobile.media, 'Event');
+        analytics.stub(window.ADBMobile.media.Event, 'BufferStart') // mock value
+        analytics.stub(window.ADBMobile.media.Event, 'BufferComplete') // mock value
+
+        analytics.stub(window.ADBMobile.media, 'createQoSObject');
+      });
+
+      afterEach(function () {
+
+
+        //  bufferStartSub.restore()
+      });
 
       it('tracks single mapped events', function () {
 
@@ -134,7 +170,299 @@ describe('Adobe Analytics - Chromecast', function () {
 
       });
 
+
+
+      var sessionId = 'session-' + Math.ceil(Math.random() * 1000);
+
+      it('should initialize Heartbeat when a video session begins', function () {
+
+
+        analytics.track('Video Playback Started', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          position: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+        analytics.calledOnce(window.ADBMobile.media.setDelegate);
+        analytics.calledOnce(window.ADBMobile.media.createMediaObject);
+        analytics.calledOnce(window.ADBMobile.media.trackSessionStart);
+
+
+      });
+
+      it('should initialize Heartbeat even if a user does not explicitly start the session first', function () {
+        analytics.track('Video Content Started', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+        analytics.calledOnce(window.ADBMobile.media.trackEvent);
+        analytics.calledOnce(window.ADBMobile.media.trackPlay)
+      });
+
+      it('should call trackPlay when a video resumes', function () {
+
+        analytics.track('Video Playback Resumed', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        analytics.calledOnce(window.ADBMobile.media.trackPlay)
+      });
+
+      it('should call trackPause when a video is paused', function () {
+
+        analytics.track('Video Playback Paused', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+
+        analytics.calledOnce(window.ADBMobile.media.trackPause)
+      });
+
+      it('should call bufferStart when a video playback buffer started', function () {
+
+        analytics.track('Video Playback Buffer Started', {
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        //todo get asset the enum value
+        //analytics.called(window.ADBMobile.media.Event.BufferStart)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+      });
+
+
+      it('should call bufferComplete when a video playback buffer completed', function () {
+
+        analytics.track('Video Playback Buffer Completed', {
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        //todo get asset the enum value
+        // analytics.calledOnce(window.ADBMobile.media.Event.BufferComplete)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+      });
+
+
+
+      it('should call seek start when a video playback seek started', function () {
+
+        analytics.track('Video Playback Seek Started', {
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        //todo get asset the enum value
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+      });
+
+      it('should call seek completed when a video playback seek completed', function () {
+
+        analytics.track('Video Playback Seek Completed', {
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        //todo get asset the enum value
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+      });
+
+      it('should call track session end when video playback completed', function () {
+
+        analytics.track('Video Playback Completed', {
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        //todo get asset the enum value
+        analytics.calledOnce(window.ADBMobile.media.trackSessionEnd)
+      });
+      it('should call track pause when video playback interrupted', function () {
+
+        analytics.track('Video Playback Interrupted', {
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        //todo get asset the enum value
+        analytics.calledOnce(window.ADBMobile.media.trackPause)
+      });
+
+
+      it('should call track pause when video playback interrupted', function () {
+        analytics.stub(window.ADBMobile.media.Event, 'BitrateChange')
+        analytics.stub(window.ADBMobile.media, 'createQoSObject')
+
+        analytics.track('Video Quality Updated', {
+          bitrate: 500,
+          framerate: 23,
+          startupTime: 88,
+          droppedFrames: 99
+        });
+        analytics.calledOnce(window.ADBMobile.media.createQoSObject, 500, 99, 23, 88);
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+      });
+
+      it('should call trackEvent and trackPlay when video content started', function () {
+        analytics.track('Video Content Started', {
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackPlay)
+      });
+
+      it('should call trackPlay when video content playing', function () {
+        analytics.track('Video Content Playing', {
+          title: 'Half-Life',
+          position: 1260,
+          livestream: false
+        });
+        //console.log(window.position) //assert position = 1260
+        analytics.calledOnce(window.ADBMobile.media.trackPlay)
+
+      });
+
+
+      it('should call trackEvent and trackComplete when video content completed', function () {
+
+        analytics.stub(window.ADBMobile.media, 'trackComplete')
+        // analytics.stub(window.ADBMobile.Event, 'ChapterComplete')
+        analytics.track('Video Content Completed', {
+          title: 'Half-Life',
+          position: 1260,
+          livestream: false
+        });
+        //console.log(window.position) //assert position = 1260
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackComplete)
+
+      });
+
+
+      it('should call trackEvent twice and Video Ad Started', function () {
+
+        analytics.stub(window.ADBMobile.media, 'createAdObject')
+        analytics.stub(window.ADBMobile.media, 'AdMetadataKeys')
+        analytics.stub(window.ADBMobile.media.AdMetadataKeys, 'ADVERTISER')
+        analytics.stub(window.ADBMobile.media.AdMetadataKeys, 'CAMPAIGN_ID')
+        analytics.stub(window.ADBMobile.media, 'MediaObjectKey')
+        analytics.stub(window.ADBMobile.media.MediaObjectKey, 'StandardAdMetadata')
+
+        analytics.track('Video Ad Started', {
+          title: 'Half-Life',
+          asset_id: "aaaaa",
+          position: 2,
+          total_length: 23423
+        });
+        analytics.calledOnce(window.ADBMobile.media.createAdObject, 'Half-Life', 'aaaaa', 2, 23423);
+        analytics.calledTwice(window.ADBMobile.media.trackEvent)
+
+
+      });
+
+      it('should not call trackEvent when Video Ad Playing', function () {
+        analytics.stub(window.ADBMobile.media, 'createAdObject')
+
+        analytics.track('Video Ad Playing', {
+          title: 'Half-Life',
+          asset_id: "aaaaa",
+          position: 2,
+          total_length: 23423
+        });
+
+        analytics.didNotCall(window.ADBMobile.media.trackEvent)
+
+
+      });
+
+      it('should not call createAdObject when Video Ad Playing', function () {
+        analytics.stub(window.ADBMobile.media, 'createAdObject')
+
+        analytics.track('Video Ad Playing', {
+          title: 'Half-Life',
+          asset_id: "aaaaa",
+          position: 2,
+          total_length: 23423
+        });
+        analytics.didNotCall(window.ADBMobile.media.createAdObject);
+
+
+
+      });
+
+      it('should call trackEvent when Video Ad Skipped', function () {
+        analytics.stub(window.ADBMobile.media, 'createAdObject')
+
+        analytics.track('Video Ad Skipped', {
+          title: 'Half-Life',
+          asset_id: "aaaaa",
+          position: 2,
+          total_length: 23423
+        });
+        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+      });
+
+
+
+      it('should call trackEvent when video ad completed', function () {
+
+        analytics.track('Video Ad Completed', {
+          title: 'Half-Life',
+          asset_id: "aaaaa",
+          position: 2,
+          total_length: 23423
+        });
+        analytics.calledTwice(window.ADBMobile.media.trackEvent)
+      });
+
+      it('should call trackEvent when video playback exited', function () {
+
+        analytics.track('Video Playback Exited', {
+          title: 'Half-Life',
+          asset_id: "aaaaa",
+          position: 2,
+          total_length: 23423
+        });
+        analytics.calledOnce(window.ADBMobile.media.trackPause)
+        analytics.calledOnce(window.ADBMobile.media.trackSessionEnd)
+      });
+
+
     });
+
 
 
 
