@@ -10,7 +10,8 @@ describe('Customer.io', function() {
   var analytics;
   var customerIO;
   var options = {
-    siteId: '1e5932b3d9de5078ccf9'
+    siteId: '1e5932b3d9de5078ccf9',
+    datacenter: 'eu'
   };
 
   beforeEach(function() {
@@ -35,11 +36,22 @@ describe('Customer.io', function() {
         .global('_cio')
         .option('siteId', '')
     );
+
+    analytics.assert(customerIO.templates['eu-tag'])
+    analytics.assert(customerIO.templates['global-tag'])
+    analytics.assert.equal(customerIO.options.datacenter, 'eu')
   });
 
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(customerIO, 'load');
+    });
+
+    afterEach(function() {
+      analytics.restore();
+      analytics.reset();
+      customerIO.reset();
+      sandbox();
     });
 
     describe('#initialize', function() {
@@ -53,6 +65,47 @@ describe('Customer.io', function() {
         analytics.initialize();
         analytics.called(customerIO.load);
       });
+
+      it('initializes with global tag', function() {
+        var customerIO;
+        var options = {
+          siteId: '1e5932b3d9de5078ccf9',
+        };
+
+        analytics = new Analytics();
+        customerIO = new CustomerIO(options);
+        analytics.use(CustomerIO);
+        analytics.use(tester);
+        analytics.add(customerIO);
+
+        analytics.assert.equal(customerIO.options.datacenter, '')
+
+        analytics.stub(customerIO, 'load');
+
+        analytics.initialize();
+        analytics.called(customerIO.load, 'global-tag');
+      })
+
+      it('initializes with eu tag', function() {
+        var customerIO;
+        var options = {
+          siteId: '1e5932b3d9de5078ccf9',
+          datacenter: 'eu'
+        };
+
+        analytics = new Analytics();
+        customerIO = new CustomerIO(options);
+        analytics.use(CustomerIO);
+        analytics.use(tester);
+        analytics.add(customerIO);
+
+        analytics.assert.equal(customerIO.options.datacenter, 'eu')
+
+        analytics.stub(customerIO, 'load');
+
+        analytics.initialize();
+        analytics.called(customerIO.load, 'eu-tag');
+      })
     });
   });
 
