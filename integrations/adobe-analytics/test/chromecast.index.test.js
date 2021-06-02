@@ -17,7 +17,7 @@ describe('Adobe Analytics - Chromecast', function () {
     reportSuiteId: 'sgmtest',
     trackingServerUrl: 'exchangepartnersegment.sc.omtrdc.net',
     trackingServerSecureUrl: '',
-    heartbeatTrackingServerUrl: 'https://exchangepartnersegment.hb.omtrdc.net',
+    heartbeatTrackingServerUrl: 'https://exchangepartnersegment.hb-api.omtrdc.net',
     marketingCloudOrgId: '1234567ABC@AdobeOrg',
     events: [
       { segmentEvent: 'Played a Song', adobeEvents: ['event1'] },

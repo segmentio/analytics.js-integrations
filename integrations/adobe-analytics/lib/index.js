@@ -407,7 +407,6 @@ function getQoSObject() {
  * @return {Boolean} loaded
  */
 
-
 AdobeAnalytics.prototype.loaded = function () {
   return !!window.s_gi;
 };
@@ -502,7 +501,6 @@ AdobeAnalytics.prototype.track = function (track) {
 
   var eventName = track.event().toLowerCase();
 
-  console.log(eventName)
   // Map to Heartbeat events if enabled.
   if (this.options.heartbeatTrackingServerUrl) {
     var heartbeatFunc = this.heartbeatEventMap[eventName];
@@ -513,7 +511,6 @@ AdobeAnalytics.prototype.track = function (track) {
   }
   // Check if Segment event is mapped in settings; if not, noop
   var isMapped = this.isMapped(eventName);
-  console.log(isMapped)
   if (!isMapped) {
     return;
   }
@@ -625,7 +622,7 @@ AdobeAnalytics.prototype.checkoutStarted = function (track) {
 
 AdobeAnalytics.prototype.processEvent = function (msg, adobeEvent) {
   var properties = msg.properties();
-  let adobeEvents = [];
+  var adobeEvents = [];
   if (this.options.chromecastMode) {
 
     if (this.options.events.length > 0) {
