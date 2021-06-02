@@ -47,7 +47,7 @@ var AdobeAnalytics = (module.exports = integration('Adobe Analytics'));
  * @param {*} value
  */
 
-AdobeAnalytics.sOption = function (field, value) {
+ AdobeAnalytics.sOption = function(field, value) {
   var s = window.s;
   var isValid = s && has.call(s, field) && !isEmptyString(field);
 
@@ -84,6 +84,7 @@ AdobeAnalytics.global('s')
   .option('preferVisitorId', false)
   .option('heartbeatTrackingServerUrl', '')
   .option('ssl', false)
+
   .sOption('visitorID')
   .sOption('channel')
   .sOption('campaign')
@@ -129,7 +130,7 @@ AdobeAnalytics.global('s')
  * @api public
  */
 
-AdobeAnalytics.prototype.initialize = function () {
+AdobeAnalytics.prototype.initialize = function() {
   var options = this.options;
   var self = this;
 
@@ -407,7 +408,7 @@ function getQoSObject() {
  * @return {Boolean} loaded
  */
 
-AdobeAnalytics.prototype.loaded = function () {
+ AdobeAnalytics.prototype.loaded = function() {
   return !!window.s_gi;
 };
 
@@ -418,7 +419,7 @@ AdobeAnalytics.prototype.loaded = function () {
  * @param {Page} page
  */
 
-AdobeAnalytics.prototype.page = function (page) {
+ AdobeAnalytics.prototype.page = function(page) {
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
@@ -495,7 +496,7 @@ AdobeAnalytics.prototype.page = function (page) {
  * @param {Track} track
  */
 
-AdobeAnalytics.prototype.track = function (track) {
+ AdobeAnalytics.prototype.track = function(track) {
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
@@ -531,12 +532,12 @@ AdobeAnalytics.prototype.track = function (track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.productViewed = function (track) {
+ AdobeAnalytics.prototype.productViewed = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'prodView');
 };
 
-AdobeAnalytics.prototype.productListViewed = function (track) {
+AdobeAnalytics.prototype.productListViewed = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'prodView');
 };
@@ -549,7 +550,7 @@ AdobeAnalytics.prototype.productListViewed = function (track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.productAdded = function (track) {
+ AdobeAnalytics.prototype.productAdded = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scAdd');
 };
@@ -562,7 +563,7 @@ AdobeAnalytics.prototype.productAdded = function (track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.productRemoved = function (track) {
+ AdobeAnalytics.prototype.productRemoved = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scRemove');
 };
@@ -574,7 +575,7 @@ AdobeAnalytics.prototype.productRemoved = function (track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.orderCompleted = function (track) {
+ AdobeAnalytics.prototype.orderCompleted = function(track) {
   clearKeys(dynamicKeys);
 
   var props = track.properties();
@@ -591,7 +592,7 @@ AdobeAnalytics.prototype.orderCompleted = function (track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.cartViewed = function (track) {
+ AdobeAnalytics.prototype.cartViewed = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scView');
 };
@@ -603,7 +604,7 @@ AdobeAnalytics.prototype.cartViewed = function (track) {
  * @param {Track} Track
  */
 
-AdobeAnalytics.prototype.checkoutStarted = function (track) {
+ AdobeAnalytics.prototype.checkoutStarted = function(track) {
   clearKeys(dynamicKeys);
 
   var props = track.properties();
@@ -620,7 +621,7 @@ AdobeAnalytics.prototype.checkoutStarted = function (track) {
  * @param {string} adobeEvent Adobe standard event
  */
 
-AdobeAnalytics.prototype.processEvent = function (msg, adobeEvent) {
+ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var properties = msg.properties();
   var adobeEvents = [];
   if (this.options.chromecastMode) {
@@ -789,9 +790,9 @@ function setEventsString(
 
   if (eventsMap.length > 0) {
     // iterate through event map and pull adobe events corresponding to the incoming segment event
-    each(function (eventMapping) {
+    each(function(eventMapping) {
       if (eventMapping.segmentEvent.toLowerCase() === event) {
-        each(function (event) {
+        each(function(event) {
           if (adobeEvents.indexOf(event) <= 0) {
             adobeEvents.push(event);
           }
@@ -802,9 +803,9 @@ function setEventsString(
 
   if (merchEventsMap.length > 0) {
     // append adobeEvents with merchMap (currency and counter events)
-    each(function (merchMapping) {
+    each(function(merchMapping) {
       var merchMap = mapMerchEvents(merchMapping, properties);
-      each(function (merchEvent) {
+      each(function(merchEvent) {
         if (adobeEvents.indexOf(merchEvent) <= 0) {
           adobeEvents.push(merchEvent);
         }
@@ -812,7 +813,7 @@ function setEventsString(
     }, merchEventsMap);
   }
 
-  adobeEvents = adobeEvents.filter(function (item) {
+  adobeEvents = adobeEvents.filter(function(item) {
     return !!item;
   });
   var value = adobeEvents.join(',');
@@ -839,7 +840,7 @@ function updateContextData(facade, options) {
   var propertyPrefix = options.customDataPrefix
     ? options.customDataPrefix + '.'
     : '';
-  each(function (value, key) {
+    each(function(value, key) {
     addContextDatum(propertyPrefix + key, value);
   }, properties);
 
@@ -849,7 +850,7 @@ function updateContextData(facade, options) {
   // look at *all* our mappings, but only the `contextValues` mapping should be
   // used here.
   var contextProperties = extractProperties(facade, options, 'context');
-  each(function (value, key) {
+  each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
@@ -966,7 +967,7 @@ function mapMerchEvents(merchEvent, props) {
 
 function getMerchConfig(msg, settings) {
   var eventName = msg.event().toLowerCase();
-  var mapping = (settings.merchEvents || []).find(function (setting) {
+  var mapping = (settings.merchEvents || []).find(function(setting) {
     return setting.segmentEvent.toLowerCase() === eventName;
   });
 
@@ -1007,7 +1008,7 @@ function getMerchConfig(msg, settings) {
 
 function dedupeMerchEventSettings(configMerchEvents) {
   var dedupeSettings = {};
-  each(function (eventObject) {
+  each(function(eventObject) {
     var existingEventObject = dedupeSettings[eventObject.adobeEvent];
     if (
       !existingEventObject ||
@@ -1035,7 +1036,7 @@ function dedupeMerchEventSettings(configMerchEvents) {
  */
 
 function clearKeys(keys) {
-  each(function (linkVar) {
+  each(function(linkVar) {
     delete window.s[linkVar];
   }, keys);
   // Clears the array passed in
@@ -1177,7 +1178,7 @@ function mapProducts(
   properties
 ) {
   if (!Array.isArray(products)) return;
-  var productString = products.map(function (productProperties) {
+  var productString = products.map(function(productProperties) {
     var product = new Track({ properties: productProperties });
     var category = product.category() || '';
     var quantity = product.quantity() != null ? product.quantity() : 1;
@@ -1226,7 +1227,7 @@ function mapProducts(
         total,
         eventString,
         productEVarstring
-      ].map(function (value) {
+      ].map(function(value) {
         if (value == null) {
           return String(value);
         }
@@ -1235,7 +1236,7 @@ function mapProducts(
       return test.join(';');
     }
     return [category, item, quantity, total]
-      .map(function (value) {
+    .map(function(value) {
         if (value == null) {
           return String(value);
         }
@@ -1284,7 +1285,7 @@ function mapProductEvents(merchEvents, props, product) {
   var merchMap = [];
   var eventString;
 
-  each(function (event) {
+  each(function(event) {
     if (event.valueScope === 'product') {
       // Respect what the customer configures in the setting.
       // ex. products.cart_id
@@ -1334,7 +1335,7 @@ function mapProductEvents(merchEvents, props, product) {
 function mapProductEVars(productEVars, props, product) {
   var eVars = [];
 
-  each(function (eVar) {
+  each(function(eVar) {
     // Respect what the customer configures in the setting. ex. products.cart_id
     // Only check products if "products." configured in settings.
     if (eVar.key.startsWith('products.')) {
@@ -1373,12 +1374,12 @@ function getProductField(productString, product) {
  * @api private
  */
 
-AdobeAnalytics.prototype.isMapped = function (event) {
+ AdobeAnalytics.prototype.isMapped = function(event) {
   return (
-    (this.options.events || []).find(function (setting) {
+    (this.options.events || []).find(function(setting) {
       return setting.segmentEvent.toLowerCase() === event;
     }) ||
-    (this.options.merchEvents || []).find(function (setting) {
+    (this.options.merchEvents || []).find(function(setting) {
       return setting.segmentEvent.toLowerCase() === event;
     })
   );
@@ -1407,7 +1408,7 @@ function isFunction(fn) {
 /* eslint-disable */
 function lowercaseKeys(obj) {
   obj = obj || {};
-  each(function (value, key) {
+  each(function(value, key) {
     delete obj[key];
     obj[key.toLowerCase()] = value;
   }, obj);
@@ -1539,7 +1540,7 @@ function initHeartbeat(track) {
   mediaHeartbeatConfig.ssl = this.options.ssl;
   mediaHeartbeatConfig.debugLogging = !!window._enableHeartbeatDebugLogging; // Optional beta flag for seeing debug output.
 
-  mediaHeartbeatDelegate.getCurrentPlaybackTime = function () {
+  mediaHeartbeatDelegate.getCurrentPlaybackTime = function() {
     var playhead = self.playhead || 0;
 
     // We allow implementions to set the playhead value of a video session on a shared
@@ -1553,7 +1554,7 @@ function initHeartbeat(track) {
     return playhead;
   };
 
-  mediaHeartbeatDelegate.getQoSObject = function () {
+  mediaHeartbeatDelegate.getQoSObject = function() {
     return self.qosData;
   };
 
@@ -1824,7 +1825,7 @@ function createCustomVideoMetadataContext(track, options) {
 
   //Check properties & context object for `settings.contextValue` mappings to assign custom metadata
   var extractedProperties = extractProperties(track, options, 'mergedPropContext');
-  each(function (value, key) {
+  each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
