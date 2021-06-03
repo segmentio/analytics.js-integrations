@@ -41,7 +41,7 @@ module.exports = {
     chunkFilename: 'vendor/[name].[contenthash].js',
     path: path.resolve(__dirname, 'build/integrations'),
     library: '[name]Integration',
-    libraryTarget: 'umd'
+    libraryTarget: 'window'
   },
   module: {
     rules: [
