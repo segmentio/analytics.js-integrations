@@ -1,4 +1,9 @@
 
+3.0.1 / 2020-02-24
+==================
+
+  * Add option languageOverride to override default browser language in Intercom
+
 3.0.0 / 2017-08-21
 ==================
 

@@ -121,12 +121,14 @@ Intercom.prototype.identify = function(identify) {
 
   // format nested custom traits
   traits = formatNestedCustomTraits(traits, settings);
-
   // handle options
   if (integrationSettings.userHash)
     traits.user_hash = integrationSettings.userHash;
   if (integrationSettings.user_hash)
     traits.user_hash = integrationSettings.user_hash;
+
+  if (integrationSettings.language_override)
+    traits.language_override = integrationSettings.language_override;
 
   this.bootOrUpdate(traits, integrationSettings);
 };

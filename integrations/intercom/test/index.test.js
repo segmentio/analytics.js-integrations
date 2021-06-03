@@ -494,6 +494,20 @@ describe('Intercom', function() {
         });
       });
 
+      it('identify: should set language_override if integration setting exists for it', function() {
+        var integrationSettings = {
+          Intercom: { language_override: 'EN' }
+        };
+
+        analytics.identify('id', {}, integrationSettings);
+        analytics.called(window.Intercom, 'boot', {
+          app_id: options.appId,
+          user_id: 'id',
+          id: 'id',
+          language_override: 'EN'
+        });
+      });
+
       it('group: should set hide_default_launcher if integration setting exists for it', function() {
         var integrationSettings = {
           Intercom: { hideDefaultLauncher: true }
