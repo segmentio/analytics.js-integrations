@@ -4,7 +4,6 @@ var heartbeats = {
   extractMediaMetadata: function (track) {
     var props = track.properties();
     var mediaMetadata = {};
-    debugger
     if (props.contextValues) {
       for (var customProp in props.contextValues) {
         if (props[customProp]) {
@@ -21,7 +20,6 @@ var heartbeats = {
     function getQoSObject() {
       return window.qosInfo;
     }
-debugger;
     
     var props = track.properties();
     var mediaMetadata = window.extractMediaMetadata(track);   
