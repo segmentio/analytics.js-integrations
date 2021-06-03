@@ -69,7 +69,9 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js'],
     alias: {
-      domify: '/node_modules/domify/index.js'
+      domify: '/node_modules/domify/index.js',
+      '@segment/analytics.js-integration':
+        '/node_modules/@segment/analytics.js-integration'
     }
   },
   devServer: {
