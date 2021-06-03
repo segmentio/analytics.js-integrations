@@ -13,14 +13,7 @@ var heartbeats = {
     }
     return mediaMetadata;
   },
-  chromecastInit: function (track) {
-    function getCurrentPlaybackTime() {
-      return window.playhead;
-    }
-    function getQoSObject() {
-      return window.qosInfo;
-    }
-    
+  chromecastInit: function (track) {    
     var props = track.properties();
     var mediaMetadata = window.extractMediaMetadata(track);   
     window.ADBMobile.config.setDebugLogging(true);
@@ -31,12 +24,11 @@ var heartbeats = {
       droppedFrames: props.droppedFrames | 1,
     };
     var qosInfo = window.ADBMobile.media.createQoSObject(qosInfoSettings.bitrate, qosInfoSettings.droppedFrames, qosInfoSettings.fps, qosInfoSettings.startupTime);
-
-
+    window.getQoSObject = getQoSObject;
     window.qosInfo = qosInfo;
     var delegate = {
-      getQoSObject: getQoSObject(),
-      getCurrentPlaybackTime: getCurrentPlaybackTime()
+      getQoSObject:   window.getCurrentPlaybackTime,
+      getCurrentPlaybackTime: window.getCurrentPlaybackTime
     }
     window.ADBMobile.media.setDelegate(delegate);
     var streamType = 'VOD'
@@ -44,6 +36,9 @@ var heartbeats = {
       streamType = 'LIVE';
     }
     props.video_media_type = props.video_media_type || "Video";
+    props.name = props.name || props.title || "no title";
+    props.video_content_length = props.video_content_length|| 0;
+    
     var mediaInfo = ADBMobile.media.createMediaObject(props.name, props.asset_id, props.video_content_length, streamType, props.video_media_type);
     var videoAnalytics, metaKeys, standardMediaMetadata;
 
@@ -78,7 +73,7 @@ var heartbeats = {
 
   chromecastHeartbeatVideoStart: function (track) {
     var mediaMetadata = window.extractMediaMetadata(track);   
-    window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart);
     window.ADBMobile.media.trackPlay();
 
   },
@@ -96,7 +91,7 @@ var heartbeats = {
   },
   chromecastVideoComplete: function (track) {
     var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);
     window.ADBMobile.media.trackComplete();
   },
   chromecastSessionEnd: function (track) {

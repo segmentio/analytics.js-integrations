@@ -194,6 +194,8 @@ AdobeAnalytics.prototype.initialize = function() {
     self.playhead = 0;
     self.adBreakInProgress = false;
     window.extractMediaMetadata = heartbeat.extractMediaMetadata;
+    window.getCurrentPlaybackTime = getCurrentPlaybackTime;
+    window.getQoSObject = getQoSObject;
     self.heartbeatEventMap = {
       // Segment spec'd event: Heartbeat function
       'video playback started': heartbeat.chromecastInit,
@@ -1720,6 +1722,12 @@ function createQosObject(track) {
   );
 }
 
+function getCurrentPlaybackTime() {
+  return window.playhead;
+}
+function getQoSObject() {
+  return window.qosInfo;
+}
 /**
  * Merge two javascript objects. This works similarly to `Object.assign({}, obj1, obj2)`
  * but it's compatible with old browsers. The properties of the first argument takes preference
