@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-adobe-analytics",
   "description": "The Adobe Analytics analytics.js integration.",
-  "version": "1.16.3",
+  "version": "1.16.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

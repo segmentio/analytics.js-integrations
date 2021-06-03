@@ -12,7 +12,7 @@
   "scripts": {
     "upload-assets": "node scripts/upload-assets.js",
     "lint": "lerna exec --since master --no-bail -- npx eslint . --ext .js",
-    "test": "lerna run --concurrency 1 --since master test --stream -- --single-run --reporters summary --log-level error",
+    "test": "lerna run --concurrency 5 --since master test --stream -- --single-run --reporters summary --log-level error",
     "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
     "compile": "webpack --config webpack.config.integrations.js && webpack --config webpack.config.middleware.js",
     "build": "rm -rf build && yarn compile"
@@ -40,6 +40,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@segment/analytics.js-integration": "^3.3.3",
     "domify": "1.4.1"
   }
 }
