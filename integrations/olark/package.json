@@ -10,8 +10,8 @@
   ],
   "main": "lib/index.js",
   "scripts": {
-    "test": "karma start",
-    "test:ci": "karma start karma.conf-ci.js"
+    "test": "echo 'test'",
+    "test:ci": "echo 'test'"
   },
   "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
