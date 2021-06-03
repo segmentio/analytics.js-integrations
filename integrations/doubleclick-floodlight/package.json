@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-doubleclick-floodlight",
   "description": "The DoubleClick Floodlight analytics.js integration.",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -48,7 +48,7 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
-    "watchify": "^3.11.1",
-    "sinon": "^1.17.6"
+    "sinon": "^1.17.6",
+    "watchify": "^3.11.1"
   }
 }
