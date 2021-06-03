@@ -109,28 +109,73 @@ describe('Adobe Analytics - Chromecast', function () {
     describe('#track', function () {
       let bufferStartSub;
       beforeEach(function () {
-
-
-
-
-
-
-
         analytics.stub(window.ADBMobile.analytics, 'trackAction');
         analytics.stub(window.ADBMobile.analytics, 'createMediaObject');
+
+
+
+
+
         analytics.stub(window.ADBMobile, 'media');
+        window.ADBMobile.media.createMediaObject = (() => {
+          return {
+            'media.granularadtracking': false,
+            'media.id': "assetid",
+            'media.length': 600,
+            'media.name': "sdfds",
+            'media.prerollwaittime': 250,
+            'media.resumed': false,
+            'media.streamtype': "VOD",
+            'media.type': "video",
+          }
+        });
+        analytics.stub(window.ADBMobile.media, 'MediaObjectKey');
+        window.ADBMobile.media.MediaObjectKey.StandardMediaMetadata = "media.standardmetadata";
+
         analytics.stub(window.ADBMobile.media, 'trackSessionStart');
         analytics.stub(window.ADBMobile.media, 'trackSessionEnd');
         analytics.stub(window.ADBMobile.media, 'setDelegate');
-        analytics.stub(window.ADBMobile.media, 'createMediaObject');
-        analytics.stub(window.ADBMobile.media, 'VideoMetadataKeys');
         analytics.stub(window.ADBMobile.media, 'trackEvent');
         analytics.stub(window.ADBMobile.media, 'trackPlay');
         analytics.stub(window.ADBMobile.media, 'trackPause');
         analytics.stub(window.ADBMobile.media, 'ChapterStart');
         analytics.stub(window.ADBMobile.media, 'Event');
-        analytics.stub(window.ADBMobile.media.Event, 'BufferStart') // mock value
-        analytics.stub(window.ADBMobile.media.Event, 'BufferComplete') // mock value
+        window.ADBMobile.media.Event = {
+          AdBreakComplete: "adBreakComplete",
+          AdBreakStart: "adBreakStart",
+          AdComplete: "adComplete",
+          AdSkip: "adSkip",
+          AdStart: "adStart",
+          BitrateChange: "bitrateChange",
+          BufferComplete: "bufferComplete",
+          BufferStart: "bufferStart",
+          ChapterComplete: "chapterComplete",
+          ChapterSkip: "chapterSkip",
+          ChapterStart: "chapterStart",
+          SeekComplete: "seekComplete",
+          SeekStart: "seekStart",
+          StateEnd: "stateEnd",
+          StateStart: "stateStart",
+        }
+        window.ADBMobile.media.VideoMetadataKeys = {
+          AD_LOAD: "a.media.adLoad",
+          ASSET_ID: "a.media.asset",
+          AUTHORIZED: "a.media.pass.auth",
+          DAY_PART: "a.media.dayPart",
+          EPISODE: "a.media.episode",
+          FEED: "a.media.feed",
+          FIRST_AIR_DATE: "a.media.airDate",
+          FIRST_DIGITAL_DATE: "a.media.digitalDate",
+          GENRE: "a.media.genre",
+          MVPD: "a.media.pass.mvpd",
+          NETWORK: "a.media.network",
+          ORIGINATOR: "a.media.originator",
+          RATING: "a.media.rating",
+          SEASON: "a.media.season",
+          SHOW: "a.media.show",
+          SHOW_TYPE: "a.media.type",
+          STREAM_FORMAT: "a.media.format"
+        }
 
         analytics.stub(window.ADBMobile.media, 'createQoSObject');
       });
@@ -182,16 +227,21 @@ describe('Adobe Analytics - Chromecast', function () {
           channel: 'Black Mesa',
           video_player: 'Transit Announcement System',
           position: 5,
+          program: "test program",
           asset_id: 'Gordon Freeman',
           title: 'Half-Life',
           total_length: 1260,
-          livestream: false
+          livestream: false,
+          video_genre: "Docco",
+          contextValues: {
+            video_genre: 'video_genre',
+            video_asset_title: 'video_asset_title',
+            video_series_name: 'video_series_name',
+            'page.title': 'page_title'
+          },
         });
         analytics.calledOnce(window.ADBMobile.media.setDelegate);
-        analytics.calledOnce(window.ADBMobile.media.createMediaObject);
         analytics.calledOnce(window.ADBMobile.media.trackSessionStart);
-
-
       });
 
       it('should initialize Heartbeat even if a user does not explicitly start the session first', function () {
@@ -249,10 +299,7 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false
         });
-
-        //todo get asset the enum value
-        //analytics.called(window.ADBMobile.media.Event.BufferStart)
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.BufferStart)
       });
 
 
@@ -263,10 +310,7 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false
         });
-
-        //todo get asset the enum value
-        // analytics.calledOnce(window.ADBMobile.media.Event.BufferComplete)
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.BufferComplete)
       });
 
 
@@ -278,9 +322,7 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false
         });
-
-        //todo get asset the enum value
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.SeekStart)
       });
 
       it('should call seek completed when a video playback seek completed', function () {
@@ -290,9 +332,7 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false
         });
-
-        //todo get asset the enum value
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.SeekComplete)
       });
 
       it('should call track session end when video playback completed', function () {
@@ -303,7 +343,6 @@ describe('Adobe Analytics - Chromecast', function () {
           livestream: false
         });
 
-        //todo get asset the enum value
         analytics.calledOnce(window.ADBMobile.media.trackSessionEnd)
       });
       it('should call track pause when video playback interrupted', function () {
@@ -314,7 +353,6 @@ describe('Adobe Analytics - Chromecast', function () {
           livestream: false
         });
 
-        //todo get asset the enum value
         analytics.calledOnce(window.ADBMobile.media.trackPause)
       });
 
@@ -330,7 +368,7 @@ describe('Adobe Analytics - Chromecast', function () {
           droppedFrames: 99
         });
         analytics.calledOnce(window.ADBMobile.media.createQoSObject, 500, 99, 23, 88);
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.BitrateChange)
       });
 
       it('should call trackEvent and trackPlay when video content started', function () {
@@ -340,7 +378,7 @@ describe('Adobe Analytics - Chromecast', function () {
           livestream: false
         });
 
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, ADBMobile.media.Event.ChapterStart)
         analytics.calledOnce(window.ADBMobile.media.trackPlay)
       });
 
@@ -350,7 +388,6 @@ describe('Adobe Analytics - Chromecast', function () {
           position: 1260,
           livestream: false
         });
-        //console.log(window.position) //assert position = 1260
         analytics.calledOnce(window.ADBMobile.media.trackPlay)
 
       });
@@ -359,15 +396,13 @@ describe('Adobe Analytics - Chromecast', function () {
       it('should call trackEvent and trackComplete when video content completed', function () {
 
         analytics.stub(window.ADBMobile.media, 'trackComplete')
-        // analytics.stub(window.ADBMobile.Event, 'ChapterComplete')
         analytics.track('Video Content Completed', {
           title: 'Half-Life',
           position: 1260,
           livestream: false
         });
-        //console.log(window.position) //assert position = 1260
         analytics.calledOnce(window.ADBMobile.media.trackEvent)
-        analytics.calledOnce(window.ADBMobile.media.trackComplete)
+        analytics.calledOnce(window.ADBMobile.media.trackComplete, window.ADBMobile.media.Event.ChapterComplete)
 
       });
 
@@ -378,8 +413,7 @@ describe('Adobe Analytics - Chromecast', function () {
         analytics.stub(window.ADBMobile.media, 'AdMetadataKeys')
         analytics.stub(window.ADBMobile.media.AdMetadataKeys, 'ADVERTISER')
         analytics.stub(window.ADBMobile.media.AdMetadataKeys, 'CAMPAIGN_ID')
-        analytics.stub(window.ADBMobile.media, 'MediaObjectKey')
-        analytics.stub(window.ADBMobile.media.MediaObjectKey, 'StandardAdMetadata')
+
 
         analytics.track('Video Ad Started', {
           title: 'Half-Life',
@@ -388,7 +422,7 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 23423
         });
         analytics.calledOnce(window.ADBMobile.media.createAdObject, 'Half-Life', 'aaaaa', 2, 23423);
-        analytics.calledTwice(window.ADBMobile.media.trackEvent)
+        analytics.calledTwice(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event)
 
 
       });
@@ -432,7 +466,7 @@ describe('Adobe Analytics - Chromecast', function () {
           position: 2,
           total_length: 23423
         });
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.AdSkip)
       });
 
 
@@ -446,6 +480,9 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 23423
         });
         analytics.calledTwice(window.ADBMobile.media.trackEvent)
+        analytics.called(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.AdComplete)
+        analytics.called(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.AdBreakComplete)
+
       });
 
       it('should call trackEvent when video playback exited', function () {

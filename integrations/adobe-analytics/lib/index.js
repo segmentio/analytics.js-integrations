@@ -193,7 +193,7 @@ AdobeAnalytics.prototype.initialize = function() {
     self.qosData = {};
     self.playhead = 0;
     self.adBreakInProgress = false;
-
+    window.extractMediaMetadata = heartbeat.extractMediaMetadata;
     self.heartbeatEventMap = {
       // Segment spec'd event: Heartbeat function
       'video playback started': heartbeat.chromecastInit,
