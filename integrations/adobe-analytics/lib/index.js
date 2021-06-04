@@ -619,8 +619,8 @@ function updateCommonVariables(facade, options) {
   if (options.enableTrackPageName && facade.type() === 'track')
     update(
       properties.pageName ||
-      options.pageName ||
-      facade.proxy('context.page.title'),
+       options.pageName ||
+       facade.proxy('context.page.title'),
       'pageName'
     );
 }
@@ -742,7 +742,7 @@ function updateContextData(facade, options) {
   var propertyPrefix = options.customDataPrefix
     ? options.customDataPrefix + '.'
     : '';
-    each(function(value, key) {
+  each(function(value, key) {
     addContextDatum(propertyPrefix + key, value);
   }, properties);
 
@@ -1138,7 +1138,7 @@ function mapProducts(
       return test.join(';');
     }
     return [category, item, quantity, total]
-    .map(function(value) {
+     .map(function(value) {
         if (value == null) {
           return String(value);
         }
@@ -1361,8 +1361,6 @@ function populateHeartbeat(track) {
       props.video_player || mediaHeartbeatConfig.playerName;
   }
 }
-
-
 
 function initHeartbeat(track) {
   var self = this; // Bound in .track()
@@ -1705,7 +1703,6 @@ function createStandardAdMetadata(track, adObj) {
     stdAdMeta
   );
 }
-
 
 function heartbeatUpdatePlayhead(track) {
   var props = track.properties();
