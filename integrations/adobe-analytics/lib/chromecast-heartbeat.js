@@ -1,6 +1,11 @@
 
 var chromecastHeartbeat = {
 
+  /**
+  * Returns a mediaMetadata Object 
+  * @param {Track} track
+  * @returns {mediaMetadata} Maps the contextValue prop if it exists in the track.properties
+  */
   extractMediaMetadata: function (track) {
     var props = track.properties();
     var mediaMetadata = {};
@@ -13,6 +18,7 @@ var chromecastHeartbeat = {
     }
     return mediaMetadata;
   },
+  
   chromecastInit: function (track) {    
     var props = track.properties();
     var mediaMetadata = window.extractMediaMetadata(track);   
@@ -70,7 +76,6 @@ var chromecastHeartbeat = {
   },
 
   chromecastHeartbeatVideoStart: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track);   
     window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart);
     window.ADBMobile.media.trackPlay();
 

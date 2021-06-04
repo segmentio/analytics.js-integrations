@@ -193,9 +193,12 @@ AdobeAnalytics.prototype.initialize = function() {
     self.qosData = {};
     self.playhead = 0;
     self.adBreakInProgress = false;
+
+    //the following methods are required by chromecast-heartbeat.js to initialize the video tracking session
     window.extractMediaMetadata = chromecastHeartbeat.extractMediaMetadata;
-    window.getCurrentPlaybackTime = getCurrentPlaybackTime;
+    window.getCurrentPlaybackTime = getCurrentPlaybackTime;    
     window.getQoSObject = getQoSObject;
+
     self.heartbeatEventMap = {
       // Segment spec'd event: Heartbeat function
       'video playback started': chromecastHeartbeat.chromecastInit,
@@ -1703,9 +1706,9 @@ function createStandardAdMetadata(track, adObj) {
   );
 }
 
+
 function heartbeatUpdatePlayhead(track) {
   var props = track.properties();
-
   this.playhead = props.position;
 }
 
