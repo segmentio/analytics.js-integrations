@@ -4,7 +4,6 @@ var heartbeats = {
   extractMediaMetadata: function (track) {
     var props = track.properties();
     var mediaMetadata = {};
-    debugger
     if (props.contextValues) {
       for (var customProp in props.contextValues) {
         if (props[customProp]) {
@@ -75,8 +74,6 @@ debugger;
 
     window.ADBMobile.media.trackSessionStart(mediaInfo, mediaMetadata);
   },
-
-
 
   chromecastHeartbeatVideoStart: function (track) {
     var mediaMetadata = window.extractMediaMetadata(track);   
@@ -153,7 +150,7 @@ debugger;
   chromecastQualityUpdated: function (track) {
     var mediaMetadata = window.extractMediaMetadata(track); 
     var props = track.properties();
-    let qosInfo = {
+    var qosInfo = {
       bitrate: props.bitrate,
       startupTime: props.startupTime,
       fps: props.framerate,
