@@ -321,7 +321,7 @@ AdobeAnalytics.prototype.loaded = function() {
  * @param {Page} page
  */
 
- AdobeAnalytics.prototype.page = function(page) {
+AdobeAnalytics.prototype.page = function(page) {
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
@@ -398,7 +398,7 @@ AdobeAnalytics.prototype.loaded = function() {
  * @param {Track} track
  */
 
- AdobeAnalytics.prototype.track = function(track) {
+AdobeAnalytics.prototype.track = function(track) {
   // Delete any existing keys on window.s from previous call
   clearKeys(dynamicKeys);
 
@@ -434,7 +434,7 @@ AdobeAnalytics.prototype.loaded = function() {
  * @param {Track} Track
  */
 
- AdobeAnalytics.prototype.productViewed = function(track) {
+AdobeAnalytics.prototype.productViewed = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'prodView');
 };
@@ -465,7 +465,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
  * @param {Track} Track
  */
 
- AdobeAnalytics.prototype.productRemoved = function(track) {
+AdobeAnalytics.prototype.productRemoved = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scRemove');
 };
@@ -494,7 +494,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
  * @param {Track} Track
  */
 
- AdobeAnalytics.prototype.cartViewed = function(track) {
+AdobeAnalytics.prototype.cartViewed = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scView');
 };
@@ -506,7 +506,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
  * @param {Track} Track
  */
 
- AdobeAnalytics.prototype.checkoutStarted = function(track) {
+AdobeAnalytics.prototype.checkoutStarted = function(track) {
   clearKeys(dynamicKeys);
 
   var props = track.properties();
@@ -523,7 +523,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
  * @param {string} adobeEvent Adobe standard event
  */
 
- AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
+AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var properties = msg.properties();
   var adobeEvents = [];
   if (this.options.chromecastMode) {
@@ -1276,7 +1276,7 @@ function getProductField(productString, product) {
  * @api private
  */
 
- AdobeAnalytics.prototype.isMapped = function(event) {
+AdobeAnalytics.prototype.isMapped = function(event) {
   return (
     (this.options.events || []).find(function(setting) {
       return setting.segmentEvent.toLowerCase() === event;
