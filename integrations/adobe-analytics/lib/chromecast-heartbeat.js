@@ -1,5 +1,5 @@
 
-var heartbeats = {
+var chromecastHeartbeat = {
 
   extractMediaMetadata: function (track) {
     var props = track.properties();
@@ -168,4 +168,4 @@ var heartbeats = {
   },
 };
 
-module.exports = heartbeats;
+module.exports = chromecastHeartbeat;

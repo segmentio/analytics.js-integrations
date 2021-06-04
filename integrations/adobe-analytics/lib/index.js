@@ -11,7 +11,7 @@ var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
 var analytics = require('@segment/analytics.js-core');
-var heartbeat = require('./heartbeat');
+var chromecastHeartbeat = require('./chromecast-heartbeat');
 /**
  * hasOwnProperty reference.
  */
@@ -193,28 +193,28 @@ AdobeAnalytics.prototype.initialize = function() {
     self.qosData = {};
     self.playhead = 0;
     self.adBreakInProgress = false;
-    window.extractMediaMetadata = heartbeat.extractMediaMetadata;
+    window.extractMediaMetadata = chromecastHeartbeat.extractMediaMetadata;
     window.getCurrentPlaybackTime = getCurrentPlaybackTime;
     window.getQoSObject = getQoSObject;
     self.heartbeatEventMap = {
       // Segment spec'd event: Heartbeat function
-      'video playback started': heartbeat.chromecastInit,
-      'video playback paused': heartbeat.chromecastVideoPaused,
-      'video playback resumed': heartbeat.chromecastVideoStart, // Treated as a 'play' as well.
-      'video playback buffer started': heartbeat.chromecastBufferStarted,
-      'video playback buffer completed': heartbeat.chromecastBufferCompleted,
-      'video playback seek started': heartbeat.chromecastSeekStarted,
-      'video playback seek completed': heartbeat.chromecastSeekCompleted,
-      'video playback completed': heartbeat.chromecastSessionEnd,
-      'video playback interrupted': heartbeat.chromecastVideoPaused,
-      'video quality updated': heartbeat.chromecastQualityUpdated,
-      'video content started': heartbeat.chromecastHeartbeatVideoStart,
-      'video content playing': heartbeat.chromecastUpdatePlayhead,
-      'video content completed': heartbeat.chromecastVideoComplete,
-      'video ad started': heartbeat.chromecastAdStarted,
-      'video ad skipped': heartbeat.chromecastAdSkipped,
-      'video ad completed': heartbeat.chromecastAdCompleted,
-      'video playback exited': heartbeat.chromecastPlaybackExited
+      'video playback started': chromecastHeartbeat.chromecastInit,
+      'video playback paused': chromecastHeartbeat.chromecastVideoPaused,
+      'video playback resumed': chromecastHeartbeat.chromecastVideoStart, // Treated as a 'play' as well.
+      'video playback buffer started': chromecastHeartbeat.chromecastBufferStarted,
+      'video playback buffer completed': chromecastHeartbeat.chromecastBufferCompleted,
+      'video playback seek started': chromecastHeartbeat.chromecastSeekStarted,
+      'video playback seek completed': chromecastHeartbeat.chromecastSeekCompleted,
+      'video playback completed': chromecastHeartbeat.chromecastSessionEnd,
+      'video playback interrupted': chromecastHeartbeat.chromecastVideoPaused,
+      'video quality updated': chromecastHeartbeat.chromecastQualityUpdated,
+      'video content started': chromecastHeartbeat.chromecastHeartbeatVideoStart,
+      'video content playing': chromecastHeartbeat.chromecastUpdatePlayhead,
+      'video content completed': chromecastHeartbeat.chromecastVideoComplete,
+      'video ad started': chromecastHeartbeat.chromecastAdStarted,
+      'video ad skipped': chromecastHeartbeat.chromecastAdSkipped,
+      'video ad completed': chromecastHeartbeat.chromecastAdCompleted,
+      'video playback exited': chromecastHeartbeat.chromecastPlaybackExited
     };
 
 
@@ -307,7 +307,7 @@ AdobeAnalytics.prototype.initialize = function() {
  * @return {Boolean} loaded
  */
 
- AdobeAnalytics.prototype.loaded = function() {
+AdobeAnalytics.prototype.loaded = function() {
   return !!window.s_gi;
 };
 
