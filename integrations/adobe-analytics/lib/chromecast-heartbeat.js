@@ -24,10 +24,10 @@ var chromecastHeartbeat = {
     var mediaMetadata = window.extractMediaMetadata(track);   
     window.ADBMobile.config.setDebugLogging(true);
     var qosInfoSettings = {
-      bitrate: props.bitrate | 1,
-      startupTime: props.startupTime | 1,
-      fps: props.framerate | 24,
-      droppedFrames: props.droppedFrames | 1,
+      bitrate: props.bitrate || 1,
+      startupTime: props.startupTime || 1,
+      fps: props.framerate || 24,
+      droppedFrames: props.droppedFrames || 1,
     };
     var qosInfo = window.ADBMobile.media.createQoSObject(qosInfoSettings.bitrate, qosInfoSettings.droppedFrames, qosInfoSettings.fps, qosInfoSettings.startupTime);
     window.getQoSObject = getQoSObject;
