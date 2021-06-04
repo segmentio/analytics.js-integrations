@@ -452,7 +452,7 @@ AdobeAnalytics.prototype.productListViewed = function(track) {
  * @param {Track} Track
  */
 
- AdobeAnalytics.prototype.productAdded = function(track) {
+AdobeAnalytics.prototype.productAdded = function(track) {
   clearKeys(dynamicKeys);
   this.processEvent(track, 'scAdd');
 };
@@ -477,7 +477,7 @@ AdobeAnalytics.prototype.productRemoved = function(track) {
  * @param {Track} Track
  */
 
- AdobeAnalytics.prototype.orderCompleted = function(track) {
+AdobeAnalytics.prototype.orderCompleted = function(track) {
   clearKeys(dynamicKeys);
 
   var props = track.properties();
