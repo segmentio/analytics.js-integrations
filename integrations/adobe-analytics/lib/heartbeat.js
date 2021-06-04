@@ -69,8 +69,6 @@ var heartbeats = {
     window.ADBMobile.media.trackSessionStart(mediaInfo, mediaMetadata);
   },
 
-
-
   chromecastHeartbeatVideoStart: function (track) {
     var mediaMetadata = window.extractMediaMetadata(track);   
     window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart);
@@ -146,7 +144,7 @@ var heartbeats = {
   chromecastQualityUpdated: function (track) {
     var mediaMetadata = window.extractMediaMetadata(track); 
     var props = track.properties();
-    let qosInfo = {
+    var qosInfo = {
       bitrate: props.bitrate,
       startupTime: props.startupTime,
       fps: props.framerate,

@@ -10,7 +10,7 @@ var each = require('@ndhoule/each');
 var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
-const analytics = require('@segment/analytics.js-core');
+var analytics = require('@segment/analytics.js-core');
 var heartbeat = require('./heartbeat');
 /**
  * hasOwnProperty reference.
@@ -47,7 +47,7 @@ var AdobeAnalytics = (module.exports = integration('Adobe Analytics'));
  * @param {*} value
  */
 
- AdobeAnalytics.sOption = function(field, value) {
+AdobeAnalytics.sOption = function(field, value) {
   var s = window.s;
   var isValid = s && has.call(s, field) && !isEmptyString(field);
 
