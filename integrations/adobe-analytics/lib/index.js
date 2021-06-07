@@ -163,6 +163,7 @@ AdobeAnalytics.prototype.initialize = function() {
       "audienceManager": {
         "server": `${options.trackingServerUrl}`
       },
+      // TO DO: Update placeholder values with settings or properties
       "analytics": {
         "rsids": `${options.reportSuiteId}`,
         "server": `${options.trackingServerUrl}`,
