@@ -273,6 +273,7 @@ AdobeAnalytics.prototype.initialize = function() {
           'video playback interrupted': heartbeatVideoPaused
         };
       }
+      
       self.ready();
     });
     // Otherwise load the App Measurement SDK only
