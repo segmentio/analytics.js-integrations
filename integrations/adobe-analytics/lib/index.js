@@ -134,8 +134,8 @@ AdobeAnalytics.prototype.initialize = function() {
   var options = this.options;
   var self = this;
 
-
-  options.chromecastMode = true; //Hard coding this to true for this branch, will be switched to a flag/setting if merged into main
+  // Hard coding this to true for this branch, will be switched to a setting when merged into main
+  options.chromecastMode = true;
 
   // Lowercase all keys of event map for easy matching later
   if (!Array.isArray(options.events)) lowercaseKeys(options.events);
@@ -147,9 +147,9 @@ AdobeAnalytics.prototype.initialize = function() {
   // WITHOUT sending several 'Video Content Playing' events. (see line 1242)
   window._segHBPlayheads = {};
 
+  // Start checking which SDK initialization to do
   // Load the more compact Chromecast SDK only if the customer has it enabled in settings
   if (options.chromecastMode) {
-
     window.ADBmobile = {};
     window.ADBmobile.analytics = {};
     window.ADBMobileConfig = {
@@ -166,7 +166,7 @@ AdobeAnalytics.prototype.initialize = function() {
       "analytics": {
         "rsids": `${options.reportSuiteId}`,
         "server": `${options.trackingServerUrl}`,
-        "ssl": false,
+        "ssl": this.options.ssl,
         "offlineEnabled": false,
         "charset": "UTF-8",
         "lifecycleTimeout": 300,
@@ -177,12 +177,13 @@ AdobeAnalytics.prototype.initialize = function() {
         "referrerTimeout": 0,
         "poi": []
       },
+      // TO DO: Update placeholder values with settings or properties
       "mediaHeartbeat": {
         "server": `${options.heartbeatTrackingServerUrl}`,
-        "publisher": "B3CB46FC57C6C8F77F000101@AdobeOrg",
+        "publisher": "test-publisher",
         "channel": "test-channel-chromecast",
-        "ssl": true,
-        "ovp": "chromecast-player",
+        "ssl": this.options.ssl,
+        "ovp": "unknown",
         "sdkVersion": "chromecast-sdk",
         "playerName": "Chromecast"
       }
@@ -194,7 +195,7 @@ AdobeAnalytics.prototype.initialize = function() {
     self.playhead = 0;
     self.adBreakInProgress = false;
 
-    //the following methods are required by chromecast-heartbeat.js to initialize the video tracking session
+    // The following methods are required by chromecast-heartbeat.js to initialize the video tracking session
     window.extractMediaMetadata = chromecastHeartbeat.extractMediaMetadata;
     window.getCurrentPlaybackTime = getCurrentPlaybackTime;    
     window.getQoSObject = getQoSObject;
@@ -220,15 +221,13 @@ AdobeAnalytics.prototype.initialize = function() {
       'video playback exited': chromecastHeartbeat.chromecastPlaybackExited
     };
 
-
-    this.load('chromecast', function () {
+    this.load('chromecast', function() {
       self.ready();
     });
-  }
-  // Load the larger Heartbeat script only if the customer has it enabled in settings.
-  // This file is considerably bigger, so this check is necessary.
-  if (!options.chromecastMode && options.heartbeatTrackingServerUrl) {
-    this.load('heartbeat', function () {
+    // Load the larger Heartbeat JS SDK script along with App Measurement only if the customer has it enabled in settings.
+    // This file is considerably bigger, so this check is necessary.
+  } else if (options.heartbeatTrackingServerUrl) {
+    this.load('heartbeat', function() {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
       s.trackingServerSecure =
@@ -274,13 +273,11 @@ AdobeAnalytics.prototype.initialize = function() {
           'video playback interrupted': heartbeatVideoPaused
         };
       }
-
       self.ready();
     });
-  }
-
-  if (!options.chromecastMode) {
-    this.load('default', function () {
+    // Otherwise load the App Measurement SDK only
+  } else {
+    this.load('default', function() {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
       s.trackingServerSecure =
@@ -304,6 +301,7 @@ AdobeAnalytics.prototype.initialize = function() {
     });
   }
 };
+
 /**
  * Adobe Analytics is loaded if the `window.s_gi` function exists.
  *
@@ -338,11 +336,7 @@ AdobeAnalytics.prototype.page = function(page) {
       var anonymousId = this.analytics.user().anonymousId();
       window.ADBMobile.config.setUserIdentifier(anonymousId);
     }
-
-
-
     window.ADBMobile.analytics.trackState(pageName);
-
   } else {
     // TODO: for nameless analytics.page(), pageName is `undefined`
     // Should we be setting or sending something else here?
@@ -527,33 +521,24 @@ AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
   var properties = msg.properties();
   var adobeEvents = [];
   if (this.options.chromecastMode) {
-
     if (this.options.events.length > 0) {
       // iterate through event map and pull adobe events corresponding to the incoming segment event
-      each(function (eventMapping) {
+      each(function(eventMapping) {
         if (eventMapping.segmentEvent.toLowerCase() === msg.event().toLowerCase()) {
-          each(function (event) {
+          each(function(event) {
             if (adobeEvents.indexOf(event) <= 0) {
               adobeEvents.push(event);
             }
           }, eventMapping.adobeEvents);
         }
-
       }, this.options.events);
     }
-    each(function (adobeEventToSend) {
-
+    each(function(adobeEventToSend) {
       console.log('SENT ' + adobeEventToSend)
       window.ADBMobile.analytics.trackAction(adobeEventToSend, properties)
     }, adobeEvents);
-
-
   } else {
-
-
     var merchEvents = getMerchConfig(msg, this.options);
-
-
     // sets `window.s.products`
     setProductsString(
       msg.event(),
@@ -619,8 +604,8 @@ function updateCommonVariables(facade, options) {
   if (options.enableTrackPageName && facade.type() === 'track')
     update(
       properties.pageName ||
-       options.pageName ||
-       facade.proxy('context.page.title'),
+        options.pageName ||
+        facade.proxy('context.page.title'),
       'pageName'
     );
 }
@@ -1138,7 +1123,7 @@ function mapProducts(
       return test.join(';');
     }
     return [category, item, quantity, total]
-     .map(function(value) {
+      .map(function(value) {
         if (value == null) {
           return String(value);
         }
@@ -1487,11 +1472,6 @@ function heartbeatVideoComplete(track) {
   this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = false;
 }
 
-function chromecastVideoPaused(track) {
-  var props = track.properties();
-  ADBMobile.media.trackPause()
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackPause();
-}
 function heartbeatVideoPaused(track) {
   populateHeartbeat.call(this, track);
 
@@ -1706,6 +1686,7 @@ function createStandardAdMetadata(track, adObj) {
 
 function heartbeatUpdatePlayhead(track) {
   var props = track.properties();
+
   this.playhead = props.position;
 }
 
@@ -1725,6 +1706,7 @@ function createQosObject(track) {
 function getCurrentPlaybackTime() {
   return window.playhead;
 }
+
 function getQoSObject() {
   return window.qosInfo;
 }
