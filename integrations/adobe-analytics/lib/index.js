@@ -10,8 +10,8 @@ var each = require('@ndhoule/each');
 var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
-var analytics = require('@segment/analytics.js-core');
 var chromecastHeartbeat = require('./chromecast-heartbeat');
+
 /**
  * hasOwnProperty reference.
  */
