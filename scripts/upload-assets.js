@@ -138,6 +138,7 @@ async function uploadAssets() {
       Key: key('/manifest-latest.json'),
       Body: zlib.gzipSync(JSON.stringify(manifest)),
       ContentEncoding: process.env.CONTENT_ENCODING,
+      CacheControl: 'public, max-age=120',
       GrantRead: cfCanonicalUserIdsParsed,
       GrantFullControl: `id=${platformCanonicalUserId}`,
       ContentType: 'application/json'

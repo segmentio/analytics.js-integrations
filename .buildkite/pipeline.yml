@@ -4,6 +4,7 @@ env:
 
 steps:
   - label: ':hammer: Build and Test'
+    key: 'build'
     agents:
       queue: v1
     command:
@@ -24,6 +25,7 @@ steps:
             - CHROME-BIN=google-chrome
 
   - label: 'SauceLabs'
+    key: 'sauce_labs'
     soft_fail: true
     command:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
@@ -43,6 +45,7 @@ steps:
             - SAUCE_ACCESS_KEY
 
   - label: '🔒 Snyk Security Check'
+    key: 'snyk'
     agents:
       queue: v1
     plugins:
@@ -51,6 +54,7 @@ steps:
           fail-on: upgradable
 
   - wait: ~
+    depends_on: ['snyk', 'build']
 
   - label: ':cloud: Upload Assets to stage bucket'
     branches: master staging

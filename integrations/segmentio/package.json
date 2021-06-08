@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-segmentio",
   "description": "The Segmentio analytics.js integration.",
-  "version": "4.4.5",
+  "version": "4.4.7",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -53,8 +53,8 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
-    "watchify": "^3.11.1",
     "proclaim": "^3.4.1",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "watchify": "^3.11.1"
   }
 }
