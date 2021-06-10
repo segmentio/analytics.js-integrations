@@ -181,7 +181,7 @@ AdobeAnalytics.prototype.initialize = function() {
       // TO DO: Update placeholder values with settings or properties
       "mediaHeartbeat": {
         "server": `${options.heartbeatTrackingServerUrl}`,
-        "publisher": "test-publisher",
+        "publisher": `${options.marketingCloudOrgId}`,
         "channel": "test-channel-chromecast",
         "ssl": this.options.ssl,
         "ovp": "unknown",
