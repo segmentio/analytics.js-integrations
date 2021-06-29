@@ -203,7 +203,7 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
 
-  if (this.options.contentLengthPropertyName !== 'total_length') {
+  if (this.options.contentLengthPropertyName && this.options.contentLengthPropertyName !== 'total_length') {
     var contentLengthKey = this.options.contentLengthPropertyName;
     contentMetadata.length = track.proxy(propertiesPath + contentLengthKey);
   } else {
