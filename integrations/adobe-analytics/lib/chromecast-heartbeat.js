@@ -114,13 +114,13 @@ var chromecastHeartbeat = {
       id: props.asset_id.toString() || 'default ad',
       position: props.position || 1,
       length: props.total_length || 0,
-      start_time:    props.start_time || 1
+      startTime:    props.start_time || 1
     }
     var adInfo = window.ADBMobile.media.createAdObject(info.name, info.id, info.position, info.length);
     var adBreakInfo = ADBMobile.media.createAdBreakObject(info.name, info.position, info.startTime);
     var standardAdMetadata = {};
-    standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.video_ad_advertiser || null;
-    standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || null;
+    standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.video_ad_advertiser || "no advertiser";
+    standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || "no campaign id";
 
     if (adInfo) {
       adInfo[ADBMobile.media.MediaObjectKey.StandardAdMetadata] = standardAdMetadata;
