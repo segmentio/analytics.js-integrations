@@ -75,8 +75,14 @@ var chromecastHeartbeat = {
     window.ADBMobile.media.trackSessionStart(mediaInfo, mediaMetadata);
   },
 
-  chromecastHeartbeatVideoStart: function (track) {
-    window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart);
+  chromecastContentStart: function (track) {
+    var props = track.properties();
+    props.startTime = props.startTime || 1;
+    props.name = props.name || props.title || "no title";
+    props.position = props.position|| 1;
+    props.name = props.length || props.length || 1;
+    var chapterInfo = window.ADBMobile.media.createChapterObject(props.name, props.position, props.length, props.startTime);
+    window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart, chapterInfo);
     window.ADBMobile.media.trackPlay();
 
   },
@@ -92,13 +98,12 @@ var chromecastHeartbeat = {
   chromecastVideoStart: function (track) {
     window.ADBMobile.media.trackPlay();
   },
-  chromecastVideoComplete: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);
-    window.ADBMobile.media.trackComplete();
+  chromecastVideoComplete: function (track) { 
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);  
   },
   chromecastSessionEnd: function (track) {
     window.ADBMobile.media.trackSessionEnd();
+    window.ADBMobile.media.trackComplete();
 
   },
   chromecastAdStarted: function (track) {
@@ -108,10 +113,11 @@ var chromecastHeartbeat = {
       name: props.title || 'no title',
       id: props.asset_id.toString() || 'default ad',
       position: props.position || 1,
-      length: props.total_length || 0
+      length: props.total_length || 0,
+      start_time:    props.start_time || 1
     }
     var adInfo = window.ADBMobile.media.createAdObject(info.name, info.id, info.position, info.length);
-
+    var adBreakInfo = ADBMobile.media.createAdBreakObject(info.name, info.position, info.startTime);
     var standardAdMetadata = {};
     standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.video_ad_advertiser || null;
     standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || null;
@@ -120,7 +126,7 @@ var chromecastHeartbeat = {
       adInfo[ADBMobile.media.MediaObjectKey.StandardAdMetadata] = standardAdMetadata;
     }
 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakStart);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakStart, adBreakInfo);
     window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdStart, adInfo);
 
   },

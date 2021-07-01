@@ -213,7 +213,7 @@ AdobeAnalytics.prototype.initialize = function() {
       'video playback completed': chromecastHeartbeat.chromecastSessionEnd,
       'video playback interrupted': chromecastHeartbeat.chromecastVideoPaused,
       'video quality updated': chromecastHeartbeat.chromecastQualityUpdated,
-      'video content started': chromecastHeartbeat.chromecastHeartbeatVideoStart,
+      'video content started': chromecastHeartbeat.chromecastContentStart,
       'video content playing': chromecastHeartbeat.chromecastUpdatePlayhead,
       'video content completed': chromecastHeartbeat.chromecastVideoComplete,
       'video ad started': chromecastHeartbeat.chromecastAdStarted,
