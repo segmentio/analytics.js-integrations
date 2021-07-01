@@ -150,6 +150,9 @@ AdobeAnalytics.prototype.initialize = function() {
   // Start checking which SDK initialization to do
   // Load the more compact Chromecast SDK only if the customer has it enabled in settings
   if (options.chromecastMode) {
+    if(this.options && this.options.contextValues){
+    window.settingsContextValues = this.options.contextValues;
+    }
     window.ADBmobile = {};
     window.ADBmobile.analytics = {};
     window.ADBMobileConfig = {

@@ -205,6 +205,13 @@ describe('Adobe Analytics - Chromecast', function () {
 
       var sessionId = 'session-' + Math.ceil(Math.random() * 1000);
       it('should initialize Heartbeat when a video session begins', function () {
+
+       adobeAnalytics.options.contextValues =   {
+        video_genre: 'video_genre',
+        video_asset_title: 'video_asset_title',
+        video_series_name: 'video_series_name',
+        'page.title': 'page_title'
+      };
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -216,16 +223,14 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false,
           video_genre: "Docco",
-          contextValues: {
-            video_genre: 'video_genre',
-            video_asset_title: 'video_asset_title',
-            video_series_name: 'video_series_name',
-            'page.title': 'page_title'
-          },
+       
         });
         analytics.calledOnce(window.ADBMobile.media.setDelegate);
-       // analytics.calledOnce(window.ADBMobile.media.trackSessionStart);
+
       });
+
+
+   
 
       it('should initialize Heartbeat even if a user does not explicitly start the session first', function () {
         analytics.track('Video Content Started', {

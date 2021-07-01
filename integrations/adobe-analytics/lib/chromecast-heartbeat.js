@@ -7,12 +7,13 @@ var chromecastHeartbeat = {
   * @returns {mediaMetadata} Maps the contextValue prop if it exists in the track.properties
   */
   extractMediaMetadata: function (track) {
-    var props = track.properties();
-    var mediaMetadata = {};
-    if (props.contextValues) {
-      for (var customProp in props.contextValues) {
+       var mediaMetadata = {};
+       var props = track.properties();
+       debugger;
+    if (window.settingsContextValues) {
+      for (var customProp in window.settingsContextValues) {
         if (props[customProp]) {
-          mediaMetadata[props.contextValues[customProp]] = props[customProp];
+          mediaMetadata[window.settingsContextValues[customProp]] = props[customProp];
         }
       }
     }
