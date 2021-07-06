@@ -6,7 +6,9 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var AdobeAnalytics = require('../lib');
 var iso = require('@segment/to-iso-string');
-
+var assert = require('assert');
+var Analytics = require('@segment/analytics.js-core').constructor;
+var chromecastHeartbeat = require('../lib/chromecast-heartbeat');
 describe('Adobe Analytics - Chromecast', function () {
   var analytics;
   var adobeAnalytics;
@@ -223,14 +225,14 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false,
           video_genre: "Docco",
-       
+
         });
         analytics.calledOnce(window.ADBMobile.media.setDelegate);
 
       });
 
 
-   
+
 
       it('should initialize Heartbeat even if a user does not explicitly start the session first', function () {
         analytics.track('Video Content Started', {
@@ -462,22 +464,346 @@ describe('Adobe Analytics - Chromecast', function () {
   });
 });
 
-/**
- * Returns true if the string contains all of the substrings passed
- * in the argument. Also fails if you do not pass enough arguments aka
- * missing to check parameters
- *
- * @param {string} str
- * @param {...string} substrings
- */
+describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
-function contains(str) {
-  var requiredNumberOfArgs = str.split(',').length;
-  var args = Array.prototype.slice.call(arguments);
-  args.shift();
-  if (args.length !== requiredNumberOfArgs) return false;
-  for (var i = 0; i < args.length; i++) {
-    if (str.indexOf(args[i]) === -1) return false;
-  }
-  return true;
-}
+  it('should map boolean values to string', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: true,
+        Car: false
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+      Car: 'attributeName2',
+
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, {
+      attributeName1: 'true',
+      attributeName2: 'false',
+    });
+
+
+  });
+
+
+
+  it('should not map integer values to string', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 1234
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, {
+      attributeName1: 1234,
+    });
+
+
+  });
+
+  it('should map single context Value when exists in track props', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'test123' });
+
+  });
+
+  it('should return empty object when track props does not contain settings context value', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      notInTrackProps: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, {});
+
+  });
+
+  it('should return empty object when settings context value is empty', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {};
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, {});
+
+  });
+
+
+
+  it('should map multiple property context value when exists in track props', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123',
+        tree: 'test1'
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+      tree: 'attributeName2',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'test123', attributeName2: 'test1' });
+
+  });
+
+
+  it('should map anonymousId when contextValue contains anonymousId', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      anonymousId: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'anon_123' });
+
+  });
+  it('should map messageId when contextValue contains messageId', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      messageId: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'ajs-gfvhgf' });
+
+  });
+  it('should map event when contextValue contains event', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      event: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, { attributeName1: 'Product Removed' });
+
+  });
+
+  it('should map event, anonymousId and messageId when contextValue contains event, anonymousId and messageId', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      event: 'attributeName1',
+      anonymousId: 'attributeName2',
+      messageId: 'attributeName3',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, {
+      attributeName1: 'Product Removed',
+      attributeName2: 'anon_123',
+      attributeName3: 'ajs-gfvhgf'
+
+    });
+  });
+
+  it('should map values from context object when contextValue contains maps to context object properties', function () {
+
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+      "context": {
+        "campaign": {},
+        "ip": "203.3453454353",
+        "library": {
+          "name": "analytics.js",
+          "version": "4.1.8"
+        },
+        "locale": "en-GB",
+        "page": {
+          "path": "/cart",
+          "referrer": "https://test.com",
+          "search": "?ref=nav-cart&secure=true",
+          "title": "Cart | sdfsdfsdfsd",
+          "url": "https://test123.com"
+        },
+        "protocols": {
+          "sourceId": "3is1nSA6JnfzfhbvxBTcGJ",
+          "violations": [
+            {
+              "type": "Required",
+              "field": "properties.work_id",
+              "description": "properties.work_id is required"
+            }
+          ]
+        },
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+      },
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      locale: 'attributeName1'    
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, {
+      attributeName1: 'en-GB', 
+
+    });
+  });
+
+
+});

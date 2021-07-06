@@ -7,22 +7,37 @@ var chromecastHeartbeat = {
   * @returns {mediaMetadata} Maps the contextValue prop if it exists in the track.properties
   */
   extractMediaMetadata: function (track) {
-       var mediaMetadata = {};
-       var props = track.properties();
-       debugger;
-    if (window.settingsContextValues) {
-      for (var customProp in window.settingsContextValues) {
-        if (props[customProp]) {
-          mediaMetadata[window.settingsContextValues[customProp]] = props[customProp];
+    debugger;
+    var topLevelProperties = ['messageId', 'anonymousId', 'event'];
+    var mediaMetadata = {};
+    var props = track.properties();
+    if (!window.settingsContextValues) {
+      return mediaMetadata;
+    }
+    for (var customProp in window.settingsContextValues) {
+      var payloadPropertyValue = props[customProp];
+      if (!payloadPropertyValue && topLevelProperties.includes(customProp)) {
+        payloadPropertyValue = track[customProp];
+      }
+      if (!payloadPropertyValue && track.context) {
+        var contextKeys = Object.keys(track.context);
+        if (contextKeys.length && contextKeys.includes(customProp)) {
+          payloadPropertyValue = track.context[customProp];
         }
+      }
+      if (typeof payloadPropertyValue == "boolean") {
+        payloadPropertyValue = payloadPropertyValue.toString();
+      }
+      if (payloadPropertyValue) {
+        mediaMetadata[window.settingsContextValues[customProp]] = payloadPropertyValue
       }
     }
     return mediaMetadata;
   },
-  
-  chromecastInit: function (track) {    
+
+  chromecastInit: function (track) {
     var props = track.properties();
-    var mediaMetadata = window.extractMediaMetadata(track);   
+    var mediaMetadata = window.extractMediaMetadata(track);
     window.ADBMobile.config.setDebugLogging(true);
     var qosInfoSettings = {
       bitrate: props.bitrate || 1,
@@ -34,7 +49,7 @@ var chromecastHeartbeat = {
     window.getQoSObject = getQoSObject;
     window.qosInfo = qosInfo;
     var delegate = {
-      getQoSObject:   window.getCurrentPlaybackTime,
+      getQoSObject: window.getCurrentPlaybackTime,
       getCurrentPlaybackTime: window.getCurrentPlaybackTime
     }
     window.ADBMobile.media.setDelegate(delegate);
@@ -46,7 +61,7 @@ var chromecastHeartbeat = {
     props.name = props.title || 'no title';
     props.asset_id = props.asset_id || 'unknown video id';
     props.length = props.total_length || 0;
-    
+
     var mediaInfo = ADBMobile.media.createMediaObject(props.name, props.asset_id, props.length, streamType, props.video_media_type);
     var videoAnalytics, metaKeys, standardMediaMetadata;
 
@@ -79,10 +94,10 @@ var chromecastHeartbeat = {
 
   chromecastContentStart: function (track) {
     var props = track.properties();
-    var mediaMetadata = window.extractMediaMetadata(track);   
+    var mediaMetadata = window.extractMediaMetadata(track);
     props.startTime = props.startTime || 1;
     props.name = props.chapter_name || 'no chapter name';
-    props.position = props.position|| 1;
+    props.position = props.position || 1;
     props.length = props.total_length || 1;
     var chapterInfo = window.ADBMobile.media.createChapterObject(props.name, props.position, props.length, props.startTime);
 
@@ -103,8 +118,8 @@ var chromecastHeartbeat = {
     window.ADBMobile.media.trackPlay();
   },
 
-  chromecastVideoComplete: function (track) { 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);  
+  chromecastVideoComplete: function (track) {
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);
   },
 
   chromecastSessionEnd: function (track) {
@@ -144,7 +159,7 @@ var chromecastHeartbeat = {
   chromecastAdSkipped: function (track) {
     window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdSkip);
   },
-  
+
   chromecastSeekStarted: function (track) {
     window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekStart);
   },
@@ -160,7 +175,7 @@ var chromecastHeartbeat = {
   chromecastBufferCompleted: function (track) {
     window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferComplete);
   },
-  
+
   chromecastQualityUpdated: function (track) {
     var props = track.properties();
     var qosInfo = {
