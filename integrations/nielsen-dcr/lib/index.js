@@ -8,6 +8,7 @@ var integration = require('@segment/analytics.js-integration');
 var find = require('obj-case').find;
 var reject = require('reject');
 var dateformat = require('dateformat');
+var sha256 = require('js-sha256');
 
 /**
  * Expose `NielsenDCR` integration.
@@ -111,10 +112,11 @@ NielsenDCR.prototype.page = function(page) {
   }
   var defaultSectionName = page.fullName() || page.name() || page.event();
   var sectionName = customSectionName || defaultSectionName;
+  var url = page.url();
 
   var staticMetadata = reject({
     type: 'static',
-    assetid: page.url(), // *DYNAMIC METADATA*: unique ID for each article **REQUIRED**
+    assetid: sha256(url), // *DYNAMIC METADATA*: unique ID for each article, deterministic SHA256 hash of url since assetid cannot contain special characters **REQUIRED**
     section: sectionName, // *DYNAMIC METADATA*: section of site **REQUIRED**
     segA: integrationOpts.segA, // *DYNAMIC METADATA*: custom segment
     segB: integrationOpts.segB, // *DYNAMIC METADATA*: custom segment

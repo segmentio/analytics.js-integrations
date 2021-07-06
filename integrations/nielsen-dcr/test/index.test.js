@@ -91,7 +91,7 @@ describe('NielsenDCR', function() {
         analytics.page();
         var staticMetadata = {
           type: 'static',
-          assetid: window.location.href,
+          assetid: 'ff4c0efe94509b3d21872f0c0bfec92faaed5ae46d707b6ea832a74f9f1fe38d',
           section: 'Loaded a Page'
         };
         analytics.called(
@@ -114,7 +114,7 @@ describe('NielsenDCR', function() {
 
         var staticMetadata = {
           type: 'static',
-          assetid: window.location.href,
+          assetid: 'ff4c0efe94509b3d21872f0c0bfec92faaed5ae46d707b6ea832a74f9f1fe38d',
           section: 'Custom Page Name'
         };
         analytics.called(
