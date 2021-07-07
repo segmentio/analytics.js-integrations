@@ -1,3 +1,4 @@
+var trample = require('@segment/trample');
 
 var chromecastHeartbeat = {
 
@@ -10,22 +11,23 @@ var chromecastHeartbeat = {
     debugger;
     var topLevelProperties = ['messageId', 'anonymousId', 'event'];
     var mediaMetadata = {};
-    var props = track.properties();
+    var props = trample(track.properties());
+    var context = trample(track.context());
     if (!window.settingsContextValues) {
       return mediaMetadata;
     }
     for (var customProp in window.settingsContextValues) {
+      //Check properties object first
       var payloadPropertyValue = props[customProp];
+      //Check top-level fields next
       if (!payloadPropertyValue && topLevelProperties.includes(customProp)) {
-        payloadPropertyValue = track[customProp];
+        payloadPropertyValue = track.proxy(customProp);
       }
-      if (!payloadPropertyValue && track.context) {
-        var contextKeys = Object.keys(track.context);
-        if (contextKeys.length && contextKeys.includes(customProp)) {
-          payloadPropertyValue = track.context[customProp];
-        }
+      //Check context object last
+      if (!payloadPropertyValue && context[customProp]) {
+        payloadPropertyValue = context[customProp];
       }
-      if (typeof payloadPropertyValue == "boolean") {
+      if (typeof payloadPropertyValue === 'boolean') {
         payloadPropertyValue = payloadPropertyValue.toString();
       }
       if (payloadPropertyValue) {
