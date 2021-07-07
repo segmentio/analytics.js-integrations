@@ -208,12 +208,12 @@ describe('Adobe Analytics - Chromecast', function () {
       var sessionId = 'session-' + Math.ceil(Math.random() * 1000);
       it('should initialize Heartbeat when a video session begins', function () {
 
-       adobeAnalytics.options.contextValues =   {
-        video_genre: 'video_genre',
-        video_asset_title: 'video_asset_title',
-        video_series_name: 'video_series_name',
-        'page.title': 'page_title'
-      };
+        adobeAnalytics.options.contextValues = {
+          video_genre: 'video_genre',
+          video_asset_title: 'video_asset_title',
+          video_series_name: 'video_series_name',
+          'page.title': 'page_title'
+        };
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -466,8 +466,7 @@ describe('Adobe Analytics - Chromecast', function () {
 
 describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
-  it('should map boolean values to string', function () {
-
+  function getTestTrack() {
     let track =
     {
       "anonymousId": "anon_123",
@@ -477,6 +476,54 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
       "type": "track",
     }
 
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: true,
+        Car: false
+      }
+    };
+    track.proxy = function(propName){
+      return track[propName];
+    }
+
+    track.context = function () {
+      return {
+        "campaign": {},
+        "ip": "203.3453454353",
+        "library": {
+          "name": "analytics.js",
+          "version": "4.1.8"
+        },
+        "locale": "en-GB",
+        "page": {
+          "path": "/cart",
+          "referrer": "https://test.com",
+          "search": "?ref=nav-cart&secure=true",
+          "title": "Cart | sdfsdfsdfsd",
+          "url": "https://test123.com"
+        },
+        "protocols": {
+          "sourceId": "3is1nSA6JnfzfhbvxBTcGJ",
+          "violations": [
+            {
+              "type": "Required",
+              "field": "properties.work_id",
+              "description": "properties.work_id is required"
+            }
+          ]
+        },
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+      }
+    }
+
+    return track;
+  }
+
+  it('should map boolean values to string', function () {
+
+    let track = getTestTrack();
     track.properties = function () {
       return {
         "coupon": "",
@@ -504,14 +551,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should not map integer values to string', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
+    let track = getTestTrack();
 
     track.properties = function () {
       return {
@@ -534,14 +574,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should map single context Value when exists in track props', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
+    let track = getTestTrack();
 
     track.properties = function () {
       return {
@@ -560,14 +593,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should return empty object when track props does not contain settings context value', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
+    let track = getTestTrack();
 
     track.properties = function () {
       return {
@@ -586,14 +612,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should return empty object when settings context value is empty', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
+    let track = getTestTrack();
 
     track.properties = function () {
       return {
@@ -612,14 +631,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should map multiple property context value when exists in track props', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
+    let track = getTestTrack();
 
     track.properties = function () {
       return {
@@ -641,14 +653,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should map anonymousId when contextValue contains anonymousId', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
+    let track = getTestTrack();
 
     track.properties = function () {
       return {
@@ -666,15 +671,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
   });
   it('should map messageId when contextValue contains messageId', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
-
+    let track = getTestTrack();
     track.properties = function () {
       return {
         "coupon": "",
@@ -691,15 +688,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
   });
   it('should map event when contextValue contains event', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
-
+    let track = getTestTrack();
     track.properties = function () {
       return {
         "coupon": "",
@@ -718,14 +707,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should map event, anonymousId and messageId when contextValue contains event, anonymousId and messageId', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-    }
+    let track = getTestTrack();
 
     track.properties = function () {
       return {
@@ -751,42 +733,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
   it('should map values from context object when contextValue contains maps to context object properties', function () {
 
-    let track =
-    {
-      "anonymousId": "anon_123",
-      "event": "Product Removed",
-      "messageId": "ajs-gfvhgf",
-      "timestamp": "2021-07-06T03:14:48.765Z",
-      "type": "track",
-      "context": {
-        "campaign": {},
-        "ip": "203.3453454353",
-        "library": {
-          "name": "analytics.js",
-          "version": "4.1.8"
-        },
-        "locale": "en-GB",
-        "page": {
-          "path": "/cart",
-          "referrer": "https://test.com",
-          "search": "?ref=nav-cart&secure=true",
-          "title": "Cart | sdfsdfsdfsd",
-          "url": "https://test123.com"
-        },
-        "protocols": {
-          "sourceId": "3is1nSA6JnfzfhbvxBTcGJ",
-          "violations": [
-            {
-              "type": "Required",
-              "field": "properties.work_id",
-              "description": "properties.work_id is required"
-            }
-          ]
-        },
-        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
-      },
-    }
-
+    let track = getTestTrack();
     track.properties = function () {
       return {
         "coupon": "",
@@ -795,12 +742,12 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
       }
     };
     window.settingsContextValues = {
-      locale: 'attributeName1'    
+      locale: 'attributeName1'
     };
     let result = chromecastHeartbeat.extractMediaMetadata(track);
 
     assert.deepStrictEqual(result, {
-      attributeName1: 'en-GB', 
+      attributeName1: 'en-GB',
 
     });
   });
