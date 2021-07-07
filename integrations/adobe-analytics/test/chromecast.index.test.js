@@ -751,7 +751,7 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
     });
   });
-    it('11should map values from context object when contextValue contains maps to context object properties', function () {
+    it('should map values from context object when contextValue contains maps to context object properties', function () {
 
       let track = getTestTrack();
       track.properties = function () {
