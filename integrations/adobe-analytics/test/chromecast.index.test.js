@@ -751,6 +751,57 @@ describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
     });
   });
+    it('11should map values from context object when contextValue contains maps to context object properties', function () {
+
+      let track = getTestTrack();
+      track.properties = function () {
+        return {
+          "coupon": "",
+          "currency": "USD",
+          Airplane: 'test123'
+        }
+      };
+      window.settingsContextValues = {
+         ["page.url"] : 'attributeName1'
+          
+      };
+
+      track.context = function () {
+        return {
+          "campaign": {},
+          "ip": "203.3453454353",
+          "library": {
+            "name": "analytics.js",
+            "version": "4.1.8"
+          },
+          "locale": "en-GB",
+          "page": {
+            "path": "/cart",
+            "referrer": "https://test.com",
+            "search": "?ref=nav-cart&secure=true",
+            "title": "Cart | sdfsdfsdfsd",
+            "url": "https://test123.com/342342"
+          },
+          "protocols": {
+            "sourceId": "3is1nSA6JnfzfhbvxBTcGJ",
+            "violations": [
+              {
+                "type": "Required",
+                "field": "properties.work_id",
+                "description": "properties.work_id is required"
+              }
+            ]
+          },
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+        }
+      }
+
+      let result = chromecastHeartbeat.extractMediaMetadata(track);  
+      assert.deepStrictEqual(result, {
+        attributeName1: 'https://test123.com/342342',
+  
+      });
+  });
 
 
 });
