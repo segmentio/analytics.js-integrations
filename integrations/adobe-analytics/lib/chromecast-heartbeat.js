@@ -1,3 +1,4 @@
+var trample = require('@segment/trample');
 
 var chromecastHeartbeat = {
 
@@ -7,21 +8,38 @@ var chromecastHeartbeat = {
   * @returns {mediaMetadata} Maps the contextValue prop if it exists in the track.properties
   */
   extractMediaMetadata: function (track) {
-    var props = track.properties();
+    debugger;
+    var topLevelProperties = ['messageId', 'anonymousId', 'event'];
     var mediaMetadata = {};
-    if (props.contextValues) {
-      for (var customProp in props.contextValues) {
-        if (props[customProp]) {
-          mediaMetadata[props.contextValues[customProp]] = props[customProp];
-        }
+    var props = trample(track.properties());
+    var context = trample(track.context());
+    if (!window.settingsContextValues) {
+      return mediaMetadata;
+    }
+    for (var customProp in window.settingsContextValues) {
+      //Check properties object first
+      var payloadPropertyValue = props[customProp];
+      //Check top-level fields next
+      if (!payloadPropertyValue && topLevelProperties.includes(customProp)) {
+        payloadPropertyValue = track.proxy(customProp);
+      }
+      //Check context object last
+      if (!payloadPropertyValue && context[customProp]) {
+        payloadPropertyValue = context[customProp];
+      }
+      if (typeof payloadPropertyValue === 'boolean') {
+        payloadPropertyValue = payloadPropertyValue.toString();
+      }
+      if (payloadPropertyValue) {
+        mediaMetadata[window.settingsContextValues[customProp]] = payloadPropertyValue
       }
     }
     return mediaMetadata;
   },
-  
-  chromecastInit: function (track) {    
+
+  chromecastInit: function (track) {
     var props = track.properties();
-    var mediaMetadata = window.extractMediaMetadata(track);   
+    var mediaMetadata = window.extractMediaMetadata(track);
     window.ADBMobile.config.setDebugLogging(true);
     var qosInfoSettings = {
       bitrate: props.bitrate || 1,
@@ -33,7 +51,7 @@ var chromecastHeartbeat = {
     window.getQoSObject = getQoSObject;
     window.qosInfo = qosInfo;
     var delegate = {
-      getQoSObject:   window.getCurrentPlaybackTime,
+      getQoSObject: window.getCurrentPlaybackTime,
       getCurrentPlaybackTime: window.getCurrentPlaybackTime
     }
     window.ADBMobile.media.setDelegate(delegate);
@@ -41,11 +59,12 @@ var chromecastHeartbeat = {
     if (props.livestream) {
       streamType = 'LIVE';
     }
-    props.video_media_type = props.video_media_type || "Video";
-    props.name = props.name || props.title || "no title";
-    props.video_content_length = props.video_content_length|| 0;
-    
-    var mediaInfo = ADBMobile.media.createMediaObject(props.name, props.asset_id, props.video_content_length, streamType, props.video_media_type);
+    props.video_media_type = props.video_media_type || 'video';
+    props.name = props.title || 'no title';
+    props.asset_id = props.asset_id || 'unknown video id';
+    props.length = props.total_length || 0;
+
+    var mediaInfo = ADBMobile.media.createMediaObject(props.name, props.asset_id, props.length, streamType, props.video_media_type);
     var videoAnalytics, metaKeys, standardMediaMetadata;
 
     videoAnalytics = window.ADBMobile.media;
@@ -75,32 +94,41 @@ var chromecastHeartbeat = {
     window.ADBMobile.media.trackSessionStart(mediaInfo, mediaMetadata);
   },
 
-  chromecastHeartbeatVideoStart: function (track) {
-    window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart);
+  chromecastContentStart: function (track) {
+    var props = track.properties();
+    var mediaMetadata = window.extractMediaMetadata(track);
+    props.startTime = props.startTime || 1;
+    props.name = props.chapter_name || 'no chapter name';
+    props.position = props.position || 1;
+    props.length = props.total_length || 1;
+    var chapterInfo = window.ADBMobile.media.createChapterObject(props.name, props.position, props.length, props.startTime);
+
+    window.ADBMobile.media.trackEvent(ADBMobile.media.Event.ChapterStart, chapterInfo, mediaMetadata);
     window.ADBMobile.media.trackPlay();
-
   },
-  chromecastPlaybackExited: function (track) {
 
+  chromecastPlaybackExited: function (track) {
     window.ADBMobile.media.trackPause();
     window.ADBMobile.media.trackSessionEnd();
   },
+
   chromecastVideoPaused: function (track) {
     window.ADBMobile.media.trackPause();
-
   },
+
   chromecastVideoStart: function (track) {
     window.ADBMobile.media.trackPlay();
   },
-  chromecastVideoComplete: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);
-    window.ADBMobile.media.trackComplete();
-  },
-  chromecastSessionEnd: function (track) {
-    window.ADBMobile.media.trackSessionEnd();
 
+  chromecastVideoComplete: function (track) {
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.ChapterComplete);
   },
+
+  chromecastSessionEnd: function (track) {
+    window.ADBMobile.media.trackComplete();
+    window.ADBMobile.media.trackSessionEnd();
+  },
+
   chromecastAdStarted: function (track) {
     var props = track.properties();
 
@@ -108,46 +136,49 @@ var chromecastHeartbeat = {
       name: props.title || 'no title',
       id: props.asset_id.toString() || 'default ad',
       position: props.position || 1,
-      length: props.total_length || 0
+      length: props.total_length || 0,
+      startTime: props.start_time || 1
     }
     var adInfo = window.ADBMobile.media.createAdObject(info.name, info.id, info.position, info.length);
-
+    var adBreakInfo = ADBMobile.media.createAdBreakObject(info.name, info.position, info.startTime);
     var standardAdMetadata = {};
-    standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.video_ad_advertiser || null;
-    standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || null;
+    standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.publisher || props.video_ad_advertiser || "no advertiser";
+    standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || "no campaign id";
 
     if (adInfo) {
       adInfo[ADBMobile.media.MediaObjectKey.StandardAdMetadata] = standardAdMetadata;
     }
 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakStart);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakStart, adBreakInfo);
     window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdStart, adInfo);
-
   },
+
   chromecastAdCompleted: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdComplete, null, mediaMetadata);
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakComplete, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdComplete);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakComplete,);
+  },
 
-  },
   chromecastAdSkipped: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdSkip, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdSkip);
   },
+
   chromecastSeekStarted: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekStart, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekStart);
   },
+
   chromecastSeekCompleted: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekComplete, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.SeekComplete);
   },
+
   chromecastBufferStarted: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferStart, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferStart);
   },
+
+  chromecastBufferCompleted: function (track) {
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferComplete);
+  },
+
   chromecastQualityUpdated: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
     var props = track.properties();
     var qosInfo = {
       bitrate: props.bitrate,
@@ -158,14 +189,9 @@ var chromecastHeartbeat = {
 
     window.qosInfo = qosInfo;
     window.ADBMobile.media.createQoSObject(qosInfo.bitrate, qosInfo.droppedFrames, qosInfo.fps, qosInfo.startupTime);
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BitrateChange, null, mediaMetadata);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BitrateChange);
   },
 
-  chromecastBufferCompleted: function (track) {
-    var mediaMetadata = window.extractMediaMetadata(track); 
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.BufferComplete, null, mediaMetadata);
-
-  },
   chromecastUpdatePlayhead: function (track) {
     var props = track.properties();
     window.playhead = props.position;

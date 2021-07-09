@@ -6,7 +6,9 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var AdobeAnalytics = require('../lib');
 var iso = require('@segment/to-iso-string');
-
+var assert = require('assert');
+var Analytics = require('@segment/analytics.js-core').constructor;
+var chromecastHeartbeat = require('../lib/chromecast-heartbeat');
 describe('Adobe Analytics - Chromecast', function () {
   var analytics;
   var adobeAnalytics;
@@ -126,10 +128,12 @@ describe('Adobe Analytics - Chromecast', function () {
         window.ADBMobile.media.MediaObjectKey.StandardMediaMetadata = "media.standardmetadata";
         analytics.stub(window.ADBMobile.media, 'trackSessionStart');
         analytics.stub(window.ADBMobile.media, 'trackSessionEnd');
+        analytics.stub(window.ADBMobile.media, 'trackComplete');
         analytics.stub(window.ADBMobile.media, 'setDelegate');
         analytics.stub(window.ADBMobile.media, 'trackEvent');
         analytics.stub(window.ADBMobile.media, 'trackPlay');
         analytics.stub(window.ADBMobile.media, 'trackPause');
+        analytics.stub(window.ADBMobile.media, 'createChapterObject');
         analytics.stub(window.ADBMobile.media, 'ChapterStart');
         analytics.stub(window.ADBMobile.media, 'Event');
         window.ADBMobile.media.Event = {
@@ -203,6 +207,13 @@ describe('Adobe Analytics - Chromecast', function () {
 
       var sessionId = 'session-' + Math.ceil(Math.random() * 1000);
       it('should initialize Heartbeat when a video session begins', function () {
+
+        adobeAnalytics.options.contextValues = {
+          video_genre: 'video_genre',
+          video_asset_title: 'video_asset_title',
+          video_series_name: 'video_series_name',
+          'page.title': 'page_title'
+        };
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -214,16 +225,14 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false,
           video_genre: "Docco",
-          contextValues: {
-            video_genre: 'video_genre',
-            video_asset_title: 'video_asset_title',
-            video_series_name: 'video_series_name',
-            'page.title': 'page_title'
-          },
+
         });
         analytics.calledOnce(window.ADBMobile.media.setDelegate);
-        analytics.calledOnce(window.ADBMobile.media.trackSessionStart);
+
       });
+
+
+
 
       it('should initialize Heartbeat even if a user does not explicitly start the session first', function () {
         analytics.track('Video Content Started', {
@@ -236,6 +245,7 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 1260,
           livestream: false
         });
+        analytics.calledOnce(window.ADBMobile.media.createChapterObject);
         analytics.calledOnce(window.ADBMobile.media.trackEvent);
         analytics.calledOnce(window.ADBMobile.media.trackPlay)
       });
@@ -309,13 +319,14 @@ describe('Adobe Analytics - Chromecast', function () {
         analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.SeekComplete)
       });
 
-      it('should call track session end when video playback completed', function () {
+      it('should call track session end and track complete when video playback completed', function () {
         analytics.track('Video Playback Completed', {
           title: 'Half-Life',
           total_length: 1260,
           livestream: false
         });
         analytics.calledOnce(window.ADBMobile.media.trackSessionEnd)
+        analytics.calledOnce(window.ADBMobile.media.trackComplete)
       });
       it('should call track pause when video playback interrupted', function () {
         analytics.track('Video Playback Interrupted', {
@@ -340,12 +351,13 @@ describe('Adobe Analytics - Chromecast', function () {
         analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.BitrateChange)
       });
 
-      it('should call trackEvent and trackPlay when video content started', function () {
+      it('should call trackEvent, createChapterObject and trackPlay when video content started', function () {
         analytics.track('Video Content Started', {
           title: 'Half-Life',
           total_length: 1260,
           livestream: false
         });
+        analytics.calledOnce(window.ADBMobile.media.createChapterObject)
         analytics.calledOnce(window.ADBMobile.media.trackEvent, ADBMobile.media.Event.ChapterStart)
         analytics.calledOnce(window.ADBMobile.media.trackPlay)
       });
@@ -360,23 +372,24 @@ describe('Adobe Analytics - Chromecast', function () {
       });
 
 
-      it('should call trackEvent and trackComplete when video content completed', function () {
-        analytics.stub(window.ADBMobile.media, 'trackComplete')
+      it('should call trackSessionEnd and trackComplete when video content completed', function () {
+        analytics.stub(window.ADBMobile.media, 'trackSessionEnd')
         analytics.track('Video Content Completed', {
           title: 'Half-Life',
           position: 1260,
           livestream: false
         });
-        analytics.calledOnce(window.ADBMobile.media.trackEvent)
-        analytics.calledOnce(window.ADBMobile.media.trackComplete, window.ADBMobile.media.Event.ChapterComplete)
+        analytics.calledOnce(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event.ChapterComplete)
       });
 
 
       it('should call trackEvent twice and Video Ad Started', function () {
         analytics.stub(window.ADBMobile.media, 'createAdObject')
+        analytics.stub(window.ADBMobile.media, 'createAdBreakObject')
         analytics.stub(window.ADBMobile.media, 'AdMetadataKeys')
         analytics.stub(window.ADBMobile.media.AdMetadataKeys, 'ADVERTISER')
         analytics.stub(window.ADBMobile.media.AdMetadataKeys, 'CAMPAIGN_ID')
+
         analytics.track('Video Ad Started', {
           title: 'Half-Life',
           asset_id: "aaaaa",
@@ -384,6 +397,7 @@ describe('Adobe Analytics - Chromecast', function () {
           total_length: 23423
         });
         analytics.calledOnce(window.ADBMobile.media.createAdObject, 'Half-Life', 'aaaaa', 2, 23423);
+        analytics.calledOnce(window.ADBMobile.media.createAdBreakObject, 'Half-Life', 2, 1);
         analytics.calledTwice(window.ADBMobile.media.trackEvent, window.ADBMobile.media.Event)
       });
 
@@ -450,22 +464,344 @@ describe('Adobe Analytics - Chromecast', function () {
   });
 });
 
-/**
- * Returns true if the string contains all of the substrings passed
- * in the argument. Also fails if you do not pass enough arguments aka
- * missing to check parameters
- *
- * @param {string} str
- * @param {...string} substrings
- */
+describe('Chromecast-heatbeat.js extractMediaMetadata', function () {
 
-function contains(str) {
-  var requiredNumberOfArgs = str.split(',').length;
-  var args = Array.prototype.slice.call(arguments);
-  args.shift();
-  if (args.length !== requiredNumberOfArgs) return false;
-  for (var i = 0; i < args.length; i++) {
-    if (str.indexOf(args[i]) === -1) return false;
+  function getTestTrack() {
+    let track =
+    {
+      "anonymousId": "anon_123",
+      "event": "Product Removed",
+      "messageId": "ajs-gfvhgf",
+      "timestamp": "2021-07-06T03:14:48.765Z",
+      "type": "track",
+    }
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: true,
+        Car: false
+      }
+    };
+    track.proxy = function(propName){
+      return track[propName];
+    }
+
+    track.context = function () {
+      return {
+        "campaign": {},
+        "ip": "203.3453454353",
+        "library": {
+          "name": "analytics.js",
+          "version": "4.1.8"
+        },
+        "locale": "en-GB",
+        "page": {
+          "path": "/cart",
+          "referrer": "https://test.com",
+          "search": "?ref=nav-cart&secure=true",
+          "title": "Cart | sdfsdfsdfsd",
+          "url": "https://test123.com"
+        },
+        "protocols": {
+          "sourceId": "3is1nSA6JnfzfhbvxBTcGJ",
+          "violations": [
+            {
+              "type": "Required",
+              "field": "properties.work_id",
+              "description": "properties.work_id is required"
+            }
+          ]
+        },
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+      }
+    }
+
+    return track;
   }
-  return true;
-}
+
+  it('should map boolean values to string', function () {
+
+    let track = getTestTrack();
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: true,
+        Car: false
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+      Car: 'attributeName2',
+
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, {
+      attributeName1: 'true',
+      attributeName2: 'false',
+    });
+
+
+  });
+
+
+
+  it('should not map integer values to string', function () {
+
+    let track = getTestTrack();
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 1234
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, {
+      attributeName1: 1234,
+    });
+
+
+  });
+
+  it('should map single context Value when exists in track props', function () {
+
+    let track = getTestTrack();
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'test123' });
+
+  });
+
+  it('should return empty object when track props does not contain settings context value', function () {
+
+    let track = getTestTrack();
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      notInTrackProps: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, {});
+
+  });
+
+  it('should return empty object when settings context value is empty', function () {
+
+    let track = getTestTrack();
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {};
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, {});
+
+  });
+
+
+
+  it('should map multiple property context value when exists in track props', function () {
+
+    let track = getTestTrack();
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123',
+        tree: 'test1'
+      }
+    };
+    window.settingsContextValues = {
+      Airplane: 'attributeName1',
+      tree: 'attributeName2',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'test123', attributeName2: 'test1' });
+
+  });
+
+
+  it('should map anonymousId when contextValue contains anonymousId', function () {
+
+    let track = getTestTrack();
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      anonymousId: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'anon_123' });
+
+  });
+  it('should map messageId when contextValue contains messageId', function () {
+
+    let track = getTestTrack();
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      messageId: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+    assert.deepStrictEqual(result, { attributeName1: 'ajs-gfvhgf' });
+
+  });
+  it('should map event when contextValue contains event', function () {
+
+    let track = getTestTrack();
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      event: 'attributeName1',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, { attributeName1: 'Product Removed' });
+
+  });
+
+  it('should map event, anonymousId and messageId when contextValue contains event, anonymousId and messageId', function () {
+
+    let track = getTestTrack();
+
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      event: 'attributeName1',
+      anonymousId: 'attributeName2',
+      messageId: 'attributeName3',
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, {
+      attributeName1: 'Product Removed',
+      attributeName2: 'anon_123',
+      attributeName3: 'ajs-gfvhgf'
+
+    });
+  });
+
+  it('should map values from context object when contextValue contains maps to context object properties', function () {
+
+    let track = getTestTrack();
+    track.properties = function () {
+      return {
+        "coupon": "",
+        "currency": "USD",
+        Airplane: 'test123'
+      }
+    };
+    window.settingsContextValues = {
+      locale: 'attributeName1'
+    };
+    let result = chromecastHeartbeat.extractMediaMetadata(track);
+
+    assert.deepStrictEqual(result, {
+      attributeName1: 'en-GB',
+
+    });
+  });
+    it('should map values from context object when contextValue contains maps to context object properties', function () {
+
+      let track = getTestTrack();
+      track.properties = function () {
+        return {
+          "coupon": "",
+          "currency": "USD",
+          Airplane: 'test123'
+        }
+      };
+      window.settingsContextValues = {
+         ["page.url"] : 'attributeName1'
+          
+      };
+
+      track.context = function () {
+        return {
+          "campaign": {},
+          "ip": "203.3453454353",
+          "library": {
+            "name": "analytics.js",
+            "version": "4.1.8"
+          },
+          "locale": "en-GB",
+          "page": {
+            "path": "/cart",
+            "referrer": "https://test.com",
+            "search": "?ref=nav-cart&secure=true",
+            "title": "Cart | sdfsdfsdfsd",
+            "url": "https://test123.com/342342"
+          },
+          "protocols": {
+            "sourceId": "3is1nSA6JnfzfhbvxBTcGJ",
+            "violations": [
+              {
+                "type": "Required",
+                "field": "properties.work_id",
+                "description": "properties.work_id is required"
+              }
+            ]
+          },
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+        }
+      }
+
+      let result = chromecastHeartbeat.extractMediaMetadata(track);  
+      assert.deepStrictEqual(result, {
+        attributeName1: 'https://test123.com/342342',
+  
+      });
+  });
+
+
+});
