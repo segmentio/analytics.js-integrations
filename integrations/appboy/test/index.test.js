@@ -21,7 +21,8 @@ describe('Appboy', function() {
     customEndpoint: '',
     version: 1,
     onlyTrackKnownUsersOnWeb: false, // Default off.
-    logPurchaseWhenRevenuePresent: false
+    logPurchaseWhenRevenuePresent: false,
+    enableSdkAuthentication: false, // Defaults off.
   };
 
   beforeEach(function() {
@@ -64,6 +65,7 @@ describe('Appboy', function() {
         .option('customEndpoint', '')
         .option('logPurchaseWhenRevenuePresent', false)
         .option('version', 1)
+        .option('enableSdkAuthentication', false)
     );
   });
 
@@ -163,6 +165,24 @@ describe('Appboy', function() {
       analytics.initialize();
     });
 
+    it('should use initializeV3 if version is set to 3.3', function(done) {
+      var V1spy = sinon.spy(appboy, 'initializeV1');
+      var V2spy = sinon.spy(appboy, 'initializeV2');
+      var V3spy = sinon.spy(appboy, 'initializeV3');
+      appboy.options.version = 3.3;
+      analytics.once('ready', function() {
+        try {
+          assert(V3spy.called);
+          assert(!V2spy.called);
+          assert(!V1spy.called);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+      analytics.initialize();
+    });
+
     it('should set the sdk endpoint to a custom URI if one is provided', function(done) {
       appboy.options.customEndpoint = 'https://my.custom.endpoint.com';
       var spy = sinon.spy(appboy, 'initializeTester');
@@ -213,6 +233,27 @@ describe('Appboy', function() {
       });
       analytics.initialize();
     });
+    
+    it('should set `enableSdkAuthentication` provided in the settings and use the updated integration snippet', function(done) {
+      appboy.options.enableSdkAuthentication = true;
+      appboy.options.version = 3.3;
+      var spy = sinon.spy(appboy, 'initializeTester');
+
+      analytics.once('ready', function() {
+        try {
+          analytics.assert(
+            spy.args[0][1].enableSdkAuthentication,
+            true
+          );
+          assert.strictEqual(typeof window.appboy.subscribeToSdkAuthenticationFailures, 'function');
+          assert.strictEqual(typeof window.appboy.setSdkAuthenticationSignature, 'function');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+      analytics.initialize();
+    });
 
     describe('initializeV1', function() {
       it('should call changeUser if userID is present', function(done) {
@@ -253,7 +294,8 @@ describe('Appboy', function() {
           sessionTimeoutInSeconds: 30,
           serviceWorkerLocation: undefined,
           requireExplicitInAppMessageDismissal: false,
-          enableHtmlInAppMessages: false
+          enableHtmlInAppMessages: false,
+          enableSdkAuthentication: false,
         };
         analytics.once('ready', function() {
           try {
