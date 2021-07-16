@@ -65,6 +65,7 @@
     "@segment/analytics.js-integration-fullstory": "file:../integrations/fullstory",
     "@segment/analytics.js-integration-gauges": "file:../integrations/gauges",
     "@segment/analytics.js-integration-get-satisfaction": "file:../integrations/get-satisfaction",
+    "@segment/analytics.js-integration-google-adwords-new": "file:../integrations/google-adwords-new",
     "@segment/analytics.js-integration-google-analytics": "file:../integrations/google-analytics",
     "@segment/analytics.js-integration-google-tag-manager": "file:../integrations/google-tag-manager",
     "@segment/analytics.js-integration-gtag": "file:../integrations/gtag",

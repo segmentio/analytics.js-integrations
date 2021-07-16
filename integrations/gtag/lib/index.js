@@ -17,7 +17,6 @@ var extend = require('extend');
  */
 
 var GTAG = (module.exports = integration('Gtag')
-  .global('gtagDataLayer')
   .option('awConversionId', '')
   .option('dcFloodLightId', '')
   .option('trackNamedPages', true)
@@ -38,9 +37,7 @@ var GTAG = (module.exports = integration('Gtag')
   .option('gaUseAmpClientId', false)
   .option('gaSiteSpeedSampleRate', 1)
   .option('gaSetAllMappedProps', false)
-  .tag(
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}&l=gtagDataLayer">'
-  ));
+  .tag('<script src="//www.googletagmanager.com/gtag/js?id={{ accountId }}">'));
 
 GTAG.on('construct', function(Integration) {
   /* eslint-disable */
@@ -88,15 +85,6 @@ GTAG.on('construct', function(Integration) {
  */
 
 GTAG.prototype.initialize = function() {
-  window.gtagDataLayer = window.gtagDataLayer || [];
-  window.gtag = function() {
-    window.gtagDataLayer.push(arguments);
-  };
-  // This line is in all of the gtag examples but not well documented. Seems like a requirement when loading the tag.
-  // Best I could find:
-  // https://stackoverflow.com/questions/59256532/what-is-the-js-gtags-js-command
-  window.gtag('js', new Date());
-
   var config = [];
   var that = this;
   var gaWebMeasurementId = this.options.gaWebMeasurementId;
@@ -193,13 +181,29 @@ GTAG.prototype.initialize = function() {
     return;
   }
 
-  this.load({ accountId: accountId }, function() {
+  // Initialize as usual if gtag is not already on the page. Otherwise, only load configs.
+  if (!window.gtag) {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function() {
+      window.dataLayer.push(arguments);
+    };
+
+    this.load({ accountId: accountId }, function() {
+      window.gtag('js', new Date());
+      loadConfig(config);
+      that.ready();
+    });
+  } else {
+    loadConfig(config);
+    that.ready();
+  }
+
+  function loadConfig(config) {
     // Default routing.
     for (var i = 0; i < config.length; i++) {
       window.gtag(config[i][0], config[i][1], config[i][2]);
     }
-    that.ready();
-  });
+  }
 };
 
 /**
@@ -210,9 +214,7 @@ GTAG.prototype.initialize = function() {
  */
 
 GTAG.prototype.loaded = function() {
-  return !!(
-    window.gtagDataLayer && Array.prototype.push !== window.gtagDataLayer.push
-  );
+  return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
 };
 
 /**

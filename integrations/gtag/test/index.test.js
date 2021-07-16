@@ -36,7 +36,6 @@ describe('Gtag', function() {
     analytics.compare(
       GTAG,
       integration('Gtag')
-        .global('gtagDataLayer')
         .option('awConversionId', '')
         .option('dcFloodLightId', '')
         .option('trackNamedPages', true)
@@ -90,7 +89,7 @@ describe('Gtag', function() {
     });
 
     it('should set default routing', function() {
-      analytics.assert(window.gtagDataLayer[0], [
+      analytics.assert(window.dataLayer[0], [
         'config',
         'GA_WEB_MEASUREMENT_ID',
         {
@@ -108,7 +107,7 @@ describe('Gtag', function() {
         }
       ]);
 
-      analytics.assert(window.gtagDataLayer[1], ['config', 'AW_CONVERSION_ID']);
+      analytics.assert(window.dataLayer[1], ['config', 'AW_CONVERSION_ID']);
     });
 
     describe('#track', function() {
