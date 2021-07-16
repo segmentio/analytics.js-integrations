@@ -1,34 +1,31 @@
-1.0.6 / 2019-01-07
-==================
+# 1.0.7 / 2020-01-29
 
-  * Reset session when anonymous ID changes
+- Fixed and added support for snake_case identity traits
 
-1.0.5 / 2018-01-08
-==================
+# 1.0.6 / 2019-01-07
 
-  * Destroy session on reset
+- Reset session when anonymous ID changes
 
-1.0.4 / 2017-08-14
-==================
+# 1.0.5 / 2018-01-08
 
-  * Fix bug with sending custom user attribtues
+- Destroy session on reset
 
-1.0.3 / 2017-08-14
-==================
+# 1.0.4 / 2017-08-14
 
-  * Don't send `traits.username` as custom attribute again
+- Fix bug with sending custom user attribtues
 
-1.0.2 / 2017-08-11
-==================
+# 1.0.3 / 2017-08-14
 
-  * Map `traits.name` to `add_user_name` with fallback to `traits.username`
+- Don't send `traits.username` as custom attribute again
 
-1.0.1 / 2017-08-10
-==================
+# 1.0.2 / 2017-08-11
 
-  * Handle logout/reset automatically
+- Map `traits.name` to `add_user_name` with fallback to `traits.username`
 
-1.0.0 / 2017-08-09
-==================
+# 1.0.1 / 2017-08-10
 
-  * Initial Release :sparkles:
+- Handle logout/reset automatically
+
+# 1.0.0 / 2017-08-09
+
+- Initial Release :sparkles:

@@ -111,12 +111,12 @@ MoEngage.prototype.identify = function(identify) {
   // analytics.js regenerates anonymousId if you call `.identify()` with a unique userId value different from the cache
   if (this.initializedAnonymousId !== identify.anonymousId()) this.reset();
   if (identify.userId()) this._client.add_unique_user_id(identify.userId());
+  if (identify.firstName()) this._client.add_first_name(identify.firstName());
+  if (identify.lastName()) this._client.add_last_name(identify.lastName());
 
   // send common traits
   // the partner sdk throws TypeErrors/Uncaughts if you pass `undefined`
   var traitsMethodMap = {
-    firstName: 'first_name',
-    lastName: 'last_name',
     email: 'email',
     phone: 'mobile',
     name: 'user_name',
