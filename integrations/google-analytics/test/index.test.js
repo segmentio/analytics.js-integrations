@@ -186,6 +186,63 @@ describe('Google Analytics', function() {
           ]);
         });
 
+        it('should allow for custom tracker name', function() {
+          var expectedOpts = {
+            cookieDomain: 'none',
+            siteSpeedSampleRate: settings.siteSpeedSampleRate,
+            sampleRate: settings.sampleRate,
+            allowLinker: true,
+            name: 'FooTracker',
+            useGoogleAmpClientId: false
+          };
+          ga.options.trackerName = 'FooTracker';
+          analytics.initialize();
+          analytics.page();
+
+          // some workaround for useGoogleAmpClientId as the name passed to GA needed to change to useAmpClientId
+          // but the tests expect the option name to == the parameter passed
+          var expectedOptsOmitAmp = _.omit(expectedOpts, [
+            'useGoogleAmpClientId'
+          ]);
+          var gaOptsOmitAmp = _.omit(window.ga.q[0][2], 'useAmpClientId');
+          window.ga.q[0][2] = gaOptsOmitAmp;
+
+          analytics.deepEqual(toArray(window.ga.q[0]), [
+            'create',
+            settings.trackingId,
+            expectedOptsOmitAmp
+          ]);
+        });
+
+        it('prioritizes trackerName when nameTracker is also set', function() {
+          var expectedOpts = {
+            cookieDomain: 'none',
+            siteSpeedSampleRate: settings.siteSpeedSampleRate,
+            sampleRate: settings.sampleRate,
+            allowLinker: true,
+            name: 'FooTracker',
+            useGoogleAmpClientId: false
+          };
+          ga.options.nameTracker = true;
+          ga.options.trackerName = 'FooTracker';
+          analytics.initialize();
+          analytics.page();
+
+          // some workaround for useGoogleAmpClientId as the name passed to GA needed to change to useAmpClientId
+          // but the tests expect the option name to == the parameter passed
+          var expectedOptsOmitAmp = _.omit(expectedOpts, [
+            'useGoogleAmpClientId'
+          ]);
+          var gaOptsOmitAmp = _.omit(window.ga.q[0][2], 'useAmpClientId');
+          window.ga.q[0][2] = gaOptsOmitAmp;
+
+          analytics.deepEqual(toArray(window.ga.q[0]), [
+            'create',
+            settings.trackingId,
+            expectedOptsOmitAmp
+          ]);
+        });
+
         it('should use AMP Id as the Client Id if the setting is enabled', function() {
           ga.options.useAmpClientId = true;
           var expectedOpts = {
