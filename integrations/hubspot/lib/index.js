@@ -98,6 +98,7 @@ HubSpot.prototype.identify = function(identify) {
     lastName: 'lastname'
   });
   traits = convertDates(traits);
+  traits = convertAddress(traits);
   traits = formatTraits(traits);
 
   if (newIdentify.companyName() !== undefined) {
@@ -134,6 +135,47 @@ function convertDates(properties) {
   return convert(properties, function(date) {
     return date.getTime();
   });
+}
+
+/**
+ * Convert Segment reserved address trait to HubSpot contact properties
+ *
+ * @api private
+ * @param {Object} traits
+ * @return {Object} ret
+ */
+function convertAddress(traits) {
+  if (!traits.address) {
+    return traits;
+  }
+
+  var country = traits.address.country;
+  var state = traits.address.state;
+  var city = traits.address.city;
+  var postalCode = traits.address.postalCode;
+  var street = traits.address.street;
+
+  if (street) {
+    traits.address = street;
+  }
+
+  if (city) {
+    traits.city = city;
+  }
+
+  if (country) {
+    traits.country = country;
+  }
+
+  if (state) {
+    traits.state = state;
+  }
+
+  if (postalCode) {
+    traits.zip = postalCode;
+  }
+
+  return traits;
 }
 
 /**
