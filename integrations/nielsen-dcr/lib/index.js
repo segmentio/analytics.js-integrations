@@ -8,6 +8,7 @@ var integration = require('@segment/analytics.js-integration');
 var find = require('obj-case').find;
 var reject = require('reject');
 var dateformat = require('dateformat');
+var sha256 = require('js-sha256');
 
 /**
  * Expose `NielsenDCR` integration.
@@ -22,6 +23,7 @@ var NielsenDCR = (module.exports = integration('Nielsen DCR')
   .option('adAssetIdPropertyName', '')
   .option('subbrandPropertyName', '')
   .option('clientIdPropertyName', '')
+  .option('customSectionProperty', '')
   .option('sendCurrentTimeLivestream', false)
   .option('contentLengthPropertyName', 'total_length')
   .option('optout', false)
@@ -100,10 +102,22 @@ NielsenDCR.prototype.loaded = function() {
 
 NielsenDCR.prototype.page = function(page) {
   var integrationOpts = page.options(this.name);
+  var customSectionName;
+
+  //Allow customer to pick property to source section from otherwise fallback on page name
+  if (this.options.customSectionProperty) {
+    customSectionName = page.proxy(
+      'properties.' + this.options.customSectionProperty
+    );
+  }
+  var defaultSectionName = page.fullName() || page.name() || page.event();
+  var sectionName = customSectionName || defaultSectionName;
+  var url = page.url();
+
   var staticMetadata = reject({
     type: 'static',
-    assetid: page.url(), // *DYNAMIC METADATA*: unique ID for each article **REQUIRED**
-    section: page.fullName() || page.name() || page.event(), // *DYNAMIC METADATA*: section of site **REQUIRED**
+    assetid: sha256(url), // *DYNAMIC METADATA*: unique ID for each article, deterministic SHA256 hash of url since assetid cannot contain special characters **REQUIRED**
+    section: sectionName, // *DYNAMIC METADATA*: section of site **REQUIRED**
     segA: integrationOpts.segA, // *DYNAMIC METADATA*: custom segment
     segB: integrationOpts.segB, // *DYNAMIC METADATA*: custom segment
     segC: integrationOpts.segC // *DYNAMIC METADATA*: custom segment
@@ -191,7 +205,7 @@ NielsenDCR.prototype.getContentMetadata = function(track, type) {
     hasAds: find(integrationOpts, 'hasAds') === true ? '1' : '0'
   };
 
-  if (this.options.contentLengthPropertyName !== 'total_length') {
+  if (this.options.contentLengthPropertyName && this.options.contentLengthPropertyName !== 'total_length') {
     var contentLengthKey = this.options.contentLengthPropertyName;
     contentMetadata.length = track.proxy(propertiesPath + contentLengthKey);
   } else {
@@ -394,11 +408,13 @@ NielsenDCR.prototype.videoAdCompleted = function(track) {
  * Video Playback Paused
  * Video Playback Seek Started
  * Video Playback Buffer Started
+ * Video Playback Interrupted
+ * Video Playback Exited
  *
  * @api public
  */
 
-NielsenDCR.prototype.videoPlaybackPaused = NielsenDCR.prototype.videoPlaybackSeekStarted = NielsenDCR.prototype.videoPlaybackBufferStarted = function(
+NielsenDCR.prototype.videoPlaybackPaused = NielsenDCR.prototype.videoPlaybackSeekStarted = NielsenDCR.prototype.videoPlaybackBufferStarted = NielsenDCR.prototype.videoPlaybackInterrupted = NielsenDCR.prototype.videoPlaybackExited = function(
   track
 ) {
   var self = this;
@@ -460,13 +476,12 @@ NielsenDCR.prototype.videoPlaybackResumed = NielsenDCR.prototype.videoPlaybackSe
 
 /**
  * Video Playback Completed
- * Video Playback Interrupted
  *
  *
  * @api public
  */
 
-NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlaybackInterrupted = function(
+NielsenDCR.prototype.videoPlaybackCompleted = function(
   track
 ) {
   var self = this;
@@ -481,7 +496,7 @@ NielsenDCR.prototype.videoPlaybackCompleted = NielsenDCR.prototype.videoPlayback
   this._client.ggPM('setPlayheadPosition', position);
   this._client.ggPM('end', position);
 
-  // reset state because "Video Playback Completed/Interrupted" are "non-recoverable events"
+  // reset state because "Video Playback Completed" are "non-recoverable events"
   // e.g. they should always be followed by the start of a new video session with either
   // "Video Content Started" or "Video Ad Started" events
   this.currentPosition = 0;

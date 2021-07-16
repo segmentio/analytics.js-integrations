@@ -128,7 +128,6 @@ describe('NielsenDTVR', function() {
 
         analytics.track('Video Playback Interrupted', props);
         analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.custom);
-        analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
       });
     });
 
@@ -164,13 +163,11 @@ describe('NielsenDTVR', function() {
         it('should send video playback buffer started', function() {
           analytics.track('Video Playback Buffer Started', props);
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
-          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video playback interrupted', function() {
           analytics.track('Video Playback Interrupted', props);
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
-          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video playback resumed', function() {
@@ -186,7 +183,6 @@ describe('NielsenDTVR', function() {
         it('should send video playback seek started', function() {
           analytics.track('Video Playback Seek Started', props);
           analytics.called(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
-          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video playback seek completed', function() {
@@ -201,20 +197,10 @@ describe('NielsenDTVR', function() {
 
         it('should send video playback completed', function() {
           analytics.track('Video Playback Completed', props);
-          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
-        it('should send video playback completed livestream', function() {
-          props.livestream = true;
-
-          var timestamp = new Date();
-          // when live streams end, we need to pass the Unix timestamp in seconds per Nielsen
-          var unixTime = Math.floor(timestamp.getTime() / 1000);
-
-          analytics.track('Video Playback Completed', props, {
-            timestamp: timestamp
-          });
-          analytics.called(nielsenDTVR.client.ggPM, 'end', unixTime);
+        it('should send video playback exited', function() {
+          analytics.track('Video Playback Exited', props);
         });
       });
 
@@ -234,7 +220,6 @@ describe('NielsenDTVR', function() {
 
         it('should send video content completed', function() {
           analytics.track('Video Content Completed', props);
-          analytics.called(nielsenDTVR.client.ggPM, 'end', props.position);
         });
 
         it('should send video content started', function() {
@@ -256,27 +241,6 @@ describe('NielsenDTVR', function() {
             adModel: '1'
           });
           analytics.didNotCall(nielsenDTVR.client.ggPM, 'sendID3', props.id3);
-        });
-
-        it('should call end before starting a new content stream if the previous stream was not ended correctly', function() {
-          var previousEvent = {
-            asset_id: '123',
-            ad_asset_id: null,
-            channel: 'segment',
-            load_type: 'linear',
-            position: 1,
-            id3: '1',
-            livestream: true
-          };
-          var currentEvent = props;
-          var timestamp = new Date();
-          // when live streams end, we need to pass the Unix timestamp in seconds per Nielsen
-          var unixTime = Math.floor(timestamp.getTime() / 1000);
-          analytics.track('Video Content Started', previousEvent, {
-            timestamp: timestamp
-          });
-          analytics.track('Video Content Started', currentEvent);
-          analytics.called(nielsenDTVR.client.ggPM, 'end', unixTime);
         });
       });
 
