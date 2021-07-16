@@ -1,4 +1,10 @@
 
+2.0.3 / 2020-01-22
+==================
+
+  * Added support for different regions like Global/India
+  * Added support for Single Page Applications 
+
 2.0.2 / 2016-08-18
 ==================
 
