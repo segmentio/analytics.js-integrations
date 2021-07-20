@@ -185,11 +185,11 @@ AdobeAnalytics.prototype.initialize = function() {
       "mediaHeartbeat": {
         "server": `${options.heartbeatTrackingServerUrl}`,
         "publisher": `${options.marketingCloudOrgId}`,
-        "channel": "test-channel-chromecast",
+        "channel": "chromecast",
         "ssl": this.options.ssl,
         "ovp": "unknown",
-        "sdkVersion": "chromecast-sdk",
-        "playerName": "Chromecast"
+        "sdkVersion": "unknown",
+        "playerName": "chromecast"
       }
     };
 
