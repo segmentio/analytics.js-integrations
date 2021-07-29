@@ -8,7 +8,6 @@ var chromecastHeartbeat = {
   * @returns {mediaMetadata} Maps the contextValue prop if it exists in the track.properties
   */
   extractMediaMetadata: function (track) {
-    debugger;
     var topLevelProperties = ['messageId', 'anonymousId', 'event'];
     var mediaMetadata = {};
     var props = trample(track.properties());
