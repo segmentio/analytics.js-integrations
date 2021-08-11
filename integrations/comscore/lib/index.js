@@ -5,6 +5,7 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
+const { option } = require('@segment/analytics.js-integration/lib/statics');
 var useHttps = require('use-https');
 
 /**
@@ -17,8 +18,9 @@ var Comscore = (module.exports = integration('comScore')
   .option('c1', '2')
   .option('c2', '')
   .option('comscorekw', '')
-  .tag('http', '<script src="http://b.scorecardresearch.com/beacon.js">')
-  .tag('https', '<script src="https://sb.scorecardresearch.com/beacon.js">'));
+  .option('consentFlag', '')
+  .tag('https', '<script src="https://sb.scorecardresearch.com/cs/{{ c2 }}/beacon.js">')
+  .tag('http', '<script src="https://sb.scorecardresearch.com/cs/{{ c2 }}/beacon.js">'));
 
 /**
  * Initialize.
@@ -78,6 +80,7 @@ Comscore.prototype._initialize = function() {
 Comscore.prototype.mapComscoreParams = function(page) {
   var beaconParamMap = this.options.beaconParamMap;
   var properties = page.properties();
+  var consentValue;
 
   var comScoreParams = {};
 
@@ -88,6 +91,23 @@ Comscore.prototype.mapComscoreParams = function(page) {
       comScoreParams[key] = value;
     }
   });
+
+  if (this.options.consentFlag) {
+    consentValue = page.proxy('properties.' + this.options.consentFlag);
+    if (this.options.consentFlag in properties) {
+      if (String(consentValue) === 'true' || String(consentValue) === '1') {
+        consentValue = '1';
+      } else if (
+        String(consentValue) === 'false' ||
+        String(consentValue) === '0'
+      ) {
+        consentValue = '0';
+      } else {
+        consentValue = '';
+      }
+      comScoreParams.cs_ucfr = consentValue;
+    }
+  }
 
   comScoreParams.c1 = this.options.c1;
   comScoreParams.c2 = this.options.c2;
