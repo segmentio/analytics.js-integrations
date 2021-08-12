@@ -97,10 +97,7 @@ Comscore.prototype.mapComscoreParams = function(page) {
     if (this.options.consentFlag in properties) {
       if (String(consentValue) === 'true' || String(consentValue) === '1') {
         consentValue = '1';
-      } else if (
-        String(consentValue) === 'false' ||
-        String(consentValue) === '0'
-      ) {
+      } else if (String(consentValue) === 'false' || String(consentValue) === '0') {
         consentValue = '0';
       } else {
         consentValue = '';
