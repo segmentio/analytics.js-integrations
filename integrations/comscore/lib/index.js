@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-const { option } = require('@segment/analytics.js-integration/lib/statics');
 var useHttps = require('use-https');
 
 /**
