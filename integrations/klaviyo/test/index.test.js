@@ -114,6 +114,17 @@ describe('Klaviyo', function() {
         ]);
       });
 
+      it('should send an $exchange_id and traits', function() {
+        analytics.identify(undefined, {
+          $exchange_id: 'exchange-id',
+          foo: true
+        });
+        analytics.called(window._learnq.push, [
+          'identify',
+          { $exchange_id: 'exchange-id', foo: true }
+        ]);
+      });
+
       it('should alias traits', function() {
         analytics.identify('id', {
           email: 'name@example.com',
