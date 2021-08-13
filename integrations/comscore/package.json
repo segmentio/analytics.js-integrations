@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-comscore",
   "description": "The Comscore analytics.js integration.",
-  "version": "2.1.1",
+  "version": "3.0.0",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
