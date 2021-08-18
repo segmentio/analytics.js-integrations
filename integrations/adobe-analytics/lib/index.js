@@ -156,20 +156,20 @@ AdobeAnalytics.prototype.initialize = function() {
     window.ADBmobile.analytics = {};
     window.ADBMobileConfig = {
       "marketingCloud": {
-        "org": options.marketingCloudOrgId
+        "org": String(options.marketingCloudOrgId) 
       },
       "target": {
         "clientCode": "",
         "timeout": 5
       },
       "audienceManager": {
-        "server": options.trackingServerUrl
+        "server": String(options.trackingServerUrl)
       },
       // TO DO: Update placeholder values with settings or properties
       "analytics": {
-        "rsids": options.reportSuiteId,
-        "server": options.trackingServerUrl,
-        "ssl": this.options.ssl,
+        "rsids": String(options.reportSuiteId),
+        "server": String(options.trackingServerUrl),
+        "ssl": String(this.options.ssl),
         "offlineEnabled": false,
         "charset": "UTF-8",
         "lifecycleTimeout": 300,
@@ -182,10 +182,10 @@ AdobeAnalytics.prototype.initialize = function() {
       },
       // TO DO: Update placeholder values with settings or properties
       "mediaHeartbeat": {
-        "server": options.heartbeatTrackingServerUrl,
-        "publisher": options.marketingCloudOrgId,
+        "server": String(options.heartbeatTrackingServerUrl),
+        "publisher": String(options.marketingCloudOrgId),
         "channel": "chromecast",
-        "ssl": this.options.ssl,
+        "ssl": String(this.options.ssl),
         "ovp": "unknown",
         "sdkVersion": "unknown",
         "playerName": "chromecast"
