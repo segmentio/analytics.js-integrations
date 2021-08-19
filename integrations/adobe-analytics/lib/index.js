@@ -155,40 +155,38 @@ AdobeAnalytics.prototype.initialize = function() {
     window.ADBmobile = {};
     window.ADBmobile.analytics = {};
     window.ADBMobileConfig = {
-      "marketingCloud": {
-        "org": String(options.marketingCloudOrgId) 
+      'marketingCloud': {
+        'org': String(options.marketingCloudOrgId) 
       },
-      "target": {
-        "clientCode": "",
-        "timeout": 5
+      'target': {
+        'clientCode': '',
+        'timeout': 5
       },
-      "audienceManager": {
-        "server": String(options.trackingServerUrl)
+      'audienceManager': {
+        'server': String(options.trackingServerUrl)
       },
-      // TO DO: Update placeholder values with settings or properties
-      "analytics": {
-        "rsids": String(options.reportSuiteId),
-        "server": String(options.trackingServerUrl),
-        "ssl": String(this.options.ssl),
-        "offlineEnabled": false,
-        "charset": "UTF-8",
-        "lifecycleTimeout": 300,
-        "privacyDefault": "optedin",
-        "batchLimit": 0,
-        "timezone": "MDT",
-        "timezoneOffset": -360,
-        "referrerTimeout": 0,
-        "poi": []
+      'analytics': {
+        'rsids': String(options.reportSuiteId),
+        'server': String(options.trackingServerUrl),
+        'ssl': String(this.options.ssl),
+        'offlineEnabled': false,
+        'charset': 'UTF-8',
+        'lifecycleTimeout': 300,
+        'privacyDefault': 'optedin',
+        'batchLimit': 0,
+        'timezone': 'MDT',
+        'timezoneOffset': -360,
+        'referrerTimeout': 0,
+        'poi': []
       },
-      // TO DO: Update placeholder values with settings or properties
-      "mediaHeartbeat": {
-        "server": String(options.heartbeatTrackingServerUrl),
-        "publisher": String(options.marketingCloudOrgId),
-        "channel": "chromecast",
-        "ssl": String(this.options.ssl),
-        "ovp": "unknown",
-        "sdkVersion": "unknown",
-        "playerName": "chromecast"
+      'mediaHeartbeat': {
+        'server': String(options.heartbeatTrackingServerUrl),
+        'publisher': String(options.marketingCloudOrgId),
+        'channel': 'chromecast',
+        'ssl': String(this.options.ssl),
+        'ovp': 'unknown',
+        'sdkVersion': 'unknown',
+        'playerName': 'chromecast'
       }
     };
 
@@ -1893,8 +1891,8 @@ function merge(obj1, obj2) {
     var adInfo = window.ADBMobile.media.createAdObject(info.name, info.id, info.position, info.length);
     var adBreakInfo = ADBMobile.media.createAdBreakObject(info.name, info.position, info.startTime);
     var standardAdMetadata = {};
-    standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.publisher || props.video_ad_advertiser || "no advertiser";
-    standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || "no campaign id";
+    standardAdMetadata[ADBMobile.media.AdMetadataKeys.ADVERTISER] = props.publisher || props.video_ad_advertiser || 'no advertiser';
+    standardAdMetadata[ADBMobile.media.AdMetadataKeys.CAMPAIGN_ID] = props.video_ad_campaign_id || 'no campaign id';
 
     if (adInfo) {
       adInfo[ADBMobile.media.MediaObjectKey.StandardAdMetadata] = standardAdMetadata;
