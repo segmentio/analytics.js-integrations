@@ -104,12 +104,6 @@ MoEngage.prototype.loaded = function() {
 
 MoEngage.prototype.identify = function(identify) {
   var self = this;
-  // Important: MoEngage require you to manually call reset to wipe the unique id for the session
-  // if you don't do this and call add_unique_user_id w/ a different userId, it will overwrite the previous user's
-  // unique id and all their traits so we need to manually check if it's a new user since `analytics.reset()` is not
-  // mapped for ajs integrations
-  // analytics.js regenerates anonymousId if you call `.identify()` with a unique userId value different from the cache
-  if (this.initializedAnonymousId !== identify.anonymousId()) this.reset();
   if (identify.userId()) this._client.add_unique_user_id(identify.userId());
 
   // send common traits
@@ -160,22 +154,9 @@ MoEngage.prototype.identify = function(identify) {
  */
 
 MoEngage.prototype.track = function(track) {
-  // Important: MoEngage require you to manually call reset to wipe the unique id for the session
-  // if you don't do this and call add_unique_user_id w/ a different userId, it will overwrite the previous user's
-  // unique id and all their traits so we need to manually check if it's a new user since `analytics.reset()` is not
-  // mapped for ajs integrations
-  // analytics.js regenerates anonymousId if you call `.identify()` with a unique userId value different from the cache
-  if (this.initializedAnonymousId !== track.anonymousId()) this.reset();
   this._client.track_event(track.event(), track.properties());
 };
 
-/**
- * Reset
- *
- * @api public
- */
-
-MoEngage.prototype.reset = function() {
-  this.initializedAnonymousId = this.analytics.user().anonymousId();
-  this._client.destroy_session();
+MoEngage.prototype.alias = function(alias) {
+  if (alias.to()) this._client.update_unique_user_id(alias.to());
 };
