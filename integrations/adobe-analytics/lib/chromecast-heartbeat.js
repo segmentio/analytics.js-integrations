@@ -154,7 +154,7 @@ var chromecastHeartbeat = {
 
   chromecastAdCompleted: function (track) {
     window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdComplete);
-    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakComplete,);
+    window.ADBMobile.media.trackEvent(window.ADBMobile.media.Event.AdBreakComplete);
   },
 
   chromecastAdSkipped: function (track) {
