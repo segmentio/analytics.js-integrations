@@ -150,13 +150,7 @@ describe('MoEngage', function() {
             'The anonymous ID should be different after an identify call'
           );
         }
-        // analytics.called(moengage._client.destroy_session);
         analytics.called(moengage._client.add_unique_user_id, 'night king');
-        // if (moengage.initializedAnonymousId !== nightKingAnonId) {
-        //   throw new Error(
-        //     'MoEngange anonymous ID should be equal after an identify call'
-        //   );
-        // }
       });
 
       it('should not call destroy session if identify is called for a existing user', function() {
@@ -197,14 +191,6 @@ describe('MoEngage', function() {
         // Logout
         analytics.reset();
         analytics.track('The Song', properties);
-        // if (
-        //   moengage.initializedAnonymousId !== analytics.user().anonymousId()
-        // ) {
-        //   throw new Error(
-        //     'MoEngange anonymous ID should be equal after an identify call'
-        //   );
-        // }
-        // analytics.called(moengage._client.destroy_session);
       });
 
       it('should not call destroy session if track is called for a existing user', function() {
@@ -244,16 +230,5 @@ describe('MoEngage', function() {
       });
     });
 
-    // describe('#reset', function() {
-    //   beforeEach(function() {
-    //     analytics.stub(moengage._client, 'destroy_session');
-    //   });
-
-    //   it('should destroy session upon reset', function() {
-    //     analytics.identify('justin');
-    //     moengage.reset();
-    //     analytics.called(moengage._client.destroy_session);
-    //   });
-    // });
   });
 });
