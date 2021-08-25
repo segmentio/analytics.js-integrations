@@ -218,7 +218,7 @@ describe('comScore', function() {
         analytics.page({
           exampleParam: 'foo',
           anotherParam: 'bar',
-          flagParam: true
+          flagParam: 1
         });
         analytics.called(window.COMSCORE.beacon, {
           c1: '2',
@@ -234,7 +234,7 @@ describe('comScore', function() {
         analytics.page({
           exampleParam: 'foo',
           anotherParam: 'bar',
-          flagParam: true
+          flagParam: '1'
         });
         analytics.called(window.COMSCORE.beacon, {
           c1: '2',
