@@ -122,7 +122,7 @@ describe('comScore', function() {
           comscorekw: 'test'
         });
       });
-      it('should not pass cs_ucfr flag when consentFlag option is not mapped in the settings', function() {
+      it('should omit cs_ucfr flag when consentFlag option is not mapped in the settings', function() {
         analytics.page({
           exampleParam: 'foo',
           anotherParam: 'bar',
@@ -136,7 +136,7 @@ describe('comScore', function() {
           comscorekw: 'test'
         });
       });
-      it('should not pass cs_ucfr when mapped property is not in the payload', function() {
+      it('should omit cs_ucfr when mapped attribite is not in the payload', function() {
         comscore.options.consentFlag = 'flagParam';
         analytics.page({
           exampleParam: 'foo',
@@ -166,7 +166,7 @@ describe('comScore', function() {
           cs_ucfr: ''
         });
       });
-      it('should set cs_ucfr to "" (empty string) when mapped property is null', function() {
+      it('should omit cs_ucfr when mapped property is null', function() {
         comscore.options.consentFlag = 'flagParam';
         analytics.page({
           exampleParam: 'foo',
@@ -178,8 +178,7 @@ describe('comScore', function() {
           c2: '24186693',
           c5: 'foo',
           c6: 'bar',
-          comscorekw: 'test',
-          cs_ucfr: ''
+          comscorekw: 'test'
         });
       });
       it('should set cs_ucfr to "1" string when mapped property is true (bool)', function() {
@@ -308,6 +307,125 @@ describe('comScore', function() {
           c6: 'bar',
           comscorekw: 'test',
           cs_ucfr: '0'
+        });
+      });
+      it('should set cs_ucfr to "1" string when the 3rd character in US privacy string is "N"', function() {
+        comscore.options.consentFlag = 'flagParam';
+        analytics.page({
+          exampleParam: 'foo',
+          anotherParam: 'bar',
+          flagParam: '1YNY'
+        });
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: '24186693',
+          c5: 'foo',
+          c6: 'bar',
+          comscorekw: 'test',
+          cs_ucfr: '1'
+        });
+      });
+      it('should set cs_ucfr to "0" string when the 3rd character in US privacy string is "Y"', function() {
+        comscore.options.consentFlag = 'flagParam';
+        analytics.page({
+          exampleParam: 'foo',
+          anotherParam: 'bar',
+          flagParam: '1YYY'
+        });
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: '24186693',
+          c5: 'foo',
+          c6: 'bar',
+          comscorekw: 'test',
+          cs_ucfr: '0'
+        });
+      });
+      it('should omit cs_ucfr when the 3rd character in US privacy string is "-"', function() {
+        comscore.options.consentFlag = 'flagParam';
+        analytics.page({
+          exampleParam: 'foo',
+          anotherParam: 'bar',
+          flagParam: '1Y-Y'
+        });
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: '24186693',
+          c5: 'foo',
+          c6: 'bar',
+          comscorekw: 'test'
+        });
+      });
+      it('should check if mapped attribute is available in the properties object', function() {
+        comscore.options.consentFlag = 'flagParam';
+        analytics.page({
+          exampleParam: 'foo',
+          anotherParam: 'bar',
+          flagParam: '1'
+        });
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: '24186693',
+          c5: 'foo',
+          c6: 'bar',
+          comscorekw: 'test',
+          cs_ucfr: '1'
+        });
+      });
+      it('should map cs_ucfr to the nested properties', function() {
+        comscore.options.consentFlag = 'prop.flagParam';
+        analytics.page({
+          exampleParam: 'foo',
+          anotherParam: 'bar',
+          prop: { flagParam: '1' }
+        });
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: '24186693',
+          c5: 'foo',
+          c6: 'bar',
+          comscorekw: 'test',
+          cs_ucfr: '1'
+        });
+      });
+      it('should map cs_ucfr to the context attribute when mapped property is not available', function() {
+        comscore.options.consentFlag = 'flagParam';
+        analytics.page(
+          {
+            exampleParam: 'foo',
+            anotherParam: 'bar'
+          },
+          {
+            flagParam: '1'
+          }
+        );
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: '24186693',
+          c5: 'foo',
+          c6: 'bar',
+          comscorekw: 'test',
+          cs_ucfr: '1'
+        });
+      });
+      it('should map nested objects in the context', function() {
+        comscore.options.consentFlag = 'traits.flagParam';
+        analytics.page(
+          {
+            exampleParam: 'foo',
+            anotherParam: 'bar'
+          },
+          {
+            traits: { flagParam: '1' }
+          }
+        );
+        analytics.called(window.COMSCORE.beacon, {
+          c1: '2',
+          c2: '24186693',
+          c5: 'foo',
+          c6: 'bar',
+          comscorekw: 'test',
+          cs_ucfr: '1'
         });
       });
     });

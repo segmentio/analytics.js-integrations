@@ -6,6 +6,7 @@
 
 var integration = require('@segment/analytics.js-integration');
 var useHttps = require('use-https');
+var trample = require('@segment/trample');
 
 /**
  * Expose `Comscore` integration.
@@ -79,6 +80,8 @@ Comscore.prototype._initialize = function() {
 Comscore.prototype.mapComscoreParams = function(page) {
   var beaconParamMap = this.options.beaconParamMap;
   var properties = page.properties();
+  var flatProperties = trample(page.properties());
+  var flatContext = trample(page.context());
   var consentValue;
 
   var comScoreParams = {};
@@ -92,11 +95,31 @@ Comscore.prototype.mapComscoreParams = function(page) {
   });
 
   if (this.options.consentFlag) {
-    consentValue = page.proxy('properties.' + this.options.consentFlag);
-    if (this.options.consentFlag in properties) {
-      if (String(consentValue) === 'true' || String(consentValue) === '1') {
+    if (flatProperties.hasOwnProperty(this.options.consentFlag)) {
+      consentValue = page.proxy('properties.' + this.options.consentFlag)
+    } else if (flatContext.hasOwnProperty(this.options.consentFlag)) {
+      consentValue = page.proxy('context.' + this.options.consentFlag)
+    }
+    if (
+      consentValue !== undefined &&
+      !(
+        String(consentValue).match(/^1(-|Y|N){3}/g) &&
+        String(consentValue).split('')[2] === '-'
+      )
+    ) {
+      if (
+        String(consentValue) === 'true' ||
+        String(consentValue) === '1' ||
+        (String(consentValue).match(/^1(-|Y|N){3}/g) &&
+          String(consentValue).split('')[2] === 'N')
+      ) {
         consentValue = '1';
-      } else if (String(consentValue) === 'false' || String(consentValue) === '0') {
+      } else if (
+        String(consentValue) === 'false' ||
+        String(consentValue) === '0' ||
+        (String(consentValue).match(/^1(-|Y|N){3}/g) &&
+          String(consentValue).split('')[2] === 'Y')
+      ) {
         consentValue = '0';
       } else {
         consentValue = '';
