@@ -6,6 +6,7 @@
 
 var integration = require('@segment/analytics.js-integration');
 var useHttps = require('use-https');
+var trample = require('@segment/trample');
 
 /**
  * Expose `Comscore` integration.
@@ -17,8 +18,9 @@ var Comscore = (module.exports = integration('comScore')
   .option('c1', '2')
   .option('c2', '')
   .option('comscorekw', '')
-  .tag('http', '<script src="http://b.scorecardresearch.com/beacon.js">')
-  .tag('https', '<script src="https://sb.scorecardresearch.com/beacon.js">'));
+  .option('consentFlag', '')
+  .tag('https', '<script src="https://sb.scorecardresearch.com/cs/{{ c2 }}/beacon.js">')
+  .tag('http', '<script src="https://sb.scorecardresearch.com/cs/{{ c2 }}/beacon.js">'));
 
 /**
  * Initialize.
@@ -78,6 +80,9 @@ Comscore.prototype._initialize = function() {
 Comscore.prototype.mapComscoreParams = function(page) {
   var beaconParamMap = this.options.beaconParamMap;
   var properties = page.properties();
+  var flatProperties = trample(page.properties());
+  var flatContext = trample(page.context());
+  var consentValue;
 
   var comScoreParams = {};
 
@@ -88,6 +93,40 @@ Comscore.prototype.mapComscoreParams = function(page) {
       comScoreParams[key] = value;
     }
   });
+
+  if (this.options.consentFlag) {
+    if (flatProperties.hasOwnProperty(this.options.consentFlag)) {
+      consentValue = page.proxy('properties.' + this.options.consentFlag)
+    } else if (flatContext.hasOwnProperty(this.options.consentFlag)) {
+      consentValue = page.proxy('context.' + this.options.consentFlag)
+    }
+    if (
+      consentValue !== undefined &&
+      !(
+        String(consentValue).match(/^1(-|Y|N){3}/g) &&
+        String(consentValue).split('')[2] === '-'
+      )
+    ) {
+      if (
+        String(consentValue) === 'true' ||
+        String(consentValue) === '1' ||
+        (String(consentValue).match(/^1(-|Y|N){3}/g) &&
+          String(consentValue).split('')[2] === 'N')
+      ) {
+        consentValue = '1';
+      } else if (
+        String(consentValue) === 'false' ||
+        String(consentValue) === '0' ||
+        (String(consentValue).match(/^1(-|Y|N){3}/g) &&
+          String(consentValue).split('')[2] === 'Y')
+      ) {
+        consentValue = '0';
+      } else {
+        consentValue = '';
+      }
+      comScoreParams.cs_ucfr = consentValue;
+    }
+  }
 
   comScoreParams.c1 = this.options.c1;
   comScoreParams.c2 = this.options.c2;
