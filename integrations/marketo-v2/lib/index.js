@@ -84,11 +84,16 @@ var apiNameMapping = {
 var Marketo = (module.exports = integration('Marketo V2')
   .assumesPageview()
   .global('Munchkin')
+  .global('MktForms2')
   .option('host', 'https://api.segment.io')
   .option('accountId', '')
   .option('projectId', '')
   .option('traits', [])
-  .tag('<script src="//munchkin.marketo.net/munchkin.js">'));
+  .tag('<script src="//munchkin.marketo.net/munchkin-beta.js">')
+  .tag(
+    'forms',
+    '<script src="//{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
+  ));
 
 /**
  * Initialize.
