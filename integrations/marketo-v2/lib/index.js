@@ -105,16 +105,38 @@ var Marketo = (module.exports = integration('Marketo V2')
 
 Marketo.prototype.initialize = function() {
   var self = this;
+  var munchkinId = self.options.accountId;
+  var marketoHostUrl = 'app-ab28.marketo.com';
+  var marketoFormId = '1003';
+
   this.load(function() {
-    window.Munchkin.init(self.options.accountId, {
+    console.log(self.options);
+
+    window.Munchkin.init(munchkinId, {
       asyncOnly: true
     });
+
     // marketo integration actually loads a marketo snippet
     // and the snippet loads the real marketo, this is required
     // because there's a race between `window.mktoMunchkinFunction = sinon.spy()`
     // and marketo's real javascript which overrides `window.mktoMunchkinFunction`
     // and deletes the spy.
     when(self.loaded, self.ready);
+  });
+
+  this.load('forms', { marketoHostUrl: marketoHostUrl }, function() {
+    var marketoForm = document.createElement('form');
+    marketoForm.setAttribute('id', 'mktoForm_' + marketoFormId);
+    marketoForm.setAttribute('style', 'display:none');
+
+    onBody(function(body) {
+      body.appendChild(marketoForm);
+      window.MktoForms2.loadForm(
+        '//' + marketoHostUrl,
+        munchkinId,
+        marketoFormId
+      );
+    });
   });
 };
 
@@ -223,11 +245,12 @@ Marketo.prototype.identify = function(identify) {
     }
   }, settings.traits);
 
-  // associate the lead on the client-side so that
-  // we can track to the same user
-  this.requestHash(traitsToSendMarketo.Email, function(err, hash) {
-    var marketoFn = window.mktoMunchkinFunction;
-    if (marketoFn) marketoFn('associateLead', traitsToSendMarketo, hash);
+  window.MktoForms2.whenReady(function(form) {
+    form.addHiddenFields(traitsToSendMarketo);
+    form.onSuccess(function() {
+      return false;
+    });
+    form.submit();
   });
 };
 
