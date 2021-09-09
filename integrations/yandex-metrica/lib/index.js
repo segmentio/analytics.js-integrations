@@ -5,9 +5,11 @@
  */
 
 var bind = require('component-bind');
-var integration = require('@segment/analytics.js-integration');
+var each = require('component-each');
 var tick = require('next-tick');
 var when = require('do-when');
+var dataLayerPush = require('global-queue')('dataLayer', { wrap: false });
+var integration = require('@segment/analytics.js-integration');
 
 /**
  * Expose `Yandex` integration.
@@ -86,4 +88,126 @@ Yandex.prototype.loaded = function() {
 function push(callback) {
   window.yandex_metrika_callbacks = window.yandex_metrika_callbacks || [];
   window.yandex_metrika_callbacks.push(callback);
+}
+
+/**
+ * Create dataLayerObj for desired action
+ * 
+ * @param {String} action ("detail", "add", "remove")
+ * @param {Track} track
+*/
+function createEcommerceObj(action, track) {
+  var props = track.properties();
+  return {
+      "ecommerce": {
+          "currencyCode": track.currency(),
+          [action]: {
+              "products": [
+                  {
+                      "id": track.productId() || track.id() || track.sku() || '',
+                      "name" : track.name() || '',
+                      "price": track.price(),
+                      "brand": props.brand,
+                      "category": track.category() || '',
+                      "variant" : props.variant,
+                  }
+              ]
+          }
+      }
+  };
+}
+
+/**
+ * Product viewed.
+ * (RU) https://yandex.ru/support/metrica/ecommerce/data.html#examples__product-detail
+ * (EN) https://translate.google.com/translate?sl=auto&tl=en&u=https://yandex.ru/support/metrica/ecommerce/data.html%23examples__product-detail
+ * @api private
+ * @param {Track} track
+ */
+
+Yandex.prototype.productViewed = function(track) {
+  dataLayerPush(createEcommerceObj("detail", track));
+};
+
+/**
+ * Product added to the card.
+ * (RU) https://yandex.ru/support/metrica/ecommerce/data.html#examples__add
+ * (EN) https://translate.google.com/translate?sl=auto&tl=en&u=https://yandex.ru/support/metrica/ecommerce/data.html%23examples__add
+ * @api private
+ * @param {Track} track
+ */
+
+Yandex.prototype.productAdded = function(track) {
+  dataLayerPush(createEcommerceObj("add", track));
+};
+
+/**
+ * Product removed from the card.
+ * (RU) https://yandex.ru/support/metrica/ecommerce/data.html#examples__remove
+ * (EN) https://translate.google.com/translate?sl=auto&tl=en&u=https://yandex.ru/support/metrica/ecommerce/data.html%23examples__remove
+ * @api private
+ * @param {Track} track
+ */
+
+Yandex.prototype.productRemoved = function(track) {
+  dataLayerPush(createEcommerceObj("remove", track));
+};
+
+/**
+ * Order completed.
+ *
+ * (RU) https://yandex.ru/support/metrica/ecommerce/data.html#examples__purchase
+ * (EN) https://translate.google.com/translate?sl=auto&tl=en&u=https://yandex.ru/support/metrica/ecommerce/data.html%23examples__purchase
+ *
+ * @param {Track} track
+ * @api private
+ */
+
+Yandex.prototype.orderCompleted = function(track) {
+  var props = track.properties();
+  var products = track.products();
+  var productsList = [];
+  
+  // add products
+  each(products, function(product) {
+    var productTrack = createProductTrack(track, product);
+    productsList.push({
+      category: productTrack.category(),
+      quantity: productTrack.quantity(),
+      price: productTrack.price(),
+      name: productTrack.name(),
+      sku: productTrack.sku(),
+      id: productTrack.sku(),
+      currency: productTrack.currency(),
+      brand: productTrack.properties().brand,
+      variant: productTrack.properties().variant,
+    });
+  });
+  
+  dataLayerPush({
+      "ecommerce": {
+          "currencyCode": track.currency(),
+          "purchase": {
+              "actionField": {
+                  "id" : track.orderId(),
+              },
+              "products": productsList
+          }
+      }
+  });
+};
+
+/**
+ * Creates a track out of product properties.
+ *
+ * @api private
+ * @param {Track} track
+ * @param {Object} properties
+ * @return {Track}
+ */
+
+function createProductTrack(track, properties) {
+  var props = properties || {};
+  props.currency = properties.currency || track.currency();
+  return new Track({ properties: props });
 }
