@@ -4,10 +4,8 @@
  * Module dependencies.
  */
 
-var fmt = require('@segment/fmt');
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var jsonp = require('jsonp');
 var url = require('component-url');
 var when = require('do-when');
 var each = require('@ndhoule/each');
