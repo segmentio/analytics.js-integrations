@@ -107,11 +107,22 @@ Marketo.prototype.initialize = function() {
   var self = this;
   var munchkinId = self.options.accountId;
   var marketoHostUrl = 'app-ab28.marketo.com';
-  var marketoFormId = '1003';
+  var marketoFormId = parseInt(self.options.marketoFormId, 10);
+
+  var identifySettingsAreInvalid =
+    marketoHostUrl === undefined ||
+    marketoHostUrl === '' ||
+    Number.isNaN(marketoFormId) ||
+    marketoFormId <= 0;
+
+  if (identifySettingsAreInvalid) {
+    console.warn(
+      'Invalid settings for identify method. Please review your Marketo V2 destination settings.'
+    );
+    return;
+  }
 
   this.load(function() {
-    console.log(self.options);
-
     window.Munchkin.init(munchkinId, {
       asyncOnly: true
     });
