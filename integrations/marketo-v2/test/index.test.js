@@ -62,6 +62,7 @@ describe('Marketo', function() {
       integration('Marketo V2')
         .assumesPageview()
         .global('Munchkin')
+        .global('MktForms2')
         .option('host', 'https://api.segment.io')
         .option('accountId', '')
         .option('projectId', '')
@@ -72,6 +73,7 @@ describe('Marketo', function() {
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(marketo, 'load');
+      analytics.stub(marketo, 'forms');
     });
 
     describe('#initialize', function() {
