@@ -86,6 +86,8 @@ var Marketo = (module.exports = integration('Marketo V2')
   .option('host', 'https://api.segment.io')
   .option('accountId', '')
   .option('projectId', '')
+  .option('marketoHostUrl', '')
+  .option('marketoFormId', '')
   .option('traits', [])
   .tag('<script src="//munchkin.marketo.net/munchkin-beta.js">')
   .tag(
@@ -104,7 +106,7 @@ var Marketo = (module.exports = integration('Marketo V2')
 Marketo.prototype.initialize = function() {
   var self = this;
   var munchkinId = self.options.accountId;
-  var marketoHostUrl = 'app-ab28.marketo.com';
+  var marketoHostUrl = self.options.marketoHostUrl;
   var marketoFormId = parseInt(self.options.marketoFormId, 10);
 
   var identifySettingsAreInvalid =
