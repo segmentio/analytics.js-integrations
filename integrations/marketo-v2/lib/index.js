@@ -103,10 +103,9 @@ var Marketo = (module.exports = integration('Marketo V2')
  */
 
 Marketo.prototype.initialize = function() {
-  var self = this;
-  var munchkinId = self.options.accountId;
-  var marketoHostUrl = self.options.marketoHostUrl;
-  var marketoFormId = parseInt(self.options.marketoFormId, 10);
+  var munchkinId = this.options.accountId;
+  var marketoHostUrl = this.options.marketoHostUrl;
+  var marketoFormId = parseInt(this.options.marketoFormId, 10);
 
   var identifySettingsAreInvalid =
     marketoHostUrl === undefined ||
@@ -121,6 +120,7 @@ Marketo.prototype.initialize = function() {
     return;
   }
 
+  var self = this;
   this.load(function() {
     window.Munchkin.init(munchkinId, {
       asyncOnly: true
