@@ -9,7 +9,6 @@ var is = require('is');
 var url = require('component-url');
 var when = require('do-when');
 var each = require('@ndhoule/each');
-var onBody = require('on-body-ready');
 
 // mapping of Standard Marketo API names: restAPIName: soapAPIName
 var apiNameMapping = {
@@ -139,15 +138,12 @@ Marketo.prototype.initialize = function() {
     var marketoForm = document.createElement('form');
     marketoForm.setAttribute('id', 'mktoForm_' + marketoFormId);
     marketoForm.setAttribute('style', 'display:none');
-
-    onBody(function(body) {
-      body.appendChild(marketoForm);
-      window.MktoForms2.loadForm(
-        '//' + marketoHostUrl,
-        munchkinId,
-        marketoFormId
-      );
-    });
+    document.body.appendChild(marketoForm);
+    window.MktoForms2.loadForm(
+      '//' + marketoHostUrl,
+      munchkinId,
+      marketoFormId
+    );
   });
 };
 
