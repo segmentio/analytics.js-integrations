@@ -177,6 +177,16 @@ Marketo.prototype.page = function(page) {
   });
 };
 
+Marketo.prototype.setupAndSubmitForm = function(traits, form) {
+  console.log('PRIME')
+  form.addHiddenFields(traits, form);
+  // Do not remove this callback. This ensures there are no page refreshes after the form is submitted.
+  form.onSuccess(function() {
+    return false;
+  });
+  form.submit();
+};
+
 /**
  * Identify.
  *
@@ -190,6 +200,7 @@ Marketo.prototype.identify = function(identify) {
     return;
   }
 
+  var self = this;
   var settings = this.options;
 
   // we _must_ have an email
@@ -253,10 +264,6 @@ Marketo.prototype.identify = function(identify) {
   }, settings.traits);
 
   window.MktoForms2.whenReady(function(form) {
-    form.addHiddenFields(traitsToSendMarketo);
-    form.onSuccess(function() {
-      return false;
-    });
-    form.submit();
+    self.setupAndSubmitForm(traitsToSendMarketo, form);
   });
 };

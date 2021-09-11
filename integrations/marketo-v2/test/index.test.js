@@ -1,13 +1,10 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
-var assert = require('proclaim');
-var fmt = require('@segment/fmt');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var url = require('component-url');
-var when = require('do-when');
 var Marketo = require('../lib/');
 
 /**
@@ -18,30 +15,34 @@ var Marketo = require('../lib/');
 describe('Marketo', function() {
   var analytics;
   var marketo;
-  var options = {
-    projectId: 'Pk6s0Q47fC',
-    accountId: '332-UOQ-444',
-    traits: [
-      {
-        key: 'customTrait',
-        value: {
-          segmentTrait: 'customTrait',
-          marketoFieldName: 'Mylittleponyz',
-          marketoFieldType: 'string'
-        }
-      },
-      {
-        key: 'fax',
-        value: {
-          segmentTrait: 'fax',
-          marketoFieldName: 'fax',
-          marketoFieldType: 'number'
-        }
-      }
-    ]
-  };
+  var options;
 
   beforeEach(function() {
+    options = {
+      projectId: 'Pk6s0Q47fC',
+      accountId: '332-UOQ-444',
+      marketoFormId: '1337',
+      marketoHostUrl: 'app-ab28.marketo.com',
+      traits: [
+        {
+          key: 'customTrait',
+          value: {
+            segmentTrait: 'customTrait',
+            marketoFieldName: 'Mylittleponyz',
+            marketoFieldType: 'string'
+          }
+        },
+        {
+          key: 'fax',
+          value: {
+            segmentTrait: 'fax',
+            marketoFieldName: 'fax',
+            marketoFieldType: 'number'
+          }
+        }
+      ]
+    };
+
     analytics = new Analytics();
     marketo = new Marketo(options);
     analytics.use(Marketo);
@@ -66,19 +67,25 @@ describe('Marketo', function() {
         .option('host', 'https://api.segment.io')
         .option('accountId', '')
         .option('projectId', '')
+        .option('marketoHostUrl', '')
+        .option('marketoFormId', '')
         .option('traits', [])
+        .tag('<script src="//munchkin.marketo.net/munchkin-beta.js">')
+        .tag(
+          'forms',
+          '<script src="//{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
+        )
     );
   });
 
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(marketo, 'load');
-      analytics.stub(marketo, 'forms');
     });
 
     describe('#initialize', function() {
       it('should call #load', function() {
-        analytics.initialize();
+        analytics.initialize(options);
         analytics.page({}, { Marketo: true });
         analytics.called(marketo.load);
       });
@@ -94,7 +101,7 @@ describe('Marketo', function() {
   describe('after loading', function() {
     beforeEach(function(done) {
       analytics.once('ready', done);
-      analytics.initialize();
+      analytics.initialize(options);
       analytics.page({}, { Marketo: true });
     });
 
@@ -140,26 +147,9 @@ describe('Marketo', function() {
 
     describe('#identify', function() {
       beforeEach(function() {
-        analytics.user().anonymousId('fc42baa7-6aa4-4500-9ebb-0548762a6ac8');
-        analytics.spy(marketo, 'requestHash');
-        analytics.stub(window, 'mktoMunchkinFunction');
-      });
-
-      it('should call window.mktoMunchkinFunction', function(done) {
-        analytics.identify(
-          'id',
-          { email: 'name@example.com' },
-          { Marketo: true }
-        );
-        analytics.equal(marketo.requestHash.args[0][0], 'name@example.com');
-        when(function() {
-          return window.mktoMunchkinFunction.called;
-        }, done);
-      });
-
-      it('should not call `.requestHash` without an email', function() {
-        analytics.identify('id', {}, { Marketo: true });
-        analytics.didNotCall(marketo.requestHash);
+        analytics.stub(window.MktoForms2, 'loadForm');
+        analytics.stub(window.MktoForms2, 'whenReady');
+        analytics.spy(marketo, 'setupAndSubmitForm');
       });
 
       it('should return out if Marketo is disabled', function() {
@@ -168,18 +158,15 @@ describe('Marketo', function() {
           {},
           { integrations: { Marketo: false } }
         );
-        analytics.didNotCall(marketo.requestHash);
+        analytics.didNotCall(window.MktoForms2.loadForm);
       });
 
-      it('should grab email from id', function(done) {
-        analytics.identify('name@example.com', {}, { Marketo: true });
-        analytics.equal(marketo.requestHash.args[0][0], 'name@example.com');
-        when(function() {
-          return window.mktoMunchkinFunction.called;
-        }, done);
+      it('should return out if no email is passed', function() {
+        analytics.identify('', {}, { integrations: { Marketo: false } });
+        analytics.didNotCall(window.MktoForms2.loadForm);
       });
 
-      it('should call window.mktoMunchkinFunction with special traits', function(done) {
+      it('should submit form with traits', function() {
         var traits = {
           email: 'name@example.com',
           company: 'Marketo',
@@ -196,82 +183,12 @@ describe('Marketo', function() {
           },
           customTrait: 'something'
         };
+
         analytics.identify('id', traits, { Marketo: true });
-        analytics.assert(marketo.requestHash.calledWith('name@example.com'));
-        when(
-          function() {
-            return window.mktoMunchkinFunction.called;
-          },
-          function() {
-            // XXX: Trying to figure out why your spec is failing? Throwing
-            // uncaught exceptions? It's this! This assert is probably failing.
-            // I'm ashamed to have touched this code.
-            // TODO: Rewrite this to synchronously stub `requestHash` so we don't
-            // have to do this crap
-            analytics.assert(
-              window.mktoMunchkinFunction.calledWith('associateLead', {
-                Mylittleponyz: 'something',
-                userId: 'id',
-                Company: 'Marketo',
-                Email: 'name@example.com',
-                FirstName: 'Prateek',
-                LastName: 'Srivastava',
-                Phone: '123-456-7890',
-                Fax: '555-555-5555',
-                City: 'San Francisco',
-                Country: 'USA',
-                PostalCode: '94103',
-                State: 'California',
-                anonymousId: 'fc42baa7-6aa4-4500-9ebb-0548762a6ac8'
-              })
-            );
-            done();
-          }
-        );
-      });
 
-      it('should call window.mktoMunchkinFunction with string address', function(done) {
-        analytics.identify(
-          'name@example.com',
-          { address: 'SF, CA, USA' },
-          { Marketo: true }
-        );
-        when(
-          function() {
-            return window.mktoMunchkinFunction.called;
-          },
-          function() {
-            // XXX: Trying to figure out why your spec is failing? Throwing
-            // uncaught exceptions? It's this! This assert is probably failing.
-            // I'm ashamed to have touched this code.
-            // TODO: Rewrite this to synchronously stub `requestHash` so we don't
-            // have to do this crap
-            analytics.assert(
-              window.mktoMunchkinFunction.calledWith('associateLead', {
-                userId: 'name@example.com',
-                Address: 'SF, CA, USA',
-                Email: 'name@example.com',
-                anonymousId: 'fc42baa7-6aa4-4500-9ebb-0548762a6ac8'
-              })
-            );
-            done();
-          }
-        );
-      });
-    });
-
-    describe('#emailHashUrl', function() {
-      it('should return the proper url', function() {
-        var email = 'email@domain.com';
-        var url = marketo.emailHashUrl(email);
-        assert.equal(
-          url,
-          fmt(
-            'https://api.segment.io/integrations/marketo/v1/%s/%s/hash-v2',
-            options.projectId,
-            email
-          )
-        );
+        analytics.called(window.MktoForms2.whenReady);
+        analytics.called(window.MktoForms2.loadForm);
+        analytics.called(marketo.setupAndSubmitForm, traits);
       });
     });
   });
