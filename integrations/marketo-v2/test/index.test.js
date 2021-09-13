@@ -71,7 +71,7 @@ describe('Marketo', function() {
         .option('marketoHostUrl', '')
         .option('marketoFormId', '')
         .option('traits', [])
-        .tag('<script src="//munchkin.marketo.net/munchkin-beta.js">')
+        .tag('<script src="//munchkin.marketo.net/munchkin.js">')
         .tag(
           'forms',
           '<script src="//{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
