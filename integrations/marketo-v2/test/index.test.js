@@ -4,6 +4,7 @@ var Analytics = require('@segment/analytics.js-core').constructor;
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
+var when = require('do-when');
 var url = require('component-url');
 var Marketo = require('../lib/');
 
@@ -20,8 +21,8 @@ describe('Marketo', function() {
   beforeEach(function() {
     options = {
       projectId: 'Pk6s0Q47fC',
-      accountId: '332-UOQ-444',
-      marketoFormId: '1337',
+      accountId: 'app-ab28.marketo.com',
+      marketoFormId: '1003',
       marketoHostUrl: 'app-ab28.marketo.com',
       traits: [
         {
@@ -147,9 +148,9 @@ describe('Marketo', function() {
 
     describe('#identify', function() {
       beforeEach(function() {
+        analytics.spy(marketo, 'setupAndSubmitForm');
         analytics.stub(window.MktoForms2, 'loadForm');
         analytics.stub(window.MktoForms2, 'whenReady');
-        analytics.spy(marketo, 'setupAndSubmitForm');
       });
 
       it('should return out if Marketo is disabled', function() {
@@ -166,7 +167,7 @@ describe('Marketo', function() {
         analytics.didNotCall(window.MktoForms2.loadForm);
       });
 
-      it('should submit form with traits', function() {
+      it('should submit form with traits', function(done) {
         var traits = {
           email: 'name@example.com',
           company: 'Marketo',
@@ -186,9 +187,22 @@ describe('Marketo', function() {
 
         analytics.identify('id', traits, { Marketo: true });
 
-        analytics.called(window.MktoForms2.whenReady);
-        analytics.called(window.MktoForms2.loadForm);
-        analytics.called(marketo.setupAndSubmitForm, traits);
+        when(
+          function() {
+            var callToMkto = window.MktoForms2.loadForm.called;
+            done();
+            return callToMkto;
+          },
+          function() {
+            var callToMkto = window.MktoForms2.whenReady.called;
+            done();
+            return callToMkto;
+          },
+          function() {
+            analytics.called(marketo.setupAndSubmitForm, traits);
+            done();
+          }
+        );
       });
     });
   });
