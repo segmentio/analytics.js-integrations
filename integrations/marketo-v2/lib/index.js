@@ -178,7 +178,6 @@ Marketo.prototype.page = function(page) {
 };
 
 Marketo.prototype.setupAndSubmitForm = function(traits, form) {
-  console.log('PRIME')
   form.addHiddenFields(traits, form);
   // Do not remove this callback. This ensures there are no page refreshes after the form is submitted.
   form.onSuccess(function() {
