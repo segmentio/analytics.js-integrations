@@ -147,8 +147,18 @@ describe('Marketo', function() {
     });
 
     describe('#identify', function() {
+      var form;
+
       beforeEach(function() {
+        // Mock form
+        form = {
+          submit: function() {
+            return true;
+          }
+        };
+
         analytics.spy(marketo, 'setupAndSubmitForm');
+        analytics.spy(form, 'submit');
         analytics.stub(window.MktoForms2, 'loadForm');
         analytics.stub(window.MktoForms2, 'whenReady');
       });
@@ -199,7 +209,8 @@ describe('Marketo', function() {
             return callToMkto;
           },
           function() {
-            analytics.called(marketo.setupAndSubmitForm, traits);
+            analytics.called(marketo.setupAndSubmitForm, traits, form);
+            analytics.called(form.submit);
             done();
           }
         );
