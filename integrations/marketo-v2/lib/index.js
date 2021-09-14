@@ -91,7 +91,7 @@ var Marketo = (module.exports = integration('Marketo V2')
   .tag('<script src="//munchkin.marketo.net/munchkin.js">')
   .tag(
     'forms',
-    '<script src="//{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
+    '<script src="{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
   ));
 
 /**
@@ -139,11 +139,7 @@ Marketo.prototype.initialize = function() {
     marketoForm.setAttribute('id', 'mktoForm_' + marketoFormId);
     marketoForm.setAttribute('style', 'display:none');
     document.body.appendChild(marketoForm);
-    window.MktoForms2.loadForm(
-      '//' + marketoHostUrl,
-      munchkinId,
-      marketoFormId
-    );
+    window.MktoForms2.loadForm(marketoHostUrl, munchkinId, marketoFormId);
   });
 };
 

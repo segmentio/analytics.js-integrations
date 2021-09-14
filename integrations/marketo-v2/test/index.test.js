@@ -23,7 +23,7 @@ describe('Marketo', function() {
       projectId: 'Pk6s0Q47fC',
       accountId: 'app-ab28.marketo.com',
       marketoFormId: '1003',
-      marketoHostUrl: 'app-ab28.marketo.com',
+      marketoHostUrl: '//app-ab28.marketo.com',
       traits: [
         {
           key: 'customTrait',
@@ -74,7 +74,7 @@ describe('Marketo', function() {
         .tag('<script src="//munchkin.marketo.net/munchkin.js">')
         .tag(
           'forms',
-          '<script src="//{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
+          '<script src="{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
         )
     );
   });
