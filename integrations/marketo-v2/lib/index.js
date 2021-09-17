@@ -258,7 +258,13 @@ Marketo.prototype.identify = function(identify) {
     }
   }, settings.traits);
 
-  window.MktoForms2.whenReady(function(form) {
-    self.setupAndSubmitForm(traitsToSendMarketo, form);
+  window.MktoForms2.whenReady(function() {
+    var marketoFormId = parseInt(this.options.marketoFormId, 10);
+    var validFormId = !(Number.isNaN(marketoFormId) || marketoFormId <= 0);
+
+    if (validFormId) {
+      var form = window.MktoForms2.getForm(marketoFormId);
+      self.setupAndSubmitForm(traitsToSendMarketo, form);
+    }
   });
 };
