@@ -29,7 +29,7 @@ var VWO = (module.exports = integration('Visual Website Optimizer')
   .option('listen', false)
   .option('experimentNonInteraction', false)
   .option('isSpa', false)
-  .option('trackOnlyABExperiments', false));
+  .option('trackOnlyAbExperiments', false));
 
 /**
  * The context for this integration.
@@ -135,7 +135,7 @@ VWO.prototype.roots = function() {
         context: { integration: integrationContext }
       });
     });
-  }, this.options.trackOnlyABExperiments);
+  }, this.options.trackOnlyAbExperiments);
 };
 
 /**
@@ -147,13 +147,13 @@ VWO.prototype.roots = function() {
  * @return {Object}
  */
 
-function rootExperiments(fn, trackOnlyABExperiments) {
+function rootExperiments(fn, trackOnlyAbExperiments) {
   enqueue(function() {
     var data = {};
     var experimentIds = window._vwo_exp_ids;
     if (!experimentIds) return fn();
     each(experimentIds, function(experimentId) {
-      var variationName = variation(experimentId, trackOnlyABExperiments);
+      var variationName = variation(experimentId, trackOnlyAbExperiments);
       if (variationName) data[experimentId] = variationName;
     });
     fn(null, data);
@@ -215,7 +215,7 @@ function isValidExperimentType(experiment) {
  * @return {String}
  */
 
-function variation(id, trackOnlyABExperiments) {
+function variation(id, trackOnlyAbExperiments) {
   var experiments = window._vwo_exp;
   if (!experiments) return null;
   var experiment = experiments[id];
@@ -227,8 +227,8 @@ function variation(id, trackOnlyABExperiments) {
   }
 
   if (
-    trackOnlyABExperiments &&
-    !isValidExperimentType(experiment, trackOnlyABExperiments)
+    trackOnlyAbExperiments &&
+    !isValidExperimentType(experiment, trackOnlyAbExperiments)
   ) {
     return null;
   }
