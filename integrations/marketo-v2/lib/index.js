@@ -259,7 +259,7 @@ Marketo.prototype.identify = function(identify) {
   }, settings.traits);
 
   window.MktoForms2.whenReady(function() {
-    var marketoFormId = parseInt(this.options.marketoFormId, 10);
+    var marketoFormId = parseInt(settings.marketoFormId, 10);
     var validFormId = !(Number.isNaN(marketoFormId) || marketoFormId <= 0);
 
     if (validFormId) {
