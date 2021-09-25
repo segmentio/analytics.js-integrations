@@ -94,6 +94,17 @@ var Marketo = (module.exports = integration('Marketo V2')
     '<script src="{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
   ));
 
+var disableFormSubmitRedirects = function(form) {
+  if (form) {
+    // *** Do not remove this callback ***
+    // This ensures there are no page refreshes after the form is submitted and handles
+    // the side effects of multiple form submissions in the same page.
+    form.onSuccess(function() {
+      return false;
+    });
+  }
+};
+
 /**
  * Initialize.
  *
@@ -139,7 +150,14 @@ Marketo.prototype.initialize = function() {
     marketoForm.setAttribute('id', 'mktoForm_' + marketoFormId);
     marketoForm.setAttribute('style', 'display:none');
     document.body.appendChild(marketoForm);
-    window.MktoForms2.loadForm(marketoHostUrl, munchkinId, marketoFormId);
+    window.MktoForms2.loadForm(
+      marketoHostUrl,
+      munchkinId,
+      marketoFormId,
+      function(form) {
+        disableFormSubmitRedirects(form);
+      }
+    );
   });
 };
 
@@ -175,10 +193,7 @@ Marketo.prototype.page = function(page) {
 
 Marketo.prototype.setupAndSubmitForm = function(traits, form) {
   form.addHiddenFields(traits, form);
-  // Do not remove this callback. This ensures there are no page refreshes after the form is submitted.
-  form.onSuccess(function() {
-    return false;
-  });
+  disableFormSubmitRedirects(form);
   form.submit();
 };
 
@@ -264,7 +279,9 @@ Marketo.prototype.identify = function(identify) {
 
     if (validFormId) {
       var form = window.MktoForms2.getForm(marketoFormId);
-      self.setupAndSubmitForm(traitsToSendMarketo, form);
+      if (form) {
+        self.setupAndSubmitForm(traitsToSendMarketo, form);
+      }
     }
   });
 };

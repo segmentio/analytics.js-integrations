@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-marketo-v2",
   "description": "The Marketo analytics.js integration.",
-  "version": "4.0.0-rc.3",
+  "version": "4.0.0-rc.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
