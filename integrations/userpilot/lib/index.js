@@ -47,7 +47,8 @@ Userpilot.prototype.loaded = function() {
  */
 
 Userpilot.prototype.load = function(callback) {
-  load('//js.userpilot.io/' + this.options.appToken + '/latest.js', callback);
+  window.userpilotSettings = { token: this.options.appToken };
+  load('//js.userpilot.io/sdk/latest.js', callback);
 };
 
 /**
@@ -82,7 +83,6 @@ Userpilot.prototype.identify = function(identify) {
   window.userpilot.identify(identify.userId(), traits);
 };
 
-
 /**
  * Track.
  *
@@ -94,11 +94,9 @@ Userpilot.prototype.identify = function(identify) {
 
 Userpilot.prototype.group = function(group) {
   var companyId = group.groupId(),
-  traits = group.traits();
-  if (window.userpilot.group)
-    window.userpilot.group(companyId, traits);
+    traits = group.traits();
+  if (window.userpilot.group) window.userpilot.group(companyId, traits);
 };
-
 
 /**
  * Group.
