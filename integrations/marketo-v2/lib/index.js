@@ -4,13 +4,12 @@
  * Module dependencies.
  */
 
-var fmt = require('@segment/fmt');
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var jsonp = require('jsonp');
 var url = require('component-url');
 var when = require('do-when');
 var each = require('@ndhoule/each');
+
 // mapping of Standard Marketo API names: restAPIName: soapAPIName
 var apiNameMapping = {
   annualRevenue: 'AnnualRevenue',
@@ -82,11 +81,29 @@ var apiNameMapping = {
 var Marketo = (module.exports = integration('Marketo V2')
   .assumesPageview()
   .global('Munchkin')
+  .global('MktForms2')
   .option('host', 'https://api.segment.io')
   .option('accountId', '')
   .option('projectId', '')
+  .option('marketoHostUrl', '')
+  .option('marketoFormId', '')
   .option('traits', [])
-  .tag('<script src="//munchkin.marketo.net/munchkin.js">'));
+  .tag('<script src="//munchkin.marketo.net/munchkin.js">')
+  .tag(
+    'forms',
+    '<script src="{{marketoHostUrl}}/js/forms2/js/forms2.min.js">'
+  ));
+
+var disableFormSubmitRedirects = function(form) {
+  if (form) {
+    // *** Do not remove this callback ***
+    // This ensures there are no page refreshes after the form is submitted and handles
+    // the side effects of multiple form submissions in the same page.
+    form.onSuccess(function() {
+      return false;
+    });
+  }
+};
 
 /**
  * Initialize.
@@ -97,17 +114,50 @@ var Marketo = (module.exports = integration('Marketo V2')
  */
 
 Marketo.prototype.initialize = function() {
+  var munchkinId = this.options.accountId;
+  var marketoHostUrl = this.options.marketoHostUrl;
+  var marketoFormId = parseInt(this.options.marketoFormId, 10);
+
+  var identifySettingsAreInvalid =
+    marketoHostUrl === undefined ||
+    marketoHostUrl === '' ||
+    Number.isNaN(marketoFormId) ||
+    marketoFormId <= 0;
+
+  if (identifySettingsAreInvalid) {
+    console.warn(
+      'Invalid settings for identify method. Please review your Marketo V2 destination settings.'
+    );
+    return;
+  }
+
   var self = this;
   this.load(function() {
-    window.Munchkin.init(self.options.accountId, {
+    window.Munchkin.init(munchkinId, {
       asyncOnly: true
     });
+
     // marketo integration actually loads a marketo snippet
     // and the snippet loads the real marketo, this is required
     // because there's a race between `window.mktoMunchkinFunction = sinon.spy()`
     // and marketo's real javascript which overrides `window.mktoMunchkinFunction`
     // and deletes the spy.
     when(self.loaded, self.ready);
+  });
+
+  this.load('forms', { marketoHostUrl: marketoHostUrl }, function() {
+    var marketoForm = document.createElement('form');
+    marketoForm.setAttribute('id', 'mktoForm_' + marketoFormId);
+    marketoForm.setAttribute('style', 'display:none');
+    document.body.appendChild(marketoForm);
+    window.MktoForms2.loadForm(
+      marketoHostUrl,
+      munchkinId,
+      marketoFormId,
+      function(form) {
+        disableFormSubmitRedirects(form);
+      }
+    );
   });
 };
 
@@ -141,6 +191,12 @@ Marketo.prototype.page = function(page) {
   });
 };
 
+Marketo.prototype.setupAndSubmitForm = function(traits, form) {
+  form.addHiddenFields(traits, form);
+  disableFormSubmitRedirects(form);
+  form.submit();
+};
+
 /**
  * Identify.
  *
@@ -154,6 +210,7 @@ Marketo.prototype.identify = function(identify) {
     return;
   }
 
+  var self = this;
   var settings = this.options;
 
   // we _must_ have an email
@@ -216,50 +273,12 @@ Marketo.prototype.identify = function(identify) {
     }
   }, settings.traits);
 
-  // associate the lead on the client-side so that
-  // we can track to the same user
-  this.requestHash(traitsToSendMarketo.Email, function(err, hash) {
-    var marketoFn = window.mktoMunchkinFunction;
-    if (marketoFn) marketoFn('associateLead', traitsToSendMarketo, hash);
+  window.MktoForms2.whenReady(function(form) {
+    var marketoFormId = parseInt(settings.marketoFormId, 10);
+    var validFormId = !(Number.isNaN(marketoFormId) || marketoFormId <= 0);
+
+    if (validFormId && form.getId() === marketoFormId) {
+      self.setupAndSubmitForm(traitsToSendMarketo, form);
+    }
   });
-};
-
-/**
- * Generate the URL to the Segment endpoint that hashes Marketo emails.
- *
- * @api private
- * @param {string} email
- * @return {string}
- */
-
-Marketo.prototype.emailHashUrl = function(email) {
-  var host = this.options.host;
-  var projectId = this.options.projectId;
-  return fmt(
-    '%s/integrations/marketo/v1/%s/%s/hash-v2',
-    host,
-    projectId,
-    email
-  );
-};
-
-/**
- * Marketo requires that users' requests come with a hashed version of their
- * email address. It's a hash that can't be done on the client-side for some
- * reason.
- *
- * Man, it'd have been great if someone had documented this in the first place.
- *
- * See https://github.com/segmentio/marketo-hash-app for more details.
- *
- * TODO: Improve this documentation
- *
- * @api private
- * @param {string} email
- * @param {Function} callback
- */
-
-Marketo.prototype.requestHash = function(email, callback) {
-  var url = this.emailHashUrl(email);
-  jsonp(url, callback);
 };

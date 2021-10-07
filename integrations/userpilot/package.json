@@ -1,7 +1,7 @@
 {
   "name": "@userpilot/analytics.js-integration-userpilot",
   "description": "The Userpilot analytics.js integration.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
