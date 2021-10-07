@@ -22,7 +22,7 @@ var umd = typeof window.define === 'function' && window.define.amd;
  * Source.
  */
 
-var src = 'https://cdn.amplitude.com/libs/amplitude-5.2.2-min.gz.js';
+var src = 'https://cdn.amplitude.com/libs/amplitude-8.8.0-min.gz.js';
 
 /**
  * Expose `Amplitude` integration.
