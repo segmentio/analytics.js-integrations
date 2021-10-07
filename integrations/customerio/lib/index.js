@@ -17,7 +17,13 @@ var MAX_YEAR_SUPPORTED_AS_UNIX = 1970;
 var Customerio = (module.exports = integration('Customer.io')
   .global('_cio')
   .option('siteId', '')
+  .option('datacenter', '')
   .tag(
+    'eu-tag',
+    '<script id="cio-tracker" src="https://assets.customer.io/assets/track-eu.js" data-site-id="{{ siteId }}">'
+  )
+  .tag(
+    'global-tag',
     '<script id="cio-tracker" src="https://assets.customer.io/assets/track.js" data-site-id="{{ siteId }}">'
   ));
 
@@ -34,7 +40,12 @@ Customerio.prototype.initialize = function() {
   /* eslint-disable */
   (function(){var a,b,c; a = function(f){return function(){window._cio.push([f].concat(Array.prototype.slice.call(arguments,0))); }; }; b = ['identify', 'track']; for (c = 0; c < b.length; c++) {window._cio[b[c]] = a(b[c]); } })();
   /* eslint-enable */
-  this.load(this.ready);
+
+  if (this.options.datacenter === 'eu' && this.templates['eu-tag']) {
+    this.load('eu-tag', this.ready)
+  } else {
+    this.load('global-tag', this.ready);
+  }
 };
 
 /**

@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-hellobar",
   "description": "The Hellobar analytics.js integration.",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
