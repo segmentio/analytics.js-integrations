@@ -448,7 +448,12 @@ Amplitude.prototype.sendReferrer = function() {
   if (!referrer || referrer.length === 0) return;
 
   identify.setOnce('initial_referrer', referrer);
-  identify.set('referrer', referrer);
+
+  if (this.options.saveParamsReferrerOncePerSession) {
+    identify.setOnce('referrer', referrer);
+  } else {
+    identify.set('referrer', referrer);
+  }
 
   var parts = referrer.split('/');
   if (parts.length >= 3) {
