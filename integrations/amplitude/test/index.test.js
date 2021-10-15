@@ -321,10 +321,6 @@ describe('Amplitude', function() {
               $setOnce: sinon.match({
                 initial_referrer: 'http://examplepage.com/',
                 initial_referring_domain: 'examplepage.com'
-              }),
-              $set: sinon.match({
-                referrer: 'http://examplepage.com/',
-                referring_domain: 'examplepage.com'
               })
             })
           })

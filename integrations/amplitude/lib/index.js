@@ -22,7 +22,7 @@ var umd = typeof window.define === 'function' && window.define.amd;
  * Source.
  */
 
-var src = 'https://cdn.amplitude.com/libs/amplitude-8.8.0-min.gz.js';
+var src = 'https://cdn.amplitude.com/libs/amplitude-5.2.2-min.gz.js';
 
 /**
  * Expose `Amplitude` integration.
@@ -53,6 +53,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('unsetParamsReferrerOnNewSession', false)
   .option('trackProductsOnce', false)
   .option('versionName', '')
+  .option('useAmplitudeReferral', true)
   .tag('<script src="' + src + '">'));
 
 /**
@@ -81,6 +82,7 @@ Amplitude.prototype.initialize = function() {
     includeGclid: this.options.trackGclid,
     saveParamsReferrerOncePerSession: this.options
       .saveParamsReferrerOncePerSession,
+    includeReferrer: this.options.useAmplitudeReferral,
     deviceIdFromUrlParam: this.options.deviceIdFromUrlParam,
     unsetParamsReferrerOnNewSession: this.options
       .unsetParamsReferrerOnNewSession,
@@ -144,7 +146,7 @@ Amplitude.prototype.loaded = function() {
 Amplitude.prototype.page = function(page) {
   this.setDeviceIdFromAnonymousId(page);
 
-  if (this.options.trackReferrer) this.sendReferrer();
+  if (this.options.trackReferrer && !this.options.useAmplitudeReferral) this.sendReferrer();
 
   var category = page.category();
   var name = page.fullName();
