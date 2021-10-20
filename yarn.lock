@@ -8923,6 +8923,11 @@ is-email@0.1.0:
   resolved "https://registry.yarnpkg.com/is-email/-/is-email-0.1.0.tgz#e7eb1aefe8d4a3183980a7172b851272ebd04a95"
   integrity sha1-5+sa7+jUoxg5gKcXK4UScuvQSpU=
 
+is-email@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/is-email/-/is-email-1.0.2.tgz#51a618e2ddc895988ceb550df9f587b3607560e5"
+  integrity sha512-UojUgD2EhDTBQ2SGKwrK9edce5phRzgLsP+V5+Uu2Swi+uvjVXgH3zduM3HhT9iaC/9Kq19/TYUbP0jPoi6ioA==
+
 is-email@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/is-email/-/is-email-1.0.1.tgz#6f98c0ab6a0e3936dc4da7f2ab334f7faebbaa56"
