@@ -133,6 +133,10 @@ Marketo.prototype.initialize = function() {
 
   var self = this;
   this.load(function() {
+    if (window.Munchkin === undefined) {
+      return;
+    }
+
     window.Munchkin.init(munchkinId, {
       asyncOnly: true
     });
@@ -146,6 +150,10 @@ Marketo.prototype.initialize = function() {
   });
 
   this.load('forms', { marketoHostUrl: marketoHostUrl }, function() {
+    if (window.MktoForms2 === undefined) {
+      return;
+    }
+
     var marketoForm = document.createElement('form');
     marketoForm.setAttribute('id', 'mktoForm_' + marketoFormId);
     marketoForm.setAttribute('style', 'display:none');
@@ -185,6 +193,11 @@ Marketo.prototype.page = function(page) {
 
   var properties = page.properties();
   var parsed = url.parse(properties.url);
+
+  if (window.mktoMunchkinFunction === undefined) {
+    return;
+  }
+
   window.mktoMunchkinFunction('visitWebPage', {
     url: properties.url,
     params: parsed.query
@@ -272,6 +285,10 @@ Marketo.prototype.identify = function(identify) {
       traitsToSendMarketo[marketoField] = traits[segmentTrait];
     }
   }, settings.traits);
+
+  if (window.MktoForms2 === undefined) {
+    return;
+  }
 
   window.MktoForms2.whenReady(function(form) {
     var marketoFormId = parseInt(settings.marketoFormId, 10);

@@ -1,3 +1,8 @@
+4.0.2 / 2021-10-26
+=================
+
+  * Add better error handling for when Marketo scripts are blocked
+
 4.0.0 / 2021-09-09
 =================
 
