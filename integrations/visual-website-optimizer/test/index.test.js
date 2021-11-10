@@ -262,9 +262,9 @@ describe('Visual Website Optimizer', function() {
       });
     });
 
-    it('should not send experiments if experiment type is not of type A/B with trackOnlyABExperiments enabled', function(done) {
+    it('should not send experiments if experiment type is not of type A/B with trackOnlyAbExperiments enabled', function(done) {
       vwo.options.listen = true;
-      vwo.options.trackOnlyABExperiments = true;
+      vwo.options.trackOnlyAbExperiments = true;
       window._vwo_exp[1].type = 'testType';
       analytics.initialize();
       analytics.page();
@@ -292,7 +292,7 @@ describe('Visual Website Optimizer', function() {
       });
     });
 
-    it('should send experiments if experiment type is not of type A/B with trackOnlyABExperiments disabled', function(done) {
+    it('should send experiments if experiment type is not of type A/B with trackOnlyAbExperiments disabled', function(done) {
       vwo.options.listen = true;
       window._vwo_exp[1].type = 'testType';
       analytics.initialize();
