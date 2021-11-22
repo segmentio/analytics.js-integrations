@@ -1,3 +1,7 @@
+2.2.4 / 2021-11-22
+===================
+  * Add support for HubSpots EU Data Residency with EU script tag.
+
 2.2.2 / 2020-12-14
 ===================
 

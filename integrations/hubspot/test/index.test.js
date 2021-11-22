@@ -11,7 +11,8 @@ describe('HubSpot', function() {
   var hubspot;
   var options = {
     portalId: 62515,
-    loadFormsSdk: false
+    loadFormsSdk: false,
+    enableEuropeanDataCenter: false
   };
 
   beforeEach(function() {
@@ -38,12 +39,19 @@ describe('HubSpot', function() {
         .global('hbspt')
         .option('loadFormsSdk', false)
         .option('portalId', null)
+        .option('enableEuropeanDataCenter', false)
     );
   });
 
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(hubspot, 'load');
+    });
+    afterEach(function() {
+      analytics.restore();
+      analytics.reset();
+      hubspot.reset();
+      sandbox();
     });
 
     describe('#initialize', function() {
@@ -52,6 +60,46 @@ describe('HubSpot', function() {
         analytics.initialize();
         analytics.page();
         analytics.assert(window._hsq instanceof Array);
+      });
+      it('should call #load', function() {
+        analytics.initialize();
+        analytics.called(hubspot.load);
+      });
+      it('initializes with global tag', function() {
+        var hubspot;
+        var options = {
+          portalId: 62515,
+          enableEuropeanDataCenter: false
+        };
+
+        analytics = new Analytics();
+        hubspot = new HubSpot(options);
+        analytics.use(HubSpot);
+        analytics.use(tester);
+        analytics.add(hubspot);
+
+        analytics.stub(hubspot, 'load');
+
+        analytics.initialize();
+        analytics.called(hubspot.load, 'global-tag');
+      });
+      it('initializes with eu tag', function() {
+        var hubspot;
+        var options = {
+          portalId: 62515,
+          enableEuropeanDataCenter: true
+        };
+
+        analytics = new Analytics();
+        hubspot = new HubSpot(options);
+        analytics.use(HubSpot);
+        analytics.use(tester);
+        analytics.add(hubspot);
+
+        analytics.stub(hubspot, 'load');
+
+        analytics.initialize();
+        analytics.called(hubspot.load, 'eu-tag');
       });
     });
   });

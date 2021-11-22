@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-hubspot",
   "description": "The Hubspot analytics.js integration.",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
