@@ -91,6 +91,19 @@ Appcues.prototype.track = function(track) {
 };
 
 /**
+ * Group.
+ *
+ * http://appcues.com/docs#group
+ *
+ * @api public
+ * @param {Group} group
+ */
+
+Appcues.prototype.group = function(group) {
+  window.Appcues.group(group.groupId(), group.traits());
+};
+
+/**
  * Expose plugin.
  */
 
