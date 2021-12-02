@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var isObject = require('isobject');
 var load = require('@segment/load-script');
 
 /**
@@ -36,7 +35,7 @@ Appcues.prototype.initialize = function() {
  */
 
 Appcues.prototype.loaded = function() {
-  return isObject(window.Appcues);
+  return typeof window.Appcues === 'object';
 };
 
 /**
