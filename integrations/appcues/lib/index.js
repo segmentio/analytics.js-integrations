@@ -35,7 +35,7 @@ Appcues.prototype.initialize = function() {
  */
 
 Appcues.prototype.loaded = function() {
-  return typeof window.Appcues === 'object';
+  return typeof window.Appcues === 'object' && window.Appcues != null;
 };
 
 /**
