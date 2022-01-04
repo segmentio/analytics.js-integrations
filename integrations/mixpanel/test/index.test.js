@@ -196,6 +196,7 @@ describe('Mixpanel', function() {
         analytics.stub(window.mixpanel, 'name_tag');
         analytics.stub(window.mixpanel.people, 'set');
         analytics.stub(window.mixpanel.people, 'union');
+        analytics.stub(window.mixpanel.people, 'set_once');
       });
 
       it('should send an id', function() {
@@ -391,6 +392,21 @@ describe('Mixpanel', function() {
         });
         analytics.called(window.mixpanel.people.union, {
           pages_visited: ['homepage']
+        });
+      });
+
+      it('should set property once', function() {
+        mixpanel.options.setOnceProperties = ['signup_date'];
+        mixpanel.options.people = true;
+        analytics.identify({
+          signup_date: '123',
+          plan: 'free'
+        });
+        analytics.called(window.mixpanel.people.set_once, {
+          signup_date: '123'
+        });
+        analytics.called(window.mixpanel.people.set, {
+          plan: 'free'
         });
       });
     });

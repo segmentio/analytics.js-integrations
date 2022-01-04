@@ -1,3 +1,8 @@
+
+3.2.2 / 2022-01-03
+==================
+* Added support for `set_once` properties.
+
 3.1.0 / 2019-09-27
 ==================
   * Added support for groups.

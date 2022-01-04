@@ -24,6 +24,7 @@ var Mixpanel = (module.exports = integration('Mixpanel')
   .option('propIncrements', [])
   .option('peopleProperties', [])
   .option('superProperties', [])
+  .option('setOnceProperties', [])
   .option('cookieName', '')
   .option('crossSubdomainCookie', false)
   .option('secureCookie', false)
@@ -170,6 +171,7 @@ Mixpanel.prototype.identify = function(identify) {
   var people = this.options.people;
   var peopleProperties = extendTraits(this.options.peopleProperties);
   var superProperties = this.options.superProperties;
+  var setOnceProperties = this.options.setOnceProperties;
 
   // id
   if (id) window.mixpanel.identify(id);
@@ -185,10 +187,12 @@ Mixpanel.prototype.identify = function(identify) {
   // determine which traits to union to existing properties and which to set as new properties
   var traitsToUnion = {};
   var traitsToSet = {};
+  var traitsToSetOnce = {};
   for (var key in traits) {
     if (!traits.hasOwnProperty(key)) continue;
 
     var trait = traits[key];
+
     if (Array.isArray(trait) && trait.length > 0) {
       traitsToUnion[key] = trait;
       // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
@@ -197,6 +201,8 @@ Mixpanel.prototype.identify = function(identify) {
       if (existingTrait && Array.isArray(existingTrait)) {
         traits[key] = unionArrays(existingTrait, trait);
       }
+    } else if (includes(key, setOnceProperties)) {
+      traitsToSetOnce[key] = trait;
     } else {
       traitsToSet[key] = trait;
     }
@@ -207,6 +213,7 @@ Mixpanel.prototype.identify = function(identify) {
     if (people) {
       window.mixpanel.people.set(traitsToSet);
       window.mixpanel.people.union(traitsToUnion);
+      window.mixpanel.people.set_once(traitsToSetOnce);
     }
   } else {
     // explicitly set select traits as people and super properties
