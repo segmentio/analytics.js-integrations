@@ -44,10 +44,14 @@ Totango.prototype.initialize = function(page) {
     track:function(t,o,n,a){window.totango_tmp_stack.push({activity:t,module:o,org:n,user:a}); return -1;}};
   /* eslint-enable */
 
+  /* Int Totango JS */
+  var defaultRegion = 'us'
+  var selected_region = this.options.region ?  this.options.region : defaultRegion; 
   window.totango_options = {
     allow_empty_accounts: false,
     service_id: this.options.serviceId,
     disable_heartbeat: this.options.disableHeartbeat,
+    region: selected_region,
     module: page.category()
   };
 
