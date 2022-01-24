@@ -152,7 +152,7 @@ describe('ShareASale', function() {
         );
       });
 
-      it('should calculate order total from subtotal not including discount', function() {
+      it('should calculate order total from subtotal', function() {
         analytics.track('order completed', {
           orderId: 123,
           discount: 5,
