@@ -40,7 +40,7 @@ ShareASale.prototype.orderCompleted = function(track) {
   var orderTotal =
     this.options.useTotalAsAmount && track.total()
       ? track.total().toFixed(2)
-      : (subtotal - discount).toFixed(2);
+      : subtotal.toFixed(2);
   var products = track.products();
   var currency = track.currency() || this.options.currency;
   var coupon = track.coupon() || '';
