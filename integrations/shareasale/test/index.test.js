@@ -152,7 +152,7 @@ describe('ShareASale', function() {
         );
       });
 
-      it('should calculate order total from subtotal including discount', function() {
+      it('should calculate order total from subtotal not including discount', function() {
         analytics.track('order completed', {
           orderId: 123,
           discount: 5,
@@ -161,7 +161,7 @@ describe('ShareASale', function() {
           subtotal: 55.5
         });
         analytics.loaded(
-          '<img src="https://shareasale.com/sale.cfm?amount=50.50&tracking=123&transtype=sale&merchantID=bonobos&skulist=&quantitylist=&pricelist=&currency=USD&couponcode=">'
+          '<img src="https://shareasale.com/sale.cfm?amount=55.50&tracking=123&transtype=sale&merchantID=bonobos&skulist=&quantitylist=&pricelist=&currency=USD&couponcode=">'
         );
       });
 
