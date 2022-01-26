@@ -1,3 +1,13 @@
+2.2.3 / 2020-01-26
+===================
+
+  * Correct subtotal logic to match oder completed schema documentation.
+
+2.2.2 / 2021-06-03
+===================
+
+  * Pins @segment/analytics.js-integration
+
 2.2.1 / 2020-12-14
 ===================
 
