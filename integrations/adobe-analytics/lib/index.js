@@ -10,6 +10,7 @@ var each = require('@ndhoule/each');
 var iso = require('@segment/to-iso-string');
 var Track = require('segmentio-facade').Track;
 var trample = require('@segment/trample');
+var chromecastHeartbeat = require('./chromecast-heartbeat');
 
 /**
  * hasOwnProperty reference.
@@ -117,6 +118,10 @@ AdobeAnalytics.global('s')
   .tag(
     'heartbeat',
     '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0-heartbeat.js">'
+  )
+  .tag(
+    'chromecast',
+    '<script type="text/javascript" src="//cdn.jsdelivr.net/gh/Adobe-Marketing-Cloud/media-sdks/sdks/chromecast/libs/adbmobile-chromecast.min.js">'
   );
 
 /**
@@ -129,6 +134,9 @@ AdobeAnalytics.prototype.initialize = function() {
   var options = this.options;
   var self = this;
 
+  // Hard coding this to true for this branch, will be switched to a setting when merged into main
+  options.chromecastMode = true;
+
   // Lowercase all keys of event map for easy matching later
   if (!Array.isArray(options.events)) lowercaseKeys(options.events);
 
@@ -139,9 +147,90 @@ AdobeAnalytics.prototype.initialize = function() {
   // WITHOUT sending several 'Video Content Playing' events. (see line 1242)
   window._segHBPlayheads = {};
 
-  // Load the larger Heartbeat script only if the customer has it enabled in settings.
-  // This file is considerably bigger, so this check is necessary.
-  if (options.heartbeatTrackingServerUrl) {
+  // Start checking which SDK initialization to do
+  // Load the more compact Chromecast SDK only if the customer has it enabled in settings
+  if (options.chromecastMode) {
+    if(this.options && this.options.contextValues){
+    window.settingsContextValues = this.options.contextValues;
+    }
+    window.ADBmobile = {};
+    window.ADBmobile.analytics = {};
+    window.ADBMobileConfig = {
+      "marketingCloud": {
+        "org": String(options.marketingCloudOrgId)
+      },
+      "target": {
+        "clientCode": "",
+        "timeout": 5
+      },
+      "audienceManager": {
+        "server": String(options.trackingServerUrl)
+      },
+      // TO DO: Update placeholder values with settings or properties
+      "analytics": {
+       "rsids":  String(options.reportSuiteId),
+        "server":  String(options.trackingServerUrl),
+        "ssl": this.options.ssl,
+        "offlineEnabled": false,
+        "charset": "UTF-8",
+        "lifecycleTimeout": 300,
+        "privacyDefault": "optedin",
+        "batchLimit": 0,
+        "timezone": "MDT",
+        "timezoneOffset": -360,
+        "referrerTimeout": 0,
+        "poi": []
+      },
+      // TO DO: Update placeholder values with settings or properties
+      "mediaHeartbeat": {
+        "server":  String(options.heartbeatTrackingServerUrl),
+        "publisher":  String(options.marketingCloudOrgId),
+        "channel": "chromecast",
+        "ssl": this.options.ssl,
+        "ovp": "unknown",
+        "sdkVersion": "unknown",
+        "playerName": "chromecast"
+      }
+    };
+
+    self.mediaHeartbeats = {};
+    self.adBreakCounts = {};
+    self.qosData = {};
+    self.playhead = 0;
+    self.adBreakInProgress = false;
+
+    // The following methods are required by chromecast-heartbeat.js to initialize the video tracking session
+    window.extractMediaMetadata = chromecastHeartbeat.extractMediaMetadata;
+    window.getCurrentPlaybackTime = getCurrentPlaybackTime;    
+    window.getQoSObject = getQoSObject;
+
+    self.heartbeatEventMap = {
+      // Segment spec'd event: Heartbeat function
+      'video playback started': chromecastHeartbeat.chromecastInit,
+      'video playback paused': chromecastHeartbeat.chromecastVideoPaused,
+      'video playback resumed': chromecastHeartbeat.chromecastVideoStart, // Treated as a 'play' as well.
+      'video playback buffer started': chromecastHeartbeat.chromecastBufferStarted,
+      'video playback buffer completed': chromecastHeartbeat.chromecastBufferCompleted,
+      'video playback seek started': chromecastHeartbeat.chromecastSeekStarted,
+      'video playback seek completed': chromecastHeartbeat.chromecastSeekCompleted,
+      'video playback completed': chromecastHeartbeat.chromecastSessionEnd,
+      'video playback interrupted': chromecastHeartbeat.chromecastVideoPaused,
+      'video quality updated': chromecastHeartbeat.chromecastQualityUpdated,
+      'video content started': chromecastHeartbeat.chromecastContentStart,
+      'video content playing': chromecastHeartbeat.chromecastUpdatePlayhead,
+      'video content completed': chromecastHeartbeat.chromecastVideoComplete,
+      'video ad started': chromecastHeartbeat.chromecastAdStarted,
+      'video ad skipped': chromecastHeartbeat.chromecastAdSkipped,
+      'video ad completed': chromecastHeartbeat.chromecastAdCompleted,
+      'video playback exited': chromecastHeartbeat.chromecastPlaybackExited
+    };
+
+    this.load('chromecast', function() {
+      self.ready();
+    });
+    // Load the larger Heartbeat JS SDK script along with App Measurement only if the customer has it enabled in settings.
+    // This file is considerably bigger, so this check is necessary.
+  } else if (options.heartbeatTrackingServerUrl) {
     this.load('heartbeat', function() {
       var s = window.s;
       s.trackingServer = s.trackingServer || options.trackingServerUrl;
@@ -188,9 +277,10 @@ AdobeAnalytics.prototype.initialize = function() {
           'video playback interrupted': heartbeatVideoPaused
         };
       }
-
+      
       self.ready();
     });
+    // Otherwise load the App Measurement SDK only
   } else {
     this.load('default', function() {
       var s = window.s;
@@ -240,50 +330,64 @@ AdobeAnalytics.prototype.page = function(page) {
 
   // Set the page name
   var pageName = page.fullName();
-  // TODO: for nameless analytics.page(), pageName is `undefined`
-  // Should we be setting or sending something else here?
-  // When window.s.pageName is not set, AA falls back on url which is bad.
-  // Not sure what happens when it is sent as `undefined` (not string)
-  // Either way, any change here would be breaking
-  window.s.pageName = pageName;
-  window.s.referrer = page.referrer();
 
-  // Visitor ID aka AA's concept of `userId`.
-  // This is not using `update()` so once it is set, it will be sent
-  // with `.track()` calls as well.
-  // visitorId is not supported for timestamped hits
-  // https://marketing.adobe.com/resources/help/en_US/sc/implement/timestamps-overview.html
-  if (!this.options.disableVisitorId) {
-    var userId = this.analytics.user().id();
-    if (userId) {
-      if (this.options.timestampOption === 'disabled')
-        window.s.visitorID = userId;
-      if (
-        this.options.timestampOption === 'hybrid' &&
-        this.options.preferVisitorId
-      )
-        window.s.visitorID = userId;
+  if (this.options.chromecastMode) {
+    //var props = extractProperties(page, this.options);
+    if (this.analytics && this.analytics.user()) {
+      var userId = this.analytics.user().id();
+      window.ADBMobile.config.setUserIdentifier(userId);
+
+    } else if (this.analytics.user().anonymousId()) {
+      var anonymousId = this.analytics.user().anonymousId();
+      window.ADBMobile.config.setUserIdentifier(anonymousId);
     }
+    window.ADBMobile.analytics.trackState(pageName);
+  } else {
+    // TODO: for nameless analytics.page(), pageName is `undefined`
+    // Should we be setting or sending something else here?
+    // When window.s.pageName is not set, AA falls back on url which is bad.
+    // Not sure what happens when it is sent as `undefined` (not string)
+    // Either way, any change here would be breaking
+    window.s.pageName = pageName;
+    window.s.referrer = page.referrer();
+
+    // Visitor ID aka AA's concept of `userId`.
+    // This is not using `update()` so once it is set, it will be sent
+    // with `.track()` calls as well.
+    // visitorId is not supported for timestamped hits
+    // https://marketing.adobe.com/resources/help/en_US/sc/implement/timestamps-overview.html
+    if (!this.options.disableVisitorId) {
+      var userId = this.analytics.user().id();
+      if (userId) {
+        if (this.options.timestampOption === 'disabled')
+          window.s.visitorID = userId;
+        if (
+          this.options.timestampOption === 'hybrid' &&
+          this.options.preferVisitorId
+        )
+          window.s.visitorID = userId;
+      }
+    }
+
+    // Attach some variables on the `window.s` to be sent with the call
+    update(pageName, 'events');
+    updateCommonVariables(page, this.options);
+
+    calculateTimestamp(page, this.options);
+
+    // Check if any properties match mapped eVar, prop, or hVar in options
+    var props = extractProperties(page, this.options);
+    // Attach them to window.s and push to dynamicKeys
+    each(update, props);
+
+    // Update `s.contextData`
+    updateContextData(page, this.options);
+
+    // actually make the "page" request, just a single "t" not "tl"
+    // "t" will send all variables on the window.s while "tl" does not
+    // "t" will increment pageviews while "tl" does not
+    window.s.t();
   }
-
-  // Attach some variables on the `window.s` to be sent with the call
-  update(pageName, 'events');
-  updateCommonVariables(page, this.options);
-
-  calculateTimestamp(page, this.options);
-
-  // Check if any properties match mapped eVar, prop, or hVar in options
-  var props = extractProperties(page, this.options);
-  // Attach them to window.s and push to dynamicKeys
-  each(update, props);
-
-  // Update `s.contextData`
-  updateContextData(page, this.options);
-
-  // actually make the "page" request, just a single "t" not "tl"
-  // "t" will send all variables on the window.s while "tl" does not
-  // "t" will increment pageviews while "tl" does not
-  window.s.t();
 };
 
 /**
@@ -419,49 +523,68 @@ AdobeAnalytics.prototype.checkoutStarted = function(track) {
  */
 
 AdobeAnalytics.prototype.processEvent = function(msg, adobeEvent) {
-  var merchEvents = getMerchConfig(msg, this.options);
   var properties = msg.properties();
+  var adobeEvents = [];
+  if (this.options.chromecastMode) {
+    if (this.options.events.length > 0) {
+      // iterate through event map and pull adobe events corresponding to the incoming segment event
+      each(function(eventMapping) {
+        if (eventMapping.segmentEvent.toLowerCase() === msg.event().toLowerCase()) {
+          each(function(event) {
+            if (adobeEvents.indexOf(event) <= 0) {
+              adobeEvents.push(event);
+            }
+          }, eventMapping.adobeEvents);
+        }
+      }, this.options.events);
+    }
+    each(function(adobeEventToSend) {
+      console.log('SENT ' + adobeEventToSend)
+      window.ADBMobile.analytics.trackAction(adobeEventToSend, properties)
+    }, adobeEvents);
+  } else {
+    var merchEvents = getMerchConfig(msg, this.options);
+    // sets `window.s.products`
+    setProductsString(
+      msg.event(),
+      properties,
+      adobeEvent,
+      this.options.productIdentifier,
+      merchEvents.configProductMerchEvent,
+      merchEvents.productEVars
+    );
 
-  // sets `window.s.products`
-  setProductsString(
-    msg.event(),
-    properties,
-    adobeEvent,
-    this.options.productIdentifier,
-    merchEvents.configProductMerchEvent,
-    merchEvents.productEVars
-  );
+    updateContextData(msg, this.options);
 
-  updateContextData(msg, this.options);
+    var eVarEvent = dot(this.options.eVars, msg.event());
+    update(msg.event(), eVarEvent);
 
-  var eVarEvent = dot(this.options.eVars, msg.event());
-  update(msg.event(), eVarEvent);
+    // sets `window.s.events`
+    setEventsString(
+      msg.event(),
+      properties,
+      this.options.events,
+      merchEvents.configMerchEvents,
+      adobeEvent
+    );
 
-  // sets `window.s.events`
-  setEventsString(
-    msg.event(),
-    properties,
-    this.options.events,
-    merchEvents.configMerchEvents,
-    adobeEvent
-  );
+    updateCommonVariables(msg, this.options);
 
-  updateCommonVariables(msg, this.options);
+    calculateTimestamp(msg, this.options);
 
-  calculateTimestamp(msg, this.options);
+    var mappedProps = extractProperties(msg, this.options);
+    each(update, mappedProps);
 
-  var mappedProps = extractProperties(msg, this.options);
-  each(update, mappedProps);
+    if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
 
-  if (msg.currency() !== 'USD') update(msg.currency(), 'currencyCode');
+    window.s.linkTrackVars = dynamicKeys.join(',');
 
-  window.s.linkTrackVars = dynamicKeys.join(',');
-
-  // Send request off to Adobe Analytics
-  // 1st param: sets 500ms delay to give browser time, also means you are tracking something other than a href link
-  // 2nd param: 'o' means 'Other' as opposed to 'd' for 'Downloads' and 'e' for Exit links
-  // 3rd param: link name you will see in reports
-  window.s.tl(true, 'o', msg.event());
+    // Send request off to Adobe Analytics
+    // 1st param: sets 500ms delay to give browser time, also means you are tracking something other than a href link
+    // 2nd param: 'o' means 'Other' as opposed to 'd' for 'Downloads' and 'e' for Exit links
+    // 3rd param: link name you will see in reports
+    window.s.tl(true, 'o', msg.event());
+  }
 };
 
 /**
@@ -1585,6 +1708,13 @@ function createQosObject(track) {
   );
 }
 
+function getCurrentPlaybackTime() {
+  return window.playhead;
+}
+
+function getQoSObject() {
+  return window.qosInfo;
+}
 /**
  * Merge two javascript objects. This works similarly to `Object.assign({}, obj1, obj2)`
  * but it's compatible with old browsers. The properties of the first argument takes preference
