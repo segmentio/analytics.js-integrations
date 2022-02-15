@@ -7,9 +7,7 @@ var is = require('is');
  * Expose `HotJar` integration
  */
 
-var Hotjar = (module.exports = integration('Hotjar')
-  .option('hjid', null)
-  .option('hjPlaceholderPolyfill', true));
+var Hotjar = (module.exports = integration('Hotjar').option('hjid', null));
 
 /**
  * Initialize HotJar
@@ -20,8 +18,7 @@ Hotjar.prototype.initialize = function() {
   function areOptionsValid(options) {
     var validators = {
       isHjidValid:
-        is.number(options.hjid) && !is.nan(options.hjid) && options.hjid !== 0, // Make sure that HJID is a number (and isn't NaN)
-      isPlaceholderPolyfillValid: is.bool(options.hjPlaceholderPolyfill) // Make sure we received a boolean.
+        is.number(options.hjid) && !is.nan(options.hjid) && options.hjid !== 0 // Make sure that HJID is a number (and isn't NaN)
     };
 
     for (var validator in validators) {
@@ -53,8 +50,7 @@ Hotjar.prototype.initialize = function() {
       };
     h._hjSettings = {
       hjid: h._hjSelf.options.hjid,
-      hjsv: 6,
-      hjPlaceholderPolyfill: h._hjSelf.options.hjPlaceholderPolyfill
+      hjsv: 6
     };
     a = o.getElementsByTagName('head')[0];
     r = o.createElement('script');
@@ -76,4 +72,15 @@ Hotjar.prototype.identify = function(identify) {
   delete traits.id;
 
   window.hj('identify', identify.userId(), traits);
+};
+
+Hotjar.prototype.track = function(track) {
+  if (!track.event()) {
+    return this.debug('event name is required');
+  }
+
+  // NOTE: Currently, Hotjar's Events API doesn't support properties.
+  // For now, we're ignoring properties (`track.properties()`).
+
+  window.hj('event', track.event());
 };
