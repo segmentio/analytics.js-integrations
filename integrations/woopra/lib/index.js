@@ -22,14 +22,11 @@ var Woopra = (module.exports = integration('Woopra')
   .option('cookieName', 'wooTracker')
   .option('cookieDomain', null)
   .option('cookiePath', '/')
-  .option('ping', true)
-  .option('pingInterval', 12000)
   .option('idleTimeout', 300000)
-  .option('downloadTracking', true)
-  .option('outgoingTracking', true)
+  .option('downloadTracking', false)
+  .option('outgoingTracking', false)
+  .option('clickTracking', false)
   .option('outgoingIgnoreSubdomain', true)
-  .option('downloadPause', 200)
-  .option('outgoingPause', 400)
   .option('ignoreQueryUrl', true)
   .option('hideCampaign', false)
   .tag('<script src="//static.woopra.com/js/w.js">'));
@@ -50,7 +47,18 @@ Woopra.prototype.initialize = function() {
       d = document,
       a = arguments,
       q = 'script',
-      f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
+      f = [
+        'call',
+        'cancelAction',
+        'config',
+        'identify',
+        'push',
+        'track',
+        'trackClick',
+        'trackForm',
+        'update',
+        'visit'
+      ],
       c = function() {
         var i,
           self = this;
@@ -139,34 +147,8 @@ Woopra.prototype.identify = function(identify) {
 
 Woopra.prototype.track = function(track) {
   setContext(track);
-  window.woopra.track(track.event(), stringifyNested(track.properties()));
+  window.woopra.track(track.event(), track.properties());
 };
-
-/**
- * Stringify nested objects.
- *
- * Undocumented aspect of Woopra's API, but apparently required. Breaks
- * on `Completed Order` `properties.products`.
- *
- * @param {Object} obj
- * @return {Object}
- * @api private
- */
-
-function stringifyNested(obj) {
-  return foldl(
-    function(results, value, key) {
-      if (is.array(obj[key])) {
-        results[key] = json.stringify(obj[key]);
-      } else {
-        results[key] = obj[key];
-      }
-      return results;
-    },
-    {},
-    obj
-  );
-}
 
 function setContext(event) {
   var options = event.options();

@@ -1,4 +1,12 @@
 
+
+2.1.0 / 2022-02-18
+==================
+
+  * Remove ping configuration
+  * Add auto track configuration
+
+
 2.0.1 / 2016-09-13
 ==================
 
