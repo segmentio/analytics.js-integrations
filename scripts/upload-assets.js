@@ -26,7 +26,6 @@ async function getFiles(dir) {
  */
 async function uploadAssets() {
   const localPath = process.env.LOCAL_PATH;
-
   const bucket = process.env.S3_BUCKET_NAME;
   const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
   const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
@@ -69,7 +68,7 @@ async function uploadAssets() {
   let manifest = {};
 
   const key = fileName => {
-    return path.join('next-integrations', fileName);
+    return path.join('next-integrations', `/integrations-2.0/${fileName}`);
   };
 
   const putObject = async (
