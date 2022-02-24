@@ -68,7 +68,7 @@ async function uploadAssets() {
   let manifest = {};
 
   const key = fileName => {
-    return path.join('next-integrations', `/integrations-2.0/${fileName}`);
+    return path.join('next-integrations', fileName);
   };
 
   const putObject = async (
