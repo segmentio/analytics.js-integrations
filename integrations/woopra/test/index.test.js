@@ -39,9 +39,9 @@ describe('Woopra', function() {
         .option('cookieDomain', null)
         .option('cookiePath', '/')
         .option('idleTimeout', 300000)
-        .option('downloadTracking', false)
-        .option('outgoingTracking', false)
-        .option('clickTracking', false)
+        .option('downloadTracking', true)
+        .option('outgoingTracking', true)
+        .option('clickTracking', true)
         .option('outgoingIgnoreSubdomain', true)
         .option('ignoreQueryUrl', true)
         .option('hideCampaign', false)
@@ -70,8 +70,8 @@ describe('Woopra', function() {
           ['config', 'cookie_name', 'wooTracker'],
           ['config', 'cookie_path', '/'],
           ['config', 'idle_timeout', 300000],
-          ['config', 'download_tracking', false],
-          ['config', 'outgoing_tracking', false],
+          ['config', 'download_tracking', true],
+          ['config', 'outgoing_tracking', true],
           ['config', 'outgoing_ignore_subdomain', true],
           ['config', 'ignore_query_url', true],
           ['config', 'hide_campaign', false]

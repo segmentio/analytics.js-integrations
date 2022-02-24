@@ -8,7 +8,6 @@ var each = require('component-each');
 var integration = require('@segment/analytics.js-integration');
 var toSnakeCase = require('to-snake-case');
 var is = require('is');
-var foldl = require('@ndhoule/foldl');
 var isostring = require('isostring');
 var time = require('unix-time');
 
@@ -23,9 +22,9 @@ var Woopra = (module.exports = integration('Woopra')
   .option('cookieDomain', null)
   .option('cookiePath', '/')
   .option('idleTimeout', 300000)
-  .option('downloadTracking', false)
-  .option('outgoingTracking', false)
-  .option('clickTracking', false)
+  .option('downloadTracking', true)
+  .option('outgoingTracking', true)
+  .option('clickTracking', true)
   .option('outgoingIgnoreSubdomain', true)
   .option('ignoreQueryUrl', true)
   .option('hideCampaign', false)
