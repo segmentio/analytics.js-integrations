@@ -111,7 +111,8 @@ async function uploadAssets() {
     const integration = f[2]; // get integration name
     const clientName = f[f.length - 1].substring(0, f[f.length-1].indexOf('.'));
     const bufferClientName = Buffer.from(clientName).toString('base64').replace(/=/g, '');
-    const file = f[f.length - 1].replace(clientName, bufferClientName);
+    const file = f[f.length - 1];
+    const bufferFile = file.replace(clientName, bufferClientName);
 
     const package = await fs.readJSON(`${type}/${integration}/package.json`);
     const version = package.version;
@@ -126,7 +127,7 @@ async function uploadAssets() {
 
     await putObject(
       fileName,
-      `${type}/${bufferClientName}/${version}/${file}`,
+      `${type}/${bufferClientName}/${version}/${bufferFile}`,
       true
     );
 
