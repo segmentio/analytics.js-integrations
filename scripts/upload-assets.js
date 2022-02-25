@@ -68,7 +68,7 @@ async function uploadAssets() {
   let manifest = {};
 
   const key = fileName => {
-    return path.join('next-integrations', fileName);
+    return path.join('next-integrations', `/integrations-2.0/${fileName}`);
   };
 
   const putObject = async (
@@ -127,7 +127,7 @@ async function uploadAssets() {
 
     await putObject(
       fileName,
-      `${type}/${bufferClientName}/${version}/${bufferFile}`,
+      `${type}/${bufferClientName}/${version}/${file.includes('map') ? file : bufferFile}`,
       true
     );
 
