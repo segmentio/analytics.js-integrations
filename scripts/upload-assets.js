@@ -109,9 +109,9 @@ async function uploadAssets() {
 
     const type = f[1]; // get integration name
     const integration = f[2]; // get integration name
-    const clientName = f[f.length - 1].substring(0, f[f.length-1].indexOf('.'));
-    const bufferClientName = Buffer.from(clientName).toString('base64').replace(/=/g, '');
     const file = f[f.length - 1];
+    const clientName = file.substring(0, file.indexOf('.'));
+    const bufferClientName = Buffer.from(clientName).toString('base64').replace(/=/g, '');
     const bufferFile = file.replace(clientName, bufferClientName);
 
     const package = await fs.readJSON(`${type}/${integration}/package.json`);
@@ -133,7 +133,7 @@ async function uploadAssets() {
 
     await putObject(
       fileName,
-      `${type}/${bufferClientName}/latest/${file.includes('map') ? file : bufferFile}`,
+      `${type}/${bufferClientName}/latest/${file.includes('.map') ? file : bufferFile}`,
       true
     );
 
