@@ -127,7 +127,7 @@ async function uploadAssets() {
 
     await putObject(
       fileName,
-      `${type}/${bufferClientName}/${version}/${file.includes('map') ? file : bufferFile}`,
+      `${type}/${bufferClientName}/${version}/${file.includes('.map') ? file : bufferFile}`,
       true
     );
 
