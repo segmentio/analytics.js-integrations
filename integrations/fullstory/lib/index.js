@@ -21,6 +21,7 @@ var FullStory = (module.exports = integration('FullStory')
   .option('trackNamedPages', false)
   .option('trackCategorizedPages', false)
   .option('trackPagesWithEvents', true)
+  .option('isOuterScript', false)
   .tag(
     '<script async src="https://edge.fullstory.com/s/fs.js" crossorigin="anonymous"></script>'
   ));
@@ -36,6 +37,7 @@ var apiSource = 'segment';
  * Initialize.
  */
 FullStory.prototype.initialize = function() {
+  window._fs_is_outer_script = this.options.isOuterScript;
   window._fs_debug = this.options.debug;
   window._fs_host = 'fullstory.com';
   window._fs_script = 'edge.fullstory.com/s/fs.js';
