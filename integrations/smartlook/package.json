@@ -1,7 +1,7 @@
 {
   "name": "@smartlook/analytics.js-integration-smartlook",
   "description": "The Smartlook analytics.js integration.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

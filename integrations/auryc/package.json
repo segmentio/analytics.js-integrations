@@ -1,6 +1,6 @@
 {
   "name": "@auryc/analytics.js-integration-auryc",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -20,11 +20,11 @@
   "author": "auryc(npm@auryc.com)",
   "license": "MIT",
   "dependencies": {
-    "@segment/analytics.js-integration": "^2.1.0",
-    "is": "^3.1.0",
     "@ndhoule/extend": "^2.0.0",
     "@segment/analytics.js-core": "^3.0.0",
-    "@segment/to-iso-string": "^1.0.1"
+    "@segment/analytics.js-integration": "^2.1.0",
+    "@segment/to-iso-string": "^1.0.1",
+    "is": "^3.1.0"
   },
   "devDependencies": {
     "@segment/analytics.js-integration-tester": "^3.1.0",

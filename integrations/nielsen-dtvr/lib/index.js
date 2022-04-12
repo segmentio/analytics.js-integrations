@@ -105,25 +105,15 @@ NielsenDTVR.prototype.track = function(track) {
  */
 
 NielsenDTVR.prototype.videoContentStarted = function(track) {
-  var date;
-  var time;
   var metadata;
-  // Proactively ensure that we call "end" whenever new content
+  // Proactively ensure we clear the session whenever new content
   // starts. Here, we'll catch it if a customer forgets to call a Segment
-  // "Completed" event, so we'll end the video for them. `end` is also
-  // appropriate during a video "interruption",
+  // "Completed" event, so we'll clear the ID3 tags and stream.
   // e.g. if a user is alternating b/w watching two videos on the same page.
   if (this.previousEvent && track !== this.previousEvent) {
-    date = this.previousEvent.timestamp();
-    if (
-      this.previousEvent.proxy('properties.livestream') === true &&
-      date instanceof Date
-    ) {
-      time = Math.floor(date.getTime() / 1000);
-    } else if (this.previousEvent.proxy('properties.position')) {
-      time = this.previousEvent.proxy('properties.position');
-    }
-    this.client.ggPM('end', time);
+    this.ID3 = null;
+    this.previousEvent = null;
+    this.isDTVRStream = null;
   }
 
   metadata = this.mapMetadata(track);
@@ -136,20 +126,28 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
 };
 
 /**
+ * These are considered non-recoverable completion scenarios. 
+ * Nielsen has requested we do not fire anything for these events.
+ * We will simply reset ID3 tags and clear out the stream/session.
+ * 
  * Video Content Completed
  * Video Playback Completed
+ * Video Playback Exited
  *
  * @api public
  */
 
-NielsenDTVR.prototype.videoContentCompleted = NielsenDTVR.prototype.videoPlaybackCompleted = function(
-  track
-) {
+NielsenDTVR.prototype.videoContentCompleted = NielsenDTVR.prototype.videoPlaybackCompleted = NielsenDTVR.prototype.videoPlaybackExited = function() {
   if (!this.isDTVRStream) return;
-  this.end(track);
+  this.ID3 = null;
+  this.previousEvent = null;
+  this.isDTVRStream = null;
 };
 
 /**
+ * These are considered recoverable interruption scenarios.
+ * Nielsen has requested we do not fire anything for these events, aside from reporting the latest ID3 tag.
+ * 
  * Video Playback Interrupted
  * Video Playback Seek Started
  * Video Playback Buffer Started
@@ -163,7 +161,6 @@ NielsenDTVR.prototype.videoPlaybackInterrupted = NielsenDTVR.prototype.videoPlay
 ) {
   if (!this.isDTVRStream) return;
   this.sendID3(track);
-  this.end(track, 'recoverable');
 };
 
 /**
@@ -214,33 +211,6 @@ NielsenDTVR.prototype.sendID3 = function(event) {
       this.ID3 = id3Tags;
       this.client.ggPM('sendID3', this.ID3);
     }
-  }
-};
-
-/**
- * End playback
- *
- * @api private
- */
-
-NielsenDTVR.prototype.end = function(event, interruptType) {
-  var livestream = event.proxy('properties.livestream');
-  var position = event.proxy('properties.position');
-  var time;
-  if (livestream) {
-    time = Math.floor(event.timestamp().getTime() / 1000);
-  } else if (position) {
-    time = position;
-  }
-
-  if (time) {
-    this.client.ggPM('end', time);
-  }
-
-  if (interruptType !== 'recoverable') {
-    this.ID3 = null;
-    this.previousEvent = null;
-    this.isDTVRStream = null;
   }
 };
 

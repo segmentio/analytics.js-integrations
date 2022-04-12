@@ -95,5 +95,13 @@ To compile a version of A.js with custom settings, simply run a command like thi
 # FAQ
 
 **Are A.js video plugins and client-side tracking plans supported?**
+
 No, currently the A.js Tester doesn't support video plugins or tracking plans;
 however, we will add these in the future if needed for testing.
+
+**How do I test and validate events?**
+
+After compiling, a window for http://localhost:3000/ should be automatically opened in your browser. You can fire events directly from the console. You can validate events are handled as expected via:
+- Debugging/logging in the console (if the destination has a debug mode)
+- Outgoing network requests
+- Reviewing the data downstream in the destination

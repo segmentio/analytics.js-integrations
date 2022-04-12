@@ -1,6 +1,8 @@
-# analytics.js-integration-adobe-target [![Build Status][ci-badge]][ci-link]
+# analytics.js-integration-adobe-target
 
-Adobe Target integration for [Analytics.js][].
+# Deprecation Notice 🚨
+
+This integration has been deprecated in favor of [Actions Adobe Target Web](https://github.com/segmentio/action-destinations/tree/main/packages/browser-destinations/src/destinations/adobe-target). No further development or support will be provided.
 
 ## License
 
@@ -8,5 +10,3 @@ Released under the [MIT license](LICENSE).
 
 
 [Analytics.js]: https://segment.com/docs/libraries/analytics.js/
-[ci-link]: https://ci.segment.com/gh/segment-integrations/analytics.js-integration-adobe-target
-[ci-badge]: https://ci.segment.com/gh/segment-integrations/analytics.js-integration-adobe-target.svg?style=svg

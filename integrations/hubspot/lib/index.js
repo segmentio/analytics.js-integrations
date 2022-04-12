@@ -20,9 +20,14 @@ var HubSpot = (module.exports = integration('HubSpot')
   .global('hbspt')
   .option('portalId', null)
   .option('loadFormsSdk', false)
+  .option('enableEuropeanDataCenter', false)
   .tag(
-    'lib',
+    'global-tag',
     '<script id="hs-analytics" src="https://js.hs-analytics.net/analytics/{{ cacheBuster }}/{{ portalId }}.js">'
+  )
+  .tag(
+    'eu-tag',
+    '<script id="hs-analytics" src="https://js-eu1.hs-analytics.net/analytics/{{ cacheBuster }}/{{ portalId }}.js">'
   )
   .tag('forms', '<script src="//js.hsforms.net/forms/shell.js">'));
 
@@ -37,12 +42,13 @@ HubSpot.prototype.initialize = function() {
   var cacheBuster = Math.ceil(new Date() / 300000) * 300000;
   var shouldLoadLeadForms = this.options.loadFormsSdk;
   var self = this;
+  var tagName = this.options.enableEuropeanDataCenter ? 'eu-tag' : 'global-tag';
   if (shouldLoadLeadForms) {
     this.load('forms', function() {
-      self.load('lib', { cacheBuster: cacheBuster }, self.ready);
+      self.load(tagName, { cacheBuster: cacheBuster }, self.ready);
     });
   } else {
-    this.load('lib', { cacheBuster: cacheBuster }, this.ready);
+    this.load(tagName, { cacheBuster: cacheBuster }, this.ready);
   }
 };
 

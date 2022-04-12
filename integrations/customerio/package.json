@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-customerio",
   "description": "The Customerio analytics.js integration.",
-  "version": "2.2.1",
+  "version": "2.2.3",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
