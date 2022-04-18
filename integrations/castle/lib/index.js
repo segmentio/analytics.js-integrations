@@ -9,6 +9,7 @@ var objCase = require('obj-case');
 var newDate = require('new-date');
 var isoDate = require('@segment/isodate');
 var toIsoString = require('@segment/to-iso-string');
+var isObject = require('isobject');
 
 /**
  * Expose `Castle` integration.
@@ -103,8 +104,34 @@ var generateUserObj = function(user) {
   }
 
   var traits = user.traits();
-
   userObj.id = user.id();
+
+  var userAddress = objCase.find(traits, 'address');
+  if (userAddress && isObject(userAddress)) {
+    var countryCode =
+      objCase.find(userAddress, 'country_code') ||
+      objCase.find(userAddress, 'country');
+
+    if (countryCode && countryCode.length < 3) {
+      userObj.address = {};
+      userObj.address.country_code = countryCode;
+      userObj.address.city = objCase.find(userAddress, 'city');
+      userObj.address.region_code =
+        objCase.find(userAddress, 'regionCode') ||
+        objCase.find(userAddress, 'state');
+      userObj.address.postal_code = objCase.find(userAddress, 'postalCode');
+      userObj.address.line1 =
+        objCase.find(userAddress, 'line1') ||
+        objCase.find(userAddress, 'street');
+      userObj.address.line2 = objCase.find(userAddress, 'line2');
+      objCase.del(traits, 'address');
+    }
+  }
+
+  if (objCase.find(traits, 'city')) {
+    userObj.email = objCase.find(traits, 'email');
+    objCase.del(traits, 'email');
+  }
 
   if (objCase.find(traits, 'email')) {
     userObj.email = objCase.find(traits, 'email');

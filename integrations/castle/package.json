@@ -29,7 +29,8 @@
     "@segment/convert-dates": "^1.0.0",
     "@segment/isodate": "^1.0.2",
     "new-date": "^1.0.0",
-    "obj-case": "^0.2.0"
+    "obj-case": "^0.2.0",
+    "isobject": "^2.1.0"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",

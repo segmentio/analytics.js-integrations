@@ -262,6 +262,99 @@ describe('Castle', function() {
           properties: {}
         });
       });
+
+      it('should call Castle#custom after identify with proper address', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          email: 'test@segment.com',
+          createdAt: '1648215849',
+          address: {
+            country: 'US',
+            street: '100 California Street Suite',
+            line2: '700',
+            state: 'CA',
+            postalCode: '94111',
+            city: 'San Francisco'
+          }
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            email: 'test@segment.com',
+            registered_at: '2022-03-25T13:44:09.000Z',
+            address: {
+              country_code: 'US',
+              line1: '100 California Street Suite',
+              line2: '700',
+              region_code: 'CA',
+              postal_code: '94111',
+              city: 'San Francisco'
+            },
+            traits: {}
+          },
+          name: eventName,
+          properties: {}
+        });
+      });
+
+      it('should call Castle#custom after identify with address as string', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          email: 'test@segment.com',
+          createdAt: '1648215849',
+          address: '100 California Street Suite 700, San Francisco CA 94111'
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            email: 'test@segment.com',
+            registered_at: '2022-03-25T13:44:09.000Z',
+            traits: {
+              address: '100 California Street Suite 700, San Francisco CA 94111'
+            }
+          },
+          name: eventName,
+          properties: {}
+        });
+      });
+
+      it('should call Castle#custom after identify with proper address but with no country code', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          email: 'test@segment.com',
+          createdAt: '1648215849',
+          address: {
+            country: 'France',
+            street: '100 California Street Suite',
+            line2: '700',
+            state: 'CA',
+            postalCode: '94111',
+            city: 'San Francisco'
+          }
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            email: 'test@segment.com',
+            registered_at: '2022-03-25T13:44:09.000Z',
+            traits: {
+              address: {
+                country: 'France',
+                street: '100 California Street Suite',
+                line2: '700',
+                state: 'CA',
+                postalCode: '94111',
+                city: 'San Francisco'
+              }
+            }
+          },
+          name: eventName,
+          properties: {}
+        });
+      });
     });
   });
 });
