@@ -8,7 +8,7 @@ var integration = require('@segment/analytics.js-integration');
 
 var Smartlook = (module.exports = integration('Smartlook')
   .option('token', '')
-  .tag('<script src="https://web-sdk.smartlook.com/recorder.js">'));
+  .tag('<script async src="https://web-sdk.smartlook.com/recorder.js">'));
 
 /**
  * Initialize Smartlook
