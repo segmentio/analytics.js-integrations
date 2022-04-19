@@ -6,7 +6,9 @@ var integration = require('@segment/analytics.js-integration');
  * Expose `Smartlook` integration
  */
 
-var Smartlook = module.exports = integration('Smartlook').option('token', '');
+var Smartlook = (module.exports = integration('Smartlook')
+  .option('token', '')
+  .tag('<script src="https://web-sdk.smartlook.com/recorder.js">'));
 
 /**
  * Initialize Smartlook
@@ -17,6 +19,20 @@ Smartlook.prototype.initialize = function() {
     return false;
   }
 
+  var token = this.options.token;
+  var region = 'eu';
+
+  // Project token may contain region, so check for it and handle it
+  if (token.indexOf(';') > -1) {
+    const splitTokenAndRegion = token.split(';');
+    token = splitTokenAndRegion[0];
+    region = splitTokenAndRegion[1];
+  }
+
+  if (region !== 'eu' && region !== 'us') {
+    region = 'eu';
+  }
+
   if (window.smartlook) {
     console.warn('Smartlook Integration is already initialized.');
     return false;
@@ -25,17 +41,10 @@ Smartlook.prototype.initialize = function() {
     window.smartlook.api.push(arguments);
   };
   window.smartlook.api = [];
-  window.smartlook('init', this.options.token);
+  window.smartlook('init', token, { region: region });
 
-  var head = window.document.getElementsByTagName('head')[0];
-  var script = window.document.createElement('script');
-  script.async = true;
-  script.type = 'text/javascript';
-  script.charset = 'utf-8';
-  script.src = 'https://rec.smartlook.com/recorder.js';
-  head.appendChild(script);
+  this.load(this.ready);
 
-  this.ready();
   return true;
 };
 
@@ -59,7 +68,7 @@ Smartlook.prototype.identify = function(identify) {
     userId = identify.anonymousId();
   }
 
-  var traits =  identify.traits();
+  var traits = identify.traits();
   delete traits.id;
 
   window.smartlook('identify', userId, traits);
