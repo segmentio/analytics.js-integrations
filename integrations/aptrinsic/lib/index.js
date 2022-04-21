@@ -20,6 +20,10 @@ var Aptrinsic = (module.exports = integration('Aptrinsic')
     '<script src="https://web-sdk.aptrinsic.com/api/aptrinsic.js?a={{ apiKey }}">'
   )
   .tag(
+    'us2',
+    '<script src="https://web-sdk-us2.aptrinsic.com/api/aptrinsic.js?a={{ apiKey }}">'
+  )
+  .tag(
     'eu', 
     '<script src="https://web-sdk-eu.aptrinsic.com/api/aptrinsic.js?a={{ apiKey }}">'
   ));
@@ -38,7 +42,18 @@ Aptrinsic.prototype.initialize = function() {
       window.aptrinsic.q.push(arguments);
     };
   window.aptrinsic.p = apiKey;
-  var tagName = this.options.dataCenter === 'eu' ? 'eu' : 'united_states';
+  var tagName;
+  switch (this.options.dataCenter) {
+    case 'eu':
+      tagName = 'eu';
+      break;
+    case 'us2':
+      tagName = 'us2';
+      break;
+    default:
+      tagName = 'united_states';
+      break;
+  }
   this.load(tagName, this.ready);
 };
 
