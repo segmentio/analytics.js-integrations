@@ -126,13 +126,19 @@ describe('Hotjar Unit', function() {
         analytics.reset();
       });
 
-      it('should send event and ignore properties', function() {
+      it('should send event without properties', function() {
+        analytics.stub(window, 'hj');
+        var event = 'the_event';
+        analytics.track(event);
+        analytics.called(window.hj, 'event', event);
+      });
+
+      it('should send event with properties', function() {
         analytics.stub(window, 'hj');
         var event = 'the_event';
         var properties = { a: 'a', b: 'b', c: [] };
         analytics.track(event, properties);
-        analytics.called(window.hj, 'event', event);
-        analytics.didNotCall(window.hj, 'event', event, properties);
+        analytics.called(window.hj, 'event', event, properties);
       });
 
       it('should not send nameless event', function() {
