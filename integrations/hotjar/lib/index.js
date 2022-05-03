@@ -79,8 +79,5 @@ Hotjar.prototype.track = function(track) {
     return this.debug('event name is required');
   }
 
-  // NOTE: Currently, Hotjar's Events API doesn't support properties.
-  // For now, we're ignoring properties (`track.properties()`).
-
-  window.hj('event', track.event());
+  window.hj('event', track.event(), track.properties());
 };
