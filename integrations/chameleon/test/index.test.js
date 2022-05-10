@@ -33,11 +33,6 @@ describe('Chameleon', function() {
     sandbox();
   });
 
-  // FIXME: Chameleon freaks out after tests run
-  after(function() {
-    window.chmln = function() {};
-  });
-
   it('should have the right settings', function() {
     analytics.compare(
       Chameleon,
@@ -46,6 +41,8 @@ describe('Chameleon', function() {
         .readyOnLoad()
         .global('chmln')
         .option('apiKey', null)
+        .option('fastUrl', 'https://fast.trychameleon.com/')
+        .tag('<script src="{{fastUrl}}messo/{{apiKey}}/messo.min.js"></script>')
     );
   });
 
@@ -164,6 +161,16 @@ describe('Chameleon', function() {
       it('should send the given id and traits', function() {
         analytics.identify('id', { trait: true });
         analytics.called(window.chmln.identify, 'id', { trait: true });
+      });
+
+      it('should send the given id, traits, and options', function() {
+        analytics.identify('id', { trait: true }, { Chameleon: { uid_hash: 'id-h' } });
+        analytics.called(window.chmln.identify, 'id', { trait: true, uid_hash: 'id-h' });
+      });
+
+      it('should send the given id, traits, and nested-options', function() {
+        analytics.identify('id', { trait: 2 }, { integrations: { Chameleon: { uid_hash: 'id-h' } } });
+        analytics.called(window.chmln.identify, 'id', { trait: 2, uid_hash: 'id-h' });
       });
     });
 
