@@ -20,8 +20,7 @@ describe('Hotjar Contract', function() {
   var options = {
     hjid: 485778,
     hjTriggers: {},
-    hjTagRecordingEvents: [],
-    hjPlaceholderPolyfill: true
+    hjTagRecordingEvents: []
   };
 
   beforeEach(function() {
