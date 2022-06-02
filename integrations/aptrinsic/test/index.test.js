@@ -85,6 +85,20 @@ describe('Aptrinsic', function() {
         );
       });
     });
+    describe('#initialize us2', function() {
+      it('should create window.aptrinsic', function() {
+        analytics.initialize();
+        analytics.assert(aptrinsic.loaded());
+      });
+      it('should load us2 script', function() {
+        analytics.spy(aptrinsic, 'load');
+        aptrinsic.options.dataCenter = 'us2'
+        analytics.initialize();
+        analytics.loaded(
+          '<script src="https://web-sdk-us2.aptrinsic.com/api/aptrinsic.js?a=AP-YAQYR6RUCNGM-1">'
+        );
+      });
+    });
   });
 
   describe('after loading', function() {
