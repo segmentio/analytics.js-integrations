@@ -65,7 +65,8 @@ var Segment = (exports = module.exports = integration('Segment.io')
   .option('addBundledMetadata', false)
   .option('unbundledIntegrations', []))
   .option('unbundledConfigIds', [])
-  .option('maybeBundledConfigIds', {});
+  .option('maybeBundledConfigIds', {})
+  .option('protocol', 'https');
 
 /**
  * Get the store.
@@ -370,7 +371,7 @@ Segment.prototype.ampId = function(ctx) {
  */
 
 Segment.prototype.enqueue = function(path, message, fn) {
-  var url = 'https://' + this.options.apiHost + path;
+  var url = this.options.protocol + '://' + this.options.apiHost + path;
   var headers = { 'Content-Type': 'text/plain' };
   var msg = this.normalize(message);
 
