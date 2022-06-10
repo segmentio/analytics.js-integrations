@@ -1,3 +1,22 @@
+3.0.0 / 2020-12-11
+==================
+
+  * Update snippet to the most recent version, including new setVars and anonymize functionality.
+  * Now use setVars API to track pages in FullStory.
+  * A new setting, trackPagesWithEvents has been added to allow tracking via events in addition to the new behavior, to support the transition. This defaults to true.
+
+2.2.4 / 2020-04-02
+==================
+
+  * Add missing definition of window._fs_script
+  * Add a line missing from the end of the snippet
+
+2.2.3 / 2020-02-17
+==================
+
+  * Update fs.js source to CDN at edge.fullstory.com
+  * Update snippet code to latest version
+
 2.2.2 / 2019-11-26
 ==================
 

@@ -20,6 +20,7 @@ describe('Appboy', function() {
     trackNamedPages: false,
     customEndpoint: '',
     version: 1,
+    onlyTrackKnownUsersOnWeb: false, // Default off.
     logPurchaseWhenRevenuePresent: false
   };
 
@@ -59,6 +60,7 @@ describe('Appboy', function() {
         .option('enableHtmlInAppMessages', false)
         .option('trackAllPages', false)
         .option('trackNamedPages', false)
+        .option('onlyTrackKnownUsersOnWeb', false)
         .option('customEndpoint', '')
         .option('logPurchaseWhenRevenuePresent', false)
         .option('version', 1)
@@ -134,6 +136,24 @@ describe('Appboy', function() {
       analytics.once('ready', function() {
         try {
           assert(V2spy.called);
+          assert(!V1spy.called);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+      analytics.initialize();
+    });
+
+    it('should use initializeV3 if version is set to 3.1', function(done) {
+      var V1spy = sinon.spy(appboy, 'initializeV1');
+      var V2spy = sinon.spy(appboy, 'initializeV2');
+      var V3spy = sinon.spy(appboy, 'initializeV3');
+      appboy.options.version = 3.1;
+      analytics.once('ready', function() {
+        try {
+          assert(V3spy.called);
+          assert(!V2spy.called);
           assert(!V1spy.called);
           done();
         } catch (e) {
@@ -270,6 +290,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype,
           'setCustomUserAttribute'
         );
+        analytics.stub(window.appboy, 'initialize');
       });
 
       it('should call each Appboy method for standard traits', function() {
@@ -314,6 +335,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype.setPhoneNumber,
           '555-555-5555'
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should set gender to male when passed male gender', function() {
@@ -325,6 +347,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype.setGender,
           window.appboy.ab.User.Genders.MALE
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should set gender to other when passed other gender', function() {
@@ -336,6 +359,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype.setGender,
           window.appboy.ab.User.Genders.OTHER
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should handle custom traits of valid types and exclude nested objects', function() {
@@ -367,6 +391,7 @@ describe('Appboy', function() {
           'date',
           'Tue Apr 25 2017 14:22:48 GMT-0700 (PDT)'
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should handle custom traits of valid types and including date object', function() {
@@ -380,6 +405,7 @@ describe('Appboy', function() {
           'date',
           date
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should not let you set reserved keys as custom attributes', function() {
@@ -390,6 +416,7 @@ describe('Appboy', function() {
         analytics.didNotCall(
           window.appboy.ab.User.prototype.setCustomUserAttribute
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
     });
 
@@ -399,6 +426,7 @@ describe('Appboy', function() {
           window.appboy.ab.User.prototype,
           'setCustomUserAttribute'
         );
+        analytics.stub(window.appboy, 'initialize');
       });
 
       it('should send group calls with group ID as a custom field', function() {
@@ -410,6 +438,7 @@ describe('Appboy', function() {
           'ab_segment_group_0e8c78ea9d97a7b8185e8632',
           true
         );
+        analytics.didNotCall(window.appboy.initialize);
       });
     });
 
@@ -417,11 +446,13 @@ describe('Appboy', function() {
       beforeEach(function() {
         analytics.stub(window.appboy, 'logCustomEvent');
         analytics.stub(window.appboy, 'logPurchase');
+        analytics.stub(window.appboy, 'initialize');
       });
 
       it('should send an event', function() {
         analytics.track('event');
         analytics.called(window.appboy.logCustomEvent, 'event');
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should send all properties', function() {
@@ -605,12 +636,14 @@ describe('Appboy', function() {
     describe('#page', function() {
       beforeEach(function() {
         analytics.stub(window.appboy, 'logCustomEvent');
+        analytics.stub(window.appboy, 'initialize');
       });
 
       it('should send a page view if trackAllPages is enabled', function() {
         appboy.options.trackAllPages = true;
         analytics.page();
         analytics.called(window.appboy.logCustomEvent, 'Loaded a Page');
+        analytics.didNotCall(window.appboy.initialize);
       });
 
       it('should send a page view if trackNamedPages is enabled', function() {

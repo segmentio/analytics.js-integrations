@@ -7,7 +7,7 @@
 var integration = require('@segment/analytics.js-integration');
 var when = require('do-when');
 var reject = require('reject');
-var json = require('json3');
+var json = JSON;
 var is = require('is');
 var defaults = require('@ndhoule/defaults');
 
@@ -169,7 +169,7 @@ Parsely.prototype.parseVideoMetadata = function(track) {
   if (authors) authors = Array.isArray(authors) ? authors : [authors];
 
   // https://www.parse.ly/help/integration/video/#video-metadata
-  // https://paper.dropbox.com/doc/Segment-Video-Spec-jdrVhQdGo9aUTQ2kMsbnx
+  // https://segment.com/docs/connections/spec/video/
   return reject({
     title: track.proxy('properties.title'),
     // Fallback on null to avoid NaN trickling through reject.

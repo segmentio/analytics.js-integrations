@@ -1,6 +1,5 @@
 # Analytics.js Integrations
 
-[![CircleCI](https://ci.segment.com/gh/segmentio/analytics.js-integrations.svg?style=svg&circle-token=3902c34188b9a248fb3cf745442f626e8bbc89a5)](https://ci.segment.com/gh/segmentio/analytics.js-integrations)
 
 ## Introduction
 This repo stores the majority of the `analytics.js` integrations that Segment currently supports. It is organized as a monorepo with each individual integration packaged and deployed as their own npm modules.
@@ -33,6 +32,9 @@ If you need to add an external dependency to an integration, **please ensure you
 
 ### Running Tests
 Each integration directory has an npm script called `test` that you can use to easily run the unit tests with via `yarn test`.
+
+### Test Locally
+You can test changes to integrations locally with the [a.js compiler](https://github.com/segmentio/analytics.js-integrations/tree/master/compiler).
 
 ### Code Formatting
 This project uses eslint to ensure uniform code formatting standards are maintained. You can see the specific eslint config in the root `.eslintrc` file. A pre-commit hook is used to help automate this process for you.

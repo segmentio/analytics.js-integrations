@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var isObject = require('isobject');
 var load = require('@segment/load-script');
 
 /**
@@ -36,7 +35,7 @@ Appcues.prototype.initialize = function() {
  */
 
 Appcues.prototype.loaded = function() {
-  return isObject(window.Appcues);
+  return typeof window.Appcues === 'object' && window.Appcues != null;
 };
 
 /**
@@ -88,6 +87,19 @@ Appcues.prototype.identify = function(identify) {
 
 Appcues.prototype.track = function(track) {
   window.Appcues.track(track.event(), track.properties());
+};
+
+/**
+ * Group.
+ *
+ * http://appcues.com/docs#group
+ *
+ * @api public
+ * @param {Group} group
+ */
+
+Appcues.prototype.group = function(group) {
+  window.Appcues.group(group.groupId(), group.traits());
 };
 
 /**

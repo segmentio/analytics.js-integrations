@@ -45,7 +45,12 @@ describe('Adobe Analytics', function() {
     lVars: {
       names: 'list1'
     },
-    contextValues: {},
+    contextValues: {
+      video_genre: 'video_genre',
+      video_asset_title: 'video_asset_title',
+      video_series_name: 'video_series_name',
+      'page.title': 'page_title'
+    },
     customDataPrefix: '',
     timestampOption: 'enabled',
     enableTrackPageName: true,
@@ -224,6 +229,30 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
       });
 
+      it('should track set top level fields (msgId, anonId, event) set as eVars properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'eVar2',
+          anonymousId: 'eVar3',
+          event: 'eVar4'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.eVar2);
+        analytics.assert(window.s.eVar3);
+        analytics.assert(window.s.eVar4);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'eVar2',
+            'eVar3',
+            'eVar4'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('tracks aliased properties', function() {
         analytics.track('Drank Some Milk', {
           type: '2%',
@@ -249,6 +278,30 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.tl, true, 'o', 'Drank Some Milk');
       });
 
+      it('should track set top level fields (msgId, anonId, event) set as props properly', function() {
+        adobeAnalytics.options.eVars = {
+          messageId: 'prop1',
+          anonymousId: 'prop2',
+          event: 'prop3'
+        };
+        analytics.track('Overlord exploded');
+        analytics.equal(window.s.events, 'event7');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.assert(window.s.prop3);
+        analytics.assert(
+          contains(
+            window.s.linkTrackVars,
+            'events',
+            'timestamp',
+            'prop1',
+            'prop2',
+            'prop3'
+          )
+        );
+        analytics.called(window.s.tl, true, 'o', 'Overlord exploded');
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -264,6 +317,19 @@ describe('Adobe Analytics', function() {
           window.location.href
         );
         analytics.equal(window.s.contextData.foo, 'bar');
+        analytics.called(window.s.tl);
+      });
+
+      it('should send top level fields (msgId, anonId, event) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          messageId: 'messageIdAdobe',
+          anonymousId: 'anonymousIdAdobe',
+          event: 'adobeEvent'
+        };
+        analytics.track('Drank Some Milk', { foo: 'bar' });
+        analytics.assert(window.s.contextData.messageIdAdobe);
+        analytics.assert(window.s.contextData.anonymousIdAdobe);
+        analytics.assert(window.s.contextData.adobeEvent);
         analytics.called(window.s.tl);
       });
 
@@ -842,6 +908,64 @@ describe('Adobe Analytics', function() {
           analytics.called(window.s.tl, true, 'o', 'Order Completed');
         });
 
+        it('tracks order completed with no Adobe Event/Segment Property but with product-scoped merch variables', function() {
+          adobeAnalytics.options.merchEvents.push({
+            segmentEvent: 'Order Completed',
+            merchEvents: [
+              {
+                adobeEvent: null,
+                valueScope: 'product',
+                segmentProperty: null
+              }
+            ],
+            productEVars: [
+              {
+                key: 'products.cart_id',
+                value: 'eVar33'
+              }
+            ]
+          });
+
+          analytics.track('Order Completed', {
+            order_id: '50314b8e9bcf000000000000',
+            total: 30,
+            revenue: 25,
+            shipping: 3,
+            tax: 2,
+            discount: 2.5,
+            coupon: 'hasbros',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                quantity: 1,
+                category: 'Games',
+                cart_id: '1'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                quantity: 2,
+                category: 'Games',
+                cart_id: '1'
+              }
+            ]
+          });
+          analytics.equal(
+            window.s.products,
+            'Games;Monopoly: 3rd Edition;1;19.00;;eVar33=1,' +
+              'Games;Uno Card Game;2;6.00;;eVar33=1'
+          );
+          analytics.assert(window.s.events === 'purchase');
+          analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
+          analytics.called(window.s.tl, true, 'o', 'Order Completed');
+        });
+
         it('tracks order completed with multiple product-scoped merch vars, no eVars', function() {
           adobeAnalytics.options.merchEvents.push({
             segmentEvent: 'Order Completed',
@@ -892,8 +1016,8 @@ describe('Adobe Analytics', function() {
           });
           analytics.equal(
             window.s.products,
-            'Games;Monopoly: 3rd Edition;1;19.00;event5=2.5|event12=2.5,' +
-              'Games;Uno Card Game;2;6.00;event5=2.5|event12=2.5'
+            'Games;Monopoly: 3rd Edition;1;19.00;event5=2.5|event12=2.5;,' +
+              'Games;Uno Card Game;2;6.00;event5=2.5|event12=2.5;'
           );
           analytics.assert(window.s.events === 'purchase,event5,event12');
           analytics.deepEqual(window.s.events, window.s.linkTrackEvents);
@@ -1051,6 +1175,30 @@ describe('Adobe Analytics', function() {
           });
           analytics.equal(window.s.events, 'prodView,event1,event38');
         });
+
+        it('should stringify bool context data', function() {
+          adobeAnalytics.options.contextValues = {
+            'page.referrer': 'page.referrer',
+            'page.url': 'page.title',
+            'page.bickenBack': 'page.bickenBack'
+          };
+          analytics.track(
+            'Drank Some Milk',
+            { foo: 'bar' },
+            { page: { bickenBack: false } }
+          );
+          analytics.equal(
+            window.s.contextData['page.referrer'],
+            window.document.referrer
+          );
+          analytics.equal(
+            window.s.contextData['page.title'],
+            window.location.href
+          );
+          analytics.equal(window.s.contextData['page.bickenBack'], 'false');
+          analytics.equal(window.s.contextData.foo, 'bar');
+          analytics.called(window.s.tl);
+        });
       });
     });
 
@@ -1087,6 +1235,24 @@ describe('Adobe Analytics', function() {
         analytics.called(window.s.t);
       });
 
+      it('tracks top level fields (msgId, anonId, event) as mapped properties', function() {
+        adobeAnalytics.options.props = {
+          anonymousId: 'prop1',
+          messageId: 'prop2',
+          event: 'prop3'
+        };
+        analytics.page('Drank Some Milk', {
+          type: '2%',
+          hier_group2: 'Lucerne',
+          dog: true
+        });
+        analytics.equal(window.s.pageName, 'Drank Some Milk');
+        analytics.assert(window.s.prop1);
+        analytics.assert(window.s.prop2);
+        analytics.assert(window.s.prop3);
+        analytics.called(window.s.t);
+      });
+
       it('should send context properties', function() {
         adobeAnalytics.options.contextValues = {
           'page.referrer': 'page.referrer',
@@ -1106,6 +1272,19 @@ describe('Adobe Analytics', function() {
           window.document.referrer
         );
         analytics.equal(window.s.contextData.url, window.location.href);
+        analytics.called(window.s.t);
+      });
+
+      it('should send top level fields (msgId, anonId, event) as context properties', function() {
+        adobeAnalytics.options.contextValues = {
+          anonymousId: 'anonymousId',
+          messageId: 'messageId',
+          event: 'eventContextData'
+        };
+        analytics.page('Page1', {});
+        analytics.assert(window.s.contextData.anonymousId);
+        analytics.assert(window.s.contextData.messageId);
+        analytics.assert(window.s.contextData.eventContextData);
         analytics.called(window.s.t);
       });
 
@@ -1345,6 +1524,65 @@ describe('Adobe Analytics', function() {
         );
       });
 
+      it('should send custom metdata in properties on Video Playback Started', function() {
+        analytics.track('Video Playback Started', {
+          session_id: sessionId,
+          video_genre: 'Reality, Game Show, Music',
+          video_asset_title: 'Some Kind of Title',
+          video_series_name: 'The Masked Singer'
+        });
+
+        analytics.assert(adobeAnalytics.mediaHeartbeats[sessionId]);
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_genre === 'Reality, Game Show, Music'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_asset_title === 'Some Kind of Title'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_series_name === 'The Masked Singer'
+        );
+      });
+
+      it('should send custom metdata in properties and context on Video Playback Started', function() {
+        analytics.track(
+          'Video Playback Started',
+          {
+            session_id: sessionId,
+            video_genre: 'Reality, Game Show, Music',
+            video_asset_title: 'Some Kind of Title',
+            video_series_name: 'The Masked Singer'
+          },
+          {
+            context: {
+              page: { title: 'yolo moves most definitely made' }
+            }
+          }
+        );
+
+        analytics.assert(adobeAnalytics.mediaHeartbeats[sessionId]);
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_genre === 'Reality, Game Show, Music'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_asset_title === 'Some Kind of Title'
+        );
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.video_series_name === 'The Masked Singer'
+        );
+
+        analytics.assert(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata.page_title === 'yolo moves most definitely made'
+        );
+      });
+
       it('should call trackPlay when a video resumes', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
@@ -1378,7 +1616,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it('should call trackComplete when a video completes', function() {
+      it('should set chapterInProgress when a video completes', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -1392,7 +1630,7 @@ describe('Adobe Analytics', function() {
 
         analytics.stub(
           adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
-          'trackComplete'
+          'trackEvent'
         );
 
         analytics.track('Video Content Completed', {
@@ -1407,7 +1645,12 @@ describe('Adobe Analytics', function() {
         });
 
         analytics.called(
-          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackComplete
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
+          window.ADB.va.MediaHeartbeat.Event.ChapterComplete
+        );
+        analytics.equal(
+          false,
+          adobeAnalytics.mediaHeartbeats[sessionId].chapterInProgress
         );
       });
 
@@ -1444,7 +1687,7 @@ describe('Adobe Analytics', function() {
         );
       });
 
-      it('should delete the instance when the session is over', function() {
+      it('should call final hb methods and delete the instance when the session is over', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
           channel: 'Black Mesa',
@@ -1460,6 +1703,7 @@ describe('Adobe Analytics', function() {
 
         // We need to save this reference for the upcoming check, since we delete the higher property after the next call.
         var heartbeatRef = adobeAnalytics.mediaHeartbeats[sessionId].heartbeat;
+        analytics.stub(heartbeatRef, 'trackComplete');
         analytics.stub(heartbeatRef, 'trackSessionEnd');
 
         analytics.track('Video Playback Completed', {
@@ -1473,8 +1717,9 @@ describe('Adobe Analytics', function() {
           livestream: false
         });
 
-        analytics.assert(!adobeAnalytics.mediaHeartbeats[sessionId]);
+        analytics.called(heartbeatRef.trackComplete);
         analytics.called(heartbeatRef.trackSessionEnd);
+        analytics.assert(!adobeAnalytics.mediaHeartbeats[sessionId]);
       });
 
       it('should start an Ad Break and Ad Tracking when an ad starts', function() {
@@ -1600,6 +1845,44 @@ describe('Adobe Analytics', function() {
           adobeAnalytics.mediaHeartbeats[sessionId].heartbeat.trackEvent,
           window.ADB.va.MediaHeartbeat.Event.AdBreakComplete
         );
+      });
+
+      it('should pause the playhead on Video Playback Interrupted', function() {
+        analytics.track('Video Playback Interrupted', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        analytics.stub(
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat,
+          'trackPause'
+        );
+      });
+
+      it('should return the playhead value from the window object', function() {
+        analytics.track('Video Playback Started', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          asset_id: 'Gordon Freeman',
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        window._segHBPlayheads[sessionId] = 5.111;
+
+        var actual = adobeAnalytics.mediaHeartbeats[
+          sessionId
+        ].delegate.getCurrentPlaybackTime();
+        analytics.assert(actual, 5.111);
       });
     });
   });

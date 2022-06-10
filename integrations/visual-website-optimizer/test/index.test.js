@@ -30,6 +30,13 @@ describe('Visual Website Optimizer', function() {
       }
     };
     window._vis_opt_queue = [];
+    window.VWO = {
+      data: {
+        vin: {
+          uuid: 1
+        }
+      }
+    };
   });
 
   afterEach(function() {
@@ -125,6 +132,7 @@ describe('Visual Website Optimizer', function() {
   describe('#roots', function() {
     beforeEach(function() {
       analytics.stub(analytics, 'track');
+      analytics.stub(analytics, 'identify');
     });
 
     it('should send active experiments if experiment is ready', function(done) {
@@ -134,13 +142,13 @@ describe('Visual Website Optimizer', function() {
 
       tick(function() {
         window._vis_opt_queue[1]();
-
         analytics.called(
           analytics.track,
           'Experiment Viewed',
           {
             experimentId: '1',
-            variationName: 'Variation'
+            variationName: 'Variation',
+            vwoUserId: 1
           },
           {
             context: {
@@ -185,6 +193,44 @@ describe('Visual Website Optimizer', function() {
       });
     });
 
+    it('should send identify call if experiment is ready', function(done) {
+      vwo.options.listen = true;
+      analytics.initialize();
+      analytics.page();
+
+      tick(function() {
+        window._vis_opt_queue[1]();
+        analytics.called(
+          analytics.identify,
+          {
+            vwoUserId: 1
+          }
+        );
+
+        done();
+      });
+    });
+
+    it('should not send identify call if experiment is not ready', function(done) {
+      vwo.options.listen = true;
+      window._vwo_exp[1].ready = false;
+      analytics.initialize();
+      analytics.page();
+
+      tick(function() {
+        window._vis_opt_queue[1]();
+        analytics.didNotCall(
+          analytics.identify,
+          {
+            vwoUserId: 1
+          }
+        );
+
+        done();
+      });
+    });
+
+
     it('should send experiment views as non-interactive if enabled', function(done) {
       vwo.options.listen = true;
       vwo.options.experimentNonInteraction = true;
@@ -200,6 +246,7 @@ describe('Visual Website Optimizer', function() {
           {
             experimentId: '1',
             variationName: 'Variation',
+            vwoUserId: 1,
             nonInteraction: 1
           },
           {
@@ -215,9 +262,9 @@ describe('Visual Website Optimizer', function() {
       });
     });
 
-    it('should not send experiments if experiment type is not of type A/B with trackOnlyABExperiments enabled', function(done) {
+    it('should not send experiments if experiment type is not of type A/B with trackOnlyAbExperiments enabled', function(done) {
       vwo.options.listen = true;
-      vwo.options.trackOnlyABExperiments = true;
+      vwo.options.trackOnlyAbExperiments = true;
       window._vwo_exp[1].type = 'testType';
       analytics.initialize();
       analytics.page();
@@ -245,7 +292,7 @@ describe('Visual Website Optimizer', function() {
       });
     });
 
-    it('should send experiments if experiment type is not of type A/B with trackOnlyABExperiments disabled', function(done) {
+    it('should send experiments if experiment type is not of type A/B with trackOnlyAbExperiments disabled', function(done) {
       vwo.options.listen = true;
       window._vwo_exp[1].type = 'testType';
       analytics.initialize();
@@ -259,7 +306,8 @@ describe('Visual Website Optimizer', function() {
           'Experiment Viewed',
           {
             experimentId: '1',
-            variationName: 'Variation'
+            variationName: 'Variation',
+            vwoUserId: 1
           },
           {
             context: {

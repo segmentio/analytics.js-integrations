@@ -1,3 +1,26 @@
+1.16.0 / 2020-12-16
+===================
+
+* Adds support for Braze 3.1 via version option
+
+1.15.1 / 2020-12-14
+===================
+
+* Bump segmentio-facade to ^3.2.7
+
+1.15.0 / 2020-10-28
+===================
+
+* Adds support for Braze 2.7 via version option
+
+1.14.0 / 2020-03-02
+===================
+
+* Add support for new setting `onlyTrackKnownUsersOnWeb`.
+  * If enabled, this new setting delays calling of `window.appboy.initialize` until there is an `identify` call
+    that supplies a valid `userId`.
+  * This functionality was added to support customers who want to stop logging anonymous users to Braze.
+
 1.13.1 / 2019-11-27
 ===================
 

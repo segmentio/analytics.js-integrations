@@ -41,6 +41,7 @@ NielsenDTVR.prototype.initialize = function() {
   var config = {};
   this.ID3 = null;
   this.previousEvent = null;
+  this.isDTVRStream = false;
 
   // Modified Nielsen snippet. It shouldn't load the Nielsen tag, but it should
   // still successfully queue events fired before the tag loads.
@@ -104,25 +105,15 @@ NielsenDTVR.prototype.track = function(track) {
  */
 
 NielsenDTVR.prototype.videoContentStarted = function(track) {
-  var date;
-  var time;
   var metadata;
-  // Proactively ensure that we call "end" whenever new content
+  // Proactively ensure we clear the session whenever new content
   // starts. Here, we'll catch it if a customer forgets to call a Segment
-  // "Completed" event, so we'll end the video for them. `end` is also
-  // appropriate during a video "interruption",
+  // "Completed" event, so we'll clear the ID3 tags and stream.
   // e.g. if a user is alternating b/w watching two videos on the same page.
   if (this.previousEvent && track !== this.previousEvent) {
-    date = this.previousEvent.timestamp();
-    if (
-      this.previousEvent.proxy('properties.livestream') === true &&
-      date instanceof Date
-    ) {
-      time = Math.floor(date.getTime() / 1000);
-    } else if (this.previousEvent.proxy('properties.position')) {
-      time = this.previousEvent.proxy('properties.position');
-    }
-    this.client.ggPM('end', time);
+    this.ID3 = null;
+    this.previousEvent = null;
+    this.isDTVRStream = null;
   }
 
   metadata = this.mapMetadata(track);
@@ -135,106 +126,58 @@ NielsenDTVR.prototype.videoContentStarted = function(track) {
 };
 
 /**
+ * These are considered non-recoverable completion scenarios. 
+ * Nielsen has requested we do not fire anything for these events.
+ * We will simply reset ID3 tags and clear out the stream/session.
+ * 
  * Video Content Completed
+ * Video Playback Completed
+ * Video Playback Exited
  *
  * @api public
  */
 
-NielsenDTVR.prototype.videoContentCompleted = function(track) {
-  this.end(track);
+NielsenDTVR.prototype.videoContentCompleted = NielsenDTVR.prototype.videoPlaybackCompleted = NielsenDTVR.prototype.videoPlaybackExited = function() {
+  if (!this.isDTVRStream) return;
+  this.ID3 = null;
+  this.previousEvent = null;
+  this.isDTVRStream = null;
 };
 
 /**
+ * These are considered recoverable interruption scenarios.
+ * Nielsen has requested we do not fire anything for these events, aside from reporting the latest ID3 tag.
+ * 
  * Video Playback Interrupted
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackInterrupted = function(track) {
-  this.sendID3(track);
-  this.end(track);
-};
-
-/**
  * Video Playback Seek Started
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackSeekStarted = function(track) {
-  this.sendID3(track);
-  this.end(track);
-};
-
-/**
- * Video Playback Seek Completed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackSeekCompleted = function(track) {
-  var metadata = this.mapMetadata(track);
-  if (!metadata) return;
-  this.client.ggPM('loadMetadata', metadata);
-  this.sendID3(track);
-};
-
-/**
  * Video Playback Buffer Started
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackBufferStarted = function(track) {
-  this.sendID3(track);
-  this.end(track);
-};
-
-/**
- * Video Playback Buffer Completed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackBufferCompleted = function(track) {
-  var metadata = this.mapMetadata(track);
-  if (!metadata) return;
-  this.client.ggPM('loadMetadata', metadata);
-  this.sendID3(track);
-};
-
-/**
  * Video Playback Paused
  *
  * @api public
  */
 
-NielsenDTVR.prototype.videoPlaybackPaused = function(track) {
+NielsenDTVR.prototype.videoPlaybackInterrupted = NielsenDTVR.prototype.videoPlaybackSeekStarted = NielsenDTVR.prototype.videoPlaybackBufferStarted = NielsenDTVR.prototype.videoPlaybackPaused = function(
+  track
+) {
+  if (!this.isDTVRStream) return;
   this.sendID3(track);
-  this.end(track);
 };
 
 /**
+ * Video Playback Seek Completed
+ * Video Playback Buffer Completed
  * Video Playback Resumed
  *
  * @api public
  */
 
-NielsenDTVR.prototype.videoPlaybackResumed = function(track) {
+NielsenDTVR.prototype.videoPlaybackSeekCompleted = NielsenDTVR.prototype.videoPlaybackBufferCompleted = NielsenDTVR.prototype.videoPlaybackResumed = function(
+  track
+) {
   var metadata = this.mapMetadata(track);
-  if (!metadata) return;
+  if (!metadata || !this.isDTVRStream) return;
   this.client.ggPM('loadMetadata', metadata);
   this.sendID3(track);
-};
-
-/**
- * Video Playback Completed
- *
- * @api public
- */
-
-NielsenDTVR.prototype.videoPlaybackCompleted = function(track) {
-  this.end(track);
 };
 
 /**
@@ -272,30 +215,6 @@ NielsenDTVR.prototype.sendID3 = function(event) {
 };
 
 /**
- * End playback
- *
- * @api private
- */
-
-NielsenDTVR.prototype.end = function(event) {
-  var livestream = event.proxy('properties.livestream');
-  var position = event.proxy('properties.position');
-  var time;
-  if (livestream) {
-    time = Math.floor(event.timestamp().getTime() / 1000);
-  } else if (position) {
-    time = position;
-  }
-
-  if (time) {
-    this.client.ggPM('end', time);
-  }
-
-  this.ID3 = null;
-  this.previousEvent = null;
-};
-
-/**
  * Helper to validate that metadata contains required properties, i.e.
  * all values are truthy Strings. We don't need to validate keys b/c
  * we hard-code into the object the metadata keys Nielsen requires.
@@ -325,19 +244,25 @@ function validate(metadata) {
  */
 
 NielsenDTVR.prototype.mapMetadata = function(event) {
-  var adModel;
   var loadType =
-    event.proxy('properties.loadType') || event.proxy('properties.load_type');
+    event.proxy('properties.loadType') ||
+    event.proxy('properties.load_type') ||
+    event.proxy('properties.content.loadType') ||
+    event.proxy('properties.content.load_type');
 
-  if (loadType === 'linear') {
-    adModel = '1';
-  } else if (loadType === 'dynamic') {
-    adModel = '2';
+  // only video streams of load_type "linear" should be mapped to Nielsen DTVR
+  // we need to persist the fact that a stream is/isn't a DTVR stream for events
+  // that may not contain a `load_type` k:v pair, such as "Video Playback" events
+  if (loadType !== 'linear') {
+    this.isDTVRStream = false;
+    return false;
   }
+
+  this.isDTVRStream = true;
 
   return validate({
     type: 'content',
     channelName: event.proxy('properties.channel'),
-    adModel: adModel
+    adModel: '1'
   });
 };

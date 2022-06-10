@@ -1,8 +1,42 @@
+1.16.5 / 2022-02-15
+===================
+* Bump @segment/trample to ^0.2.1.
 
-1.15.0 / 2019-10-21
+1.16.3 / 2020-12-14
+===================
+* Bump segmentio-facade to ^3.2.7
+
+1.16.2 / 2020-07-13
+===================
+* Reads session playhead values from `window._segHBPlayheads` if it exists. This solves an issue where the playhead is only updated when 'Video Content Playing' (+ various others) events are tracked. To get around this, we allow video implementations to set the playhead value as often as possible without the need to trigger an event.
+* Removes trackComplete from Video Content Completed events and only calls chapterComplete on these events. It also adds trackComplete to Video Playback Completed events. This is in line with Adobe's documentation and also allows for parity between iOS, a.js, and Android.
+* Stringifies context data values which are booleans. The AA SDK tends to reject false boolean values when setting them on the window object. This does not break existing behavior since booleans are stringified when they're sent in the query string.
+
+1.16.1 / 2020-05-15
+===================
+* Supports sending top level `event` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.
+
+1.16.0 / 2020-05-05
+===================
+* Supports sending top level `messageId` and `anonymousId` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.
+* Updates the AppMeasurement, VisitorAPI, and MediaSDK (previously VideoHeartBeat) libraries to be the latest
+versions:
+  * AppMeasurement - 2.20.0
+  * VisitorAPI.js - 4.4.0
+  * MediaSDK - 2.2.1
+* Adds support for merchandising variables and events
+* Implement Video Playback Interrupted handler.
+* Add support for Cart Opened events.
+
+1.15.2 / 2020-02-12
 ===================
 
-  * Support merchandizing variables and events
+  * Support sending custom Context Data Variables on `Video Playback Started`, `Video Playback Resumed`, and `Video Content Started` when using Adobe Heartbeat Tracking URL (from context object)
+
+1.15.1 / 2020-02-12
+===================
+
+  * Support sending custom Context Data Variables on `Video Playback Started`, `Video Playback Resumed`, and `Video Content Started` when using Adobe Heartbeat Tracking URL (from properties object)
 
 1.14.3 / 2018-06-25
 ===================

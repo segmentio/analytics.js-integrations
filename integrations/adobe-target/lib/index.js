@@ -1,6 +1,11 @@
 'use strict';
 
 /**
+ * Deprecation Notice 🚨
+ * This integration has been deprecated in favor of [Actions Adobe Target Web](https://github.com/segmentio/action-destinations/tree/main/packages/browser-destinations/src/destinations/adobe-target). No further development or support will be provided.
+ */
+
+/**
  * Module dependencies.
  */
 

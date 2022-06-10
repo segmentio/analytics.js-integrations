@@ -1,3 +1,22 @@
+1.5.3 / 2020-09-22
+==================
+
+  * remove google_cm param from dcf match tag
+  * remove additional unused params
+
+1.5.2 / 2020-05-29
+==================
+
+  * Migrate away from the partner hosted match table in favor of a Google hosted match table
+  * Send hosted match id
+
+1.5.1 / 2020-04-16
+==================
+
+  * Adds support for top level `{{userId}}` proprety to be used as Custom Variable on Conversion Events.
+  * Adds support for nested products propreties (ie. `products.$.price`) to be mapped in as a comma separated array on Conversion Events.
+  * Adds support to use Transaction Method instead of Items Sold for `qty` if `useTransactionCounting` setting is enabled. 
+
 1.5.0 / 2019-12-05
 ==================
 

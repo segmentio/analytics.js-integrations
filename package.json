@@ -1,6 +1,6 @@
 {
   "name": "analytics.js-integrations",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "repository": "https://github.com/segmentio/analytics.js-integrations.git",
   "author": "Segment",
@@ -10,32 +10,39 @@
     "integrations/*"
   ],
   "scripts": {
+    "upload-assets": "node scripts/upload-assets.js",
     "lint": "lerna exec --since master --no-bail -- npx eslint . --ext .js",
-    "test": "lerna run --concurrency 1 --since master test --stream -- --single-run --reporters summary --log-level error",
+    "test": "lerna run --concurrency 5 --since master test --stream -- --single-run --reporters summary --log-level error",
     "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
-    "fmt": "lerna exec --since master -- npx eslint . --fix --ext .js"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "yarn fmt",
-      "git add"
-    ]
+    "compile": "webpack --config webpack.config.integrations.js && webpack --config webpack.config.middleware.js",
+    "build": "rm -rf build && yarn compile"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^4.3.0",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-mocha": "^5.3.0",
-    "eslint-plugin-prettier": "^3.1.0",
-    "husky": "^2.4.1",
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "aws-sdk": "^2.760.0",
+    "babel-loader": "^8.2.2",
+    "chai": "4.2.0",
+    "compression-webpack-plugin": "^6.0.1",
+    "concurrently": "^5.3.0",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.14.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-config-airbnb-base": "14.2.1",
+    "fs-extra": "^9.0.1",
+    "husky": "^4.3.8",
     "lerna": "^3.15.0",
     "lint-staged": "^8.2.1",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "terser-webpack-plugin": "^4.2.1",
+    "webpack": "^4.44.1",
+    "webpack-bundle-analyzer": "^3.9.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "@segment/analytics.js-integration": "^3.3.3",
+    "domify": "1.4.1",
+    "is-email": "1.0.2"
   }
 }
