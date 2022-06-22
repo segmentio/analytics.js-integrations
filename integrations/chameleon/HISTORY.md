@@ -1,3 +1,14 @@
+2.0.3 / 2022-06-22
+==================
+
+* Update version to 2.0.3
+
+2.0.2 / 2022-05-16
+==================
+
+* Add configuration for connecting to a custom endpoint (fastUrl).
+* Pass integrations-specific arguments through to identify.
+
 2.0.1 / 2017-06-14
 ==================
 
