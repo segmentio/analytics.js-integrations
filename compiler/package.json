@@ -120,6 +120,7 @@
     "@segment/analytics.js-integration-quanticmind": "file:../integrations/quanticmind",
     "@segment/analytics.js-integration-quora-conversion-pixel": "file:../integrations/quora-conversion-pixel",
     "@segment/analytics.js-integration-ramen": "file:../integrations/ramen",
+    "@segment/analytics.js-integration-retentive": "file:../integrations/retentive",
     "@segment/analytics.js-integration-rockerbox": "file:../integrations/rockerbox",
     "@segment/analytics.js-integration-rocket-fuel": "file:../integrations/rocket-fuel",
     "@segment/analytics.js-integration-rollbar": "file:../integrations/rollbar",
