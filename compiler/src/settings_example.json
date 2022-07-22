@@ -1,7 +1,0 @@
-{
-  "integrations": {
-    "Google Analytics": {
-      "serversideTrackingId": "foobar"
-    }
-  }
-}
