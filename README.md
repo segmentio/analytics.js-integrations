@@ -40,7 +40,9 @@ To test changes locally you can run:
 yarn --cwd tester install
 yarn dev
 ```
-This will open the local development environment. To test a particular destination, enter a writeKey that has the destination connected, and the tool will load Analytics.js with the local version of the destinations. If you want to test a new destination or a new settings parameter, you can override the settings using the integrated JSON editor. To fire track, page, etc. calls, you can use the Chrome DevTools and fire events using `analytics.track( .... )` etc. 
+This will open the local development environment. To test a particular destination, enter a writeKey that has the destination connected, and the tool will load Analytics.js with the local version of the destinations connected, and the settings for the source. After the first load, you can referesh the page without having to load the writeKey each time. 
+
+If you want to test a new destination or a new settings parameter, you can override the settings using the integrated JSON editor. To fire track, page, etc. calls, you can use the Chrome DevTools and fire events using `analytics.track( .... )` etc. 
 
 ### Code Formatting
 This project uses eslint to ensure uniform code formatting standards are maintained. You can see the specific eslint config in the root `.eslintrc` file. A pre-commit hook is used to help automate this process for you.
