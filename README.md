@@ -34,7 +34,13 @@ If you need to add an external dependency to an integration, **please ensure you
 Each integration directory has an npm script called `test` that you can use to easily run the unit tests with via `yarn test`.
 
 ### Test Locally
-You can test changes to integrations locally with the [a.js compiler](https://github.com/segmentio/analytics.js-integrations/tree/master/compiler).
+To test changes locally you can run: 
+
+```
+yarn --cwd tester install
+yarn dev
+```
+This will open the local development environment. To test a particular destination, enter a writeKey that has the destination connected, and the tool will load Analytics.js with the local version of the destinations. If you want to test a new destination or a new settings parameter, you can override the settings using the integrated JSON editor. To fire track, page, etc. calls, you can use the Chrome DevTools and fire events using `analytics.track( .... )` etc. 
 
 ### Code Formatting
 This project uses eslint to ensure uniform code formatting standards are maintained. You can see the specific eslint config in the root `.eslintrc` file. A pre-commit hook is used to help automate this process for you.
