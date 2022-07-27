@@ -1501,7 +1501,7 @@ function createStandardVideoMetadata(track, mediaObj) {
   adbSegMap[metaKeys.SHOW] = ["program"],
   adbSegMap[metaKeys.SEASON] = ["season"],
   adbSegMap[metaKeys.EPISODE] = ["episode"],
-  adbSegMap[metaKeys.ASSET_ID] = [ "content_asset_id", "contentAssetId"],
+  adbSegMap[metaKeys.ASSET_ID] = ["contentAssetId", "content_asset_id"],
   adbSegMap[metaKeys.GENRE] = ["genre"],
   adbSegMap[metaKeys.FIRST_AIR_DATE] = ["airdate"],
   adbSegMap[metaKeys.ORIGINATOR] = ["publisher"],
