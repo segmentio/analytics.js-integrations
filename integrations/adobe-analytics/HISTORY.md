@@ -1,3 +1,8 @@
+1.16.6 / 2022-07-26
+===================
+* Drop support for `assetId` for `StandardVideoMetadata`
+* Add support for `content_asset_id` for `StandardVideoMetadata`
+
 1.16.5 / 2022-02-15
 ===================
 * Bump @segment/trample to ^0.2.1.

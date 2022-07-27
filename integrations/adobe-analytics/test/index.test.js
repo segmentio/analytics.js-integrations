@@ -1654,6 +1654,27 @@ describe('Adobe Analytics', function() {
         );
       });
 
+      it('should prefer camelCase over snake_case for contentAssetId', function() {
+        var contentAssetIdValue = 'Good Value';
+        analytics.track('Video Playback Started', {
+          session_id: sessionId,
+          channel: 'Black Mesa',
+          video_player: 'Transit Announcement System',
+          playhead: 5,
+          content_asset_id: 'wrong value',
+          contentAssetId: contentAssetIdValue,
+          title: 'Half-Life',
+          total_length: 1260,
+          livestream: false
+        });
+
+        analytics.equal(
+          contentAssetIdValue,
+          adobeAnalytics.mediaHeartbeats[sessionId].heartbeat._aaPlugin
+            ._videoMetadata['a.media.asset']
+        );
+      });
+
       it('should call trackPause when a video is paused', function() {
         analytics.track('Video Playback Started', {
           session_id: sessionId,
