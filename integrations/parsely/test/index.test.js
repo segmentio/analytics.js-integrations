@@ -55,17 +55,6 @@ describe('Parsely', function() {
       analytics.stub(parsely, 'load');
     });
 
-    it('should create a Parsely meta tag', function() {
-      var isLoaded = function() {
-        return !!filter(document.getElementsByTagName('meta'), isParselyMetaTag)
-          .length;
-      };
-
-      analytics.assert(!isLoaded());
-      parsely.initialize();
-      analytics.assert(isLoaded());
-    });
-
     it('should set window.PARSELY if not already set', function() {
       analytics.assert(window.PARSELY === undefined);
       analytics.initialize();
