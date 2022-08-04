@@ -23,8 +23,8 @@ var plugins = [];
 
 module.exports = {
   entry: entries,
-  mode: process.env.NODE_ENV || 'development',
-  devtool: 'source-map',
+  mode: 'development',
+  devtool: 'eval-source-map',
   output: {
     filename: '[name]/latest/[name].dynamic.js.gz',
     chunkFilename: 'vendor/[name].[contenthash].js.gz',
