@@ -22,7 +22,7 @@ var Parsely = (module.exports = integration('Parsely')
   .option('trackEvents', false)
   .option('inPixelMetadata', false)
   .tag(
-    '<script id="parsely-cfg" src="//cdn.parsely.com/keys/{{ apikey }}/p.js">'
+    '<script id="parsely-cfg" src="//cdn.parsely.com/keys/{{ apiKey }}/p.js">'
   ));
 
 /**
