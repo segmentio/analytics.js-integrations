@@ -24,14 +24,13 @@ var ReplayBird = (module.exports = integration('ReplayBird')
 ReplayBird.prototype.initialize = function() {
 
   /* eslint-disable no-param-reassign */
-  !function(a,b,c,d,e,f,g,h){a.ReplayBirdObject=e,a[e]=a[e]||function(){
-  (a[e].o=a[e].o||[]).push(arguments)},g=b.createElement(c),h=b.getElementsByTagName(c)[0],
-  g.async=1,g.src=d,a.__replaybirdNoConflict=!!f,h.parentNode.insertBefore(g,h);
-  }(window,document,"script","https://cdn.replaybird.com/replaybird.min.js","_rb");
+  !function(t,e){var o,n,p,r;e.__SV||(window.replaybird=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src="https://cdn.replaybird.com/agent/latest/replaybird.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="replaybird",u.people=u.people||[],u.toString=function(t){var e="replaybird";return"replaybird"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="identify capture alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.replaybird||[]);
   /* eslint-enable no-param-reassign */
 
-  _rb("apikey", this.options.siteKey);
-  _rb("debugMode", this.options.debug);
+  window.replaybird.init(this.options.siteKey, { });
+  // if (this.options.debug) {
+  //   window.replaybird.debug();
+  // }
   this.ready();
 };
 
@@ -41,7 +40,7 @@ ReplayBird.prototype.initialize = function() {
  * @return {Boolean}
  */
 ReplayBird.prototype.loaded = function() {
-  return !!window.ReplayBird;
+  return !!window.replaybird;
 };
 
 /**
@@ -70,8 +69,8 @@ ReplayBird.prototype.identify = function(identify) {
     traits
   );
 
-  newTraits.id = String(identify.userId());
-  window._rb('identify', newTraits);
+  var id = String(identify.userId());
+  window.replaybird.identify(id, newTraits);
 };
 
 /**
@@ -80,10 +79,8 @@ ReplayBird.prototype.identify = function(identify) {
  * @param {Track} track
  */
 ReplayBird.prototype.track = function(track) {
-  if (window.ReplayBird) {
-    window.ReplayBird.event(track.event(), track.properties());
-  } else {
-    window._rb('event', { name: track.event(), properties: track.properties() });
+  if (window.replaybird) {
+    window.replaybird.capture(track.event(), track.properties());
   }
 };
 
