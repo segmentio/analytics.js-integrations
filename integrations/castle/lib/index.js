@@ -5,39 +5,43 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
+var objCase = require('obj-case');
+var newDate = require('new-date');
+var isoDate = require('@segment/isodate');
+var toIsoString = require('@segment/to-iso-string');
 
 /**
  * Expose `Castle` integration.
  */
 
-var Castle = (module.exports = integration('Castle')
+var CastleIntegration = (module.exports = integration('Castle')
+  .global('CastleSegment')
+  .global('casData')
   .option('publishableKey', '')
-  .option('autoPageview', false)
-  .option('cookieDomain', false)
-  .tag('<script src="//d2t77mnxyo7adj.cloudfront.net/v1/cs.js">'));
+  .option('cookieDomain', '')
+  .tag(
+    '<script src="https://d355prp56x5ntt.cloudfront.net/v3/castle.segment.js">'
+  ));
 
 /**
  * Initialize.
  *
  * @api public
  */
+CastleIntegration.prototype.initialize = function() {
+  var options = this.options;
+  var self = this;
+  // reset casData always
+  window.casData = {};
 
-Castle.prototype.initialize = function() {
-  window._castle = window._castle || {};
-  window._castle.q = window._castle.q || [];
-  window._castle.q.push(['setKey', this.options.publishableKey]);
-
-  if (this.options.cookieDomain) {
-    window._castle.q.push(['setCookieDomain', this.options.cookieDomain]);
-  }
-
-  if (this.options.autoPageview === false) {
-    window._castle.q.push(['autoTrack', this.options.autoPageview]);
-  }
-
-  this._identifyFromCache();
-
-  this.load(this.ready);
+  this.load(function() {
+    window.CastleSegment.configure({
+      pk: options.publishableKey,
+      cookieDomain: options.cookieDomain,
+      verbose: false
+    });
+    self.ready();
+  });
 };
 
 /**
@@ -47,8 +51,8 @@ Castle.prototype.initialize = function() {
  * @return {boolean}
  */
 
-Castle.prototype.loaded = function() {
-  return typeof window._castle === 'function';
+CastleIntegration.prototype.loaded = function() {
+  return typeof window.CastleSegment !== 'undefined';
 };
 
 /**
@@ -56,48 +60,129 @@ Castle.prototype.loaded = function() {
  *
  * @api public
  */
-
-Castle.prototype.identify = function(identify) {
-  var traits = identify.traits();
+/*  */
+CastleIntegration.prototype.identify = function(identify) {
   var castleOptions = identify.options(this.name);
-  if (castleOptions && castleOptions.secure) {
-    window._castle('secure', castleOptions.secure);
+
+  if (castleOptions && objCase.find(castleOptions, 'userJwt')) {
+    window.casData.jwt = objCase.find(castleOptions, 'userJwt');
+  } else {
+    objCase.del(window.casData, 'jwt');
   }
-  delete traits.id;
-  window._castle('identify', identify.userId(), traits);
 };
 
 /**
- * Track
+ * reset
  *
  * @api public
  */
+/*  */
+CastleIntegration.prototype.reset = function() {
+  if (window.casData) {
+    objCase.del(window.casData, 'jwt');
+  }
+};
 
-Castle.prototype.page = function(page) {
-  if (this.options.autoPageview) return;
-  window._castle('page', page.url(), page.title());
+var convertDateToIso = function(date) {
+  if (isoDate.is(date)) {
+    return date;
+  }
+  var convertedDate = toIsoString(newDate(date));
+  if (isoDate.is(convertedDate)) {
+    return convertedDate;
+  }
+
+  return undefined;
+};
+
+var generateUserObj = function(user) {
+  var userObj = {};
+
+  if (!user || !user.id()) {
+    return undefined;
+  }
+
+  var traits = user.traits();
+
+  userObj.id = user.id();
+
+  if (objCase.find(traits, 'email')) {
+    userObj.email = objCase.find(traits, 'email');
+    objCase.del(traits, 'email');
+  }
+
+  if (objCase.find(traits, 'phone')) {
+    userObj.phone = objCase.find(traits, 'phone');
+    objCase.del(traits, 'phone');
+  }
+
+  if (objCase.find(traits, 'registeredAt')) {
+    var convertedRegisteredAt = convertDateToIso(
+      objCase.find(traits, 'registeredAt')
+    );
+    if (convertedRegisteredAt) {
+      userObj.registered_at = convertedRegisteredAt;
+      objCase.del(traits, 'registeredAt');
+    }
+  }
+  if (objCase.find(traits, 'createdAt') && !userObj.registered_at) {
+    var convertedCreatedAt = convertDateToIso(
+      objCase.find(traits, 'createdAt')
+    );
+    if (convertedCreatedAt) {
+      userObj.registered_at = convertedCreatedAt;
+      objCase.del(traits, 'createdAt');
+    }
+  }
+  if (objCase.find(traits, 'name')) {
+    userObj.name = objCase.find(traits, 'name');
+    objCase.del(traits, 'name');
+  }
+  userObj.traits = traits;
+
+  return userObj;
+};
+
+var userOrJwt = function(jwtData, userData) {
+  return jwtData ? { userJwt: jwtData } : { user: generateUserObj(userData) };
 };
 
 /**
  * Page
  *
  * @api public
+ * @param {Page} page
  */
 
-Castle.prototype.track = function(track) {
-  window._castle('track', track.event(), track.properties());
-};
-
-/**
- * Send user information to Castle from cached user
- *
- * @api private
- */
-
-Castle.prototype._identifyFromCache = function() {
-  // See if there is a cached user, and call identify if so
-  var user = this.analytics.user();
-  if (user.id()) {
-    window._castle.q.push(['identify', user.id(), user.traits()]);
+CastleIntegration.prototype.page = function(page) {
+  var data = userOrJwt(window.casData.jwt, this.analytics.user());
+  if (page.url()) {
+    data.url = page.url();
   }
+  if (page.name()) {
+    data.name = page.name();
+  }
+  if (!data.name && page.title()) {
+    data.name = page.title();
+  }
+  if (page.referrer()) {
+    data.referrer = page.referrer();
+  }
+
+  window.CastleSegment.page(data);
+};
+//
+/**
+ * Track
+ *
+ * @api public
+ * @param {Track} track
+ */
+
+CastleIntegration.prototype.track = function(track) {
+  var data = userOrJwt(window.casData.jwt, this.analytics.user());
+  data.name = track.event();
+  data.properties = track.properties();
+
+  window.CastleSegment.custom(data);
 };

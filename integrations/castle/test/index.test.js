@@ -1,25 +1,23 @@
 'use strict';
 
 var Analytics = require('@segment/analytics.js-core').constructor;
-var integrationTester = require('@segment/analytics.js-integration-tester');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
-var Castle = require('../lib/');
+var tester = require('@segment/analytics.js-integration-tester');
+var CastleIntegration = require('../lib/');
 
 describe('Castle', function() {
   var analytics;
   var castle;
   var options = {
-    publishableKey: 'pk_123456789012345',
-    cookieDomain: 'example.com',
-    autoPageview: false
+    publishableKey: 'pk_K2wUgyknB7ECRb9EsdBURpdirCxJA5Nz'
   };
 
   beforeEach(function() {
     analytics = new Analytics();
-    castle = new Castle(options);
-    analytics.use(integrationTester);
-    analytics.use(Castle);
+    castle = new CastleIntegration(options);
+    analytics.use(tester);
+    analytics.use(CastleIntegration);
     analytics.add(castle);
   });
 
@@ -28,114 +26,43 @@ describe('Castle', function() {
     analytics.reset();
     castle.reset();
     sandbox();
-    window._castle = null; // for some reason unit tests having race condition issues where there are still stuff on this object
+    delete window.casData;
   });
 
   it('should have the correct settings', function() {
     analytics.compare(
-      Castle,
+      CastleIntegration,
       integration('Castle')
         .option('publishableKey', '')
-        .option('autoPageview', false)
         .option('cookieDomain', false)
-        .tag('<script src="//d2t77mnxyo7adj.cloudfront.net/v1/cs.js">')
+        .tag(
+          '<script src="//d355prp56x5ntt.cloudfront.net/v3/castle.segment.js">'
+        )
     );
   });
 
-  it('should load lib from CDN', function(done) {
-    analytics.load(castle, done);
+  describe('before loading', function() {
+    beforeEach(function() {
+      analytics.stub(castle, 'load');
+    });
+
+    describe('#initialize', function() {
+      it('should create the window.casData object', function() {
+        analytics.assert(!window.casData);
+        analytics.initialize();
+        analytics.assert(window.casData);
+      });
+
+      it('should call #load', function() {
+        analytics.initialize();
+        analytics.called(castle.load);
+      });
+    });
   });
 
-  describe('initialize', function() {
-    beforeEach(function() {
-      analytics.spy(castle, 'load');
-    });
-
-    it('should push options to _castle queue', function() {
-      analytics.initialize();
-      analytics.deepEqual(window._castle.q, [
-        ['setKey', options.publishableKey],
-        ['setCookieDomain', options.cookieDomain],
-        ['autoTrack', options.autoPageview]
-      ]);
-    });
-
-    it('should call load', function() {
-      analytics.initialize();
-      analytics.called(castle.load);
-    });
-
-    describe('with cache', function() {
-      var userId;
-      var traits;
-
-      beforeEach(function(done) {
-        userId = '123';
-        traits = { rick: 'morty' };
-        analytics.user().id(userId);
-        analytics.user().traits(traits);
-        done();
-      });
-
-      it('should identify with userId and traits', function() {
-        analytics.initialize();
-        analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey],
-          ['setCookieDomain', options.cookieDomain],
-          ['autoTrack', options.autoPageview],
-          ['identify', userId, traits]
-        ]);
-      });
-    });
-
-    describe('with empty userId', function() {
-      var userId;
-
-      beforeEach(function(done) {
-        userId = '';
-        analytics.user().id(userId);
-        done();
-      });
-
-      it('should not identify', function() {
-        analytics.initialize();
-        analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey],
-          ['setCookieDomain', options.cookieDomain],
-          ['autoTrack', options.autoPageview]
-        ]);
-      });
-    });
-
-    describe('with empty traits', function() {
-      var userId;
-
-      beforeEach(function(done) {
-        userId = '123';
-        analytics.user().id(userId);
-        done();
-      });
-
-      it('should identify with userId and traits', function() {
-        analytics.initialize();
-        analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey],
-          ['setCookieDomain', options.cookieDomain],
-          ['autoTrack', options.autoPageview],
-          ['identify', userId, {}]
-        ]);
-      });
-    });
-
-    describe('without cache', function() {
-      it('should not identify', function() {
-        analytics.initialize();
-        analytics.deepEqual(window._castle.q, [
-          ['setKey', options.publishableKey],
-          ['setCookieDomain', options.cookieDomain],
-          ['autoTrack', options.autoPageview]
-        ]);
-      });
+  describe('loading', function() {
+    it('should load', function(done) {
+      analytics.load(castle, done);
     });
   });
 
@@ -145,71 +72,195 @@ describe('Castle', function() {
       analytics.initialize();
     });
 
-    it('window._castle should be defined', function() {
-      analytics.assert(window._castle);
+    it('window.CastleSegment should be defined', function() {
+      analytics.assert(window.CastleSegment);
     });
 
-    describe('identify', function() {
-      beforeEach(function() {
-        analytics.spy(window, '_castle');
-      });
-
-      it('should call _castle with id and empty userProperties', function() {
-        analytics.identify('id');
-        analytics.called(window._castle, 'identify', 'id', {});
-      });
-
-      it('should call _castle with id and userProperties', function() {
-        var userProperties = {
-          email: 'young@fathers.com'
-        };
-
-        analytics.identify('id', {
-          email: 'young@fathers.com'
-        });
-
-        analytics.called(window._castle, 'identify', 'id', userProperties);
-      });
-
-      it('should call _castle with secure option, if provided', function() {
-        var secureHash = 'abcdf';
+    describe('#identify', function() {
+      it('should delete window.casData', function() {
+        window.casData.jwt = '123';
         analytics.identify(
           'id',
-          { email: 'young@fathers.com' },
-          { integrations: { Castle: { secure: secureHash } } }
+          { email: 'test@segment.com' },
+          { Castle: true }
         );
+        analytics.assert(!window.casData.jwt);
+      });
 
-        analytics.called(window._castle, 'secure', secureHash);
+      it('should set jwt', function() {
+        analytics.identify(
+          'id',
+          { email: 'test@segment.com' },
+          { Castle: { userJwt: 'jwtToken' } }
+        );
+        analytics.assert(window.casData.jwt, 'jwtToken');
+      });
+    });
+
+    describe('#reset', function() {
+      it('should delete window.casData', function() {
+        window.casData.jwt = '123';
+        analytics.reset();
+        analytics.assert(window.casData.jwt, undefined);
       });
     });
 
     describe('page', function() {
       beforeEach(function() {
-        analytics.spy(window, '_castle');
+        analytics.spy(window.CastleSegment, 'page');
       });
 
-      it('should call _castle#page', function() {
-        analytics.page('Category', 'Name');
-        analytics.called(window._castle, 'page');
+      it('should call Castle#page', function() {
+        analytics.page('Category', 'Name', {
+          title: 'Test',
+          url: 'http://localhost:9876/context.html',
+          referrer: 'http://localhost:9876/context2.html'
+        });
+        analytics.called(window.CastleSegment.page, {
+          user: undefined,
+          url: 'http://localhost:9876/context.html',
+          name: 'Name',
+          referrer: 'http://localhost:9876/context2.html'
+        });
       });
 
-      it("shouldn't call _castle#page when autoTracking is enabled", function() {
-        castle.options.autoPageview = true;
-        analytics.page('Category', 'Name');
-        analytics.didNotCall(window._castle, 'page');
+      it('should call Castle#page after identify', function() {
+        analytics.identify('123', { email: 'test@segment.com' });
+        analytics.page('Category', 'Name', {
+          title: 'Title',
+          url: 'http://localhost:9876/context.html',
+          referrer: 'http://localhost:9876/context2.html'
+        });
+        analytics.called(window.CastleSegment.page, {
+          user: { id: '123', email: 'test@segment.com', traits: {} },
+          url: 'http://localhost:9876/context.html',
+          name: 'Name',
+          referrer: 'http://localhost:9876/context2.html'
+        });
       });
     });
 
     describe('track', function() {
       beforeEach(function() {
-        analytics.spy(window, '_castle');
+        analytics.spy(window.CastleSegment, 'custom');
       });
 
-      it('should call _castle#track', function() {
+      it('should call Castle#custom', function() {
         var eventName = 'Event';
         var eventProperties = { prop: true };
         analytics.track(eventName, eventProperties);
-        analytics.called(window._castle, 'track', eventName, eventProperties);
+        analytics.called(window.CastleSegment.custom, {
+          user: undefined,
+          name: eventName,
+          properties: eventProperties
+        });
+      });
+
+      it('should call Castle#custom after identify', function() {
+        var eventName = 'Event';
+        var eventProperties = { prop: true };
+        analytics.identify('123', { email: 'test@segment.com' });
+        analytics.track(eventName, eventProperties);
+        analytics.called(window.CastleSegment.custom, {
+          user: { id: '123', email: 'test@segment.com', traits: {} },
+          name: eventName,
+          properties: eventProperties
+        });
+      });
+
+      it('should call Castle#custom after identify with createdAt as seconds number', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          email: 'test@segment.com',
+          createdAt: '1648215849',
+          sample_abc: 'abc'
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            email: 'test@segment.com',
+            registered_at: '2022-03-25T13:44:09.000Z',
+            traits: { sample_abc: 'abc' }
+          },
+          name: eventName,
+          properties: {}
+        });
+      });
+
+      it('should call Castle#custom after identify with created_at as string', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          email: 'test@segment.com',
+          created_at: 'Fri Mar 25 2022 14:45:06 GMT+0100'
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            email: 'test@segment.com',
+            registered_at: '2022-03-25T13:45:06.000Z',
+            traits: {}
+          },
+          name: eventName,
+          properties: {}
+        });
+      });
+
+      it('should call Castle#custom after identify with registered_at as milliseconds', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          email: 'test@segment.com',
+          registeredAt: '1648215962260'
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            email: 'test@segment.com',
+            registered_at: '2022-03-25T13:46:02.260Z',
+            traits: {}
+          },
+          name: eventName,
+          properties: {}
+        });
+      });
+
+      it('should call Castle#custom after identify with registered_at as isoString and createdAt', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          phone: '+1-212-456-7890',
+          registeredAt: '2022-03-25T13:47:08.310Z',
+          createdAt: 1641216053686
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            phone: '+1-212-456-7890',
+            registered_at: '2022-03-25T13:47:08.310Z',
+            traits: { createdAt: 1641216053686 }
+          },
+          name: eventName,
+          properties: {}
+        });
+      });
+
+      it('should call Castle#custom after identify with registered_at is invalid', function() {
+        var eventName = 'Event';
+        analytics.identify('123', {
+          registeredAt: false,
+          createdAt: 'a'
+        });
+        analytics.track(eventName);
+        analytics.called(window.CastleSegment.custom, {
+          user: {
+            id: '123',
+            traits: { registeredAt: false, createdAt: 'a' }
+          },
+          name: eventName,
+          properties: {}
+        });
       });
     });
   });
