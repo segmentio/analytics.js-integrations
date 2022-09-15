@@ -23,6 +23,7 @@ var Intercom = (module.exports = integration('Intercom')
   .option('activator', '#IntercomDefaultWidget')
   .option('appId', '')
   .option('richLinkProperties', [])
+  .option('apiBase', '')
   .tag('<script src="https://widget.intercom.io/widget/{{ appId }}">'));
 
 /**
@@ -206,6 +207,9 @@ Intercom.prototype.bootOrUpdate = function(opts, integrationSettings) {
   var method = this.booted === true ? 'update' : 'boot';
   var activator = this.options.activator;
   options.app_id = this.options.appId;
+  if (this.options.apiBase) {
+    options.api_base = this.options.apiBase;
+  }
 
   // Intercom, will force the widget to appear if the selector is
   // #IntercomDefaultWidget so no need to check inbox, just need to check that
