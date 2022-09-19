@@ -1,3 +1,8 @@
+2.0.0 / 2022-09-06
+==================
+
+  * integration with 2.x version of the castle script
+
 1.0.4 / 2017-11-13
 ==================
 
