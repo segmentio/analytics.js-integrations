@@ -1,3 +1,13 @@
+1.17.0 / 2022-10-24
+===================
+* Bump AppMeasurement to 2.23.0
+* Add support for `collectHighEntropyUserAgentHints` setting, which allows richer User Agent data passed in as Client Hints.
+
+1.16.6 / 2022-07-26
+===================
+* Drop support for `assetId` for `StandardVideoMetadata`
+* Add support for `content_asset_id` for `StandardVideoMetadata`
+
 1.16.5 / 2022-02-15
 ===================
 * Bump @segment/trample to ^0.2.1.
