@@ -83,6 +83,7 @@ AdobeAnalytics.global('s')
   .option('preferVisitorId', false)
   .option('heartbeatTrackingServerUrl', '')
   .option('ssl', false)
+  .option('collectHighEntropyUserAgentHints', false)
 
   .sOption('visitorID')
   .sOption('channel')
@@ -112,11 +113,11 @@ AdobeAnalytics.global('s')
   .sOption('usePlugins', true)
   .tag(
     'default',
-    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.0.js">'
   )
   .tag(
     'heartbeat',
-    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0-heartbeat.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.0-heartbeat.js">'
   );
 
 /**
@@ -189,6 +190,10 @@ AdobeAnalytics.prototype.initialize = function() {
         };
       }
 
+      if (options.collectHighEntropyUserAgentHints) {
+        s.collectHighEntropyUserAgentHints = true;
+      }
+
       self.ready();
     });
   } else {
@@ -211,6 +216,10 @@ AdobeAnalytics.prototype.initialize = function() {
           trackingServerSecure:
             window.s.trackingServerSecure || options.trackingServerSecureUrl
         });
+      }
+
+      if (options.collectHighEntropyUserAgentHints) {
+        s.collectHighEntropyUserAgentHints = true;
       }
       self.ready();
     });

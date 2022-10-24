@@ -56,7 +56,8 @@ describe('Adobe Analytics', function() {
     enableTrackPageName: true,
     disableVisitorId: false,
     preferVisitorId: false,
-    enableHeartbeat: true
+    enableHeartbeat: true,
+    collectHighEntropyUserAgentHints: true
   };
 
   beforeEach(function() {
@@ -94,6 +95,7 @@ describe('Adobe Analytics', function() {
         .option('marketingCloudOrgId', null)
         .option('heartbeatTrackingServerUrl', '')
         .option('ssl', false)
+        .option('collectHighEntropyUserAgentHints', false)
     );
   });
 
@@ -163,6 +165,21 @@ describe('Adobe Analytics', function() {
         analytics.equal(
           window.s.visitor.marketingCloudOrgID,
           options.marketingCloudOrgId
+        );
+      });
+
+      it('should set window.s.collectHighEntropyUserAgentHints', function() {
+        analytics.equal(
+          window.s.collectHighEntropyUserAgentHints,
+          options.collectHighEntropyUserAgentHints
+        );
+      });
+
+      it('should set window.s.collectHighEntropyUserAgentHints when heartbeatServerUrl is set', function() {
+        adobeAnalytics.options.heartbeatTrackingServerUrl = 'test url';
+        analytics.equal(
+          window.s.collectHighEntropyUserAgentHints,
+          options.collectHighEntropyUserAgentHints
         );
       });
     });
