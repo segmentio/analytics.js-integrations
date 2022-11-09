@@ -17,9 +17,9 @@ var obj = require('obj-case');
 var Pendo = (module.exports = integration('Pendo')
   .global('pendo')
   .option('apiKey', '')
-  .tag(
-    '<script src="https://cdn.pendo.io/agent/static/{{ apiKey }}/pendo.js">'
-  ));
+  .option('domain', 'cdn.pendo.io')
+  .tag('<script src="https://{{ domain }}/agent/static/{{ apiKey }}/pendo.js">')
+);
 
 /**
  * Either use this as a TagLoader and all the relevant Pendo information will
