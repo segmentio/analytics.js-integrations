@@ -35,9 +35,21 @@ describe('Atatus', function() {
       integration('Atatus')
         .global('atatus')
         .option('apiKey', '')
+        .option('version', '')
+
+        .option('disableRUM', false)
+        .option('disableSession', false)
+        .option('disableSPA', false)
         .option('disableAjaxMonitoring', false)
-        .option('disableSpa', false)
-        .option('allowedDomains', [])
+        .option('disableErrorTracking', false)
+        .option('disableTransaction', false)
+
+        .option('whitelistUrls', [])
+        .option('ignoreUrls', [])
+        .option('ignoreErrors', [])
+
+        .option('hashRoutes', false)
+        .option('reportUnhandledRejections', false)
         .option('enableOffline', false)
     );
   });
@@ -68,8 +80,8 @@ describe('Atatus', function() {
       });
     });
 
-    it('should load non-spa version if you have set `disableSpa` to true', function(done) {
-      atatus.options.disableSpa = true;
+    it('should load non-spa version if you have set `disableSPA` to true', function(done) {
+      atatus.options.disableSPA = true;
       analytics.load(atatus, function() {
         analytics.assert(!window.atatus.spa);
         done();
