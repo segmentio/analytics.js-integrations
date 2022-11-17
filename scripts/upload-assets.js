@@ -110,7 +110,9 @@ async function uploadAssets() {
     const type = f[1]; // get integration name
     const integration = f[2]; // get integration name
     const file = f[f.length - 1];
-    const clientName = file.substring(0, file.indexOf('.'));
+    const clientName = file.includes('analytics.js-') ? 
+      file.substring(0, file.lastIndexOf('.js')) :
+      file.substring(0, file.indexOf('.'));
     const bufferClientName = Buffer.from(clientName).toString('base64').replace(/=/g, '');
     const bufferFile = file.replace(clientName, bufferClientName);
 
