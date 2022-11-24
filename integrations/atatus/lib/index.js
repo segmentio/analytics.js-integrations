@@ -68,13 +68,6 @@ Atatus.prototype.initialize = function() {
     // exceptions
     window.atatus.config(self.options.apiKey, configOptions).install();
 
-    // Set allowed domains and enable offline
-    // if (
-    //   Array.isArray(self.options.allowedDomains) &&
-    //   self.options.allowedDomains.length > 0
-    // ) {
-    //   window.atatus.setAllowedDomains(self.options.allowedDomains);
-    // }
     window.atatus.enableOffline(self.options.enableOffline);
 
     self.ready();
