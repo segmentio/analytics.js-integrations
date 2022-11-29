@@ -14,6 +14,16 @@ function assertEventId(spy) {
     throw new Error('Expected eventId on window.fbq.call. Not found.');
   }
 }
+/**
+ * Event ID is generated automatically by Analytics.js, this function
+ * only checks that it was succesfully added as an 4th argument in PageView to a `window.fbq` call.
+ */
+
+function assertEventIdInPageView(spy) {
+  if (!spy.args[0][3].eventID.startsWith('ajs-')) {
+    throw new Error('Expected eventId on window.fbq.call. Not found.');
+  }
+}
 
 describe('Facebook Pixel', function() {
   var analytics;
@@ -256,9 +266,10 @@ describe('Facebook Pixel', function() {
         analytics.stub(window, 'fbq');
       });
 
-      it('should track a pageview', function() {
+      it('should track a pageview along with eventID', function() {
         analytics.page();
-        analytics.called(window.fbq, 'track', 'PageView');
+        analytics.called(window.fbq, 'track', 'PageView', {});
+        assertEventIdInPageView(window.fbq);
       });
     });
 
