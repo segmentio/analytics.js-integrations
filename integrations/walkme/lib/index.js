@@ -5,6 +5,7 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
+var { option } = require('@segment/analytics.js-integration/lib/statics');
 
 /**
  * Expose `WalkMe`
@@ -17,7 +18,8 @@ var WalkMe = module.exports = integration('WalkMe')
   .option('environment', '')
   .option('trackWalkMeEvents', false)
   .option('loadWalkMeInIframe', false)
-  .tag('<script src="https://cdn.walkme.com/users/{{ walkMeSystemId }}{{ walkMeEnvironment }}/walkme_{{ walkMeSystemId }}_https.js">')
+  .option('integrityHash', '')
+  .tag('<script async="true" src="{{ url }}" crossorigin="" integrity="{{ hash }}">')
 
 /**
  * Initialize WalkMe
@@ -57,9 +59,19 @@ WalkMe.prototype.initialize = function() {
     }
   };
 
+  var sriSuffix = '';
+  var walkMeSystemId = this.options.walkMeSystemId.toLowerCase();
+
+  // WalkMe SRI is enabled
+  if (this.options.integrityHash) {
+    sriSuffix = 'private_';
+  }
+
+  var url = 'https://cdn.walkme.com/users/' + walkMeSystemId + env + '/walkme_' + sriSuffix + walkMeSystemId + '_https.js';
+
   this.load({
-    walkMeSystemId: this.options.walkMeSystemId.toLowerCase(),
-    walkMeEnvironment: env
+    url,
+    hash: this.options.integrityHash
   });
 };
 
@@ -95,4 +107,6 @@ WalkMe.prototype.track = function () {
 
 WalkMe.prototype.reset = function () {
   window._walkMe && window._walkMe.removeWalkMe && window._walkMe.removeWalkMe();
+  window.walkme_ready = undefined;
+  window._walkmeConfig = undefined;
 }
