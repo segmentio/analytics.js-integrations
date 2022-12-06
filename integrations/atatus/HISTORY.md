@@ -1,3 +1,8 @@
+2.3.0 / 2022-11-11
+==================
+
+  * Add support for version, whitelistUrls, ignoreUrls, ignoreErrors, and disable options
+
 2.2.0 / 2019-12-04
 ==================
 
