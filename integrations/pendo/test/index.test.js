@@ -9,11 +9,12 @@ var tester = require('@segment/analytics.js-integration-tester');
 describe('Pendo', function() {
   var analytics;
   var pendo;
-  var options = {
-    apiKey: 'test-key-for-segment-integration'
-  };
+  var options;
 
   beforeEach(function() {
+    options = {
+      apiKey: 'test-key-for-segment-integration'
+    };
     analytics = new Analytics();
     pendo = new Pendo(options);
 
@@ -24,6 +25,7 @@ describe('Pendo', function() {
   });
 
   afterEach(function() {
+    delete window.pendo_options;
     analytics.restore();
     analytics.reset();
     pendo.reset();
@@ -60,9 +62,31 @@ describe('Pendo', function() {
       });
 
       it('should create a pendo_options object using API', function() {
+        analytics.initialize();
         analytics.assert.deepEqual(window.pendo_options, {
           apiKey: options.apiKey,
-          usePendoAgentAPI: true
+          usePendoAgentAPI: true,
+          visitor: {
+            id: '_PENDO_T_' + analytics.user().anonymousId()
+          }
+        });
+      });
+
+      it('should create a pendo_options object for a user and group', function() {
+        analytics.identify('user1', { foo: 'bar' });
+        analytics.group('group1', { baz: 'quux' });
+        analytics.initialize();
+        analytics.assert.deepEqual(window.pendo_options, {
+          apiKey: options.apiKey,
+          usePendoAgentAPI: true,
+          visitor: {
+            id: 'user1',
+            foo: 'bar'
+          },
+          account: {
+            id: 'group1',
+            baz: 'quux'
+          }
         });
       });
     });
