@@ -86,7 +86,8 @@ steps:
     branches: master
     commands:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
-      - yarn lerna publish from-package --yes --no-verify-access
+      - echo "//registry.npmjs.org/:_authToken=$${NPM_TOKEN}" > .npmrc
+      - yarn lerna publish from-package --no-verify-access --yes
     plugins:
       - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
           key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
