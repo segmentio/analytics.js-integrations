@@ -110,6 +110,8 @@ async function uploadAssets() {
     const type = f[1]; // get integration name
     const integration = f[2]; // get integration name
     const file = f[f.length - 1];
+    // Supporting filenames where analytics.js is prepended to the bundle name.
+    // Filename formats typically end in .js or .js.gz
     const clientName = file.includes('analytics.js-') ? 
       file.substring(0, file.lastIndexOf('.js')) :
       file.substring(0, file.indexOf('.'));
