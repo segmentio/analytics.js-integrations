@@ -80,7 +80,11 @@ describe('WalkMe', function() {
       analytics.spy(walkme, 'load');
     });
 
-    it.skip('should load walkme test lib', function(done) {
+    this.afterEach(() => {
+      window._walkmeInternals.Segment = false
+    })
+
+    it('should load walkme test lib', function(done) {
       try {
         var tag = fmt(
           '<script src="https://cdn.walkme.com/users/%s/%s/walkme_%s_https.js" >',
