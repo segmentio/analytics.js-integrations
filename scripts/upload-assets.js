@@ -110,7 +110,18 @@ async function uploadAssets() {
     const type = f[1]; // get integration name
     const integration = f[2]; // get integration name
     const file = f[f.length - 1];
-    const clientName = file.substring(0, file.indexOf('.'));
+    /**
+     * Supporting filenames where analytics.js is prepended to the bundle name.
+     * Filename formats typically end in .js or .js.gz
+     * For example:
+     * - asfghemUtZGVkdXBsaWNhdGU.js.gz
+     * - analytics.js-middleware-braze-foo.js
+     * - analytics.js-middleware-braze-foo.js.gz
+     * - analytics.js-middleware-braze-foo.dynamic.js.gz
+     */
+    const clientName = file.includes('analytics.js-') ? 
+      file.substring(0, file.lastIndexOf('.js')) :
+      file.substring(0, file.indexOf('.'));
     const bufferClientName = Buffer.from(clientName).toString('base64').replace(/=/g, '');
     const bufferFile = file.replace(clientName, bufferClientName);
 

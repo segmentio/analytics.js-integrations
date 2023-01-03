@@ -1,7 +1,5 @@
 'use strict';
 
-window.localStorage.setItem('wm_segment', true);
-
 var Analytics = require('@segment/analytics.js-core').constructor;
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
@@ -12,10 +10,13 @@ var Walkme = require('../lib');
 describe('WalkMe', function() {
   var analytics;
   var walkme;
+
   var options = {
-    walkMeSystemId: 'E011E9F84AD84D819286A5A94BAF2255',
-    walkMeEnvironment: 'test',
-    walkMeLoadInIframe: true
+    walkMeSystemId: '1af309271794493f842eeea09740feb0'.toUpperCase(),
+    environment: 'test',
+    trackWalkMeEvents: false,
+    loadWalkMeInIframe: true,
+    integrityHash: ''
   };
 
   beforeEach(function() {
@@ -24,6 +25,7 @@ describe('WalkMe', function() {
     analytics.use(Walkme);
     analytics.use(tester);
     analytics.add(walkme);
+    window.analytics = analytics;
   });
 
   afterEach(function() {
@@ -31,15 +33,19 @@ describe('WalkMe', function() {
     analytics.reset();
     walkme.reset();
     sandbox();
+    window.analytics = undefined;
   });
 
   it('should have the correct settings', function() {
     analytics.compare(
       Walkme,
       integration('WalkMe')
-        .assumesPageview()
-        .option('walkMeSystemId', '')
-        .option('walkMeEnvironment', '')
+      .assumesPageview()
+      .option('walkMeSystemId', '')
+      .option('environment', '')
+      .option('trackWalkMeEvents', false)
+      .option('loadWalkMeInIframe', false)
+      .option('integrityHash', '')
     );
   });
 
@@ -54,7 +60,17 @@ describe('WalkMe', function() {
         analytics.initialize();
         analytics.page();
         analytics.identify();
-        analytics.deepEqual(window._walkmeConfig, { smartLoad: true });
+
+        analytics.deepEqual(window._walkmeConfig, {
+          smartLoad: true,
+          segmentOptions: options
+        });
+      });
+
+      it('should call #load', function() {
+        analytics.initialize();
+        analytics.page();
+        analytics.called(walkme.load);
       });
     });
   });
@@ -64,37 +80,74 @@ describe('WalkMe', function() {
       analytics.spy(walkme, 'load');
     });
 
+    this.afterEach(() => {
+      window._walkmeInternals.Segment = false
+    })
+
     it('should load walkme test lib', function(done) {
       try {
-        analytics.load(walkme, function() {
-          analytics.loaded(
-            fmt(
-              '<script src="https://cdn.walkme.com/users/%s/%s/walkme_%s_https.js"/>',
-              options.walkMeSystemId.toLowerCase(),
-              'test',
-              options.walkMeSystemId.toLowerCase()
-            )
+        var tag = fmt(
+          '<script src="https://cdn.walkme.com/users/%s/%s/walkme_%s_https.js" >',
+          options.walkMeSystemId.toLowerCase(),
+          'test',
+          options.walkMeSystemId.toLowerCase()
+        );
+
+        window.walkme_ready = function() {
+          analytics.assert(
+            !!window.WalkMeAPI,
+            'Expected WalkMeAPI to be present on the page'
           );
 
-          analytics.identify();
+          done();
+        };
 
-          window.walkme_ready = function() {
-            analytics.assert(
-              !!window.WalkMeAPI,
-              'Expected WalkMeAPI to be present on the page'
-            );
-
-            done();
-          };
+        analytics.load(walkme, function() {
+          analytics.loaded(tag);
+          analytics.identify('UserId');
         });
       } catch (e) {
         done(e);
       }
-    });
+    }).timeout(10000);
+
+    it('should load walkme SRI', function(done) {
+      try {
+        var walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
+        var integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
+
+        var tag = fmt(
+          '<script src="https://cdn.walkme.com/users/%s/%s/walkme_private_%s_https.js" crossorigin="" integrity="%s" >',
+          walkMeSystemId,
+          'test',
+          walkMeSystemId,
+          integrityHash
+        );
+
+        window.walkme_ready = function() {
+          analytics.assert(
+            !!window.WalkMeAPI,
+            'Expected WalkMeAPI to be present on the page'
+          );
+
+          done();
+        };
+
+        walkme.options.walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
+        walkme.options.integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
+
+        analytics.load(walkme, function() {
+          analytics.loaded(tag);
+        });
+      } catch (e) {
+        done(e);
+      }
+    }).timeout(10000);
   });
 
   describe('after loading', function() {
     beforeEach(function(done) {
+      window.analytics = analytics;
       analytics.once('ready', done);
       analytics.initialize();
       analytics.page();
@@ -145,7 +198,7 @@ describe('WalkMe', function() {
         window.walkme_ready = function() {
           done();
         };
-      });
+      }).timeout(10000);
     });
   });
 });
