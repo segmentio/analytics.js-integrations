@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var useHttps = require('use-https');
 var each = require('@ndhoule/each');
 var is = require('is');
 
@@ -44,8 +43,7 @@ CleverTap.prototype.initialize = function() {
     // and since dealing with mongo is much more painful, we will strip here
     window.clevertap.region = region.replace('.', '');
   }
-  var protocol = useHttps() ? 'https' : 'http';
-  this.load(protocol, this.ready);
+  this.load('https', this.ready);
 };
 
 CleverTap.prototype.loaded = function() {
