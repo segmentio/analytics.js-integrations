@@ -17,7 +17,7 @@ var CleverTap = (module.exports = integration('CleverTap')
   .global('clevertap')
   .option('clevertap_account_id', '')
   .option('region', '')
-  .tag('http', '<script src="https://static.clevertap.com/js/clevertap.min.js">')
+  .tag('https', '<script src="https://static.clevertap.com/js/clevertap.min.js">')
   );
 
 /**
