@@ -78,7 +78,7 @@ CleverTap.prototype.identify = function(identify) {
   each(function(value, key) {
     if (!is.object(value)) supportedTraits[key] = value;
   }, traits);
-  window.clevertap.profile.push({
+  window.clevertap.onUserLogin.push({
     Site: supportedTraits
   });
 };
