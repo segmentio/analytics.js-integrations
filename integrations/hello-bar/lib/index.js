@@ -30,3 +30,18 @@ Hellobar.prototype.initialize = function() {
 Hellobar.prototype.loaded = function() {
   return typeof window.hellobar === 'function';
 };
+
+/**
+ * Track.
+ *
+ * https://hellobarassist.freshdesk.com/support/solutions/articles/44002393650-triggering-popups-and-bars-on-a-user-event
+ *
+ * @api public
+ * @param {Track} track
+ */
+
+ Hellobar.prototype.track = function(track) {
+  var event = track.event();
+  var properties = track.properties();
+  window.hellobar.trigger.event(event, properties);
+};
