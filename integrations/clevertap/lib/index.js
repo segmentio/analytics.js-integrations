@@ -5,7 +5,6 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var useHttps = require('use-https');
 var each = require('@ndhoule/each');
 var is = require('is');
 
@@ -17,11 +16,8 @@ var CleverTap = (module.exports = integration('CleverTap')
   .global('clevertap')
   .option('clevertap_account_id', '')
   .option('region', '')
-  .tag('http', '<script src="http://static.clevertap.com/js/a.js">')
-  .tag(
-    'https',
-    '<script src="https://d2r1yp2w7bby2u.cloudfront.net/js/a.js">'
-  ));
+  .tag('https', '<script src="https://static.clevertap.com/js/clevertap.min.js">')
+  );
 
 /**
  * Initialize.
@@ -47,8 +43,7 @@ CleverTap.prototype.initialize = function() {
     // and since dealing with mongo is much more painful, we will strip here
     window.clevertap.region = region.replace('.', '');
   }
-  var protocol = useHttps() ? 'https' : 'http';
-  this.load(protocol, this.ready);
+  this.load('https', this.ready);
 };
 
 CleverTap.prototype.loaded = function() {
@@ -83,7 +78,7 @@ CleverTap.prototype.identify = function(identify) {
   each(function(value, key) {
     if (!is.object(value)) supportedTraits[key] = value;
   }, traits);
-  window.clevertap.profile.push({
+  window.clevertap.onUserLogin.push({
     Site: supportedTraits
   });
 };
