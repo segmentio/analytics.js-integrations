@@ -54,6 +54,7 @@ var Amplitude = (module.exports = integration('Amplitude')
   .option('trackProductsOnce', false)
   .option('versionName', '')
   .option('useAmplitudeReferral', false)
+  .option('dummyOption', false)
   .tag('<script src="' + src + '">'));
 
 /**
