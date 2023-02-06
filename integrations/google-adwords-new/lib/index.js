@@ -55,7 +55,11 @@ GoogleAdWordsNew.prototype.initialize = function() {
     if (self.options.disableAdPersonalization)
       window.gtag('set', 'allow_ad_personalization_signals', false);
 
+    if (self.options.floodlightAccountId) {
+      window.gtag('config', self.options.floodlightAccountId, config);
+    }
     window.gtag('config', self.options.accountId, config);
+
     self.ready();
   });
 };
