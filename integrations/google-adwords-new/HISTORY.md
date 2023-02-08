@@ -1,7 +1,11 @@
+1.3.0 / 2023-02-08
+==================
+  * Introduces a new setting `floodlightAccountId` to enable passing the DoubleClick Floodlight config ID to GTag's `config` to allow better synergy between these two products.
+
 1.2.0 / 2020-02-18
 ==================
 
-  * Introduces a new setting `disableAdPersonalization` to disable collection of remarketing data for users who do not wish to view personalized ads. When this settiing is `true`, Segment will set `allow_ad_personalization_signals` to false. 
+  * Introduces a new setting `disableAdPersonalization` to disable collection of remarketing data for users who do not wish to view personalized ads. When this setting is `true`, Segment will set `allow_ad_personalization_signals` to false. 
 
 1.1.1 / 2019-12-09
 ==================
