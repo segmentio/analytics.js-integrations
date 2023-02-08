@@ -1506,23 +1506,30 @@ function createStandardVideoMetadata(track, mediaObj) {
   var props = track.properties();
   var metaKeys = videoAnalytics.MediaHeartbeat.VideoMetadataKeys;
   var stdVidMeta = {};
-  var segAdbMap = {
-    program: metaKeys.SHOW,
-    season: metaKeys.SEASON,
-    episode: metaKeys.EPISODE,
-    assetId: metaKeys.ASSET_ID,
-    contentAssetId: metaKeys.ASSET_ID,
-    genre: metaKeys.GENRE,
-    airdate: metaKeys.FIRST_AIR_DATE,
-    publisher: metaKeys.ORIGINATOR,
-    channel: metaKeys.NETWORK,
-    rating: metaKeys.RATING
-  };
+  var adbSegMap = {}
+  adbSegMap[metaKeys.SHOW] = ["program"],
+  adbSegMap[metaKeys.SEASON] = ["season"],
+  adbSegMap[metaKeys.EPISODE] = ["episode"],
+  adbSegMap[metaKeys.ASSET_ID] = ["contentAssetId", "content_asset_id"],
+  adbSegMap[metaKeys.GENRE] = ["genre"],
+  adbSegMap[metaKeys.FIRST_AIR_DATE] = ["airdate"],
+  adbSegMap[metaKeys.ORIGINATOR] = ["publisher"],
+  adbSegMap[metaKeys.NETWORK] = ["channel"],
+  adbSegMap[metaKeys.RATING] = ["rating"]
 
-  // eslint-disable-next-line
-  for (var prop in segAdbMap) {
-    // If the property exists on the Segment object, set the Adobe metadata key to that value.
-    stdVidMeta[segAdbMap[prop]] = props[prop] || 'no ' + segAdbMap[prop];
+  // Iterate over each Adobe property and check our props to see if the corresponding Segment property exists.
+  for (var adbProp in adbSegMap) {
+    for (var i = 0; i < adbSegMap[adbProp].length; i++) {
+      var segProp = adbSegMap[adbProp][i];
+      if (props[segProp]) {
+        stdVidMeta[adbProp] = props[segProp];
+        break;
+      }
+    }
+
+    if (!stdVidMeta[adbProp]) {
+      stdVidMeta[adbProp] = 'no ' + adbProp
+    }
   }
 
   mediaObj.setValue(

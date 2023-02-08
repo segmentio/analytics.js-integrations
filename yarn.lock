@@ -2381,10 +2381,10 @@
     element-matches-polyfill "^1.0.0"
     whatwg-fetch "^3.0.0"
 
-"@segment/trample@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@segment/trample/-/trample-0.2.0.tgz#5b141159f67b06efaa295d2ebe240b51096134c5"
-  integrity sha1-WxQRWfZ7Bu+qKV0uviQLUQlhNMU=
+"@segment/trample@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@segment/trample/-/trample-0.2.1.tgz#1f9ab47d0f69af633ffe5f3d80317d1a2ecd822a"
+  integrity sha512-uTJeSj2hpbdDmbBSO/qi86NT0YUX30b4akkgWiYdTNwvYbUYnZ9IWynEcWGxbhUmwVtVJdv6vN4nCrgBcthMiQ==
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.0.2", "@sinonjs/commons@^1.4.0":
   version "1.4.0"

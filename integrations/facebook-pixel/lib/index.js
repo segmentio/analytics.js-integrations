@@ -135,8 +135,8 @@ FacebookPixel.prototype.loaded = function() {
  * @param {Facade} identify
  */
 
-FacebookPixel.prototype.page = function() {
-  window.fbq('track', 'PageView');
+FacebookPixel.prototype.page = function(track) {
+  window.fbq('track', 'PageView', {}, { eventID: track.proxy('messageId') });
 };
 
 /**

@@ -14,10 +14,23 @@ var isObject = require('isobject');
 var Atatus = (module.exports = integration('Atatus')
   .global('atatus')
   .option('apiKey', '')
+  .option('version', '')
+
+  .option('disableRUM', false)
+  .option('disableSession', false)
+  .option('disableSPA', false)
   .option('disableAjaxMonitoring', false)
-  .option('disableSpa', false)
-  .option('allowedDomains', [])
+  .option('disableErrorTracking', false)
+  .option('disableTransaction', false)
+
+  .option('whitelistUrls', [])
+  .option('ignoreUrls', [])
+  .option('ignoreErrors', [])
+
+  .option('hashRoutes', false)
+  .option('reportUnhandledRejections', false)
   .option('enableOffline', false)
+
   .tag('<script src="//dmc1acwvwny3.cloudfront.net/{{ lib }}.js">'));
 
 /**
@@ -29,26 +42,32 @@ var Atatus = (module.exports = integration('Atatus')
  */
 
 Atatus.prototype.initialize = function() {
-  var lib = this.options.disableSpa ? 'atatus' : 'atatus-spa';
+  var lib = this.options.disableSPA ? 'atatus' : 'atatus-spa';
   var self = this;
 
   this.load({ lib: lib }, function() {
     var configOptions = {
+      version: self.options.version,
+
+      disableRUM: self.options.disableRUM,
+      disableSession: self.options.disableSession,
+      disableSPA: self.options.disableSPA,
       disableAjaxMonitoring: self.options.disableAjaxMonitoring,
-      disableSPA: self.options.disableSpa
+      disableErrorTracking: self.options.disableErrorTracking,
+      disableTransaction: self.options.disableTransaction,
+
+      whitelistUrls: self.options.whitelistUrls,
+      ignoreUrls: self.options.ignoreUrls,
+      ignoreErrors: self.options.ignoreErrors,
+
+      hashRoutes: self.options.hashRoutes,
+      reportUnhandledRejections: self.options.reportUnhandledRejections
     };
 
     // Configure Atatus and install default handler to capture uncaught
     // exceptions
     window.atatus.config(self.options.apiKey, configOptions).install();
 
-    // Set allowed domains and enable offline
-    if (
-      Array.isArray(self.options.allowedDomains) &&
-      self.options.allowedDomains.length > 0
-    ) {
-      window.atatus.setAllowedDomains(self.options.allowedDomains);
-    }
     window.atatus.enableOffline(self.options.enableOffline);
 
     self.ready();

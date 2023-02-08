@@ -8,5 +8,3 @@ Released under the [MIT license](LICENSE).
 
 
 [Analytics.js]: https://segment.com/docs/libraries/analytics.js/
-[ci-link]: https://ci.segment.com/gh/segment-integrations/analytics.js-integration-salesforce-dmp
-[ci-badge]: https://ci.segment.com/gh/segment-integrations/analytics.js-integration-salesforce-dmp.svg?style=svg
