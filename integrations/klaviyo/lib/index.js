@@ -217,7 +217,8 @@ function formatItems(track) {
         ProductCategories: [product.category()],
         ProductURL: product.proxy('properties.productUrl'),
         ImageURL: product.proxy('properties.imageUrl'),
-        SKU: product.sku()
+        SKU: product.sku(),
+        productId: product.productId()
       });
 
       // ensure unique $event_id is associated with each Ordered Product event by combining Order Completed
@@ -266,7 +267,7 @@ function formatProducts(products) {
       var customProps = filter(product, whitelist);
 
       var item = reject({
-        id: product.productId() || product.id(),
+        productId: product.productId() || product.id(),
         SKU: product.sku(),
         Name: product.name(),
         Quantity: product.quantity(),
