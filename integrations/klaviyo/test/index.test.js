@@ -230,7 +230,7 @@ describe('Klaviyo', function() {
             ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
             Items: [
               {
-                id: '507f1f77bcf86cd799439011',
+                productId: '507f1f77bcf86cd799439011',
                 SKU: '45790-32',
                 Name: 'Monopoly: 3rd Edition',
                 Quantity: 1,
@@ -241,7 +241,7 @@ describe('Klaviyo', function() {
                 Categories: ['Games']
               },
               {
-                id: '505bd76785ebb509fc183733',
+                productId: '505bd76785ebb509fc183733',
                 SKU: '46493-32',
                 Name: 'Suh dude',
                 Quantity: 2,
@@ -293,7 +293,7 @@ describe('Klaviyo', function() {
             ItemNames: ['Monopoly: 3rd Edition'],
             Items: [
               {
-                id: '507f1f77bcf86cd799439011',
+                productId: '507f1f77bcf86cd799439011',
                 SKU: '45790-32',
                 Name: 'Monopoly: 3rd Edition',
                 Quantity: 1,
@@ -322,7 +322,8 @@ describe('Klaviyo', function() {
             ProductCategories: ['Games'],
             ProductURL: 'http://www.example.com/path/to/product',
             ImageURL: 'http://www.example.com/path/to/product/image.png',
-            SKU: '45790-32'
+            SKU: '45790-32',
+            productId: '507f1f77bcf86cd799439011'
           }
         ]);
       });
@@ -452,7 +453,7 @@ describe('Klaviyo', function() {
             ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
             Items: [
               {
-                id: '507f1f77bcf86cd799439011',
+                productId: '507f1f77bcf86cd799439011',
                 SKU: '45790-32',
                 Name: 'Monopoly: 3rd Edition',
                 Quantity: 1,
@@ -465,7 +466,7 @@ describe('Klaviyo', function() {
                 friday: 'is here'
               },
               {
-                id: '505bd76785ebb509fc183733',
+                productId: '505bd76785ebb509fc183733',
                 SKU: '46493-32',
                 Name: 'Suh dude',
                 Quantity: 2,
