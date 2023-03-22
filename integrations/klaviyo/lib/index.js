@@ -267,6 +267,7 @@ function formatProducts(products) {
       var customProps = filter(product, whitelist);
 
       var item = reject({
+        id: product.productId() || product.id(),
         SKU: product.sku(),
         Name: product.name(),
         Quantity: product.quantity(),
