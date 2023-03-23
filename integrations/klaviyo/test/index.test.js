@@ -322,12 +322,13 @@ describe('Klaviyo', function() {
             ProductCategories: ['Games'],
             ProductURL: 'http://www.example.com/path/to/product',
             ImageURL: 'http://www.example.com/path/to/product/image.png',
-            SKU: '45790-32'
+            SKU: '45790-32',
+            ProductID: '507f1f77bcf86cd799439011'
           }
         ]);
       });
 
-      it('should have the correct $event_id for Ordered Product if id passed as product_id', function() {
+      it('should have correct $event_id for Ordered Product if id passed as product_id', function() {
         analytics.track('Completed Order', {
           order_id: '50314b8e9bcf000000000000',
           total: 30,
@@ -362,7 +363,8 @@ describe('Klaviyo', function() {
             ProductCategories: ['Games'],
             ProductURL: 'http://www.example.com/path/to/product',
             ImageURL: 'http://www.example.com/path/to/product/image.png',
-            SKU: '45790-32'
+            SKU: '45790-32',
+            ProductID: '507f1f77bcf86cd799439011'
           }
         ]);
       });

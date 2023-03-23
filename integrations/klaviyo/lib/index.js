@@ -217,7 +217,8 @@ function formatItems(track) {
         ProductCategories: [product.category()],
         ProductURL: product.proxy('properties.productUrl'),
         ImageURL: product.proxy('properties.imageUrl'),
-        SKU: product.sku()
+        SKU: product.sku(),
+        ProductID: product.productId() || product.id()
       });
 
       // ensure unique $event_id is associated with each Ordered Product event by combining Order Completed
