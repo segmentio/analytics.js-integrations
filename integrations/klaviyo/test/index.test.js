@@ -228,6 +228,7 @@ describe('Klaviyo', function() {
             $value: 25,
             Categories: ['Games', 'Interwebs'],
             ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
+            total: 30,
             Items: [
               {
                 id: '507f1f77bcf86cd799439011',
@@ -291,6 +292,7 @@ describe('Klaviyo', function() {
             $value: 25,
             Categories: ['Games'],
             ItemNames: ['Monopoly: 3rd Edition'],
+            total: 30,
             Items: [
               {
                 id: '507f1f77bcf86cd799439011',
@@ -452,6 +454,7 @@ describe('Klaviyo', function() {
             $value: 25,
             Categories: ['Games', 'Interwebs'],
             ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
+            total: 30,
             Items: [
               {
                 id: '507f1f77bcf86cd799439011',

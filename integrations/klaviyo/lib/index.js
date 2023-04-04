@@ -132,7 +132,8 @@ Klaviyo.prototype.orderCompleted = function(track) {
     $value: track.revenue(),
     Categories: products.categories,
     ItemNames: products.names,
-    Items: products.items
+    Items: products.items,
+    total: track.total()
   };
 
   var whitelist = [
