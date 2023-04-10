@@ -132,8 +132,7 @@ Klaviyo.prototype.orderCompleted = function(track) {
     $value: track.revenue(),
     Categories: products.categories,
     ItemNames: products.names,
-    Items: products.items,
-    total: track.total()
+    Items: products.items
   };
 
   var whitelist = [
@@ -145,7 +144,6 @@ Klaviyo.prototype.orderCompleted = function(track) {
     'itemNames',
     'items',
     'revenue',
-    'total',
     'products'
   ];
   // strip standard props and leave custom props only
