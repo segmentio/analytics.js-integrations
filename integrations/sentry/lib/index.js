@@ -19,7 +19,7 @@ var Sentry = (module.exports = integration('Sentry')
   .option('release', null)
   .option('ignoreErrors', []) // still exists, but not documented on Sentry's website
   .option('ignoreUrls', [])
-  .option('allowUrls', [])
+  .option('whitelistUrls', [])
   .option('includePaths', []) // maps to Sentry.Integrations.RewriteFrames plugin
   .option('logger', null)
   .option('customVersionProperty', null)
@@ -50,8 +50,7 @@ Sentry.prototype.initialize = function() {
     dsn: this.options.config,
     environment: this.options.environment,
     release: customRelease || this.options.release,
-    serverName: this.options.serverName,
-    allowUrls: this.options.allowUrls,
+    allowUrls: this.options.whitelistUrls,
     denyUrls: this.options.ignoreUrls,
     // ignoreErrors still exists, but is not documented on Sentry's website
     // https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/integrations/inboundfilters.ts#L12
