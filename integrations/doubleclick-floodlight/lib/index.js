@@ -46,12 +46,17 @@ Floodlight.prototype.initialize = function() {
   // Check if we should load the DoubleClick ID pixel (and only proceed if we haven't already done so).
   if (this.options.getDoubleClickId && this.options.googleNetworkId) {
     // Load the doubleclick pixel.
-    this.load('doubleclick id', {
-      googleNetworkId: this.options.googleNetworkId,
-      segmentWriteKey: this.options.segmentWriteKey,
-      // Hosted match table id https://developers.google.com/authorized-buyers/rtb/cookie-guide#match-table
-      partnerProvidedId: btoa(this.analytics.user().anonymousId())
-    });
+    this.load(
+      'doubleclick id',
+      {
+        googleNetworkId: this.options.googleNetworkId,
+        segmentWriteKey: this.options.segmentWriteKey,
+        // Hosted match table id https://developers.google.com/authorized-buyers/rtb/cookie-guide#match-table
+        partnerProvidedId: btoa(this.analytics.user().anonymousId())
+      },
+      null,
+      true
+    );
   }
   this.ready();
 };
