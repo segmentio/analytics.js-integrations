@@ -46,17 +46,12 @@ Floodlight.prototype.initialize = function() {
   // Check if we should load the DoubleClick ID pixel (and only proceed if we haven't already done so).
   if (this.options.getDoubleClickId && this.options.googleNetworkId) {
     // Load the doubleclick pixel.
-    this.load(
-      'doubleclick id',
-      {
-        googleNetworkId: this.options.googleNetworkId,
-        segmentWriteKey: this.options.segmentWriteKey,
-        // Hosted match table id https://developers.google.com/authorized-buyers/rtb/cookie-guide#match-table
-        partnerProvidedId: btoa(this.analytics.user().anonymousId())
-      },
-      null,
-      true
-    );
+    this.load('doubleclick id', {
+      googleNetworkId: this.options.googleNetworkId,
+      segmentWriteKey: this.options.segmentWriteKey,
+      // Hosted match table id https://developers.google.com/authorized-buyers/rtb/cookie-guide#match-table
+      partnerProvidedId: btoa(this.analytics.user().anonymousId())
+    });
   }
   this.ready();
 };
@@ -183,8 +178,9 @@ Floodlight.prototype.track = function(track) {
 
   // Fire each tag
   each(function(tagParams) {
-    if (tagParams._type === 'sales') return self.load('sales', tagParams);
-    return self.load('counter', tagParams);
+    if (tagParams._type === 'sales')
+      return self.load('sales', tagParams, null, true);
+    return self.load('counter', tagParams, null, true);
   }, tags);
 };
 
