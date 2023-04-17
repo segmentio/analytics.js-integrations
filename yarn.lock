@@ -2020,10 +2020,10 @@
     json3 "^3.3.2"
     proclaim "^3.4.1"
 
-"@segment/analytics.js-integration@3.3.4-alpha.1":
-  version "3.3.4-alpha.1"
-  resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration/-/analytics.js-integration-3.3.4-alpha.1.tgz#8212c873d239f08a7ab22f456230ffb2a463c452"
-  integrity sha512-MzGVbMxsQLit6lPZhxd8xd4YKum1k4h5PaiHMdqb582vRCJPNm/gENL+NJv2/qLfvLFsV39KM8MWdHRP8KqJDw==
+"@segment/analytics.js-integration@3.3.4-alpha.2":
+  version "3.3.4-alpha.2"
+  resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration/-/analytics.js-integration-3.3.4-alpha.2.tgz#498c1047ef0a0c5f4f3dd9bb7d65915627007491"
+  integrity sha512-XdbJzIk/srpeuI5FyR52qLvXqDtf+7UQ8FCUMdmqjXQYOaFZe7wuLbo/k4D/MIMwpq21pz3U8EJbs6IyW3WDGg==
   dependencies:
     "@ndhoule/clone" "^1.0.0"
     "@ndhoule/defaults" "^2.0.1"
