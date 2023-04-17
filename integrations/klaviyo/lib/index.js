@@ -144,7 +144,6 @@ Klaviyo.prototype.orderCompleted = function(track) {
     'itemNames',
     'items',
     'revenue',
-    'total',
     'products'
   ];
   // strip standard props and leave custom props only
