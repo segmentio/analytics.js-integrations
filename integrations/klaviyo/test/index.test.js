@@ -228,6 +228,7 @@ describe('Klaviyo', function() {
             $value: 25,
             Categories: ['Games', 'Interwebs'],
             ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
+            total: 30,
             Items: [
               {
                 id: '507f1f77bcf86cd799439011',
@@ -291,6 +292,7 @@ describe('Klaviyo', function() {
             $value: 25,
             Categories: ['Games'],
             ItemNames: ['Monopoly: 3rd Edition'],
+            total: 30,
             Items: [
               {
                 id: '507f1f77bcf86cd799439011',
@@ -414,7 +416,6 @@ describe('Klaviyo', function() {
           letMePass: 'hi',
           customProp: true,
           total: 30,
-          revenue: 25,
           shipping: 3,
           tax: 2,
           discount: 2.5,
@@ -449,9 +450,10 @@ describe('Klaviyo', function() {
           'Completed Order',
           {
             $event_id: '50314b8e9bcf000000000000',
-            $value: 25,
+            $value: 30,
             Categories: ['Games', 'Interwebs'],
             ItemNames: ['Monopoly: 3rd Edition', 'Suh dude'],
+            total: 30,
             Items: [
               {
                 id: '507f1f77bcf86cd799439011',
