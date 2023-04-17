@@ -16,24 +16,22 @@ var Sentry = (module.exports = integration('Sentry')
   .global('Sentry')
   .option('config', '')
   .option('environment', null)
-  .option('serverName', null)
   .option('release', null)
   .option('ignoreErrors', []) // still exists, but not documented on Sentry's website
   .option('ignoreUrls', [])
   .option('whitelistUrls', [])
   .option('includePaths', []) // maps to Sentry.Integrations.RewriteFrames plugin
-  .option('maxMessageLength', null) // deprecated
   .option('logger', null)
   .option('customVersionProperty', null)
   .option('debug', false)
   .tag(
     'sentry',
-    '<script src="https://browser.sentry-cdn.com/5.12.1/bundle.min.js" integrity="sha384-y+an4eARFKvjzOivf/Z7JtMJhaN6b+lLQ5oFbBbUwZNNVir39cYtkjW1r6Xjbxg3" crossorigin="anonymous"></script>'
+    '<script src="https://browser.sentry-cdn.com/7.45.0/bundle.min.js" integrity="sha384-eB2/mQAt3oY62hGYFXiPg18greyp8WT/GvKHlsvdYbvSxBRGEhBqEX8L7giHxzvp" crossorigin="anonymous"></script>'
   )
   // Sentry.Integrations.RewriteFrames plugin: https://docs.sentry.io/platforms/javascript/#rewriteframes
   .tag(
     'plugin',
-    '<script src="https://browser.sentry-cdn.com/5.12.1/rewriteframes.min.js" crossorigin="anonymous"></script>'
+    '<script src="https://browser.sentry-cdn.com/7.45.0/rewriteframes.min.js" integrity="sha384-m1kRQsSdJkB99lz+1ZvWWjrj0SPH0wXH8y7gvdjHAtKBP8lrLrcv9iF7fOQGL8I0" crossorigin="anonymous"></script>'
   ));
 
 /**
@@ -52,9 +50,8 @@ Sentry.prototype.initialize = function() {
     dsn: this.options.config,
     environment: this.options.environment,
     release: customRelease || this.options.release,
-    serverName: this.options.serverName,
-    whitelistUrls: this.options.whitelistUrls,
-    blacklistUrls: this.options.ignoreUrls,
+    allowUrls: this.options.whitelistUrls,
+    denyUrls: this.options.ignoreUrls,
     // ignoreErrors still exists, but is not documented on Sentry's website
     // https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/integrations/inboundfilters.ts#L12
     ignoreErrors: this.options.ignoreErrors,
