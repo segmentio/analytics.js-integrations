@@ -1,3 +1,7 @@
+4.4.1 / 2020-03-12
+==================
+  * Retries events that failed to send due to NetworkErrors.
+
 4.4.0 / 2020-02-05
 ==================
 
