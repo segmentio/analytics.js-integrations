@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-clevertap",
   "description": "The CleverTap analytics.js integration.",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

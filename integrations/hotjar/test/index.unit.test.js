@@ -16,8 +16,7 @@ describe('Hotjar Unit', function() {
   var hotjar;
   var customOptions;
   var options = {
-    hjid: 485778,
-    hjPlaceholderPolyfill: true
+    hjid: 485778
   };
 
   beforeEach(function() {
@@ -28,8 +27,7 @@ describe('Hotjar Unit', function() {
     analytics.add(hotjar);
 
     customOptions = {
-      hjid: 485778,
-      hjPlaceholderPolyfill: false
+      hjid: 485778
     };
   });
 
@@ -46,7 +44,6 @@ describe('Hotjar Unit', function() {
         Hotjar,
         Integration('Hotjar')
           .option('hjid', null)
-          .option('hjPlaceholderPolyfill', true)
       );
     });
 
@@ -68,19 +65,13 @@ describe('Hotjar Unit', function() {
       hotjar.initialize();
       analytics.deepEqual(window._hjSettings, {
         hjid: options.hjid,
-        hjsv: 6,
-        hjPlaceholderPolyfill: true
+        hjsv: 6
       });
       analytics.assert(typeof window.hj === 'function');
     });
 
     it('should reject an invalid HJID', function() {
       customOptions.hjid = NaN;
-      testInvalidInitialize(customOptions);
-    });
-
-    it('should reject an invalid hjPlaceholderPolyfill boolean', function() {
-      customOptions.hjPlaceholderPolyfill = 1;
       testInvalidInitialize(customOptions);
     });
 
@@ -121,6 +112,40 @@ describe('Hotjar Unit', function() {
         analytics.identify(undefined, traits);
 
         analytics.called(hotjar.debug, 'user id is required');
+        analytics.didNotCall(window.hj);
+      });
+    });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.stub(hotjar, 'debug');
+        analytics.stub(window, 'hj');
+      });
+
+      afterEach(function() {
+        analytics.reset();
+      });
+
+      it('should send event without properties', function() {
+        analytics.stub(window, 'hj');
+        var event = 'the_event';
+        analytics.track(event);
+        analytics.called(window.hj, 'event', event);
+      });
+
+      it('should send event with properties', function() {
+        analytics.stub(window, 'hj');
+        var event = 'the_event';
+        var properties = { a: 'a', b: 'b', c: [] };
+        analytics.track(event, properties);
+        analytics.called(window.hj, 'event', event, properties);
+      });
+
+      it('should not send nameless event', function() {
+        var properties = { a: 'a', b: 'b', c: [] };
+        analytics.track(undefined, properties);
+
+        analytics.called(hotjar.debug, 'event name is required');
         analytics.didNotCall(window.hj);
       });
     });

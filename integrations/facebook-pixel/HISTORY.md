@@ -1,3 +1,32 @@
+2.11.3 / 2020-12-14
+===================
+
+  * Bump segmentio-facade to ^3.2.7
+
+2.11.2/ 2020-07-28
+==================
+
+  * Explicitly not enable Limited Data Use (LDU) mode in the FB Pixel SDK when the Limited Data Use Segment setting is disabled.
+
+2.11.1/ 2020-07-22
+==================
+
+  * Add support to override the Data Processing Options by pass them in the load options object.
+  ```
+  analytics.load("<writeKey>", {
+    integrations: {
+      'Facebook Pixel': {
+        dataProcessingOptions: [['LDU'], 1, 1000]
+      }
+    }
+  });
+  ```
+
+2.11.0/ 2020-07-16
+==================
+
+  * Add support for Limited Data Use. See: https://developers.facebook.com/docs/marketing-apis/data-processing-options
+
 2.10.0/ 2019-12-04
 ==================
 

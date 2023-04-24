@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var ads = require('@segment/ad-params');
+var ads = require('./ads');
 var clone = require('component-clone');
 var cookie = require('component-cookie');
 var extend = require('@ndhoule/extend');
@@ -15,7 +15,7 @@ var localstorage = require('yields-store');
 var protocol = require('@segment/protocol');
 var send = require('@segment/send-json');
 var topDomain = require('@segment/top-domain');
-var utm = require('@segment/utm-params');
+var utm = require('./utm');
 var uuid = require('uuid').v4;
 var Queue = require('@segment/localstorage-retry');
 
@@ -63,7 +63,9 @@ var Segment = (exports = module.exports = integration('Segment.io')
   .option('saveCrossDomainIdInLocalStorage', true)
   .option('retryQueue', true)
   .option('addBundledMetadata', false)
-  .option('unbundledIntegrations', []));
+  .option('unbundledIntegrations', []))
+  .option('unbundledConfigIds', [])
+  .option('maybeBundledConfigIds', {});
 
 /**
  * Get the store.
@@ -314,9 +316,31 @@ Segment.prototype.normalize = function(message) {
   }
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
+    var maybeBundledConfigIds = this.options.maybeBundledConfigIds
+
+    // Generate a list of bundled config IDs using the intersection of
+    // bundled destination names and maybe bundled config IDs.
+    var bundledConfigIds = []
+    for (var i = 0; i < bundled.length; i++) {
+      var name = bundled[i]
+      if (!maybeBundledConfigIds) {
+        break
+      }
+      if (!maybeBundledConfigIds[name]) {
+        continue
+      }
+
+      for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
+        var id = maybeBundledConfigIds[name][j]
+        bundledConfigIds.push(id)
+      }
+    }
+
+
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
+    msg._metadata.bundledIds = bundledConfigIds;
   }
   this.debug('normalized %o', msg);
   this.ampId(ctx);
@@ -330,8 +354,10 @@ Segment.prototype.normalize = function(message) {
  */
 
 Segment.prototype.ampId = function(ctx) {
-  var ampId = this.cookie('segment_amp_id');
-  if (ampId) ctx.amp = { id: ampId };
+  var ampId = this.cookie('_ga');
+  if (ampId) {
+    if (ampId.slice(0, 3) === 'amp') ctx.amp = { id: ampId };
+  }
 };
 
 /**
@@ -468,14 +494,10 @@ Segment.prototype.retrieveCrossDomainId = function(callback) {
   var self = this;
   var writeKey = this.options.apiKey;
 
-  // Exclude the current domain from the list of servers we're querying
-  var currentTld = getTld(window.location.hostname);
   var domains = [];
   for (var i = 0; i < this.options.crossDomainIdServers.length; i++) {
     var domain = this.options.crossDomainIdServers[i];
-    if (getTld(domain) !== currentTld) {
-      domains.push(domain);
-    }
+    domains.push(domain);
   }
 
   getCrossDomainIdFromServerList(domains, writeKey, function(err, res) {

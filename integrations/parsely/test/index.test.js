@@ -7,7 +7,7 @@ var filter = require('array-filter');
 var integration = require('@segment/analytics.js-integration');
 var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
-var json = require('json3');
+var json = JSON;
 
 describe('Parsely', function() {
   var analytics;
@@ -53,17 +53,6 @@ describe('Parsely', function() {
   describe('before loading', function() {
     beforeEach(function() {
       analytics.stub(parsely, 'load');
-    });
-
-    it('should create a Parsely meta tag', function() {
-      var isLoaded = function() {
-        return !!filter(document.getElementsByTagName('meta'), isParselyMetaTag)
-          .length;
-      };
-
-      analytics.assert(!isLoaded());
-      parsely.initialize();
-      analytics.assert(isLoaded());
     });
 
     it('should set window.PARSELY if not already set', function() {

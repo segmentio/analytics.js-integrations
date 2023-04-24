@@ -37,6 +37,30 @@ Pendo.prototype.initialize = function() {
     usePendoAgentAPI: true
   };
 
+  var user = this.analytics.user();
+  var isUserAnonymous = !user.id();
+  var id = isUserAnonymous
+    ? pendoifyAnonymousId(user.anonymousId())
+    : user.id();
+
+  var visitor = Object.assign({ id: id }, user.traits());
+  window.pendo_options.visitor = Object.assign(
+    visitor,
+    window.pendo_options.visitor
+  );
+
+  var group = this.analytics.group();
+  if (group.id()) {
+    var account = Object.assign(
+      { id: group.id() },
+      group.traits()
+    );
+    window.pendo_options.account = Object.assign(
+      account,
+      window.pendo_options.account
+    );
+  }
+
   this.load(this.ready, { apiKey: this.options.apiKey });
 };
 

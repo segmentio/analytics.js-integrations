@@ -1,3 +1,12 @@
+2.5.0 / 2020-05-13
+==================
+
+  * Add support for page and group in Wootric (#470)
+  
+2.4.0 / 2020-02-20
+==================
+
+  * Update `@segment/analytics.js-integration` to `3.3.1` (#432)
 
 2.2.0 / 2018-08-31
 ==================

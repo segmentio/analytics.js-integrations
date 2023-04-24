@@ -7,57 +7,108 @@
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
 var foldl = require('@ndhoule/foldl');
+
 /**
  * Expose `Sentry` integration.
  */
 
 var Sentry = (module.exports = integration('Sentry')
-  .global('Raven')
-  .global('RavenConfig')
+  .global('Sentry')
   .option('config', '')
-  .option('serverName', null)
+  .option('environment', null)
   .option('release', null)
-  .option('ignoreErrors', [])
+  .option('ignoreErrors', []) // still exists, but not documented on Sentry's website
   .option('ignoreUrls', [])
   .option('whitelistUrls', [])
-  .option('includePaths', [])
-  .option('maxMessageLength', null)
+  .option('includePaths', []) // maps to Sentry.Integrations.RewriteFrames plugin
   .option('logger', null)
   .option('customVersionProperty', null)
+  .option('debug', false)
   .tag(
-    '<script src="https://cdn.ravenjs.com/3.17.0/raven.min.js" crossorigin="anonymous">'
+    'sentry',
+    '<script src="https://browser.sentry-cdn.com/7.45.0/bundle.min.js" integrity="sha384-eB2/mQAt3oY62hGYFXiPg18greyp8WT/GvKHlsvdYbvSxBRGEhBqEX8L7giHxzvp" crossorigin="anonymous"></script>'
+  )
+  // Sentry.Integrations.RewriteFrames plugin: https://docs.sentry.io/platforms/javascript/#rewriteframes
+  .tag(
+    'plugin',
+    '<script src="https://browser.sentry-cdn.com/7.45.0/rewriteframes.min.js" integrity="sha384-m1kRQsSdJkB99lz+1ZvWWjrj0SPH0wXH8y7gvdjHAtKBP8lrLrcv9iF7fOQGL8I0" crossorigin="anonymous"></script>'
   ));
 
 /**
  * Initialize.
+ * https://docs.sentry.io/error-reporting/quickstart/?platform=browser
  *
- * https://docs.sentry.io/clients/javascript/config/
- * https://github.com/getsentry/raven-js/blob/3.12.1/src/raven.js#L646-L649
  * @api public
  */
 
 Sentry.prototype.initialize = function() {
-  var dsnPublic = this.options.config;
   var customRelease = this.options.customVersionProperty
     ? window[this.options.customVersionProperty]
     : null;
-  var options = {
-    logger: this.options.logger,
+
+  var config = {
+    dsn: this.options.config,
+    environment: this.options.environment,
     release: customRelease || this.options.release,
-    serverName: this.options.serverName,
-    whitelistUrls: this.options.whitelistUrls,
+    allowUrls: this.options.whitelistUrls,
+    denyUrls: this.options.ignoreUrls,
+    // ignoreErrors still exists, but is not documented on Sentry's website
+    // https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/integrations/inboundfilters.ts#L12
     ignoreErrors: this.options.ignoreErrors,
-    ignoreUrls: this.options.ignoreUrls,
-    includePaths: this.options.includePaths,
-    maxMessageLength: this.options.maxMessageLength
+    integrations: [],
+    debug: this.options.debug
   };
 
-  window.RavenConfig = {
-    dsn: dsnPublic,
-    config: reject(options)
-  };
+  var logger = this.options.logger;
+  var includePaths = [];
+  if (this.options.includePaths.length > 0) {
+    includePaths = this.options.includePaths.map(function(path) {
+      var regex;
+      try {
+        regex = new RegExp(path);
+      } catch (e) {
+        // do nothing
+      }
+      return regex;
+    });
+  }
 
-  this.load(this.ready);
+  var self = this;
+  this.load('sentry', function() {
+    self.load('plugin', function() {
+      // values from `includePaths` tells the Sentry app which frames in a StackTrace to display in the user's
+      // dashboard. we use the Sentry.Integrations.RewriteFrames plugin to check each frame in a stacktrace and reassign
+      // the value of frame.in_app to true/false depending on whether we find a match: https://docs.sentry.io/platforms/javascript/#rewriteframes
+      if (includePaths.length > 0) {
+        config.integrations.push(
+          new window.Sentry.Integrations.RewriteFrames({
+            iteratee: function(frame) {
+              for (var i = 0; i < includePaths.length; i++) {
+                try {
+                  if (frame.filename.match(includePaths[i])) {
+                    frame.in_app = true; // eslint-disable-line
+                    return frame;
+                  }
+                } catch (e) {
+                  // do nothing
+                }
+              }
+              frame.in_app = false; // eslint-disable-line
+              return frame;
+            }
+          })
+        );
+      }
+
+      window.Sentry.init(reject(config));
+
+      if (logger) {
+        window.Sentry.setTag('logger', logger);
+      }
+
+      self.ready();
+    });
+  });
 };
 
 /**
@@ -68,7 +119,7 @@ Sentry.prototype.initialize = function() {
  */
 
 Sentry.prototype.loaded = function() {
-  return is.object(window.Raven);
+  return is.object(window.Sentry);
 };
 
 /**
@@ -79,7 +130,7 @@ Sentry.prototype.loaded = function() {
  */
 
 Sentry.prototype.identify = function(identify) {
-  window.Raven.setUserContext(identify.traits());
+  window.Sentry.setUser(identify.traits());
 };
 
 /**

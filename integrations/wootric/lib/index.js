@@ -28,9 +28,6 @@ var Wootric = (module.exports = integration('Wootric')
  */
 
 Wootric.prototype.initialize = function() {
-  // We use this to keep track of the last page that Wootric has tracked to
-  // ensure we don't accidentally send a duplicate page call
-  this.lastPageTracked = null;
   window.wootricSettings = window.wootricSettings || {};
   window.wootricSettings.account_token = this.options.accountToken;
   window.wootricSettings.version = 'wootric-segment-js-2.3.0';
@@ -101,14 +98,21 @@ Wootric.prototype.track = function(track) {
  * @param {Page} page
  */
 
-Wootric.prototype.page = function() {
-  // Only track page if we haven't already tracked it
-  if (this.lastPageTracked === window.location) {
-    return;
-  }
+Wootric.prototype.page = function(page) {
+  window.wootricSettings.page_info = page.properties();
+  window.wootric('page');
+};
 
-  // Set this page as the last page tracked
-  this.lastPageTracked = window.location;
+/**
+ * Group.
+ *
+ * @api public
+ * @param {Group} group
+ */
+
+Wootric.prototype.group = function(group) {
+  window.wootricSettings.group_info = group.traits();
+  window.wootric('group');
 };
 
 /**

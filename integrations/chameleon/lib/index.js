@@ -5,6 +5,7 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
+var extend = require('@ndhoule/extend');
 
 /**
  * Expose `Chameleon` integration.
@@ -15,8 +16,9 @@ var Chameleon = (module.exports = integration('Chameleon')
   .readyOnLoad()
   .global('chmln')
   .option('apiKey', null)
+  .option('fastUrl', 'https://fast.trychameleon.com/')
   .tag(
-    '<script src="https://fast.trychameleon.com/messo/{{apiKey}}/messo.min.js"></script>'
+    '<script src="{{fastUrl}}messo/{{apiKey}}/messo.min.js"></script>'
   ));
 
 /**
@@ -27,7 +29,7 @@ var Chameleon = (module.exports = integration('Chameleon')
 
 Chameleon.prototype.initialize = function() {
   /* eslint-disable */
-  var that=this;!function(){var c=(window.chmln||(window.chmln={}));if(c.root){return;}c.location=window.location.href.toString();c.accountToken=that.options.apiKey;var names='setup identify alias track set show on off custom help _data'.split(' ');for(var i=0;i<names.length;i++){(function(){var t=c[names[i]+'_a']=[];c[names[i]]=function(){t.push(arguments);};})()}}();
+  var that=this;!function(){var c=(window.chmln||(window.chmln={}));if(c.root){return;}c.location=window.location.href.toString();c.accountToken=that.options.apiKey;c.fastUrl=that.options.fastUrl;var names='setup identify alias track set show on off custom help _data'.split(' ');for(var i=0;i<names.length;i++){(function(){var t=c[names[i]+'_a']=[];c[names[i]]=function(){t.push(arguments);};})()}}();
   /* eslint-enable */
 
   this.ready();
@@ -54,9 +56,11 @@ Chameleon.prototype.loaded = function() {
 
 Chameleon.prototype.identify = function(identify) {
   var traits = identify.traits();
+  var opts = identify.options(this.name);
+
   delete traits.id;
 
-  window.chmln.identify(identify.userId(), traits);
+  window.chmln.identify(identify.userId(), extend(traits, opts));
 };
 
 /**
