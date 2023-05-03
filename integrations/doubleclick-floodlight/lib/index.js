@@ -133,6 +133,7 @@ Floodlight.prototype.track = function(track) {
       }, tag.customVariable);
 
       var customVariables = qs.stringify(matchedVariables).replace(/&/g, ';');
+      
       if (tag.customVariable.length) customVariables = ';' + customVariables;
 
       var tagParams = {
