@@ -5,26 +5,27 @@
  */
 
 var integration = require('@segment/analytics.js-integration');
-var push = require('global-queue')('dataLayer', { wrap: false });
+var globalQueue = require('global-queue');
+var push;
 
 /**
  * Expose `GTM`.
  */
 
 var GTM = (module.exports = integration('Google Tag Manager')
-  .global('dataLayer')
   .global('google_tag_manager')
+  .option('queueName', 'dataLayer')
   .option('containerId', '')
   .option('environment', '')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
   .tag(
     'no-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer">'
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ queueName }}">'
   )
   .tag(
     'with-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">'
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l={{ queueName }}&gtm_preview={{ environment }}">'
   ));
 
 /**
@@ -36,6 +37,7 @@ var GTM = (module.exports = integration('Google Tag Manager')
  */
 
 GTM.prototype.initialize = function() {
+  push = globalQueue(this.options.queueName, { wrap: false });
   push({ 'gtm.start': Number(new Date()), event: 'gtm.js' });
 
   if (this.options.environment.length) {
@@ -53,7 +55,10 @@ GTM.prototype.initialize = function() {
  */
 
 GTM.prototype.loaded = function() {
-  return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+  return !!(
+    window[this.options.queueName] &&
+    Array.prototype.push !== window[this.options.queueName].push
+  );
 };
 
 /**
