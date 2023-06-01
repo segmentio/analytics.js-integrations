@@ -68,8 +68,7 @@ WalkMe.prototype.initialize = function() {
     sriSuffix = 'private_';
   }
 
-  var bucket = (this.options.userBucket) ? this.options.userBucket : 'users';
-
+  var bucket = (this.options.bucketName) ? this.options.bucketName : 'users';
   var url = `https://cdn.walkme.com/${bucket}/${walkMeSystemId}/${env}/walkme_${sriSuffix}${walkMeSystemId}_https.js`;
 
   this.load({
