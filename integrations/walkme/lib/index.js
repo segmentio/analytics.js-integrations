@@ -19,6 +19,7 @@ var WalkMe = module.exports = integration('WalkMe')
   .option('trackWalkMeEvents', false)
   .option('loadWalkMeInIframe', false)
   .option('integrityHash', '')
+  .option('bucketName', 'users')
   .tag('<script async="true" src="{{ url }}" crossorigin="" integrity="{{ hash }}">')
 
 /**
@@ -37,7 +38,7 @@ WalkMe.prototype.initialize = function() {
     window.walkme_load_in_iframe = true;
   }
 
-  var env = "\/" + (this.options.environment && this.options.environment.toLowerCase());
+  var env = (this.options.environment && this.options.environment.toLowerCase());
 
   if (!env || env == "\/" || env == "\/production") {
     env = "";
@@ -67,7 +68,9 @@ WalkMe.prototype.initialize = function() {
     sriSuffix = 'private_';
   }
 
-  var url = 'https://cdn.walkme.com/users/' + walkMeSystemId + env + '/walkme_' + sriSuffix + walkMeSystemId + '_https.js';
+  var bucket = (this.options.userBucket) ? this.options.userBucket : 'users';
+
+  var url = `https://cdn.walkme.com/${bucket}/${walkMeSystemId}/${env}/walkme_${sriSuffix}${walkMeSystemId}_https.js`;
 
   this.load({
     url,

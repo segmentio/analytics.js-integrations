@@ -16,7 +16,8 @@ describe('WalkMe', function() {
     environment: 'test',
     trackWalkMeEvents: false,
     loadWalkMeInIframe: true,
-    integrityHash: ''
+    integrityHash: '',
+    bucketName: '',
   };
 
   beforeEach(function() {
@@ -46,6 +47,7 @@ describe('WalkMe', function() {
       .option('trackWalkMeEvents', false)
       .option('loadWalkMeInIframe', false)
       .option('integrityHash', '')
+      .option('bucketName', 'users')
     );
   });
 
@@ -133,8 +135,43 @@ describe('WalkMe', function() {
           done();
         };
 
-        walkme.options.walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
-        walkme.options.integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
+        walkme.options.walkMeSystemId = walkMeSystemId;
+        walkme.options.integrityHash = integrityHash;
+
+        analytics.load(walkme, function() {
+          analytics.loaded(tag);
+        });
+      } catch (e) {
+        done(e);
+      }
+    }).timeout(10000);
+
+    it('should setup bucket', function(done) {
+      try {
+        var walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
+        var integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
+        var bucket = 'custom';
+
+        var tag = fmt(
+          '<script src="https://cdn.walkme.com/%s/%s/%s/walkme_%s_https.js" crossorigin="" >',
+          bucket, 
+          walkMeSystemId,
+          'test',
+          walkMeSystemId
+        );
+
+        window.walkme_ready = function() {
+          analytics.assert(
+            !!window.WalkMeAPI,
+            'Expected WalkMeAPI to be present on the page'
+          );
+
+          done();
+        };
+
+        walkme.options.walkMeSystemId = walkMeSystemId;
+        walkme.options.integrityHash = integrityHash;
+        walkme.options.bucketName = bucket;
 
         analytics.load(walkme, function() {
           analytics.loaded(tag);
