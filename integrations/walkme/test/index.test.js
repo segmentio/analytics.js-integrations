@@ -150,7 +150,7 @@ describe('WalkMe', function() {
       try {
         var walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
         var integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
-        var bucket = 'custom';
+        var bucket = 'users';
 
         var tag = fmt(
           '<script src="https://cdn.walkme.com/%s/%s/%s/walkme_%s_https.js" crossorigin="" >',
