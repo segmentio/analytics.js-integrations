@@ -25,13 +25,12 @@ var KISSmetrics = (module.exports = integration('KISSmetrics')
   .option('trackNamedPages', true)
   .tag(
     'library',
-    '<script src="//scripts.kissmetrics.com/{{ apiKey }}.2.js">'
+    '<script src="//scripts.kissmetrics.io/{{ apiKey }}.2.js">'
   ));
 
 /**
  * Check if browser is mobile, for kissmetrics.
  *
- * http://support.kissmetrics.com/how-tos/browser-detection.html#mobile-vs-non-mobile
  */
 
 exports.isMobile =
@@ -45,7 +44,7 @@ exports.isMobile =
 /**
  * Initialize.
  *
- * http://support.kissmetrics.com/apis/javascript
+ * http://support.kissmetrics.io/apis/javascript
  */
 
 KISSmetrics.prototype.initialize = function() {
@@ -136,7 +135,7 @@ KISSmetrics.prototype.track = function(track) {
   if (revenue) {
     // legacy: client side integration used to only send 'Billing Amount', but
     // our server side sent both 'revenue' and 'Billing Amount'. From the docs,
-    // http://support.kissmetrics.com/tools/revenue-report.html, ther is no
+    // http://support.kissmetrics.io/tools/revenue-report.html, ther is no
     // reason to send it as 'Billing Amount', but we don't want to break reports
     // so we send it as 'revenue' and 'Billing Amount' for consistency across
     // platforms.
