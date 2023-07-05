@@ -19,7 +19,7 @@ var WalkMe = module.exports = integration('WalkMe')
   .option('trackWalkMeEvents', false)
   .option('loadWalkMeInIframe', false)
   .option('integrityHash', '')
-  .option('customDirecotry', 'users')
+  .option('customDirectory', 'users')
   .tag('<script async="true" src="{{ url }}" crossorigin="" integrity="{{ hash }}">')
 
 /**
@@ -68,7 +68,7 @@ WalkMe.prototype.initialize = function() {
     sriSuffix = 'private_';
   }
 
-  var bucket = (this.options.customDirecotry) ? this.options.customDirecotry : 'users';
+  var bucket = (this.options.customDirectory) ? this.options.customDirecotry : 'users';
   var url = `https://cdn.walkme.com/${bucket}/${walkMeSystemId}/${env}/walkme_${sriSuffix}${walkMeSystemId}_https.js`;
 
   this.load({
