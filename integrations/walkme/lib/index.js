@@ -69,7 +69,7 @@ WalkMe.prototype.initialize = function() {
   }
 
   var bucket = (this.options.customDirectory) ? this.options.customDirectory : 'users';
-  var url = `https://cdn.walkme.com/${bucket}/${walkMeSystemId}/${env}/walkme_${sriSuffix}${walkMeSystemId}_https.js`;
+  var url = 'https://cdn.walkme.com/' + bucket + '/' + walkMeSystemId + '/' + env + '/walkme_' + sriSuffix + walkMeSystemId + '_https.js';
 
   this.load({
     url,
