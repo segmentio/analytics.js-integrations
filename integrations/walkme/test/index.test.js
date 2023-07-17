@@ -17,7 +17,7 @@ describe('WalkMe', function() {
     trackWalkMeEvents: false,
     loadWalkMeInIframe: true,
     integrityHash: '',
-    customDirectory: '',
+    customDirecotry: '',
   };
 
   beforeEach(function() {
@@ -47,7 +47,7 @@ describe('WalkMe', function() {
       .option('trackWalkMeEvents', false)
       .option('loadWalkMeInIframe', false)
       .option('integrityHash', '')
-      .option('customDirectory', 'users')
+      .option('customDirecotry', 'users')
     );
   });
 
@@ -171,7 +171,7 @@ describe('WalkMe', function() {
 
         walkme.options.walkMeSystemId = walkMeSystemId;
         walkme.options.integrityHash = integrityHash;
-        walkme.options.customDirectory = bucket;
+        walkme.options.customDirecotry = bucket;
 
         analytics.load(walkme, function() {
           analytics.loaded(tag);
