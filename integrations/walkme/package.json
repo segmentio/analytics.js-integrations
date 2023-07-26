@@ -1,7 +1,7 @@
 {
   "name": "@walkme/analytics.js-integration-walkme",
   "description": "The WalkMe analytics.js integration.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

@@ -6,6 +6,8 @@ var sandbox = require('@segment/clear-env');
 var tester = require('@segment/analytics.js-integration-tester');
 var fmt = require('@segment/fmt');
 var Walkme = require('../lib');
+var sinon = require('sinon');
+var assert = require('assert');
 
 describe('WalkMe', function() {
   var analytics;
@@ -87,98 +89,130 @@ describe('WalkMe', function() {
     })
 
     it('should load walkme test lib', function(done) {
-      try {
-        var tag = fmt(
-          '<script src="https://cdn.walkme.com/users/%s/%s/walkme_%s_https.js" >',
-          options.walkMeSystemId.toLowerCase(),
-          'test',
-          options.walkMeSystemId.toLowerCase()
+      var spy = sinon.spy(walkme, 'initializeTester');
+      var url = fmt(
+        'https://cdn.walkme.com/users/%s/%s/walkme_%s_https.js',
+        options.walkMeSystemId.toLowerCase(),
+        'test',
+        options.walkMeSystemId.toLowerCase()
+      );
+
+      window.walkme_ready = function() {
+        analytics.assert(
+          !!window.WalkMeAPI,
+          'Expected WalkMeAPI to be present on the page'
         );
 
-        window.walkme_ready = function() {
-          analytics.assert(
-            !!window.WalkMeAPI,
-            'Expected WalkMeAPI to be present on the page'
-          );
+        var payload = spy.args[0][0];
 
+        try {
+          assert.equal(url, payload.url);
           done();
-        };
+        }
+        catch(e) {
+          done(e);
+        }
+      };
 
-        analytics.load(walkme, function() {
-          analytics.loaded(tag);
-          analytics.identify('UserId');
-        });
-      } catch (e) {
-        done(e);
-      }
+      analytics.load(walkme, function() {
+        analytics.identify('UserId');
+      });
+    }).timeout(10000);
+
+    it('should load walkme Prod Environment', function(done) {
+      var spy = sinon.spy(walkme, 'initializeTester');
+
+      var tag = fmt(
+        '<script src="https://cdn.walkme.com/users/%s/walkme_%s_https.js" >',
+        options.walkMeSystemId.toLowerCase(),
+        options.walkMeSystemId.toLowerCase()
+      );
+
+      walkme.options.environment = 'production';
+
+      window.walkme_ready = function() {
+        try {
+          assert.equal(!!window.WalkMeAPI, true);
+
+          var payload = spy.args[0][0];
+          assert.equal(tag, '<script src="'+payload.url+'" >')
+          done();
+        }
+        catch(e) {
+          done(e);
+        }
+
+      };
+
+      analytics.load(walkme, function() {
+        analytics.loaded(tag);
+      });
     }).timeout(10000);
 
     it('should load walkme SRI', function(done) {
-      try {
-        var walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
-        var integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
+      var spy = sinon.spy(walkme, 'initializeTester');
 
-        var tag = fmt(
-          '<script src="https://cdn.walkme.com/users/%s/%s/walkme_private_%s_https.js" crossorigin="" integrity="%s" >',
-          walkMeSystemId,
-          'test',
-          walkMeSystemId,
-          integrityHash
-        );
+      var walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
+      var integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
 
-        window.walkme_ready = function() {
-          analytics.assert(
-            !!window.WalkMeAPI,
-            'Expected WalkMeAPI to be present on the page'
-          );
+      var url = fmt(
+        'https://cdn.walkme.com/users/%s/%s/walkme_private_%s_https.js',
+        walkMeSystemId,
+        'test',
+        walkMeSystemId,
+      );
 
+      window.walkme_ready = function() {
+        try {
+          assert.equal(!!window.WalkMeAPI, true);
+
+          var payload = spy.args[0][0];
+
+          assert.equal(url, payload.url);
           done();
-        };
+        } catch (e) {
+          done(e);
+        }
+      };
 
-        walkme.options.walkMeSystemId = walkMeSystemId;
-        walkme.options.integrityHash = integrityHash;
+      walkme.options.walkMeSystemId = walkMeSystemId;
+      walkme.options.integrityHash = integrityHash;
 
-        analytics.load(walkme, function() {
-          analytics.loaded(tag);
-        });
-      } catch (e) {
-        done(e);
-      }
+      analytics.load(walkme, function() { });
     }).timeout(10000);
 
     it('should setup bucket', function(done) {
-      try {
-        var walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
-        var integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
-        var bucket = 'users';
+      var walkMeSystemId = '42b2849a0ca54749bd485bcbd5bcc64e';
+      var integrityHash = 'sha256-FjbibNOUzdIz+mtyFRU7NHj1G5tPgzOuJNCkRyDmXr8=';
+      var bucket = 'users';
 
-        var tag = fmt(
-          '<script src="https://cdn.walkme.com/%s/%s/%s/walkme_%s_https.js" crossorigin="" >',
-          bucket, 
-          walkMeSystemId,
-          'test',
-          walkMeSystemId
-        );
+      var spy = sinon.spy(walkme, 'initializeTester');
+      var url = fmt(
+        'https://cdn.walkme.com/%s/%s/%s/walkme_private_%s_https.js',
+        bucket, 
+        walkMeSystemId,
+        'test',
+        walkMeSystemId
+      );
 
-        window.walkme_ready = function() {
-          analytics.assert(
-            !!window.WalkMeAPI,
-            'Expected WalkMeAPI to be present on the page'
-          );
+      window.walkme_ready = function() {
+          var payload = spy.args[0][0];
 
-          done();
-        };
+          try {
+            assert.equal(!!window.WalkMeAPI, true);
+            assert.equal(url, payload.url);
+            done();
+          }
+          catch(e) {
+            done(e);
+          }
+      };
 
-        walkme.options.walkMeSystemId = walkMeSystemId;
-        walkme.options.integrityHash = integrityHash;
-        walkme.options.customDirecotry = bucket;
+      walkme.options.walkMeSystemId = walkMeSystemId;
+      walkme.options.integrityHash = integrityHash;
+      walkme.options.customDirecotry = bucket;
 
-        analytics.load(walkme, function() {
-          analytics.loaded(tag);
-        });
-      } catch (e) {
-        done(e);
-      }
+      analytics.load(walkme);
     }).timeout(10000);
   });
 
