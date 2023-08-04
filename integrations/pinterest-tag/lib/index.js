@@ -140,6 +140,8 @@ Pinterest.prototype.createPropertyMapping = function() {
 
 Pinterest.prototype.generatePropertiesObject = function(track) {
   // Generate the properties object to send with the call.
+  console.log({"segmentEvent": segmentEvent, "pinterestEvent": pinterestEvent, "pinterestObject": pinterestObject});
+
   var pinterestProps = {};
   var trackValue;
   for (var prop in this.propertyMap) {
