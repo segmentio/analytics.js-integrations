@@ -178,8 +178,9 @@ Floodlight.prototype.track = function(track) {
 
   // Fire each tag
   each(function(tagParams) {
-    if (tagParams._type === 'sales') return self.load('sales', tagParams);
-    return self.load('counter', tagParams);
+    if (tagParams._type === 'sales')
+      return self.load('sales', tagParams, null, true);
+    return self.load('counter', tagParams, null, true);
   }, tags);
 };
 
