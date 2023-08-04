@@ -131,7 +131,8 @@ Pinterest.prototype.createPropertyMapping = function() {
     variant: 'product_variant',
     price: 'product_price',
     quantity: 'product_quantity',
-    brand: 'product_brand'
+    brand: 'product_brand',
+    messageId: 'event_id'
   };
 };
 
