@@ -19,7 +19,7 @@ var Sentry = (module.exports = integration('Sentry')
   .option('release', null)
   .option('ignoreErrors', []) // still exists, but not documented on Sentry's website
   .option('ignoreUrls', [])
-  .option('whitelistUrls', [])
+  .option('allowUrls', [])
   .option('includePaths', []) // maps to Sentry.Integrations.RewriteFrames plugin
   .option('logger', null)
   .option('customVersionProperty', null)
