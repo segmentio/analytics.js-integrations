@@ -117,8 +117,7 @@ Pinterest.prototype.createPropertyMapping = function() {
     order_id: 'order_id',
     coupon: 'coupon',
     value: 'value',
-    currency: 'currency',
-    messageId: 'event_id'
+    currency: 'currency'
   };
 
   // This is a second map to allow us to loop over specific potentially-nested properties.
@@ -141,8 +140,6 @@ Pinterest.prototype.createPropertyMapping = function() {
 
 Pinterest.prototype.generatePropertiesObject = function(track) {
   // Generate the properties object to send with the call.
-  console.log({"segmentEvent": segmentEvent, "pinterestEvent": pinterestEvent, "pinterestObject": pinterestObject});
-
   var pinterestProps = {};
   var trackValue;
   for (var prop in this.propertyMap) {
