@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-madkudu",
   "description": "The Madkudu analytics.js integration.",
-  "version": "2.0.2",
+  "version": "2.0.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",

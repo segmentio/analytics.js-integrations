@@ -10,7 +10,7 @@ var integration = require('@segment/analytics.js-integration');
  * UMD?
  */
 
-var umd = typeof window.define === 'function' && window.define.amd && window.require;
+var umd = typeof window.define === 'function' && window.define.amd;
 
 /**
  * Expose `Madkudu` integration.
