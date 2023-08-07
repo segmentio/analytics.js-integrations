@@ -117,8 +117,7 @@ Pinterest.prototype.createPropertyMapping = function() {
     order_id: 'order_id',
     coupon: 'coupon',
     value: 'value',
-    currency: 'currency',
-    messageId: 'event_id'
+    currency: 'currency'
   };
 
   // This is a second map to allow us to loop over specific potentially-nested properties.
