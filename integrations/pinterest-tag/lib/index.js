@@ -53,6 +53,8 @@ Pinterest.prototype.identify = function(identify) {
 };
 
 Pinterest.prototype.page = function(page) {
+
+  console.log('Hello from page event');
   // If we have a category, the use ViewCategory. Otherwise, use a normal PageVisit.
   if (page.category()) {
     window.pintrk('track', 'ViewCategory', {
@@ -72,6 +74,7 @@ Pinterest.prototype.track = function(track) {
   var pinterestEvent = this.getPinterestEvent(segmentEvent);
   var pinterestObject = this.generatePropertiesObject(track);
 
+  console.log('Hello from track event');
   if (pinterestEvent) {
     window.pintrk('track', pinterestEvent, pinterestObject);
   } else {
