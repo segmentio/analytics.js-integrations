@@ -17,7 +17,8 @@ describe('Pinterest', function() {
       'User Signed Up': 'Signup'
     },
     pinterestCustomProperties: ['custom_prop'],
-    useEnhancedMatchLoad: false
+    useEnhancedMatchLoad: false,
+    mapMessageIdToEventId: false
   };
 
   beforeEach(function() {
@@ -44,6 +45,7 @@ describe('Pinterest', function() {
         .option('pinterestCustomProperties', [])
         .option('tid', '')
         .option('useEnhancedMatchLoad', false)
+        .option('mapMessageIdToEventId', false)
     );
   });
 
