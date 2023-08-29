@@ -16,7 +16,7 @@ var Pinterest = (module.exports = integration('Pinterest Tag')
   .option('tid', '')
   .option('pinterestCustomProperties', [])
   .option('useEnhancedMatchLoad', false)
-  .option('mapMessageIdToEvnentId', false)
+  .option('mapMessageIdToEventId', false)
   .mapping('pinterestEventMapping')
   .tag('<script src="https://s.pinimg.com/ct/core.js"></script>'));
 
@@ -134,8 +134,8 @@ Pinterest.prototype.createPropertyMapping = function() {
     brand: 'product_brand'
   };
 
-  if(this.options.mapMessageIdToEvnentId){
-    this.productPropertyMap.messageId = 'event_id';
+  if(this.options.mapMessageIdToEventId){
+    this.propertyMap.messageId = 'event_id';
   }
 };
 
@@ -190,7 +190,7 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
   // Finally, add in any custom properties defined by the user.
   var customProps = this.options.pinterestCustomProperties;
 
-  if(this.options.mapMessageIdToEvnentId && customProps.indexOf('event_id') === -1){
+  if(this.options.mapMessageIdToEventId && customProps.indexOf('event_id') === -1){
     customProps.push('event_id');
   }
 
