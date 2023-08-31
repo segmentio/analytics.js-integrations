@@ -190,10 +190,6 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
   // Finally, add in any custom properties defined by the user.
   var customProps = this.options.pinterestCustomProperties;
 
-  if(this.options.mapMessageIdToEventId && customProps.indexOf('event_id') === -1){
-    customProps.push('event_id');
-  }
-
   for (var j = 0; j < customProps.length; j++) {
     var customProperty = customProps[j];
     trackValue = track.proxy('properties.' + customProperty);
