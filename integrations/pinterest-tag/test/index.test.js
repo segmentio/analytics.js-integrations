@@ -18,7 +18,7 @@ describe('Pinterest', function() {
     },
     pinterestCustomProperties: ['custom_prop'],
     useEnhancedMatchLoad: false,
-    mapMessageIdToEventId: false
+    mapMessageIdToEventId: true
   };
 
   beforeEach(function() {
@@ -103,9 +103,13 @@ describe('Pinterest', function() {
       it('should set Segment messageId as Pinterest Evnet Id', function() {
         analytics.track('Order Completed', {
           currency: 'SGD',
-          value: 12.12,
-          messageId: 'testing5671',
-          order_id: 'HJIHNI'
+          value: 10.0,
+          messageId: 'testing5671'
+        });
+        analytics.called(window.pintrk, 'track', 'Checkout', {
+          value: 10.0,
+          currency: 'SGD',
+          event_id: 'testing5671'
         });
       });
     });
