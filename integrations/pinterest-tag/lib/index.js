@@ -142,7 +142,7 @@ Pinterest.prototype.createPropertyMapping = function() {
     brand: 'product_brand'
   };
 
-  if (this.options.mapMessageIdToEventId) {
+  if(this.options.mapMessageIdToEventId){
     this.propertyMap.messageId = 'event_id';
   }
 };

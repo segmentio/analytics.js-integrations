@@ -95,5 +95,24 @@ describe('Pinterest', function() {
         });
       });
     });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.spy(window, 'pintrk');
+      });
+
+      it('should set Segment messageId as Pinterest Evnet Id', function() {
+        analytics.track('Order Completed', {
+          currency: 'SGD',
+          value: 10.0,
+          messageId: 'testing5671'
+        });
+        analytics.called(window.pintrk, 'track', 'Checkout', {
+          value: 10.0,
+          currency: 'SGD',
+          event_id: 'testing5671'
+        });
+      });
+    });
   });
 });
