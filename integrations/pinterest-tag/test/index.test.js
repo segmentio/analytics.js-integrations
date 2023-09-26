@@ -9,7 +9,6 @@ var Pinterest = require('../lib/');
 describe('Pinterest', function() {
   var analytics;
   var pinterest;
-  var messageId;
   var options = {
     tid: '2620795819800',
     pinterestEventMapping: {
