@@ -25,7 +25,15 @@ Pinterest.prototype.initialize = function() {
   if (!this.options.tid) return;
 
   // Preparation for loading the Pinterest script.
-  (function(e){if(!window.pintrk){window.pintrk=function(){window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var n=window.pintrk;n.queue=[],n.version="3.0";}})(); // eslint-disable-line
+  (function(e) {
+    if (!window.pintrk) {
+      window.pintrk = function() {
+        window.pintrk.queue.push(Array.prototype.slice.call(arguments));
+      };
+      var n = window.pintrk;
+      (n.queue = []), (n.version = '3.0');
+    }
+  })(); // eslint-disable-line
 
   this.load(this.ready);
   var traits = this.analytics.user().traits();
@@ -153,6 +161,9 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
     if (trackValue) pinterestProps[this.propertyMap[prop]] = trackValue;
   }
 
+  if (this.options.mapMessageIdToEventId) {
+    pinterestProps['event_id'] = track.proxy('messageId');
+  }
   // Determine if there's a 'products' Array, then add in the specific features on that decision.
   var products = track.proxy('properties.products');
   var lineItemsArray;
