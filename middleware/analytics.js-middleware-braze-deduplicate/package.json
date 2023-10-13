@@ -1,0 +1,24 @@
+{
+  "name": "@segment/analytics.js-middleware-braze-deduplicate",
+  "description": "A braze middleware to deduplicate traits.",
+  "version": "0.1.0",
+  "keywords": [
+    "analytics.js",
+    "analytics.js-middleware",
+    "segment",
+    "braze"
+  ],
+  "main": "lib/index.js",
+  "author": "Segment <friends@segment.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/boomtrain#readme",
+  "bugs": {
+    "url": "https://github.com/segmentio/analytics.js-integrations/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

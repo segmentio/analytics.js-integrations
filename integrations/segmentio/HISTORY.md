@@ -1,3 +1,16 @@
+4.4.0 / 2020-02-05
+==================
+
+  * Removes the `bundledConfigIds` _setting_ and instead generates `bundledConfigIds` using the intersection
+    of `bundled` destinations and the new `maybeBundledConfigIds` setting. `bundledConfigIds` and `unbundledConfigIds`
+    is still appended to event metadata. This change is meant to ensure that `bundledConfigIds` only includes the
+    subset of destinations that is generated at runtime for the `bundled` array.
+  * Fixes the use of `const` from a previous release.
+
+4.3.0 / 2020-01-13
+==================
+
+  * Append `bundledConfigIds` and `unbundledConfigIds` to messages
 
 4.0.0 / 2019-03-08
 ==================

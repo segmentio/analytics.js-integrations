@@ -21,7 +21,7 @@ var Klaviyo = (module.exports = integration('Klaviyo')
   .global('_learnq')
   .option('apiKey', '')
   .option('enforceEmail', false)
-  .tag('<script src="//a.klaviyo.com/media/js/analytics/analytics.js">'));
+  .tag('<script src="//static.klaviyo.com/onsite/js/klaviyo.js">'));
 
 /**
  * Initialize.
@@ -58,8 +58,6 @@ Klaviyo.prototype.loaded = function() {
  */
 
 Klaviyo.prototype.identify = function(identify) {
-  // if you don't send either userId or email, noop
-  if (!identify.userId() && !identify.email()) return;
   // TODO: should map/alias the rest of the reserved props
   var traitAliases = {
     email: '$email',
@@ -67,14 +65,24 @@ Klaviyo.prototype.identify = function(identify) {
     firstName: '$first_name',
     lastName: '$last_name',
     phone: '$phone_number',
-    title: '$title'
+    title: '$title',
+    exchangeId: '$exchange_id'
   };
-  // don't add $id or id if email only option is enforced to prevent some edge case dupe profile issues with Klaviyo API
+
   var traits = identify.traits(traitAliases);
+
+  // If there is not a user ID, email address, or an exchange ID, noop
+  //
+  // NOTE: An exchange ID is an encrypted identifier that Klaviyo
+  //       consumes server-side. It is considered a valid identifier.
+  if (!identify.userId() && !identify.email() && !traits.$exchange_id) return;
+
+  // don't add $id or id if email only option is enforced to prevent some edge case dupe profile issues with Klaviyo API
   if (this.options.enforceEmail) {
     remove(traits, 'id');
     remove(traits, '$id');
   }
+
   // if you enforce email but you don't send email, noop
   if (this.options.enforceEmail && !traits.$email) return;
   push('identify', traits);
@@ -136,7 +144,6 @@ Klaviyo.prototype.orderCompleted = function(track) {
     'itemNames',
     'items',
     'revenue',
-    'total',
     'products'
   ];
   // strip standard props and leave custom props only
@@ -209,7 +216,8 @@ function formatItems(track) {
         ProductCategories: [product.category()],
         ProductURL: product.proxy('properties.productUrl'),
         ImageURL: product.proxy('properties.imageUrl'),
-        SKU: product.sku()
+        SKU: product.sku(),
+        ProductID: product.productId() || product.id()
       });
 
       // ensure unique $event_id is associated with each Ordered Product event by combining Order Completed

@@ -23,7 +23,8 @@ var Totango = (module.exports = integration('Totango')
   .option('serviceId', null)
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
-  .tag('<script src="//tracker.totango.com/totango3.js">'));
+  .option('region', 'us')
+  .tag('<script src="//tracker.totango.com/totango4.0.3.js">'));
 
 /**
  * Initialize.
@@ -47,6 +48,7 @@ Totango.prototype.initialize = function(page) {
   window.totango_options = {
     allow_empty_accounts: false,
     service_id: this.options.serviceId,
+    region: this.options.region,
     disable_heartbeat: this.options.disableHeartbeat,
     module: page.category()
   };

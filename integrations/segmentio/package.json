@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-segmentio",
   "description": "The Segmentio analytics.js integration.",
-  "version": "4.2.5",
+  "version": "4.4.7",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -26,15 +26,13 @@
   "dependencies": {
     "@ndhoule/extend": "^2.0.0",
     "@ndhoule/keys": "^2.0.0",
-    "@segment/ad-params": "^1.0.0",
     "@segment/analytics.js-integration": "^2.1.0",
     "@segment/localstorage-retry": "^1.2.2",
     "@segment/protocol": "^1.0.0",
     "@segment/send-json": "^3.0.0",
-    "@segment/top-domain": "^3.0.0",
-    "@segment/utm-params": "^2.0.0",
+    "@segment/top-domain": "^3.0.1",
     "component-clone": "^0.2.2",
-    "component-cookie": "^1.1.2",
+    "component-cookie": "^1.1.5",
     "component-type": "^1.2.1",
     "json3": "^3.3.2",
     "uuid": "^2.0.2",
@@ -55,8 +53,8 @@
     "karma-spec-reporter": "^0.0.32",
     "karma-summary-reporter": "^1.6.0",
     "mocha": "^6.1.4",
-    "watchify": "^3.11.1",
     "proclaim": "^3.4.1",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "watchify": "^3.11.1"
   }
 }

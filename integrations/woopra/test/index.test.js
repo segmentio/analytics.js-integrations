@@ -11,7 +11,7 @@ describe('Woopra', function() {
   var woopra;
   var options = {
     domain: 'x',
-    outgoingTracking: false
+    clickTracking: true
   };
 
   beforeEach(function() {
@@ -38,14 +38,11 @@ describe('Woopra', function() {
         .option('cookieName', 'wooTracker')
         .option('cookieDomain', null)
         .option('cookiePath', '/')
-        .option('ping', true)
-        .option('pingInterval', 12000)
         .option('idleTimeout', 300000)
         .option('downloadTracking', true)
         .option('outgoingTracking', true)
+        .option('clickTracking', true)
         .option('outgoingIgnoreSubdomain', true)
-        .option('downloadPause', 200)
-        .option('outgoingPause', 400)
         .option('ignoreQueryUrl', true)
         .option('hideCampaign', false)
     );
@@ -69,16 +66,13 @@ describe('Woopra', function() {
         analytics.page();
         analytics.deepEqual(window.woopra._e, [
           ['config', 'domain', 'x'],
-          ['config', 'outgoing_tracking', false],
+          ['config', 'click_tracking', true],
           ['config', 'cookie_name', 'wooTracker'],
           ['config', 'cookie_path', '/'],
-          ['config', 'ping', true],
-          ['config', 'ping_interval', 12000],
           ['config', 'idle_timeout', 300000],
           ['config', 'download_tracking', true],
+          ['config', 'outgoing_tracking', true],
           ['config', 'outgoing_ignore_subdomain', true],
-          ['config', 'download_pause', 200],
-          ['config', 'outgoing_pause', 400],
           ['config', 'ignore_query_url', true],
           ['config', 'hide_campaign', false]
         ]);
@@ -88,14 +82,11 @@ describe('Woopra', function() {
         woopra.options.domain = '';
         woopra.options.cookieName = '';
         woopra.options.cookiePath = null;
-        woopra.options.ping = null;
-        woopra.options.pingInterval = null;
         woopra.options.idleTimeout = null;
         woopra.options.downloadTracking = null;
         woopra.options.outgoingTracking = null;
+        woopra.options.clickTracking = null;
         woopra.options.outgoingIgnoreSubdomain = null;
-        woopra.options.downloadPause = '';
-        woopra.options.outgoingPause = '';
         woopra.options.ignoreQueryUrl = null;
         woopra.options.hideCampaign = null;
         analytics.initialize();
@@ -242,27 +233,6 @@ describe('Woopra', function() {
         analytics.track('event', { property: 'Property' });
         analytics.called(window.woopra.track, 'event', {
           property: 'Property'
-        });
-      });
-
-      it('should stringify nested objects', function() {
-        analytics.track('event', {
-          products: [
-            {
-              sku: '45790-32',
-              name: 'Monopoly: 3rd Edition'
-            },
-            {
-              sku: '46493-32',
-              name: 'Uno Card Game'
-            }
-          ],
-          orderId: 1
-        });
-        analytics.called(window.woopra.track, 'event', {
-          products:
-            '[{"sku":"45790-32","name":"Monopoly: 3rd Edition"},{"sku":"46493-32","name":"Uno Card Game"}]',
-          orderId: 1
         });
       });
 

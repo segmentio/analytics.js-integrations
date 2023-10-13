@@ -1,3 +1,18 @@
+1.16.0 / 2020-12-16
+===================
+
+* Adds support for Braze 3.1 via version option
+
+1.15.1 / 2020-12-14
+===================
+
+* Bump segmentio-facade to ^3.2.7
+
+1.15.0 / 2020-10-28
+===================
+
+* Adds support for Braze 2.7 via version option
+
 1.14.0 / 2020-03-02
 ===================
 

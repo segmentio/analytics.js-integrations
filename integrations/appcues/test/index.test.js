@@ -115,5 +115,19 @@ describe('Appcues', function() {
         });
       });
     });
+
+    describe('#group', function() {
+      beforeEach(function() {
+        analytics.stub(window.Appcues, 'group');
+      });
+
+      it('should send an id and group name', function() {
+        analytics.group('id', { groupName: 'group-1' });
+        analytics.called(window.Appcues.group, 'id', {
+          groupName: 'group-1',
+          id: 'id'
+        });
+      });
+    });
   });
 });

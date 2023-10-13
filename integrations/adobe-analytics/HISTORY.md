@@ -1,3 +1,27 @@
+1.17.0 / 2022-10-24
+===================
+* Bump AppMeasurement to 2.23.0
+* Add support for `collectHighEntropyUserAgentHints` setting, which allows richer User Agent data passed in as Client Hints.
+
+1.16.6 / 2022-07-26
+===================
+* Drop support for `assetId` for `StandardVideoMetadata`
+* Add support for `content_asset_id` for `StandardVideoMetadata`
+
+1.16.5 / 2022-02-15
+===================
+* Bump @segment/trample to ^0.2.1.
+
+1.16.3 / 2020-12-14
+===================
+* Bump segmentio-facade to ^3.2.7
+
+1.16.2 / 2020-07-13
+===================
+* Reads session playhead values from `window._segHBPlayheads` if it exists. This solves an issue where the playhead is only updated when 'Video Content Playing' (+ various others) events are tracked. To get around this, we allow video implementations to set the playhead value as often as possible without the need to trigger an event.
+* Removes trackComplete from Video Content Completed events and only calls chapterComplete on these events. It also adds trackComplete to Video Playback Completed events. This is in line with Adobe's documentation and also allows for parity between iOS, a.js, and Android.
+* Stringifies context data values which are booleans. The AA SDK tends to reject false boolean values when setting them on the window object. This does not break existing behavior since booleans are stringified when they're sent in the query string.
+
 1.16.1 / 2020-05-15
 ===================
 * Supports sending top level `event` as `prop`, `eVar`, `lVar`, `hVar`, or Context Data Variable.

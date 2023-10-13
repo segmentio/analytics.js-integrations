@@ -150,6 +150,18 @@ describe('Google AdWords New', function() {
       analytics.initialize();
       analytics.spy(window, 'gtag');
     });
+
+    it('should support Doubleclick Floodlight account if provided', function(done) {
+      var floodlightAccountId = 'DC-1234567';
+      googleadwordsnew.options.floodlightAccountId = floodlightAccountId;
+      analytics.once('ready', function() {
+        analytics.deepEqual(window.gtag.args[1], ['config', floodlightAccountId, {}]);
+        analytics.deepEqual(window.gtag.args[2], ['config', options.accountId, {}]);
+        done();
+      });
+      analytics.initialize();
+      analytics.spy(window, 'gtag');
+    });
   });
 
   describe('after loading', function() {

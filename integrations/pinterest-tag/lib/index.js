@@ -53,6 +53,8 @@ Pinterest.prototype.identify = function(identify) {
 };
 
 Pinterest.prototype.page = function(page) {
+
+  console.log('Hello from page event');
   // If we have a category, the use ViewCategory. Otherwise, use a normal PageVisit.
   if (page.category()) {
     window.pintrk('track', 'ViewCategory', {
@@ -72,6 +74,7 @@ Pinterest.prototype.track = function(track) {
   var pinterestEvent = this.getPinterestEvent(segmentEvent);
   var pinterestObject = this.generatePropertiesObject(track);
 
+  console.log('Hello from track event');
   if (pinterestEvent) {
     window.pintrk('track', pinterestEvent, pinterestObject);
   } else {
@@ -117,7 +120,8 @@ Pinterest.prototype.createPropertyMapping = function() {
     order_id: 'order_id',
     coupon: 'coupon',
     value: 'value',
-    currency: 'currency'
+    currency: 'currency',
+    messageId: 'event_id'
   };
 
   // This is a second map to allow us to loop over specific potentially-nested properties.
@@ -130,7 +134,8 @@ Pinterest.prototype.createPropertyMapping = function() {
     variant: 'product_variant',
     price: 'product_price',
     quantity: 'product_quantity',
-    brand: 'product_brand'
+    brand: 'product_brand',
+    messageId: 'event_id'
   };
 };
 

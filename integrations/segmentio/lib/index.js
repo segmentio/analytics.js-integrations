@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var ads = require('@segment/ad-params');
+var ads = require('./ads');
 var clone = require('component-clone');
 var cookie = require('component-cookie');
 var extend = require('@ndhoule/extend');
@@ -15,7 +15,7 @@ var localstorage = require('yields-store');
 var protocol = require('@segment/protocol');
 var send = require('@segment/send-json');
 var topDomain = require('@segment/top-domain');
-var utm = require('@segment/utm-params');
+var utm = require('./utm');
 var uuid = require('uuid').v4;
 var Queue = require('@segment/localstorage-retry');
 
@@ -63,7 +63,9 @@ var Segment = (exports = module.exports = integration('Segment.io')
   .option('saveCrossDomainIdInLocalStorage', true)
   .option('retryQueue', true)
   .option('addBundledMetadata', false)
-  .option('unbundledIntegrations', []));
+  .option('unbundledIntegrations', []))
+  .option('unbundledConfigIds', [])
+  .option('maybeBundledConfigIds', {});
 
 /**
  * Get the store.
@@ -314,9 +316,31 @@ Segment.prototype.normalize = function(message) {
   }
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
+    var maybeBundledConfigIds = this.options.maybeBundledConfigIds
+
+    // Generate a list of bundled config IDs using the intersection of
+    // bundled destination names and maybe bundled config IDs.
+    var bundledConfigIds = []
+    for (var i = 0; i < bundled.length; i++) {
+      var name = bundled[i]
+      if (!maybeBundledConfigIds) {
+        break
+      }
+      if (!maybeBundledConfigIds[name]) {
+        continue
+      }
+
+      for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
+        var id = maybeBundledConfigIds[name][j]
+        bundledConfigIds.push(id)
+      }
+    }
+
+
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
     msg._metadata.unbundled = this.options.unbundledIntegrations;
+    msg._metadata.bundledIds = bundledConfigIds;
   }
   this.debug('normalized %o', msg);
   this.ampId(ctx);

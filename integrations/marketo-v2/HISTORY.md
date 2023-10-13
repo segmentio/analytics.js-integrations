@@ -1,3 +1,16 @@
+4.0.2 / 2021-10-26
+=================
+
+  * Add better error handling for when Marketo scripts are blocked
+
+4.0.0 / 2021-09-09
+=================
+
+  * Deprecate associateLead method
+  * Remove email hash method
+  * Add support for Marketo forms
+  * Add support for marketoFormId and marketoHostUrl settings
+
 3.0.7 / 2018-02-23
 ==================
 

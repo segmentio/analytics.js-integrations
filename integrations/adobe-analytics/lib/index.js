@@ -83,6 +83,7 @@ AdobeAnalytics.global('s')
   .option('preferVisitorId', false)
   .option('heartbeatTrackingServerUrl', '')
   .option('ssl', false)
+  .option('collectHighEntropyUserAgentHints', false)
 
   .sOption('visitorID')
   .sOption('channel')
@@ -112,11 +113,11 @@ AdobeAnalytics.global('s')
   .sOption('usePlugins', true)
   .tag(
     'default',
-    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.0.js">'
   )
   .tag(
     'heartbeat',
-    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.20.0-heartbeat.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.0-heartbeat.js">'
   );
 
 /**
@@ -134,6 +135,10 @@ AdobeAnalytics.prototype.initialize = function() {
 
   // In case this has been defined already
   window.s_account = window.s_account || options.reportSuiteId;
+
+  // Initialize a window object that can be used to update the playhead value of a session
+  // WITHOUT sending several 'Video Content Playing' events. (see line 1242)
+  window._segHBPlayheads = {};
 
   // Load the larger Heartbeat script only if the customer has it enabled in settings.
   // This file is considerably bigger, so this check is necessary.
@@ -185,6 +190,10 @@ AdobeAnalytics.prototype.initialize = function() {
         };
       }
 
+      if (options.collectHighEntropyUserAgentHints) {
+        s.collectHighEntropyUserAgentHints = true;
+      }
+
       self.ready();
     });
   } else {
@@ -207,6 +216,10 @@ AdobeAnalytics.prototype.initialize = function() {
           trackingServerSecure:
             window.s.trackingServerSecure || options.trackingServerSecureUrl
         });
+      }
+
+      if (options.collectHighEntropyUserAgentHints) {
+        s.collectHighEntropyUserAgentHints = true;
       }
       self.ready();
     });
@@ -617,6 +630,14 @@ function updateContextData(facade, options) {
   var contextProperties = extractProperties(facade, options, 'context');
   each(function(value, key) {
     if (!key || value === undefined || value === null || value === '') {
+      return;
+    }
+
+    // If context data values are booleans then stringify them.
+    // Adobe's SDK seems to reject a false boolean value. Stringifying is
+    // acceptable since these values are appended as query strings anyway.
+    if (typeof value === 'boolean') {
+      addContextDatum(key, value.toString());
       return;
     }
 
@@ -1236,7 +1257,17 @@ function initHeartbeat(track) {
   mediaHeartbeatConfig.debugLogging = !!window._enableHeartbeatDebugLogging; // Optional beta flag for seeing debug output.
 
   mediaHeartbeatDelegate.getCurrentPlaybackTime = function() {
-    return self.playhead || 0; // TODO: Bind to the Heartbeat events we have specced.
+    var playhead = self.playhead || 0;
+
+    // We allow implementions to set the playhead value of a video session on a shared
+    // window object. This allows us to relay the playhead to AA's heartbeat SDK several
+    // times a second, without relying on a 'Video Content Playing' event to update the position.
+    var sessions = window._segHBPlayheads || {};
+    if (sessions[props.session_id]) {
+      playhead = sessions[props.session_id];
+    }
+
+    return playhead;
   };
 
   mediaHeartbeatDelegate.getQoSObject = function() {
@@ -1317,9 +1348,7 @@ function heartbeatVideoStart(track) {
       chapterObj,
       chapterCustomMetadata
     );
-    this.mediaHeartbeats[
-      props.session_id || 'default'
-    ].chapterInProgress = true;
+    this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = true;
   }
 }
 
@@ -1332,8 +1361,6 @@ function heartbeatVideoComplete(track) {
     videoAnalytics.MediaHeartbeat.Event.ChapterComplete
   );
   this.mediaHeartbeats[props.session_id || 'default'].chapterInProgress = false;
-
-  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackComplete();
 }
 
 function heartbeatVideoPaused(track) {
@@ -1347,9 +1374,8 @@ function heartbeatSessionEnd(track) {
   populateHeartbeat.call(this, track);
 
   var props = track.properties();
-  this.mediaHeartbeats[
-    props.session_id || 'default'
-  ].heartbeat.trackSessionEnd();
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackComplete();
+  this.mediaHeartbeats[props.session_id || 'default'].heartbeat.trackSessionEnd();
 
   // Remove the session from memory when it's all over.
   delete this.mediaHeartbeats[props.session_id || 'default'];
@@ -1480,23 +1506,30 @@ function createStandardVideoMetadata(track, mediaObj) {
   var props = track.properties();
   var metaKeys = videoAnalytics.MediaHeartbeat.VideoMetadataKeys;
   var stdVidMeta = {};
-  var segAdbMap = {
-    program: metaKeys.SHOW,
-    season: metaKeys.SEASON,
-    episode: metaKeys.EPISODE,
-    assetId: metaKeys.ASSET_ID,
-    contentAssetId: metaKeys.ASSET_ID,
-    genre: metaKeys.GENRE,
-    airdate: metaKeys.FIRST_AIR_DATE,
-    publisher: metaKeys.ORIGINATOR,
-    channel: metaKeys.NETWORK,
-    rating: metaKeys.RATING
-  };
+  var adbSegMap = {}
+  adbSegMap[metaKeys.SHOW] = ["program"],
+  adbSegMap[metaKeys.SEASON] = ["season"],
+  adbSegMap[metaKeys.EPISODE] = ["episode"],
+  adbSegMap[metaKeys.ASSET_ID] = ["contentAssetId", "content_asset_id"],
+  adbSegMap[metaKeys.GENRE] = ["genre"],
+  adbSegMap[metaKeys.FIRST_AIR_DATE] = ["airdate"],
+  adbSegMap[metaKeys.ORIGINATOR] = ["publisher"],
+  adbSegMap[metaKeys.NETWORK] = ["channel"],
+  adbSegMap[metaKeys.RATING] = ["rating"]
 
-  // eslint-disable-next-line
-  for (var prop in segAdbMap) {
-    // If the property exists on the Segment object, set the Adobe metadata key to that value.
-    stdVidMeta[segAdbMap[prop]] = props[prop] || 'no ' + segAdbMap[prop];
+  // Iterate over each Adobe property and check our props to see if the corresponding Segment property exists.
+  for (var adbProp in adbSegMap) {
+    for (var i = 0; i < adbSegMap[adbProp].length; i++) {
+      var segProp = adbSegMap[adbProp][i];
+      if (props[segProp]) {
+        stdVidMeta[adbProp] = props[segProp];
+        break;
+      }
+    }
+
+    if (!stdVidMeta[adbProp]) {
+      stdVidMeta[adbProp] = 'no ' + adbProp
+    }
   }
 
   mediaObj.setValue(
@@ -1514,6 +1547,15 @@ function createCustomVideoMetadataContext(track, options) {
     if (!key || value === undefined || value === null || value === '') {
       return;
     }
+
+    // If context data values are booleans then stringify them.
+    // Adobe's SDK seems to reject a false boolean value. Stringifying is
+    // acceptable since these values are appended as query strings anyway.
+    if (typeof value === 'boolean') {
+      contextData[key] = value.toString();
+      return;
+    }
+
     contextData[key] = value;
   }, extractedProperties);
   return contextData;

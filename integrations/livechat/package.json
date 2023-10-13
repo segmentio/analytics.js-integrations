@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-livechat",
   "description": "The Livechat analytics.js integration.",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -13,7 +13,7 @@
     "test": "karma start",
     "test:ci": "karma start karma.conf-ci.js"
   },
-  "author": "Segment \u003cfriends@segment.com\u003e",
+  "author": "Segment <friends@segment.com>",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/livechat#readme",
   "bugs": {
@@ -29,7 +29,7 @@
     "component-each": "^0.2.6",
     "do-when": "^1.0.0",
     "next-tick": "^0.2.2",
-    "segmentio-facade": "^3.0.3"
+    "segmentio-facade": "^3.2.7"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.0.0",

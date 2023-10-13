@@ -1,3 +1,14 @@
+2.4.4 / 2021-04-23
+==================
+
+  * Fix for VWO tracking, Send track call once per experiment.
+
+2.4.2 / 2021-02-09
+==================
+
+  * Send VWO UUID in every track call.
+  * Send identify call once every page load.
+
 2.4.1 / 2019-12-04
 ==================
 
