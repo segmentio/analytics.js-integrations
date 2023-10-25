@@ -32,7 +32,7 @@
     "@ndhoule/pick": "^2.0.0",
     "@segment/analytics.js-integration": "^2.1.0",
     "@segment/convert-dates": "^1.0.0",
-    "flat": "2.0.1",
+    "flat": "5.0.1",
     "is": "^3.1.0",
     "obj-case": "^0.2.0"
   },
