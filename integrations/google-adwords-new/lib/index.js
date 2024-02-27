@@ -69,6 +69,7 @@ GoogleAdWordsNew.prototype.initialize = function() {
       window.gtag('config', self.options.accountId, config);
 
     if (self.options.enableConsentMode) {
+      
      let consent={};
           if(self.options.adUserDataConsentState && self.options.adUserDataConsentState!=UNSPECIFIED){
             consent.ad_user_data = self.options.adUserDataConsentState
