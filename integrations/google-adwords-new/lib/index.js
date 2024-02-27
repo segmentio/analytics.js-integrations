@@ -25,11 +25,11 @@ var GoogleAdWordsNew = (module.exports = integration('Google AdWords New')
   .option('disableAdPersonalization', false)
   .option('floodlightAccountId', '')
   .option('enableConsentMode',false)
-  .option('adUserDataConsentState')
-  .option('adPersonalizationConsentState')
-  .option('defaultAdsStorageConsentState')
-  .option('defaultAnalyticsStorageConsentState')
-  .option('waitTimeToUpdateConsentStage')
+  .option('adUserDataConsentState',null)
+  .option('adPersonalizationConsentState',null)
+  .option('defaultAdsStorageConsentState',null)
+  .option('defaultAnalyticsStorageConsentState',null)
+  .option('waitTimeToUpdateConsentStage',0)
   // The ID in this line (i.e. the gtag.js ID) does not determine which account(s) will receive data from the tag; rather, it is used to uniquely identify your global site tag. Which account(s) receive data from the tag is determined by calling the config command (and by using the send_to parameter on an event). For instance, if you use Google Analytics, you may already have the gtag.js global site tag installed on your site. In that case, the gtag.js ID may be that of the Google Analytics property where you first obtained the snippet.
   .tag(
     '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
@@ -66,7 +66,27 @@ GoogleAdWordsNew.prototype.initialize = function() {
     if (self.options.floodlightAccountId) {
       window.gtag('config', self.options.floodlightAccountId, config);
     }
-    window.gtag('config', self.options.accountId, config);
+      window.gtag('config', self.options.accountId, config);
+
+    if (self.options.enableConsentMode) {
+     let consent={};
+          if(self.options.adUserDataConsentState && self.options.adUserDataConsentState!=UNSPECIFIED){
+            consent.ad_user_data = self.options.adUserDataConsentState
+          }
+          if(self.options.adPersonalizationConsentState && self.options.adPersonalizationConsentState!=UNSPECIFIED){
+            consent.ad_personalization = self.options.adPersonalizationConsentState
+          }
+          if(self.options.defaultAdsStorageConsentState && self.options.defaultAdsStorageConsentState!=UNSPECIFIED){
+            consent.ad_storage = self.options.defaultAdsStorageConsentState
+          }
+          if(self.options.defaultAnalyticsStorageConsentState && self.options.defaultAnalyticsStorageConsentState!=UNSPECIFIED){
+            consent.analytics_storage = self.options.defaultAnalyticsStorageConsentState
+          }
+          if(self.options.waitTimeToUpdateConsentStage && self.options.waitTimeToUpdateConsentStage>0){
+            consent.wait_for_update = self.options.waitTimeToUpdateConsentStage
+          }
+          window.gtag('consent', 'default', consent)
+     } 
 
     if (self.options.enableConsentMode) {
      let consent={};

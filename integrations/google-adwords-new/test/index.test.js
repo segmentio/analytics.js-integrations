@@ -99,11 +99,11 @@ describe('Google AdWords New', function() {
         .option('defaultPageConversion', '')
         .option('disableAdPersonalization', false)
         .option('enableConsentMode',false)
-        .option('adUserDataConsentState')
-        .option('adPersonalizationConsentState')
-        .option('defaultAdsStorageConsentState')
-        .option('defaultAnalyticsStorageConsentState')
-        .option('waitTimeToUpdateConsentStage')
+        .option('adUserDataConsentState',null)
+        .option('adPersonalizationConsentState',null)
+        .option('defaultAdsStorageConsentState',null)
+        .option('defaultAnalyticsStorageConsentState',null)
+        .option('waitTimeToUpdateConsentStage',0)
         .tag(
           '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
         )
