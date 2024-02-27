@@ -88,6 +88,26 @@ GoogleAdWordsNew.prototype.initialize = function() {
           window.gtag('consent', 'default', consent)
      } 
 
+    if (self.options.enableConsentMode) {
+     let consent={};
+          if(self.options.adUserDataConsentState && self.options.adUserDataConsentState!=UNSPECIFIED){
+            consent.ad_user_data = self.options.adUserDataConsentState
+          }
+          if(self.options.adPersonalizationConsentState && self.options.adPersonalizationConsentState!=UNSPECIFIED){
+            consent.ad_personalization = self.options.adPersonalizationConsentState
+          }
+          if(self.options.defaultAdsStorageConsentState && self.options.defaultAdsStorageConsentState!=UNSPECIFIED){
+            consent.ad_storage = self.options.defaultAdsStorageConsentState
+          }
+          if(self.options.defaultAnalyticsStorageConsentState && self.options.defaultAnalyticsStorageConsentState!=UNSPECIFIED){
+            consent.analytics_storage = self.options.defaultAnalyticsStorageConsentState
+          }
+          if(self.options.waitTimeToUpdateConsentStage && self.options.waitTimeToUpdateConsentStage>0){
+            consent.wait_for_update = self.options.waitTimeToUpdateConsentStage
+          }
+          window.gtag('consent', 'default', consent)
+     } 
+
     self.ready();
   });
 };

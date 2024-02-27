@@ -131,6 +131,7 @@ describe('Google AdWords New', function() {
     it('should disable ad personalization before `config` statements when settings enabled', function(done) {
       googleadwordsnew.options.disableAdPersonalization = true;
       analytics.once('ready', function() {
+        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',window.gtag.args);
         analytics.deepEqual(window.gtag.args[1], [
           'set',
           'allow_ad_personalization_signals',
