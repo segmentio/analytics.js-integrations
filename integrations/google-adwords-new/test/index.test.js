@@ -99,11 +99,11 @@ describe('Google AdWords New', function() {
         .option('defaultPageConversion', '')
         .option('disableAdPersonalization', false)
         .option('enableConsentMode',false)
-        .option('adUserDataConsentState')
-        .option('adPersonalizationConsentState')
-        .option('defaultAdsStorageConsentState')
-        .option('defaultAnalyticsStorageConsentState')
-        .option('waitTimeToUpdateConsentStage')
+        .option('adUserDataConsentState',null)
+        .option('adPersonalizationConsentState',null)
+        .option('defaultAdsStorageConsentState',null)
+        .option('defaultAnalyticsStorageConsentState',null)
+        .option('waitTimeToUpdateConsentStage',0)
         .tag(
           '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
         )
@@ -131,7 +131,6 @@ describe('Google AdWords New', function() {
     it('should disable ad personalization before `config` statements when settings enabled', function(done) {
       googleadwordsnew.options.disableAdPersonalization = true;
       analytics.once('ready', function() {
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',window.gtag.args);
         analytics.deepEqual(window.gtag.args[1], [
           'set',
           'allow_ad_personalization_signals',
