@@ -69,7 +69,7 @@ describe('Google AdWords New', function() {
     defaultPageConversion: 'qnCxCOvxq18Q1ta71QM',
     adUserDataConsentState :'granted',
     adPersonalizationConsentState: 'denied',
-    waitTimeToUpdateConsentStage:1000
+    waitTimeToUpdateConsentState:1000
   };
 
   beforeEach(function() {
@@ -103,7 +103,7 @@ describe('Google AdWords New', function() {
         .option('adPersonalizationConsentState',null)
         .option('defaultAdsStorageConsentState',null)
         .option('defaultAnalyticsStorageConsentState',null)
-        .option('waitTimeToUpdateConsentStage',0)
+        .option('waitTimeToUpdateConsentState',0)
         .tag(
           '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
         )
@@ -124,9 +124,9 @@ describe('Google AdWords New', function() {
   });
 
   describe('loading', function() {
-    // it('should load', function(done) {
-    //   analytics.load(googleadwordsnew, done);
-    // });
+    it('should load', function(done) {
+      analytics.load(googleadwordsnew, done);
+    });
 
     it('should disable ad personalization before `config` statements when settings enabled', function(done) {
       googleadwordsnew.options.disableAdPersonalization = true;
