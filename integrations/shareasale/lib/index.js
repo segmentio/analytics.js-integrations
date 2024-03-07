@@ -36,10 +36,11 @@ ShareASale.prototype.orderCompleted = function(track) {
   var orderId = track.orderId();
   var isRepeat = track.proxy('properties.repeat');
   var subtotal = (track.subtotal() || 0).toFixed(2);
+  var total= (track.total() || 0).toFixed(2)
   var orderTotal =
     this.options.useTotalAsAmount && track.total()
-      ? track.total().toFixed(2)
-      : subtotal.toFixed(2);
+      ? total
+      : subtotal;
   var products = track.products();
   var currency = track.currency() || this.options.currency;
   var coupon = track.coupon() || '';
