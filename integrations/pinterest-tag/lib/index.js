@@ -16,6 +16,7 @@ var Pinterest = (module.exports = integration('Pinterest Tag')
   .option('tid', '')
   .option('pinterestCustomProperties', [])
   .option('useEnhancedMatchLoad', false)
+  .option('mapMessageIdToEventId', false)
   .mapping('pinterestEventMapping')
   .tag('<script src="https://s.pinimg.com/ct/core.js"></script>'));
 
@@ -24,7 +25,15 @@ Pinterest.prototype.initialize = function() {
   if (!this.options.tid) return;
 
   // Preparation for loading the Pinterest script.
-  (function(e){if(!window.pintrk){window.pintrk=function(){window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var n=window.pintrk;n.queue=[],n.version="3.0";}})(); // eslint-disable-line
+  (function(e) {
+    if (!window.pintrk) {
+      window.pintrk = function() {
+        window.pintrk.queue.push(Array.prototype.slice.call(arguments));
+      };
+      var n = window.pintrk;
+      (n.queue = []), (n.version = '3.0');
+    }
+  })(); // eslint-disable-line
 
   this.load(this.ready);
   var traits = this.analytics.user().traits();
@@ -132,6 +141,10 @@ Pinterest.prototype.createPropertyMapping = function() {
     quantity: 'product_quantity',
     brand: 'product_brand'
   };
+
+  if(this.options.mapMessageIdToEventId){
+    this.propertyMap.messageId = 'event_id';
+  }
 };
 
 /**
@@ -148,6 +161,9 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
     if (trackValue) pinterestProps[this.propertyMap[prop]] = trackValue;
   }
 
+  if (this.options.mapMessageIdToEventId) {
+    pinterestProps['event_id'] = track.proxy('messageId');
+  }
   // Determine if there's a 'products' Array, then add in the specific features on that decision.
   var products = track.proxy('properties.products');
   var lineItemsArray;
@@ -184,6 +200,7 @@ Pinterest.prototype.generatePropertiesObject = function(track) {
 
   // Finally, add in any custom properties defined by the user.
   var customProps = this.options.pinterestCustomProperties;
+
   for (var j = 0; j < customProps.length; j++) {
     var customProperty = customProps[j];
     trackValue = track.proxy('properties.' + customProperty);

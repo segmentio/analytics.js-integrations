@@ -17,7 +17,8 @@ describe('Pinterest', function() {
       'User Signed Up': 'Signup'
     },
     pinterestCustomProperties: ['custom_prop'],
-    useEnhancedMatchLoad: false
+    useEnhancedMatchLoad: false,
+    mapMessageIdToEventId: true
   };
 
   beforeEach(function() {
@@ -44,6 +45,7 @@ describe('Pinterest', function() {
         .option('pinterestCustomProperties', [])
         .option('tid', '')
         .option('useEnhancedMatchLoad', false)
+        .option('mapMessageIdToEventId', false)
     );
   });
 
@@ -90,6 +92,20 @@ describe('Pinterest', function() {
           np: 'segment',
           em: 'prakash@segment.com'
         });
+      });
+    });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.spy(window, 'pintrk');
+      });
+
+      it('should set Segment messageId as Pinterest Evnet Id', function() {
+        analytics.track('Order Completed', {});
+        analytics.called(window.pintrk, 'track', 'Checkout');
+        if (!window.pintrk.args[0][2].event_id.startsWith('ajs-')) {
+          throw new Error('Expected eventId on window.pintrk Not found.');
+        }
       });
     });
   });
