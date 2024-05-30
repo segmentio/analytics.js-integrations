@@ -70,7 +70,7 @@ Pinterest.prototype.page = function(page) {
   var eventKeys = ['event_id', 'eid', 'eventID'];
 
   for (var i = 0; i < eventKeys.length; i++) {
-    if (page.properties()[eventKeys[i]]) {
+    if (page.properties() && page.properties()[eventKeys[i]]) {
       pinterestPageProps.event_id = page.properties()[eventKeys[i]];
     }
   }
