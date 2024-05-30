@@ -62,7 +62,6 @@ Pinterest.prototype.identify = function(identify) {
 };
 
 Pinterest.prototype.page = function(page) {
-  // If we have a category, the use ViewCategory. Otherwise, use a normal PageVisit.
   var pinterestPageProps = {
     name: page.name() || ''
   };
@@ -79,6 +78,7 @@ Pinterest.prototype.page = function(page) {
     pinterestPageProps.event_id = page.proxy('messageId');
   }
 
+  // If we have a category, the use ViewCategory. Otherwise, use a normal PageVisit.
   if (page.category()) {
     pinterestPageProps.category = page.category();
     window.pintrk('track', 'ViewCategory', pinterestPageProps);
