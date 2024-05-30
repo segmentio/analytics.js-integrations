@@ -108,5 +108,19 @@ describe('Pinterest', function() {
         }
       });
     });
+
+    describe('#page', function() {
+      beforeEach(function() {
+        analytics.spy(window, 'pintrk');
+      });
+
+      it('should set Segment messageId as Pinterest Evnet Id', function() {
+        analytics.page('PageVisit', {});
+        analytics.called(window.pintrk, 'track', 'PageVisit');
+        if (!window.pintrk.args[0][2].event_id.startsWith('ajs-')) {
+          throw new Error('Expected eventId on window.pintrk Not found.');
+        }
+      });
+    });
   });
 });
