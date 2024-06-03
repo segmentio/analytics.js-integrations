@@ -62,16 +62,28 @@ Pinterest.prototype.identify = function(identify) {
 };
 
 Pinterest.prototype.page = function(page) {
+  var pinterestPageProps = {
+    name: page.name() || ''
+  };
+
+  var eventKeys = ['event_id', 'eid', 'eventID'];
+
+  for (var i = 0; i < eventKeys.length; i++) {
+    if (page.properties() && page.properties()[eventKeys[i]]) {
+      pinterestPageProps.event_id = page.properties()[eventKeys[i]];
+    }
+  }
+
+  if (this.options.mapMessageIdToEventId) {
+    pinterestPageProps.event_id = page.proxy('messageId');
+  }
+
   // If we have a category, the use ViewCategory. Otherwise, use a normal PageVisit.
   if (page.category()) {
-    window.pintrk('track', 'ViewCategory', {
-      category: page.category(),
-      name: page.name() || ''
-    });
+    pinterestPageProps.category = page.category();
+    window.pintrk('track', 'ViewCategory', pinterestPageProps);
   } else {
-    window.pintrk('track', 'PageVisit', {
-      name: page.name() || ''
-    });
+    window.pintrk('track', 'PageVisit', pinterestPageProps);
   }
 };
 
