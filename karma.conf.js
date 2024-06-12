@@ -15,7 +15,7 @@ module.exports = function(config) {
 
     reporters: ['spec'],
 
-    browsers: ['ChromeHeadless'],
+    browsers: [process.env.HEADLESS === 'false' ? 'Chrome' : 'ChromeHeadless'],
 
     middleware: ['server'],
     failOnFailingTestSuite: false,
