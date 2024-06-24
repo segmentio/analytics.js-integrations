@@ -316,26 +316,25 @@ Segment.prototype.normalize = function(message) {
   }
   if (this.options.addBundledMetadata) {
     var bundled = keys(this.analytics.Integrations);
-    var maybeBundledConfigIds = this.options.maybeBundledConfigIds
+    var maybeBundledConfigIds = this.options.maybeBundledConfigIds;
 
     // Generate a list of bundled config IDs using the intersection of
     // bundled destination names and maybe bundled config IDs.
-    var bundledConfigIds = []
+    var bundledConfigIds = [];
     for (var i = 0; i < bundled.length; i++) {
-      var name = bundled[i]
+      var name = bundled[i];
       if (!maybeBundledConfigIds) {
-        break
+        break;
       }
       if (!maybeBundledConfigIds[name]) {
-        continue
+        continue;
       }
 
       for (var j = 0; j < maybeBundledConfigIds[name].length; j++) {
-        var id = maybeBundledConfigIds[name][j]
-        bundledConfigIds.push(id)
+        var id = maybeBundledConfigIds[name][j];
+        bundledConfigIds.push(id);
       }
     }
-
 
     msg._metadata = msg._metadata || {};
     msg._metadata.bundled = bundled;
@@ -374,10 +373,10 @@ Segment.prototype.enqueue = function(path, message, fn) {
   var headers = { 'Content-Type': 'text/plain' };
   var msg = this.normalize(message);
 
-  // Print a log statement when messages exceed the maximum size. In the future,
-  // we may consider dropping this event on the client entirely.
+  // Drop the event when message exceeds the maximum size
   if (json.stringify(msg).length > MAX_SIZE) {
     this.debug('message must be less than 32kb %O', msg);
+    return;
   }
 
   this.debug('enqueueing %O', msg);
