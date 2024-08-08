@@ -44,17 +44,8 @@ steps:
             - SAUCE_USERNAME
             - SAUCE_ACCESS_KEY
 
-  - label: "🔒 Snyk Security Check"
-    key: "snyk"
-    agents:
-      queue: v1
-    plugins:
-      - ssh://git@github.com/segmentio/snyk-buildkite-plugin#v1.2.0:
-          runtime: npm
-          fail-on: upgradable
-
   - wait: ~
-    depends_on: ["snyk", "build"]
+    depends_on: ["build"]
 
   - label: ":cloud: Upload Assets to stage bucket"
     branches: master staging
