@@ -45,7 +45,7 @@ steps:
             - SAUCE_ACCESS_KEY
 
   - wait: ~
-    depends_on: ["snyk", "build"]
+    depends_on: ["build"]
 
   - label: ":cloud: Upload Assets to stage bucket"
     branches: master staging
