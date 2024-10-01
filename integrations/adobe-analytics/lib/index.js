@@ -113,11 +113,11 @@ AdobeAnalytics.global('s')
   .sOption('usePlugins', true)
   .tag(
     'default',
-    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.0.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.1.js">'
   )
   .tag(
     'heartbeat',
-    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.0-heartbeat.js">'
+    '<script src="//cdn.segment.com/integrations/adobe-analytics/appmeasurement-2.23.1-heartbeat.js">'
   );
 
 /**
