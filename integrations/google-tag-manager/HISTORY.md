@@ -1,3 +1,7 @@
+2.6.0 / 2023-05-17
+==================
+  * Add support for queueName (custom dataLayer) option
+
 2.5.0 / 2017-04-27
 ==================
 
