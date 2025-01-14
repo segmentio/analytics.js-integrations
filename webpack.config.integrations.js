@@ -41,8 +41,7 @@ module.exports = {
     chunkFilename: 'vendor/[name].[contenthash].js',
     path: path.resolve(__dirname, 'build/integrations'),
     library: '[name]Integration',
-    libraryTarget: 'window',
-    hashFunction: "sha256"
+    libraryTarget: 'window'
   },
   module: {
     rules: [

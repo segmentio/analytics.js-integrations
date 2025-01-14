@@ -30,8 +30,7 @@ module.exports = {
     chunkFilename: 'vendor/[name].[contenthash].js.gz',
     path: path.resolve(__dirname, 'tester/dist/next-integrations/integrations'),
     library: '[name]Integration',
-    libraryTarget: 'window',
-    hashFunction: "sha256"
+    libraryTarget: 'window'
   },
   module: {
     rules: [

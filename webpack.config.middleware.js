@@ -40,8 +40,7 @@ module.exports = {
     filename: '[name]/latest/[name].js',
     path: path.resolve(__dirname, 'build/middleware'),
     library: '[name]Middleware',
-    libraryTarget: 'umd',
-    hashFunction: "sha256"
+    libraryTarget: 'umd'
   },
   module: {
     rules: [
