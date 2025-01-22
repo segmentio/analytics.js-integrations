@@ -10,7 +10,8 @@ describe('Appcues', function() {
   var appcues;
   var analytics;
   var options = {
-    appcuesId: '1663'
+    appcuesId: '1663',
+    domain: '//fast.appcues.net/'
   };
 
   // Disable AMD for these browser tests.
@@ -42,6 +43,7 @@ describe('Appcues', function() {
       integration('Appcues')
         .global('Appcues')
         .option('appcuesId', '')
+        .option('domain', '')
     );
   });
 

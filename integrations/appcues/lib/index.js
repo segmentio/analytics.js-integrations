@@ -13,7 +13,8 @@ var load = require('@segment/load-script');
 
 var Appcues = integration('Appcues')
   .global('Appcues')
-  .option('appcuesId', '');
+  .option('appcuesId', '')
+  .option('domain', '');
 
 /**
  * Initialize.
@@ -47,7 +48,8 @@ Appcues.prototype.loaded = function() {
 
 Appcues.prototype.load = function(callback) {
   var id = this.options.appcuesId || 'appcues';
-  load('//fast.appcues.com/' + id + '.js', callback);
+  var domain = this.options.domain || '//fast.appcues.com/';
+  load(domain + id + '.js', callback);
 };
 
 /**
