@@ -71,6 +71,45 @@ HubSpot.prototype.loaded = function() {
 };
 
 /**
+ * Trims whitespace and invisible characters from a string.
+ *
+ * @param {string} str - The string to trim.
+ * @returns {string} - The trimmed string.
+ */
+function trimWhitespaceAndInvisibleChars(str) {
+  // This regular expression matches leading and trailing whitespace characters,
+  // as well as invisible characters such as zero-width spaces and non-breaking spaces.
+  return str.replace(
+    /^[\s\u200B-\u200D\uFEFF]+|[\s\u200B-\u200D\uFEFF]+$/g,
+    ''
+  );
+}
+
+/**
+ * Recursively sanitizes the values of an object or array by trimming whitespace
+ * and invisible characters from string values, and preserving the structure of
+ * functions, arrays, and nested objects.
+ *
+ * @param {Object|Array} msg - The object or array to sanitize.
+ * @returns {Object|Array} - The sanitized object or array.
+ */
+function sanitizeValue(msg) {
+  if (typeof msg === 'object' && msg !== null) {
+    Object.keys(msg).forEach(function(key) {
+      var value = msg[key];
+      if (typeof value === 'string') {
+        msg[key] = trimWhitespaceAndInvisibleChars(value);
+      } else if (Array.isArray(value)) {
+        msg[key] = value.map(sanitizeValue);
+      } else if (typeof value === 'object') {
+        msg[key] = sanitizeValue(value);
+      }
+    });
+  }
+  return msg;
+}
+
+/**
  * Page.
  *
  * @api public
@@ -89,6 +128,7 @@ HubSpot.prototype.page = function() {
  */
 
 HubSpot.prototype.identify = function(identify) {
+  sanitizeValue(identify);
   // use newer version of Identify to have access to `companyName`
   var newIdentify = new Identify({
     traits: identify.traits(),
@@ -121,6 +161,7 @@ HubSpot.prototype.identify = function(identify) {
  */
 
 HubSpot.prototype.track = function(track) {
+  sanitizeValue(track);
   // Hubspot expects properties.id to be the name of the .track() event
   // Ref: http://developers.hubspot.com/docs/methods/enterprise_events/javascript_api
   var props = convertDates(track.properties({ id: '_id', revenue: 'value' }));
