@@ -15,7 +15,7 @@
     "test": "lerna run --concurrency 5 --since master test --stream -- --single-run --reporters summary --log-level error",
     "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
     "compile": "webpack --config webpack.config.integrations.js && webpack --config webpack.config.middleware.js",
-    "build": "rm -rf build && yarn compile",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && rm -rf build && yarn compile",
     "dev": "concurrently \"yarn --cwd tester serve\" \"webpack --config webpack.config.tester.js --watch\""
   },
   "devDependencies": {
