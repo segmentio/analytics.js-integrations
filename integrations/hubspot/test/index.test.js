@@ -251,6 +251,22 @@ describe('HubSpot', function() {
           }
         ]);
       });
+
+      it('should sanitize values in identify method', function() {
+        analytics.identify({
+          email: '   name@example.com    ',
+          company: {
+            name: '    Example Company     '
+          }
+        });
+        analytics.called(window._hsq.push, [
+          'identify',
+          {
+            email: 'name@example.com',
+            company: 'Example Company'
+          }
+        ]);
+      });
     });
 
     describe('#track', function() {
@@ -308,6 +324,18 @@ describe('HubSpot', function() {
 
       it('should send revenue as value', function() {
         analytics.track('Did Something Valuable', { id: '12345', revenue: 13 });
+        analytics.called(window._hsq.push, [
+          'trackEvent',
+          'Did Something Valuable',
+          { id: 'Did Something Valuable', _id: '12345', value: 13 }
+        ]);
+      });
+
+      it('should sanitize values in track method', function() {
+        analytics.track('   Did Something Valuable  ', {
+          id: '   12345 ',
+          revenue: 13
+        });
         analytics.called(window._hsq.push, [
           'trackEvent',
           'Did Something Valuable',
