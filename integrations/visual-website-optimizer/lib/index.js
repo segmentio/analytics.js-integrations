@@ -47,10 +47,11 @@ var integrationContext = {
 VWO.prototype.initialize = function() {
   if (this.options.useAsyncSmartCode) {
     /* eslint-disable */
+    var options = this.options;
     window._vwo_code || (function() {
-      var account_id=this.options.accountId,
+      var account_id=options.accountId,
       version=2.1,
-      settings_tolerance=this.options.settingsTolerance,
+      settings_tolerance=options.settingsTolerance,
       hide_element='body',
       /* The VWO SmartCode v2.1 script when it gets executed auto-detects (detecting first-contentful-paint Ref: [PerformancePaintTiming - Web APIs | MDN](https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming)) if the page is already loaded then it prevents the page (body) from hiding from it. */
       hide_element_style = 'opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;transition:none !important;',
