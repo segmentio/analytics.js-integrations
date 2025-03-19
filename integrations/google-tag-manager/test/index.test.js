@@ -45,6 +45,23 @@ describe('Google Tag Manager', function() {
     it('should load', function(done) {
       analytics.load(gtm, done);
     });
+
+    it('should load default domain', function() {
+      analytics.spy(gtm, 'load');
+      analytics.initialize();
+      analytics.page();
+      analytics.called(gtm.load);
+      analytics.assert(gtm.options.domain === 'www.googletagmanager.com');
+    });
+
+    it('should load custom domain if specified', function() {
+      gtm.options.domain = 'custom.example.com';
+      analytics.spy(gtm, 'load');
+      analytics.initialize();
+      analytics.page();
+      analytics.called(gtm.load);
+      analytics.assert(gtm.options.domain === 'custom.example.com');
+    });
   });
 
   describe('after loading', function() {

@@ -16,15 +16,16 @@ var GTM = (module.exports = integration('Google Tag Manager')
   .global('google_tag_manager')
   .option('containerId', '')
   .option('environment', '')
+  .option('domain', 'www.googletagmanager.com')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
   .tag(
     'no-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer">'
+    '<script src="//{{{ domain }}}/gtm.js?id={{ containerId }}&l=dataLayer">'
   )
   .tag(
     'with-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">'
+    '<script src="//{{{ domain }}}/gtm.js?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">'
   ));
 
 /**

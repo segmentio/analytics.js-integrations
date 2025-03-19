@@ -13,6 +13,7 @@ var GA4 = (module.exports = integration('Google Analytics 4')
   .global('gtag')
   .global('ga4DataLayer')
   .option('measurementIds', [])
+  .option('domain', 'www.googletagmanager.com')
   .option('cookieDomainName', 'auto')
   .option('cookiePrefix', '_ga')
   .option('cookieExpiration', 63072000)
@@ -48,7 +49,7 @@ var GA4 = (module.exports = integration('Google Analytics 4')
    */
   .option('customEventsAndParameters', [])
   .tag(
-    '<script src="//www.googletagmanager.com/gtag/js?id={{ measurementId }}&l=ga4DataLayer">'
+    '<script src="//{{{ domain }}}/gtag/js?id={{ measurementId }}&l=ga4DataLayer">'
   ));
 
 /**
