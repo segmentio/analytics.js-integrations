@@ -92,6 +92,12 @@ GA4.prototype.initialize = function() {
     send_page_view: opts.sendAutomaticPageViewEvent,
 
     /**
+     * Server Container URL
+     * https://developers.google.com/tag-platform/tag-manager/server-side/dependency-serving
+     */
+    server_container_url: '//' + opts.domain,
+
+    /**
      * Cookie Update
      * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_update_parameter
      */

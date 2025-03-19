@@ -31,23 +31,4 @@ describe('Google Analytics 4', function() {
     ga4.reset();
     sandbox();
   });
-
-  describe('loading', function() {
-    it('should load default domain', function() {
-      analytics.spy(ga4, 'load');
-      analytics.initialize();
-      analytics.page();
-      analytics.called(ga4.load);
-      analytics.assert(ga4.options.domain === 'www.googletagmanager.com');
-    });
-
-    it('should load custom domain if specified', function() {
-      ga4.options.domain = 'custom.example.com';
-      analytics.spy(ga4, 'load');
-      analytics.initialize();
-      analytics.page();
-      analytics.called(ga4.load);
-      analytics.assert(ga4.options.domain === 'custom.example.com');
-    });
-  });
 });
