@@ -31,6 +31,10 @@ Bing.prototype.initialize = function() {
   window.uetq = window.uetq || [];
   var self = this;
 
+  var consent = {
+    ad_storage: self.options.adStorage || 'denied'
+  };
+  window.uetq.push('consent', 'default', consent);
   self.load(function() {
     var setup = {
       ti: self.options.tagId,
