@@ -37,8 +37,12 @@ Bing.prototype.initialize = function() {
       q: window.uetq
     };
 
-    window.uetq = new window.UET(setup);
-    self.ready();
+    try {
+      window.uetq = new window.UET(setup);
+      self.ready();
+    } catch (e) {
+      // do nothing with error for now
+    }
   });
 };
 
