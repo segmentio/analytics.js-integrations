@@ -103,9 +103,7 @@ Bing.prototype.track = function(track) {
   }
 
   if (Object.keys(consent).length > 0) {
-    window.uetq.push('consent', 'update', {
-      ad_storage: 'granted'
-    });
+    window.uetq.push('consent', 'update', consent);
   }
 
   window.uetq.push(event);
