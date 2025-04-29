@@ -88,26 +88,23 @@ Bing.prototype.track = function(track) {
 
   var consent = {};
 
-  if (track.properties[this.options.adStoragePropertyMapping]) {
+  if (track.raw.properties[this.options.adStoragePropertyMapping]) {
     consent.ad_storage =
-      track.properties[this.options.adStoragePropertyMapping];
+      track.raw.properties[this.options.adStoragePropertyMapping];
   }
 
   if (
-    track.context.consent.categoryPreferences[
+    this.options.consentSettings.categories.includes(
       this.options.adStorageConsentCategory
-    ]
+    )
   ) {
-    consent.ad_storage =
-      track.context.consent.categoryPreferences[
-        this.options.adStorageConsentCategory
-      ] === true
-        ? 'granted'
-        : 'denied';
+    consent.ad_storage = 'granted';
   }
 
-  if (consent.length > 0) {
-    window.uetq.push('consent', 'update', consent);
+  if (Object.keys(consent).length > 0) {
+    window.uetq.push('consent', 'update', {
+      ad_storage: 'granted'
+    });
   }
 
   window.uetq.push(event);
