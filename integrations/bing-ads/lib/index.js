@@ -35,6 +35,7 @@ Bing.prototype.initialize = function() {
     ad_storage: self.options.adStorage || 'denied'
   };
   window.uetq.push('consent', 'default', consent);
+
   self.load(function() {
     var setup = {
       ti: self.options.tagId,
@@ -85,6 +86,30 @@ Bing.prototype.track = function(track) {
 
   if (track.category()) event.ec = track.category();
   if (track.revenue()) event.gv = track.revenue();
+
+  var consent = {};
+
+  if (track.properties[this.options.adStoragePropertyMapping]) {
+    consent.ad_storage =
+      track.properties[this.options.adStoragePropertyMapping];
+  }
+
+  if (
+    track.context.consent.categoryPreferences[
+      this.options.adStorageConsentCategory
+    ]
+  ) {
+    consent.ad_storage =
+      track.context.consent.categoryPreferences[
+        this.options.adStorageConsentCategory
+      ] === true
+        ? 'granted'
+        : 'denied';
+  }
+
+  if (consent.length > 0) {
+    window.uetq.push('consent', 'update', consent);
+  }
 
   window.uetq.push(event);
 };
