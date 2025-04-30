@@ -50,6 +50,58 @@ describe('Bing Ads', function() {
     });
   });
 
+  describe('#initialize', function() {
+    beforeEach(function() {
+      window.uetq = [];
+      window.UET = function(setup) {
+        this.ti = setup.ti;
+        this.q = setup.q;
+      };
+      analytics.stub(bing, 'load', function(callback) {
+        callback();
+      });
+      analytics.spy(window.uetq, 'push');
+    });
+
+    afterEach(function() {
+      // Clean up after each test
+      delete window.uetq;
+    });
+
+    it('should initialize uetq as an empty array if not already defined', function() {
+      delete window.uetq;
+      bing.options.enableConsent = false;
+
+      bing.initialize();
+
+      analytics.assert(Array.isArray(window.uetq.q));
+      analytics.assert.deepEqual(window.uetq.q, []);
+    });
+
+    it('should push default consent if enableConsent is true', function() {
+      bing.options.enableConsent = true;
+      bing.initialize();
+      analytics.spy(window.uetq, 'push');
+      analytics.called(window.uetq.q.push, 'consent', 'default', {
+        ad_storage: 'denied'
+      });
+    });
+
+    it('should not push default consent if enableConsent is false', function() {
+      bing.options.enableConsent = false;
+      bing.initialize();
+      analytics.spy(window.uetq, 'push');
+      analytics.didNotCall(window.uetq.push, 'consent', 'default');
+    });
+
+    it('should call load and set up UET after loading', function() {
+      bing.initialize();
+      analytics.called(bing.load);
+      analytics.assert(window.uetq instanceof window.UET);
+      analytics.assert.equal(window.uetq.ti, bing.options.tagId);
+    });
+  });
+
   describe('after loading', function() {
     beforeEach(function(done) {
       analytics.once('ready', done);

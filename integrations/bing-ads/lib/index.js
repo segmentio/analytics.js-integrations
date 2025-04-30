@@ -66,7 +66,11 @@ Bing.prototype.loaded = function() {
  * @api public
  */
 
-Bing.prototype.page = function() {
+Bing.prototype.page = function(page) {
+  if (this.options.enableConsent) {
+    // eslint-disable-next-line no-use-before-define
+    updateConsent.call(this, page);
+  }
   window.uetq.push('pageLoad');
 };
 
@@ -97,27 +101,27 @@ Bing.prototype.track = function(track) {
   window.uetq.push(event);
 };
 
-function updateConsent(track) {
+function updateConsent(event) {
   var consent = {};
 
-  var propertiesPath = track.proxy(
-    'properties.' + this.options.adStoragePropertyMapping
-  );
-  if (propertiesPath && typeof propertiesPath === 'string') {
-    consent.ad_storage = propertiesPath.toLowerCase();
-  }
-
+  // If consent category is granted, set it immediately and return
   if (
     this.options.consentSettings.categories &&
-    this.options.consentSettings.categories.length > 0 &&
     this.options.consentSettings.categories.includes(
       this.options.adStorageConsentCategory
     )
   ) {
     consent.ad_storage = 'granted';
+    window.uetq.push('consent', 'update', consent);
+    return;
   }
 
-  if (Object.keys(consent).length > 0) {
+  // Otherwise, try to get ad_storage value from propertiesPath
+  var propertiesPath = event.proxy(
+    'properties.' + this.options.adStoragePropertyMapping
+  );
+  if (typeof propertiesPath === 'string') {
+    consent.ad_storage = propertiesPath.toLowerCase();
     window.uetq.push('consent', 'update', consent);
   }
 }
