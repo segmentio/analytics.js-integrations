@@ -34,7 +34,7 @@ Crisp.prototype.initialize = function() {
  */
 Crisp.prototype.load = function(done) {
   window.CRISP_WEBSITE_ID = this.options.websiteId;
-  window.$crisp = [];
+  window.$crisp = window.$crisp || [];
 
   var script = document.createElement('script');
   script.src = 'https://client.crisp.chat/l.js';
