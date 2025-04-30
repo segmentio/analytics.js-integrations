@@ -31,6 +31,13 @@ Bing.prototype.initialize = function() {
   window.uetq = window.uetq || [];
   var self = this;
 
+  var consent = {
+    ad_storage: self.options.adStorage || 'denied'
+  };
+  if (self.options.enableConsent) {
+    window.uetq.push('consent', 'default', consent);
+  }
+
   self.load(function() {
     var setup = {
       ti: self.options.tagId,
@@ -59,7 +66,11 @@ Bing.prototype.loaded = function() {
  * @api public
  */
 
-Bing.prototype.page = function() {
+Bing.prototype.page = function(page) {
+  if (this.options.enableConsent) {
+    // eslint-disable-next-line no-use-before-define
+    updateConsent.call(this, page);
+  }
   window.uetq.push('pageLoad');
 };
 
@@ -82,5 +93,35 @@ Bing.prototype.track = function(track) {
   if (track.category()) event.ec = track.category();
   if (track.revenue()) event.gv = track.revenue();
 
+  if (this.options.enableConsent) {
+    // eslint-disable-next-line no-use-before-define
+    updateConsent.call(this, track);
+  }
+
   window.uetq.push(event);
 };
+
+function updateConsent(event) {
+  var consent = {};
+
+  // If consent category is granted, set it immediately and return
+  if (
+    this.options.consentSettings.categories &&
+    this.options.consentSettings.categories.includes(
+      this.options.adStorageConsentCategory
+    )
+  ) {
+    consent.ad_storage = 'granted';
+    window.uetq.push('consent', 'update', consent);
+    return;
+  }
+
+  // Otherwise, try to get ad_storage value from propertiesPath
+  var propertiesPath = event.proxy(
+    'properties.' + this.options.adStoragePropertyMapping
+  );
+  if (typeof propertiesPath === 'string') {
+    consent.ad_storage = propertiesPath.toLowerCase();
+    window.uetq.push('consent', 'update', consent);
+  }
+}
