@@ -34,7 +34,9 @@ Bing.prototype.initialize = function() {
   var consent = {
     ad_storage: self.options.adStorage || 'denied'
   };
-  window.uetq.push('consent', 'default', consent);
+  if (self.options.enableConsent) {
+    window.uetq.push('consent', 'default', consent);
+  }
 
   self.load(function() {
     var setup = {
@@ -87,14 +89,27 @@ Bing.prototype.track = function(track) {
   if (track.category()) event.ec = track.category();
   if (track.revenue()) event.gv = track.revenue();
 
+  if (this.options.enableConsent) {
+    // eslint-disable-next-line no-use-before-define
+    updateConsent.call(this, track);
+  }
+
+  window.uetq.push(event);
+};
+
+function updateConsent(track) {
   var consent = {};
 
-  if (track.raw.properties[this.options.adStoragePropertyMapping]) {
-    consent.ad_storage =
-      track.raw.properties[this.options.adStoragePropertyMapping];
+  var propertiesPath = track.proxy(
+    'properties.' + this.options.adStoragePropertyMapping
+  );
+  if (propertiesPath && typeof propertiesPath === 'string') {
+    consent.ad_storage = propertiesPath.toLowerCase();
   }
 
   if (
+    this.options.consentSettings.categories &&
+    this.options.consentSettings.categories.length > 0 &&
     this.options.consentSettings.categories.includes(
       this.options.adStorageConsentCategory
     )
@@ -105,6 +120,4 @@ Bing.prototype.track = function(track) {
   if (Object.keys(consent).length > 0) {
     window.uetq.push('consent', 'update', consent);
   }
-
-  window.uetq.push(event);
-};
+}

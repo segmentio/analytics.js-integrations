@@ -10,7 +10,13 @@ describe('Bing Ads', function() {
   var analytics;
   var bing;
   var options = {
-    tagId: '4002754'
+    tagId: '4002754',
+    enableConsent: true,
+    adStoragePropertyMapping: '',
+    adStorage: 'denied',
+    consentSettings: {
+      categories: []
+    }
   };
 
   beforeEach(function() {
@@ -74,6 +80,51 @@ describe('Bing Ads', function() {
           ec: 'fun',
           gv: 90
         });
+      });
+
+      it('should not call updateConsent when enable_consent is false', function() {
+        bing.options.enableConsent = false;
+        analytics.spy(bing, 'updateConsent');
+        analytics.track('play', { category: 'fun', revenue: 90 });
+        analytics.didNotCall(bing.updateConsent);
+      });
+
+      it('should not update consent if ad_storagePropertyMapping is missing', function() {
+        bing.options.enableConsent = true;
+        bing.options.adStoragePropertyMapping = '';
+        analytics.stub(window.uetq, 'push');
+        analytics.track('purchase', { properties: { ad_storage: 'granted' } });
+        analytics.didNotCall(window.uetq.push, 'consent', 'update');
+      });
+
+      it('should update consent if adStoragePropertyMapping has value', function() {
+        bing.options.enableConsent = true;
+        bing.options.adStoragePropertyMapping = 'ad_storage';
+        analytics.stub(window.uetq, 'push');
+        analytics.track('purchase', { ad_storage: 'granted' });
+        analytics.called(window.uetq.push, 'consent', 'update', {
+          ad_storage: 'granted'
+        });
+      });
+
+      it('should update consent based on consentSettings categories', function() {
+        bing.options.enable_consent = true;
+        bing.options.consentSettings.categories = ['analytics', 'ads'];
+        bing.options.adStorageConsentCategory = 'ads';
+        analytics.stub(window.uetq, 'push');
+        analytics.track('purchase');
+        analytics.called(window.uetq.push, 'consent', 'update', {
+          ad_storage: 'granted'
+        });
+      });
+
+      it('should not update consent if consentSettings categories do not match', function() {
+        bing.options.enable_consent = true;
+        bing.options.consentSettings.categories = ['analytics'];
+        bing.options.adStorageConsentCategory = 'ads';
+        analytics.stub(window.uetq, 'push');
+        analytics.track('purchase');
+        analytics.didNotCall(window.uetq.push, 'consent', 'update');
       });
     });
   });
