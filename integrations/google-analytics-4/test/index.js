@@ -40,6 +40,7 @@ describe('Google Analytics 4', function () {
                 .global('gtag')
                 .global('ga4DataLayer')
                 .option('measurementIds', [])
+                .option('domain', 'www.googletagmanager.com')
                 .option('cookieDomainName', 'auto')
                 .option('cookiePrefix', '_ga')
                 .option('cookieExpiration', 63072000)
@@ -96,6 +97,13 @@ describe('Google Analytics 4', function () {
                 analytics.called(ga4.load)
                 analytics.loaded('<script src="http://www.googletagmanager.com/gtag/js?id=G-100&l=ga4DataLayer"></script>')
             });
+
+            it('should load gtag.js with the custom domain', function () {
+                ga4.options.domain = 'custom.example.com';
+                analytics.initialize();
+                analytics.called(ga4.load)
+                analytics.loaded('<script src="http://custom.example.com/gtag/js?id=G-100&l=ga4DataLayer"></script>')
+            });
         });
     });
 
@@ -122,6 +130,13 @@ describe('Google Analytics 4', function () {
 
             analytics.equal(window.ga4DataLayer[1][2]['send_page_view'], false)
             analytics.equal(window.ga4DataLayer[2][2]['send_page_view'], false)
+        });
+
+        it('should set the server_container_url for all measurement IDs', function () {
+            ga4.options.domain = 'https://custom.example.com';
+            analytics.initialize();
+            analytics.equal(window.ga4DataLayer[1][2]['server_container_url'], 'https://custom.example.com')
+            analytics.equal(window.ga4DataLayer[2][2]['server_container_url'], 'https://custom.example.com')
         });
 
         it('should set cookie related setting for all measurement IDs', function () {

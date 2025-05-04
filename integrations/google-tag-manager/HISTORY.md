@@ -1,3 +1,8 @@
+2.6.0 / 2025-03-19
+==================
+
+  * Add support for custom domain configuration for GTM script loading
+
 2.5.0 / 2017-04-27
 ==================
 
