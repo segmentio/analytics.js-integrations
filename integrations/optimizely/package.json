@@ -11,6 +11,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "karma start",
+    "test:debug": "HEADLESS=false karma start",
     "test:ci": "karma start karma.conf-ci.js"
   },
   "author": "Segment <friends@segment.com>",
