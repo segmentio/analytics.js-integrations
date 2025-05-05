@@ -63,6 +63,7 @@ var GA = (exports.Integration = integration('Google Analytics')
   .option('optimize', '')
   .option('nameTracker', false)
   .option('resetCustomDimensionsOnPage', [])
+  .option('secureCookie', false)
   .tag('library', '<script src="//www.google-analytics.com/analytics.js">')
   .tag('double click', '<script src="//stats.g.doubleclick.net/dc.js">')
   .tag('http', '<script src="http://www.google-analytics.com/ga.js">')
@@ -129,6 +130,11 @@ GA.prototype.initialize = function() {
     allowLinker: true,
     useAmpClientId: opts.useGoogleAmpClientId
   };
+
+  // set secure cookies
+  if(opts.secureCookie) {
+    config.cookieFlags = 'SameSite=None;Secure'
+  }
 
   // set tracker name to avoid collisions with unnamed third party trackers
   if (opts.nameTracker) {
