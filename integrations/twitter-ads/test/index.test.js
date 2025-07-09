@@ -85,7 +85,7 @@ describe('Twitter Ads', function() {
       });
 
       it('should initialize twq with the universal tag pixel id if provided', function() {
-        analytics.called(window.twq, 'init', 'teemo');
+        analytics.called(window.twq, 'config', 'teemo');
       });
     });
   });
