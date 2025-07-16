@@ -106,6 +106,7 @@ function updateConsent(event) {
 
   // If consent category is granted, set it immediately and return
   if (
+    this.options.consentSettings &&
     this.options.consentSettings.categories &&
     this.options.consentSettings.categories.includes(
       this.options.adStorageConsentCategory
@@ -117,11 +118,12 @@ function updateConsent(event) {
   }
 
   // Otherwise, try to get ad_storage value from propertiesPath
-  var propertiesPath = event.proxy(
+  var adStorageMappingValue = event.proxy(
     'properties.' + this.options.adStoragePropertyMapping
   );
-  if (typeof propertiesPath === 'string') {
-    consent.ad_storage = propertiesPath.toLowerCase();
+
+  if (typeof adStorageMappingValue === 'string') {
+    consent.ad_storage = adStorageMappingValue.toLowerCase();
     window.uetq.push('consent', 'update', consent);
   }
 }
