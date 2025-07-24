@@ -1,7 +1,7 @@
 import { AnalyticsBrowser } from '@segment/analytics-next';
 
 export async function getSettings(wk) {
-  let data = await fetch(`https://cdn.segment.com/v1/projects/${wk}/settings`);
+  let data = await fetch(`https://cdn.segment.build/v1/projects/${wk}/settings`);
   data = await data.json();
   return cleanSettings(data);
 }

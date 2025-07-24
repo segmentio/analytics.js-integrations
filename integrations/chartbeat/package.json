@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-chartbeat",
   "description": "The Chartbeat analytics.js integration.",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -24,7 +24,6 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/defaults": "^2.0.1",
     "@segment/analytics.js-integration": "^3.2.0",
     "on-body": "0.0.1"
   },

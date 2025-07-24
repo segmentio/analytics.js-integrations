@@ -1916,7 +1916,7 @@
     slug-component "^1.1.0"
     to-no-case "^0.1.3"
 
-"@segment/analytics.js-integration@^3.0.0", "@segment/analytics.js-integration@^3.1.0", "@segment/analytics.js-integration@^3.2.0", "@segment/analytics.js-integration@^3.2.1", "@segment/analytics.js-integration@^3.3.0", "@segment/analytics.js-integration@^3.3.2", "@segment/analytics.js-integration@^3.3.3", "@segment/analytics.js-integration@^3.x":
+"@segment/analytics.js-integration@^3.0.0", "@segment/analytics.js-integration@^3.1.0", "@segment/analytics.js-integration@^3.2.0", "@segment/analytics.js-integration@^3.2.1", "@segment/analytics.js-integration@^3.3.0", "@segment/analytics.js-integration@^3.3.2", "@segment/analytics.js-integration@^3.3.3":
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/@segment/analytics.js-integration/-/analytics.js-integration-3.3.3.tgz#c8fb06747f0864f931c3d0a16f014d9b0e726ec2"
   integrity sha512-RpUQBSE2wH/ovVrT1b0dTesalLZer7iX21p2TDaM+8mhi4M91HdqK4nOtE/Ny5+GAYU4v7LvTfvb9zgTC34rPA==
@@ -2872,11 +2872,6 @@ array-differ@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/array-differ/-/array-differ-1.0.0.tgz#eff52e3758249d33be402b8bb8e564bb2b5d4031"
   integrity sha1-7/UuN1gknTO+QCuLuOVkuytdQDE=
-
-array-filter@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/array-filter/-/array-filter-1.0.0.tgz#baf79e62e6ef4c2a4c0b831232daffec251f9d83"
-  integrity sha1-uveeYubvTCpMC4MSMtr/7CUfnYM=
 
 array-filter@~0.0.0:
   version "0.0.1"
@@ -9070,11 +9065,6 @@ is-wsl@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/is-wsl/-/is-wsl-1.1.0.tgz#1f16e4aa22b04d1336b66188a66af3c600c3a66d"
   integrity sha1-HxbkqiKwTRM2tmGIpmrzxgDDpm0=
-
-is@3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/is/-/is-3.2.1.tgz#d0ac2ad55eb7b0bec926a5266f6c662aaa83dca5"
-  integrity sha1-0Kwq1V63sL7JJqUmb2xmKqqD3KU=
 
 is@^3.0.1, is@^3.1.0, is@^3.2.1, is@^3.3.0:
   version "3.3.0"

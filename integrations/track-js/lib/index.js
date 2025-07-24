@@ -1,12 +1,21 @@
 'use strict';
 
+const defaults = (obj, defaults) => {
+  const result = { ...defaults };
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+};
+
 /**
  * Module dependencies.
  */
 
 var integration = require('@segment/analytics.js-integration');
 var is = require('is');
-var defaults = require('@ndhoule/defaults');
 
 /**
  * Expose `TrackJS`.
