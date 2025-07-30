@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-google-analytics",
   "description": "The Google Analytics analytics.js integration.",
-  "version": "2.18.5",
+  "version": "2.18.6",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -24,7 +24,6 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/defaults": "^2.0.1",
     "@segment/analytics.js-integration": "^3.1.0",
     "component-each": "^0.2.6",
     "extend": "^3.0.2",

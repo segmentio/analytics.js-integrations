@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-intercom",
   "description": "The Intercom analytics.js integration.",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@ndhoule/clone": "^1.0.0",
-    "@ndhoule/defaults": "^2.0.1",
     "@ndhoule/each": "^2.0.1",
     "@ndhoule/extend": "^2.0.0",
     "@ndhoule/foldl": "^2.0.1",

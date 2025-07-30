@@ -1,11 +1,20 @@
 'use strict';
 
+const defaults = (obj, defaults) => {
+  const result = { ...defaults };
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+};
+
 /**
  * Module dependencies.
  */
 
 var Track = require('segmentio-facade').Track;
-var defaults = require('@ndhoule/defaults');
 var dot = require('obj-case');
 var each = require('component-each');
 var integration = require('@segment/analytics.js-integration');

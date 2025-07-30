@@ -1,5 +1,15 @@
 'use strict';
 
+const defaults = (obj, defaults) => {
+  const result = { ...defaults };
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+};
+
 /**
  * Module dependencies.
  */
@@ -9,7 +19,6 @@ var when = require('do-when');
 var reject = require('reject');
 var json = JSON;
 var is = require('is');
-var defaults = require('@ndhoule/defaults');
 
 /**
  * Expose `Parsely` integration.
