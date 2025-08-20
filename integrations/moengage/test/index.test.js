@@ -34,6 +34,7 @@ describe('MoEngage', function() {
       integration('MoEngage')
         .option('apiKey', '')
         .option('debugMode', false)
+        .option('cluster', undefined)
     );
   });
 
