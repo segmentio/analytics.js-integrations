@@ -11,7 +11,7 @@ var when = require('do-when');
 var Wigzo = (module.exports = integration('Wigzo')
   .global('wigzo')
   .option('orgToken', '')
-  .tag('tracker', '<script src="https://app.wigzo.com/wigzo.compressed.js">'));
+  .tag('tracker', '<script defer src="https://app.wigzo.com/wigzo.compressed.js">'));
 
 /**
  * Initialize Wigzo
