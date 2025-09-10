@@ -60,6 +60,34 @@ describe('Hellobar', function() {
       analytics.load(hellobar, done);
     });
   });
+
+  describe('after loading', function() {
+    beforeEach(function(done) {
+      analytics.initialize();
+      analytics.page();
+      analytics.once('ready', done);
+    });
+
+    describe('#track', function() {
+      beforeEach(function() {
+        analytics.stub(window.hellobar.trigger, 'event');
+      });
+
+      it('should send trigger an event', function() {
+        analytics.track('event');
+        analytics.called(window.hellobar.trigger.event, 'event', {});
+      });
+
+      it('should send a trigger event and properties', function() {
+        analytics.track('event', {
+          property: true
+        });
+        analytics.called(window.hellobar.trigger.event, 'event', {
+          property: true
+        });
+      });
+    });
+  });
 });
 
 /**
