@@ -124,9 +124,11 @@ VWO.prototype.roots = function() {
   rootExperiments(function(err, data) {
     each(data, function(experimentId, variationName) {
       var uuid = window.VWO.data.vin.uuid;
+      var experimentName = window._vwo_exp[experimentId].name;
       var props = {
         experimentId: experimentId,
         variationName: variationName,
+        experimentName: experimentName,
         vwoUserId: uuid
       };
 
