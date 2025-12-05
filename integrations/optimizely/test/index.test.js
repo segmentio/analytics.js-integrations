@@ -546,7 +546,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Updated',
-          tags: {}
+          properties: {}
         });
       });
 
@@ -558,7 +558,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          tags: {
+          properties: {
             revenue: 999
           }
         });
@@ -573,7 +573,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Checkout Started',
-          tags: {
+          properties: {
             revenue: 999
           }
         });
@@ -830,7 +830,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Updated',
-          tags: {}
+          properties: {}
         });
       });
 
@@ -843,7 +843,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          tags: {
+          properties: {
             revenue: 999
           }
         });
@@ -858,7 +858,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Checkout Started',
-          tags: {
+          properties: {
             revenue: 999
           }
         });
@@ -1075,7 +1075,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'event',
-          tags: {}
+          properties: {}
         });
       });
 
@@ -1084,25 +1084,25 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'event_foo_bar',
-          tags: {}
+          properties: {}
         });
       });
 
-      it('should send all additional properties along as tags', function() {
+      it('should send all additional properties along as properties', function() {
         analytics.track('event', { id: 'c00lHa$h', name: 'jerry' });
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'event',
-          tags: { id: 'c00lHa$h', name: 'jerry' }
+          properties: { id: 'c00lHa$h', name: 'jerry' }
         });
       });
 
-      it('should change revenue to cents and include in tags', function() {
+      it('should change revenue to cents and include in properties', function() {
         analytics.track('Order Completed', { revenue: 9.99 });
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          tags: { revenue: 999 }
+          properties: { revenue: 999 }
         });
       });
 
@@ -1111,7 +1111,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          tags: { revenue: 53431 }
+          properties: { revenue: 53431 }
         });
       });
 
@@ -1223,7 +1223,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Viewed Home Page',
-          tags: {
+          properties: {
             name: 'Home',
             path: '/context.html',
             referrer: referrer,
@@ -1240,7 +1240,7 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Viewed Blog New Integration Page',
-          tags: {
+          properties: {
             name: 'New Integration',
             category: 'Blog',
             path: '/context.html',
