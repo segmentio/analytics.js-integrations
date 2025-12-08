@@ -2876,7 +2876,7 @@ array-differ@^1.0.0:
 array-filter@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/array-filter/-/array-filter-1.0.0.tgz#baf79e62e6ef4c2a4c0b831232daffec251f9d83"
-  integrity sha1-uveeYubvTCpMC4MSMtr/7CUfnYM=
+  integrity sha512-Ene1hbrinPZ1qPoZp7NSx4jQnh4nr7MtY78pHNb+yr8yHbxmTS7ChGW0a55JKA7TkRDeoQxK4GcJaCvBYplSKA==
 
 array-filter@~0.0.0:
   version "0.0.1"
@@ -9074,7 +9074,7 @@ is-wsl@^1.1.0:
 is@3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/is/-/is-3.2.1.tgz#d0ac2ad55eb7b0bec926a5266f6c662aaa83dca5"
-  integrity sha1-0Kwq1V63sL7JJqUmb2xmKqqD3KU=
+  integrity sha512-NgGnzF+/wucMxle6i32obg/UjUqQruwlJUtjBpDEMXNq8vPLuaf28U4q+yes1I6J89FoErr7kDtBGICoNaY7rQ==
 
 is@^3.0.1, is@^3.1.0, is@^3.2.1, is@^3.3.0:
   version "3.3.0"

@@ -1,7 +1,7 @@
 {
   "name": "@segment/analytics.js-integration-trackjs",
   "description": "The Trackjs analytics.js integration.",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "keywords": [
     "analytics.js",
     "analytics.js-integration",
@@ -24,7 +24,6 @@
     "url": "git+https://github.com/segmentio/analytics.js-integrations.git"
   },
   "dependencies": {
-    "@ndhoule/defaults": "^2.0.1",
     "@segment/analytics.js-integration": "^2.1.0",
     "is": "^3.1.0"
   },

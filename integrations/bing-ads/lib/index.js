@@ -34,7 +34,9 @@ Bing.prototype.initialize = function() {
   var consent = {
     ad_storage: self.options.adStorage || 'denied'
   };
-  window.uetq.push('consent', 'default', consent);
+  if (self.options.enableConsent) {
+    window.uetq.push('consent', 'default', consent);
+  }
 
   self.load(function() {
     var setup = {
@@ -64,7 +66,11 @@ Bing.prototype.loaded = function() {
  * @api public
  */
 
-Bing.prototype.page = function() {
+Bing.prototype.page = function(page) {
+  if (this.options.enableConsent) {
+    // eslint-disable-next-line no-use-before-define
+    updateConsent.call(this, page);
+  }
   window.uetq.push('pageLoad');
 };
 
@@ -87,29 +93,37 @@ Bing.prototype.track = function(track) {
   if (track.category()) event.ec = track.category();
   if (track.revenue()) event.gv = track.revenue();
 
-  var consent = {};
-
-  if (track.properties[this.options.adStoragePropertyMapping]) {
-    consent.ad_storage =
-      track.properties[this.options.adStoragePropertyMapping];
-  }
-
-  if (
-    track.context.consent.categoryPreferences[
-      this.options.adStorageConsentCategory
-    ]
-  ) {
-    consent.ad_storage =
-      track.context.consent.categoryPreferences[
-        this.options.adStorageConsentCategory
-      ] === true
-        ? 'granted'
-        : 'denied';
-  }
-
-  if (consent.length > 0) {
-    window.uetq.push('consent', 'update', consent);
+  if (this.options.enableConsent) {
+    // eslint-disable-next-line no-use-before-define
+    updateConsent.call(this, track);
   }
 
   window.uetq.push(event);
 };
+
+function updateConsent(event) {
+  var consent = {};
+
+  // If consent category is granted, set it immediately and return
+  if (
+    this.options.consentSettings &&
+    this.options.consentSettings.categories &&
+    this.options.consentSettings.categories.includes(
+      this.options.adStorageConsentCategory
+    )
+  ) {
+    consent.ad_storage = 'granted';
+    window.uetq.push('consent', 'update', consent);
+    return;
+  }
+
+  // Otherwise, try to get ad_storage value from propertiesPath
+  var adStorageMappingValue = event.proxy(
+    'properties.' + this.options.adStoragePropertyMapping
+  );
+
+  if (typeof adStorageMappingValue === 'string') {
+    consent.ad_storage = adStorageMappingValue.toLowerCase();
+    window.uetq.push('consent', 'update', consent);
+  }
+}
