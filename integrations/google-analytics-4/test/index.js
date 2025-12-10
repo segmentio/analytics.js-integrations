@@ -167,6 +167,14 @@ describe('Google Analytics 4', function () {
             analytics.initialize();
             analytics.deepEqual(toArray(window.ga4DataLayer[5]), ['set', 'allow_ad_personalization_signals', false])
         });
+
+        it('should set server_container_url for all measurement IDs', function () {
+            ga4.options.server_container_url = 'https://custom-server.example.com';
+            analytics.initialize();
+
+            analytics.equal(window.ga4DataLayer[1][2]['server_container_url'], 'https://custom-server.example.com')
+            analytics.equal(window.ga4DataLayer[2][2]['server_container_url'], 'https://custom-server.example.com')
+        });
     });
 
     describe('after loading', function () {

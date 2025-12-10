@@ -14,6 +14,7 @@ var GA4 = (module.exports = integration('Google Analytics 4')
   .global('ga4DataLayer')
   .option('measurementIds', [])
   .option('domain', 'www.googletagmanager.com')
+  .option('server_container_url', '')
   .option('cookieDomainName', 'auto')
   .option('cookiePrefix', '_ga')
   .option('cookieExpiration', 63072000)
@@ -113,8 +114,12 @@ GA4.prototype.initialize = function() {
      * Cookie Expiration
      * https://developers.google.com/analytics/devguides/collection/ga4/cookies-user-id#cookie_expiration
      */
-    cookie_expires: opts.cookieExpiration,
+    cookie_expires: opts.cookieExpiration
   };
+
+  if (opts.server_container_url) {
+    config.server_container_url = opts.server_container_url;
+  }
 
   var sets = [
     /**
@@ -138,7 +143,7 @@ GA4.prototype.initialize = function() {
 
   // Load gtag.js using the first measurement ID, then configure using the `config` commands built above.
   var self = this;
-  this.load({ measurementId: measurementIds[0], ...( opts.domain ? { domain: opts.domain } : { domain: 'www.googletagmanager.com' }) }, function() {
+  this.load({ measurementId: measurementIds[0], domain: opts.domain }, function() {
     /**
      * Measurement IDs.
      * The same configuration information is shared across all measurement IDs.
