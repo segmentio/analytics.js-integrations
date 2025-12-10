@@ -96,6 +96,14 @@ describe('Google Analytics 4', function () {
                 analytics.called(ga4.load)
                 analytics.loaded('<script src="http://www.googletagmanager.com/gtag/js?id=G-100&l=ga4DataLayer"></script>')
             });
+
+            it('should load gtag.js with custom domain', function () {
+                ga4.options.domain = "custom";
+
+                analytics.initialize();
+                analytics.called(ga4.load)
+                analytics.loaded('<script src="http://custom/gtag/js?id=G-100&l=ga4DataLayer"></script>')
+            });
         });
     });
 
