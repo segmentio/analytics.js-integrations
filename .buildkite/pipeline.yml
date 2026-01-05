@@ -74,7 +74,7 @@ steps:
           s3_bucket_name: "segment-buildkite-cache"
 
   - label: ":cloud: Publish"
-    branches: master
+#    branches: master
     commands:
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn lerna publish from-package --yes --no-verify-access
