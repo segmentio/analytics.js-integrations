@@ -1,5 +1,5 @@
 {
-  "name": "analytics.js-integration-crisp",
+  "name": "@segment/analytics.js-integration-crisp",
   "description": "The Crisp analytics.js integration.",
   "version": "3.0.0",
   "keywords": [
