@@ -163,6 +163,30 @@ describe('HubSpot', function() {
         ]);
       });
 
+      it('should map reserved address trait to hubspot contact properties', function() {
+        analytics.identify({
+          email: 'name@example.com',
+          address: {
+            city: 'Melbourne',
+            country: 'Australia',
+            postalCode: '3121',
+            state: 'Richmond',
+            street: 'Stewart St'
+          }
+        });
+        analytics.called(window._hsq.push, [
+          'identify',
+          {
+            email: 'name@example.com',
+            address: 'Stewart St',
+            city: 'Melbourne',
+            country: 'Australia',
+            state: 'Richmond',
+            zip: '3121'
+          }
+        ]);
+      });
+
       it('should convert dates to milliseconds', function() {
         var date = new Date();
         analytics.identify({
