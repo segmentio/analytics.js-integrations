@@ -48,7 +48,6 @@ describe('Mixpanel', function() {
         .option('nameTag', true)
         .option('pageview', false)
         .option('people', false)
-        .option('token', '')
         .option('trackAllPages', false)
         .option('persistence', 'cookie')
         .option('trackNamedPages', false)
