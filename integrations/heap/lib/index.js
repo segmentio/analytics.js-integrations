@@ -21,6 +21,7 @@ var toString = Object.prototype.toString; // in case this method has been overri
 var Heap = (module.exports = integration('Heap')
   .global('heap')
   .option('appId', '')
+  .option('blacklistedTraits', [])
   .tag('<script src="//cdn.heapanalytics.com/js/heap-{{ appId }}.js">'));
 
 /**
@@ -89,7 +90,7 @@ Heap.prototype.identify = function(identify) {
   var traits = identify.traits({ email: '_email' });
   var id = identify.userId();
   if (id) window.heap.identify(id);
-  window.heap.addUserProperties(clean(traits));
+  window.heap.addUserProperties(clean(traits, this.options.blacklistedTraits));
 };
 
 /**
@@ -113,11 +114,15 @@ Heap.prototype.track = function(track) {
  * @api private
  */
 
-function clean(obj) {
+function clean(obj, blacklist) {
   var ret = {};
+  var filteredFields = [];
+  if (Array.isArray(blacklist) && blacklist.length > 0) {
+    filteredFields = blacklist;
+  }
 
   for (var k in obj) {
-    if (obj.hasOwnProperty(k)) {
+    if (obj.hasOwnProperty(k) && filteredFields.indexOf(k) === -1) {
       var value = obj[k];
       // Heap's natively library will drop null and undefined properties anyway
       // so no need to send these
