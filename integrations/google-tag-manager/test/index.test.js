@@ -33,7 +33,7 @@ describe('Google Tag Manager', function() {
     analytics.compare(
       GTM,
       integration('Google Tag Manager')
-        .global('dataLayer')
+        .option('queueName', 'dataLayer')
         .option('containerId', '')
         .option('environment', '')
         .option('trackNamedPages', true)
@@ -42,7 +42,23 @@ describe('Google Tag Manager', function() {
   });
 
   describe('loading', function() {
+    afterEach(function() {
+      analytics.restore();
+      analytics.reset();
+      gtm.reset();
+      sandbox();
+    });
+
     it('should load', function(done) {
+      analytics.load(gtm, done);
+    });
+
+    it('should load with custom queue name', function(done) {
+      gtm.options = {
+        containerId: 'GTM-M8M29T',
+        environment: '',
+        queueName: 'myDataLayer'
+      };
       analytics.load(gtm, done);
     });
   });
@@ -51,7 +67,8 @@ describe('Google Tag Manager', function() {
     beforeEach(function(done) {
       options = {
         containerId: 'GTM-M8M29T',
-        environment: ''
+        environment: '',
+        queueName: 'myDataLayer'
       };
       analytics.once('ready', done);
       analytics.initialize();
@@ -59,7 +76,7 @@ describe('Google Tag Manager', function() {
     });
 
     it('should push initial gtm.start event', function() {
-      var dl = window.dataLayer;
+      var dl = window[gtm.options.queueName];
       analytics.assert(dl);
       analytics.assert(dl[0].event === 'gtm.js');
       analytics.assert(typeof dl[0]['gtm.start'] === 'number');
@@ -67,13 +84,13 @@ describe('Google Tag Manager', function() {
 
     describe('#track', function() {
       beforeEach(function() {
-        analytics.stub(window.dataLayer, 'push');
+        analytics.stub(window[gtm.options.queueName], 'push');
       });
 
       it('should send event', function() {
         var anonId = analytics.user().anonymousId();
         analytics.track('some-event');
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           segmentAnonymousId: anonId,
           event: 'some-event'
         });
@@ -83,7 +100,7 @@ describe('Google Tag Manager', function() {
         analytics.user().id('pablo');
         var anonId = analytics.user().anonymousId();
         analytics.track('some-event');
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           segmentAnonymousId: anonId,
           userId: 'pablo',
           event: 'some-event'
@@ -93,7 +110,7 @@ describe('Google Tag Manager', function() {
       it('should send anonymousId if it exists', function() {
         analytics.user().anonymousId('el');
         analytics.track('stranger things');
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           segmentAnonymousId: 'el',
           event: 'stranger things'
         });
@@ -102,7 +119,7 @@ describe('Google Tag Manager', function() {
       it('should send event with properties', function() {
         var anonId = analytics.user().anonymousId();
         analytics.track('event', { prop: true });
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           segmentAnonymousId: anonId,
           event: 'event',
           prop: true
@@ -112,19 +129,19 @@ describe('Google Tag Manager', function() {
 
     describe('#page', function() {
       beforeEach(function() {
-        analytics.stub(window.dataLayer, 'push');
+        analytics.stub(window[gtm.options.queueName], 'push');
       });
 
       it('should not track unamed pages by default', function() {
         analytics.page();
-        analytics.didNotCall(window.dataLayer.push);
+        analytics.didNotCall(window[gtm.options.queueName].push);
       });
 
       it('should track unamed pages if enabled', function() {
         gtm.options.trackAllPages = true;
         var anonId = analytics.user().anonymousId();
         analytics.page();
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           event: 'Loaded a Page',
           segmentAnonymousId: anonId,
           path: window.location.pathname,
@@ -143,7 +160,7 @@ describe('Google Tag Manager', function() {
       it('should track named pages by default', function() {
         var anonId = analytics.user().anonymousId();
         analytics.page('Name');
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           event: 'Viewed Name Page',
           segmentAnonymousId: anonId,
           name: 'Name',
@@ -163,7 +180,7 @@ describe('Google Tag Manager', function() {
       it('should track named pages with a category added', function() {
         var anonId = analytics.user().anonymousId();
         analytics.page('Category', 'Name');
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           event: 'Viewed Category Name Page',
           segmentAnonymousId: anonId,
           category: 'Category',
@@ -184,7 +201,7 @@ describe('Google Tag Manager', function() {
       it('should track categorized pages by default', function() {
         var anonId = analytics.user().anonymousId();
         analytics.page('Category', 'Name');
-        analytics.called(window.dataLayer.push, {
+        analytics.called(window[gtm.options.queueName].push, {
           event: 'Viewed Category Name Page',
           category: 'Category',
           segmentAnonymousId: anonId,
@@ -207,7 +224,7 @@ describe('Google Tag Manager', function() {
         gtm.options.trackCategorizedPages = false;
         analytics.page('Name');
         analytics.page('Category', 'Name');
-        analytics.didNotCall(window.dataLayer.push);
+        analytics.didNotCall(window[gtm.options.queueName].push);
       });
     });
   });
@@ -216,13 +233,16 @@ describe('Google Tag Manager', function() {
     it('should use the right tag if the environment option is set', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
-        environment: 'test'
+        environment: 'test',
+        queueName: 'customDataLayer'
       };
 
       var tag =
         '<script src="http://www.googletagmanager.com/gtm.js?id=' +
         gtm.options.containerId +
-        '&l=dataLayer&gtm_preview=' +
+        '&l=' +
+        gtm.options.queueName +
+        '&gtm_preview=' +
         gtm.options.environment +
         '">';
       analytics.spy(gtm, 'load');
