@@ -1,3 +1,8 @@
+2.18.6 / 2021-11-29
+===================
+
+* Adds the option to set secure cookies by using cookieFlags
+
 2.18.4 / 2020-12-14
 ===================
 
