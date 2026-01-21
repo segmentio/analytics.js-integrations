@@ -18,6 +18,7 @@ var find = require('obj-case').find;
 var MoEngage = (module.exports = integration('MoEngage')
   .option('apiKey', '')
   .option('debugMode', false)
+  .option('cluster', undefined)
   .tag(
     '<script src="https://cdn.moengage.com/webpush/moe_webSdk.min.latest.js">'
   ));
@@ -76,7 +77,8 @@ MoEngage.prototype.initialize = function() {
     when(self.loaded, function() {
       self._client = window.moe({
         app_id: self.options.apiKey,
-        debug_logs: self.options.debugMode ? 1 : 0
+        debug_logs: self.options.debugMode ? 1 : 0,
+        cluster: self.options.cluster
       });
       // we need to store the current anonymousId for later use in `.identify()` to check if it's a new/existing user
       self.initializedAnonymousId = self.analytics.user().anonymousId();
