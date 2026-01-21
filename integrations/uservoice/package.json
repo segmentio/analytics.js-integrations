@@ -29,7 +29,7 @@
     "@segment/convert-dates": "^1.0.0",
     "do-when": "^1.0.0",
     "global-queue": "^1.0.1",
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.0",
     "to-unix-timestamp": "^1.0.1"
   },
   "devDependencies": {
