@@ -18,7 +18,7 @@ var Totango = (module.exports = integration('Totango')
   .assumesPageview()
   .global('totango')
   .global('totango_options')
-  .global('__totango3')
+  .global('__totango4.0.3')
   .option('disableHeartbeat', false)
   .option('serviceId', null)
   .option('trackNamedPages', true)
@@ -63,7 +63,7 @@ Totango.prototype.initialize = function(page) {
  */
 
 Totango.prototype.loaded = function() {
-  return !!window.__totango3;
+  return !!window.__totango4.0.3;
 };
 
 /**
