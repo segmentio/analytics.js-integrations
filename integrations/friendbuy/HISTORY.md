@@ -1,3 +1,9 @@
+1.1.0 / 2020-12-11
+==================
+
+  * Relay merchant-specific customer traits to the Friendbuy destination
+  * Fix pre-existing linting errors
+
 1.0.8 / 2020-12-14
 ===================
 
