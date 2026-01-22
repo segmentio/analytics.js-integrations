@@ -26,7 +26,8 @@ describe('Visual Website Optimizer', function() {
         comb_n: { 1: 'Variation' },
         combination_chosen: 1,
         ready: true,
-        type: 'VISUAL_AB'
+        type: 'VISUAL_AB',
+        name: 'Test Experiment'
       }
     };
     window._vis_opt_queue = [];
@@ -148,6 +149,7 @@ describe('Visual Website Optimizer', function() {
           {
             experimentId: '1',
             variationName: 'Variation',
+            experimentName: 'Test Experiment',
             vwoUserId: 1
           },
           {
@@ -246,6 +248,7 @@ describe('Visual Website Optimizer', function() {
           {
             experimentId: '1',
             variationName: 'Variation',
+            experimentName: 'Test Experiment',
             vwoUserId: 1,
             nonInteraction: 1
           },
@@ -307,6 +310,7 @@ describe('Visual Website Optimizer', function() {
           {
             experimentId: '1',
             variationName: 'Variation',
+            experimentName: 'Test Experiment',
             vwoUserId: 1
           },
           {
