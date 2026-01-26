@@ -36,6 +36,7 @@ describe('Google Tag Manager', function() {
         .global('dataLayer')
         .option('containerId', '')
         .option('environment', '')
+        .option('domain', 'www.googletagmanager.com')
         .option('trackNamedPages', true)
         .option('trackCategorizedPages', true)
     );
@@ -216,11 +217,67 @@ describe('Google Tag Manager', function() {
     it('should use the right tag if the environment option is set', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
-        environment: 'test'
+        environment: 'test',
+        domain: 'www.googletagmanager.com'
       };
 
       var tag =
         '<script src="http://www.googletagmanager.com/gtm.js?id=' +
+        gtm.options.containerId +
+        '&l=dataLayer&gtm_preview=' +
+        gtm.options.environment +
+        '">';
+      analytics.spy(gtm, 'load');
+      analytics.initialize();
+      analytics.page();
+      analytics.loaded(tag);
+    });
+  });
+
+  describe('domain options', function() {
+    it('should use default domain', function() {
+      gtm.options = {
+        containerId: 'GTM-M8M29T',
+        environment: '',
+        domain: 'www.googletagmanager.com'
+      };
+
+      var tag =
+        '<script src="http://www.googletagmanager.com/gtm.js?id=' +
+        gtm.options.containerId +
+        '&l=dataLayer">';
+      analytics.spy(gtm, 'load');
+      analytics.initialize();
+      analytics.page();
+      analytics.loaded(tag);
+    });
+
+    it('should use custom domain when specified', function() {
+      gtm.options = {
+        containerId: 'GTM-M8M29T',
+        environment: '',
+        domain: 'custom.example.com'
+      };
+
+      var tag =
+        '<script src="http://custom.example.com/gtm.js?id=' +
+        gtm.options.containerId +
+        '&l=dataLayer">';
+      analytics.spy(gtm, 'load');
+      analytics.initialize();
+      analytics.page();
+      analytics.loaded(tag);
+    });
+
+    it('should use custom domain with environment option', function() {
+      gtm.options = {
+        containerId: 'GTM-M8M29T',
+        environment: 'test',
+        domain: 'custom.example.com'
+      };
+
+      var tag =
+        '<script src="http://custom.example.com/gtm.js?id=' +
         gtm.options.containerId +
         '&l=dataLayer&gtm_preview=' +
         gtm.options.environment +
