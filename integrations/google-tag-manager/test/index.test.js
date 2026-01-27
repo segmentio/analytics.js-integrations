@@ -36,7 +36,7 @@ describe('Google Tag Manager', function() {
         .global('dataLayer')
         .option('containerId', '')
         .option('environment', '')
-        .option('domain', 'www.googletagmanager.com')
+        .option('fullURLpath', 'www.googletagmanager.com/gtm.js')
         .option('trackNamedPages', true)
         .option('trackCategorizedPages', true)
     );
@@ -218,7 +218,7 @@ describe('Google Tag Manager', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: 'test',
-        domain: 'www.googletagmanager.com'
+        fullURLpath: 'www.googletagmanager.com/gtm.js'
       };
 
       var tag =
@@ -239,7 +239,7 @@ describe('Google Tag Manager', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: '',
-        domain: 'www.googletagmanager.com'
+        fullURLpath: 'www.googletagmanager.com/gtm.js'
       };
 
       var tag =
@@ -256,11 +256,11 @@ describe('Google Tag Manager', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: '',
-        domain: 'custom.example.com'
+        fullURLpath: 'custom.example.com/somepath/blah.js'
       };
 
       var tag =
-        '<script src="http://custom.example.com/gtm.js?id=' +
+        '<script src="http://custom.example.com/somepath/blah.js?id=' +
         gtm.options.containerId +
         '&l=dataLayer">';
       analytics.spy(gtm, 'load');
@@ -273,11 +273,11 @@ describe('Google Tag Manager', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: 'test',
-        domain: 'custom.example.com'
+        fullURLpath: 'custom.example.com/somepath/blah.js'
       };
 
       var tag =
-        '<script src="http://custom.example.com/gtm.js?id=' +
+        '<script src="http://custom.example.com/somepath/blah.js?id=' +
         gtm.options.containerId +
         '&l=dataLayer&gtm_preview=' +
         gtm.options.environment +
