@@ -1,0 +1,18 @@
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  add_tag_job:
+    runs-on: ubuntu-latest
+    name: Add tag to PR
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install deps
+        run: cd ./.github/actions/add-tag && npm install
+      - name: Add tag to PR
+        uses: ./.github/actions/add-tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
