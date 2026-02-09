@@ -16,6 +16,7 @@ var GTM = (module.exports = integration('Google Tag Manager')
   .global('google_tag_manager')
   .option('containerId', '')
   .option('environment', '')
+  .option('fullURLpath', '')
   .option('trackNamedPages', true)
   .option('trackCategorizedPages', true)
   .tag(
@@ -24,8 +25,16 @@ var GTM = (module.exports = integration('Google Tag Manager')
   )
   .tag(
     'with-env',
+    '<script src="//{{ fullURLpath }}?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">'
+  ))
+  .tag(
+    'no-env-default-url',
+    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer">'
+  )
+  .tag(
+    'with-env-default-url',
     '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer&gtm_preview={{ environment }}">'
-  ));
+  );
 
 /**
  * Initialize.
@@ -38,10 +47,16 @@ var GTM = (module.exports = integration('Google Tag Manager')
 GTM.prototype.initialize = function() {
   push({ 'gtm.start': Number(new Date()), event: 'gtm.js' });
 
-  if (this.options.environment.length) {
-    this.load('with-env', this.options, this.ready);
+  if (this.options.fullURLpath && this.options.fullURLpath.length > 0) {
+    if (this.options.environment.length) {
+      this.load('with-env', this.options, this.ready);
+    } else {
+      this.load('no-env', this.options, this.ready);
+    }
+  } else if (this.options.environment.length) {
+    this.load('with-env-default-url', this.options, this.ready);
   } else {
-    this.load('no-env', this.options, this.ready);
+    this.load('no-env-default-url', this.options, this.ready);
   }
 };
 
