@@ -36,7 +36,7 @@ describe('Google Tag Manager', function() {
         .global('dataLayer')
         .option('containerId', '')
         .option('environment', '')
-        .option('fullURLpath', 'www.googletagmanager.com/gtm.js')
+        .option('fullURLpath', '')
         .option('trackNamedPages', true)
         .option('trackCategorizedPages', true)
     );
@@ -218,7 +218,7 @@ describe('Google Tag Manager', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: 'test',
-        fullURLpath: 'www.googletagmanager.com/gtm.js'
+        fullURLpath: ''
       };
 
       var tag =
@@ -235,7 +235,24 @@ describe('Google Tag Manager', function() {
   });
 
   describe('domain options', function() {
-    it('should use default domain', function() {
+    it('should use default domain even when fullURLPath field is set to empty string', function() {
+      gtm.options = {
+        containerId: 'GTM-M8M29T',
+        environment: '',
+        fullURLpath: ''
+      };
+
+      var tag =
+        '<script src="http://www.googletagmanager.com/gtm.js?id=' +
+        gtm.options.containerId +
+        '&l=dataLayer">';
+      analytics.spy(gtm, 'load');
+      analytics.initialize();
+      analytics.page();
+      analytics.loaded(tag);
+    });
+
+    it('should use default domain if default domain passed in fullURLPath setting', function() {
       gtm.options = {
         containerId: 'GTM-M8M29T',
         environment: '',
