@@ -19,7 +19,7 @@ steps:
           s3_bucket_name: "segment-buildkite-cache"
           save: true
       - docker#v3.3.0:
-          image: cimg/node:18.20-browsers
+          image: cimg/node:20.18-browsers
           user: root
           environment:
             - NPM_TOKEN
@@ -41,7 +41,7 @@ steps:
           s3_bucket_name: "segment-buildkite-cache"
           save: true
       - docker#v3.3.0:
-          image: cimg/node:18.20-browsers
+          image: cimg/node:20.18-browsers
           user: root
           environment:
             - NPM_TOKEN
