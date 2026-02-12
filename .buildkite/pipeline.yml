@@ -10,6 +10,7 @@ steps:
       queue: v1
     command:
       - apt-get update && apt-get install -y git
+      - echo "--- Debug git" && which git && git --version && pwd && ls -la .git
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test
@@ -54,6 +55,7 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
+      - apt-get update && apt-get install -y git
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test:ci
@@ -75,6 +77,7 @@ steps:
     branches: "master"
     soft_fail: true
     command:
+      - apt-get update && apt-get install -y git
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test-master:ci
