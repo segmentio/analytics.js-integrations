@@ -113,7 +113,7 @@ Optimizely.prototype.track = function(track) {
   var payload = {
     type: 'event',
     eventName: eventName,
-    tags: eventProperties
+    properties: eventProperties
   };
 
   push(payload);
@@ -132,7 +132,7 @@ Optimizely.prototype.track = function(track) {
         eventName,
         userId,
         attributes,
-        payload.tags
+        payload.properties
       );
     }
   }

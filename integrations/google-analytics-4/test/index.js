@@ -96,6 +96,14 @@ describe('Google Analytics 4', function () {
                 analytics.called(ga4.load)
                 analytics.loaded('<script src="http://www.googletagmanager.com/gtag/js?id=G-100&l=ga4DataLayer"></script>')
             });
+
+            it('should load gtag.js with custom domain', function () {
+                ga4.options.domain = "custom";
+
+                analytics.initialize();
+                analytics.called(ga4.load)
+                analytics.loaded('<script src="http://custom/gtag/js?id=G-100&l=ga4DataLayer"></script>')
+            });
         });
     });
 
@@ -158,6 +166,14 @@ describe('Google Analytics 4', function () {
             ga4.options.allowAdvertisingPersonalization = false;
             analytics.initialize();
             analytics.deepEqual(toArray(window.ga4DataLayer[5]), ['set', 'allow_ad_personalization_signals', false])
+        });
+
+        it('should set server_container_url for all measurement IDs', function () {
+            ga4.options.server_container_url = 'https://custom-server.example.com';
+            analytics.initialize();
+
+            analytics.equal(window.ga4DataLayer[1][2]['server_container_url'], 'https://custom-server.example.com')
+            analytics.equal(window.ga4DataLayer[2][2]['server_container_url'], 'https://custom-server.example.com')
         });
     });
 
