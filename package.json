@@ -6,6 +6,7 @@
   "author": "Segment",
   "license": "See LICENSE",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "workspaces": [
     "integrations/*"
   ],
@@ -13,15 +14,17 @@
     "upload-assets": "node scripts/upload-assets.js",
     "lint": "lerna exec --since master --no-bail -- npx eslint . --ext .js",
     "test": "lerna run --concurrency 5 --since master test --stream -- --single-run --reporters summary --log-level error",
+    "test-master": "lerna run --concurrency 5 test --stream -- --single-run --reporters summary --log-level error",
     "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
+    "test-master:ci": "lerna run --concurrency 1 --stream test:ci -- --log-level error",
     "compile": "webpack --config webpack.config.integrations.js && webpack --config webpack.config.middleware.js",
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && rm -rf build && yarn compile",
-    "dev": "concurrently \"yarn --cwd tester serve\" \"webpack --config webpack.config.tester.js --watch\""
+    "dev": "export NODE_OPTIONS=--openssl-legacy-provider && concurrently \"yarn --cwd tester serve\" \"webpack --config webpack.config.tester.js --watch\""
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
-    "aws-sdk": "^2.760.0",
+    "@aws-sdk/client-s3": "3.988.0",
     "babel-loader": "^8.2.2",
     "chai": "4.2.0",
     "compression-webpack-plugin": "^6.0.1",

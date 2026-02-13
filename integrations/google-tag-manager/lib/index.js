@@ -21,7 +21,7 @@ var GTM = (module.exports = integration('Google Tag Manager')
   .option('trackCategorizedPages', true)
   .tag(
     'no-env',
-    '<script src="//www.googletagmanager.com/gtm.js?id={{ containerId }}&l=dataLayer">'
+    '<script src="//{{ fullURLpath }}?id={{ containerId }}&l=dataLayer">'
   )
   .tag(
     'with-env',
