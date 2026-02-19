@@ -24,7 +24,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
-    "aws-sdk": "^2.760.0",
+    "aws-sdk": "^2.1692.0",
     "babel-loader": "^8.2.2",
     "chai": "4.2.0",
     "compression-webpack-plugin": "^6.0.1",
