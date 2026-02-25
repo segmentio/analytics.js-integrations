@@ -9,7 +9,6 @@ steps:
     agents:
       queue: v1
     command:
-      - apt-get update && apt-get install -y git
       - git config --global --add safe.directory $(pwd)
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
