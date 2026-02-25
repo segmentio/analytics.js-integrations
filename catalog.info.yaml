@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: analytics.js-integrations
+  description: Stores the majority of the analytics.js integrations that Segment currently supports. It is organized as a monorepo with each individual integration packaged and deployed as their own npm modules.
+  annotations:
+    github.com/project-slug: segmentio/analytics.js-integrations
+    buildkite.com/project-slug: segment/analytics.js-integrations
+  tags:
+    - javascript
+  links:
+    - title: "SDD: Standalone Analytics.JS integrations"
+      url: https://paper.dropbox.com/doc/SDD-Standalone-Analytics.JS-integrations--BrdlOYLvTr4KBdIxpqnrxWSbAg-FEtbvw27SuNaBCdj4GUeA
+spec:
+  type: library
+  lifecycle: production
+  owner: data-activation-blr
