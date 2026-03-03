@@ -9,7 +9,6 @@ steps:
     agents:
       queue: v1
     command:
-      - git config --global --add safe.directory $(pwd)
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test
@@ -32,8 +31,6 @@ steps:
     agents:
       queue: v1
     command:
-      - apt-get update && apt-get install -y git
-      - git config --global --add safe.directory $(pwd)
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test-master
@@ -55,8 +52,6 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
-      - apt-get update && apt-get install -y git
-      - git config --global --add safe.directory $(pwd)
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test:ci
@@ -78,8 +73,6 @@ steps:
     branches: "master"
     soft_fail: true
     command:
-      - apt-get update && apt-get install -y git
-      - git config --global --add safe.directory $(pwd)
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test-master:ci
