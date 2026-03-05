@@ -9,6 +9,7 @@ steps:
     agents:
       queue: v1
     command:
+      - git config --global --add safe.directory $(pwd)
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test
@@ -19,11 +20,11 @@ steps:
           s3_bucket_name: "segment-buildkite-cache"
           save: true
       - docker#v3.3.0:
-          image: circleci/node:12.18-browsers
+          image: cimg/node:20.18-browsers
           user: root
           environment:
             - NPM_TOKEN
-            - CHROME-BIN=google-chrome
+            - CHROME_BIN=google-chrome
 
   - label: ":hammer: Build and Test Master"
     key: "build_master"
@@ -31,6 +32,8 @@ steps:
     agents:
       queue: v1
     command:
+      - apt-get update && apt-get install -y git
+      - git config --global --add safe.directory $(pwd)
       - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test-master
@@ -41,11 +44,11 @@ steps:
           s3_bucket_name: "segment-buildkite-cache"
           save: true
       - docker#v3.3.0:
-          image: circleci/node:12.18-browsers
+          image: cimg/node:20.18-browsers
           user: root
           environment:
             - NPM_TOKEN
-            - CHROME-BIN=google-chrome
+            - CHROME_BIN=google-chrome
 
   - label: "SauceLabs"
     key: "sauce_labs"
