@@ -160,6 +160,73 @@ describe('MoEngage', function() {
         analytics.didNotCall(moengage._client.destroy_session);
         analytics.called(moengage._client.add_unique_user_id, 'drogon');
       });
+
+      describe('trait mapping with different case conventions', function() {
+        it('should map firstName variations (camelCase, snake_case, kebab-case)', function() {
+          analytics.identify('user1', { firstName: 'Jon' });
+          analytics.called(moengage._client.add_first_name, 'Jon');
+          
+          analytics.identify('user2', { first_name: 'Arya' });
+          analytics.called(moengage._client.add_first_name, 'Arya');
+          
+          analytics.identify('user3', { 'first-name': 'Sansa' });
+          analytics.called(moengage._client.add_first_name, 'Sansa');
+        });
+
+        it('should map lastName variations (camelCase, snake_case, kebab-case)', function() {
+          analytics.identify('user1', { lastName: 'Snow' });
+          analytics.called(moengage._client.add_last_name, 'Snow');
+          
+          analytics.identify('user2', { last_name: 'Stark' });
+          analytics.called(moengage._client.add_last_name, 'Stark');
+          
+          analytics.identify('user3', { 'last-name': 'Targaryen' });
+          analytics.called(moengage._client.add_last_name, 'Targaryen');
+        });
+
+        it('should map phone variations to add_mobile', function() {
+          analytics.identify('user1', { phone: '1234567890' });
+          analytics.called(moengage._client.add_mobile, '1234567890');
+          
+          analytics.identify('user2', { Phone: '0987654321' });
+          analytics.called(moengage._client.add_mobile, '0987654321');
+        });
+
+        it('should map email variations', function() {
+          analytics.identify('user1', { email: 'test@example.com' });
+          analytics.called(moengage._client.add_email, 'test@example.com');
+          
+          analytics.identify('user2', { Email: 'test2@example.com' });
+          analytics.called(moengage._client.add_email, 'test2@example.com');
+        });
+
+        it('should map gender variations', function() {
+          analytics.identify('user1', { gender: 'male' });
+          analytics.called(moengage._client.add_gender, 'male');
+          
+          analytics.identify('user2', { Gender: 'female' });
+          analytics.called(moengage._client.add_gender, 'female');
+        });
+
+        it('should map birthday variations', function() {
+          analytics.identify('user1', { birthday: '01/01/1990' });
+          analytics.called(moengage._client.add_birthday, '01/01/1990');
+          
+          analytics.identify('user2', { Birthday: '12/31/1985' });
+          analytics.called(moengage._client.add_birthday, '12/31/1985');
+        });
+
+        it('should map username variations (camelCase, snake_case, kebab-case)', function() {
+          analytics.identify('user1', { userName: 'johndoe' });
+          analytics.called(moengage._client.add_user_name, 'johndoe');
+          
+          analytics.identify('user2', { user_name: 'janedoe' });
+          analytics.called(moengage._client.add_user_name, 'janedoe');
+          
+          analytics.identify('user3', { 'user-name': 'bobsmith' });
+          analytics.called(moengage._client.add_user_name, 'bobsmith');
+        });
+      });
     });
 
     describe('#track', function() {
