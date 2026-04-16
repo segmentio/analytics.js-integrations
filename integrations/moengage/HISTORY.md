@@ -3,6 +3,16 @@
 
   * Fixed issue in user attribute tracking related to obj-case find method
 
+1.0.8 / 2021-09-28
+==================
+
+  * Fixed session reset handling on user ID change
+
+1.0.7 / 2021-06-03
+==================
+
+  * Pinned analytics.js-integration dependency for Analytics 2.0 compatibility
+
 1.0.6 / 2019-01-07
 ==================
 

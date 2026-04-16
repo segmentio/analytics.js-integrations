@@ -127,7 +127,8 @@ MoEngage.prototype.identify = function(identify) {
       // MoEngage asked to map `name` to `add_user_name` for their existing user base
       if (identify.name()) self._client.add_user_name(identify.name());
       if (identify.name() && identify.username())
-        return self._client.add_user_attribute('username', identify.username()); // if they are sending `traits.name` as a semantic trait, there's no other way to get username other than as a custom user attribute
+        self._client.add_user_attribute('username', identify.username()); // if they are sending `traits.name` as a semantic trait, there's no other way to get username other than as a custom user attribute
+      return; // prevent the generic semantic-trait mapping below from calling add_user_name a second time
     }
     // check if there are sendable semantic traits
     var mappedValue = find(traitsMethodMap, key);
