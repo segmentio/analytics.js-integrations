@@ -16,6 +16,12 @@ https://segment.atlassian.net/wiki/spaces/GRC/pages/453935287/Reinforcing+Change
 
 --->
 
+**Existing Unit Tests**
+
+Since the existing unit tests for several integrations are not in good shape, developers are expected to fix
+them for the integration they are working/touch on.
+Please ensure the following before submitting a PR:
+- [ ] Fixed all the existing unit tests for the integration touched.
 
 **Any background context you want to provide?**
 
