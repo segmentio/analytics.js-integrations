@@ -1,3 +1,8 @@
+1.0.9 / 2026-03-26
+==================
+
+  * Fixed issue in user attribute tracking related to obj-case find method
+
 1.0.6 / 2019-01-07
 ==================
 

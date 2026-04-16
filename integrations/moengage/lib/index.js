@@ -130,10 +130,10 @@ MoEngage.prototype.identify = function(identify) {
         return self._client.add_user_attribute('username', identify.username()); // if they are sending `traits.name` as a semantic trait, there's no other way to get username other than as a custom user attribute
     }
     // check if there are sendable semantic traits
-    if (find(traitsMethodMap, key)) {
-      var method = 'add_' + traitsMethodMap[key];
-      var trait = identify[key]();
-      self._client[method](trait);
+    var mappedValue = find(traitsMethodMap, key);
+    if (mappedValue) {
+      var method = 'add_' + mappedValue;
+      self._client[method](value);
     }
   }, traits);
 
