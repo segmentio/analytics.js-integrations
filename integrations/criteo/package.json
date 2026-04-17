@@ -31,8 +31,7 @@
     "is": "^3.2.1",
     "is-email": "^1.0.1",
     "md5": "^2.2.1",
-    "obj-case": "^0.2.0",
-    "use-https": "^0.1.1"
+    "obj-case": "^0.2.0"
   },
   "devDependencies": {
     "@segment/analytics.js-core": "^3.8.2",
