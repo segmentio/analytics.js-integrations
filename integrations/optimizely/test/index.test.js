@@ -1229,7 +1229,7 @@ describe('Optimizely', function() {
             referrer: referrer,
             search: '',
             title: '',
-            url: 'http://localhost:9876/context.html'
+            url: window.location.href
           }
         });
       });
@@ -1239,7 +1239,7 @@ describe('Optimizely', function() {
         analytics.page('Blog', 'New Integration');
         analytics.called(window.optimizely.push, {
           type: 'event',
-          eventName: 'Viewed Blog New Integration Page',
+          eventName: 'Viewed Blog Page',
           properties: {
             name: 'New Integration',
             category: 'Blog',
@@ -1247,7 +1247,7 @@ describe('Optimizely', function() {
             referrer: referrer,
             search: '',
             title: '',
-            url: 'http://localhost:9876/context.html'
+            url: window.location.href
           }
         });
       });
