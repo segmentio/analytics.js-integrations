@@ -1,3 +1,7 @@
+2.1.2 / 2020-09-04
+==================
+
+  * Add a blacklist to prevent sending the configured traits in the addUserProperties call
 
 2.1.1 / 2018-07-06
 ==================
