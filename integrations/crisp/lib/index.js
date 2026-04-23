@@ -33,6 +33,14 @@ Crisp.prototype.initialize = function() {
  * Load
  */
 Crisp.prototype.load = function(done) {
+  if (window.$crisp) {
+    return;
+  }
+
+  if (!this.options.websiteId) {
+    return;
+  }
+
   window.CRISP_WEBSITE_ID = this.options.websiteId;
   window.$crisp = [];
 
