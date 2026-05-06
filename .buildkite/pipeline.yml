@@ -6,7 +6,6 @@ steps:
   - label: ":hammer: Build and Test"
     key: "build"
     branches: "!master"
-    branches: "!master"
     agents:
       queue: v1
     command:
@@ -47,40 +46,13 @@ steps:
           save: true
       - docker#v3.3.0:
           image: cimg/node:20.18-browsers
-          image: cimg/node:20.18-browsers
           user: root
           environment:
             - NPM_TOKEN
-            - CHROME_BIN=google-chrome
-
-  - label: ":hammer: Build and Test Master"
-    key: "build_master"
-    branches: "master"
-    agents:
-      queue: v1
-    command:
-      - apt-get update && apt-get install -y git
-      - git config --global --add safe.directory $(pwd)
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
-      - yarn install --frozen-lockfile
-      - yarn test-master
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: [ "node_modules/" ]
-          s3_bucket_name: "segment-buildkite-cache"
-          save: true
-      - docker#v3.3.0:
-          image: cimg/node:20.18-browsers
-          user: root
-          environment:
-            - NPM_TOKEN
-            - CHROME_BIN=google-chrome
             - CHROME_BIN=google-chrome
 
   - label: "SauceLabs"
     key: "sauce_labs"
-    branches: "!master"
     branches: "!master"
     soft_fail: true
     command:
@@ -126,7 +98,6 @@ steps:
             - SAUCE_ACCESS_KEY
 
   - wait: ~
-    depends_on: ["build_master", "sauce_labs_master"]
     depends_on: ["build_master", "sauce_labs_master"]
 
   - label: ":cloud: Upload Assets to stage bucket"
