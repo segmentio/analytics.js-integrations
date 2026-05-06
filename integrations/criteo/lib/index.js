@@ -29,8 +29,7 @@ var Criteo = (module.exports = integration('Criteo')
   .option('account', '')
   .option('homeUrl', '')
   .option('supportingUserData', {})
-  .option('supportingPageData', {})
-  .tag('<script src="//dynamic.criteo.com/js/ld/ld.js?a={{ account }}">'));
+  .option('supportingPageData', {}));
 
 /**
  * Initialize.
@@ -46,6 +45,21 @@ Criteo.prototype.initialize = function() {
   window.criteo_q.push({ event: 'setSiteType', type: getDeviceType() });
 
   this.load(this.ready);
+};
+
+/**
+ * Load the Criteo dynamic loader script into the <head>.
+ *
+ * @api private
+ * @param {Function} done
+ */
+
+Criteo.prototype.load = function(done) {
+  var script = document.createElement('script');
+  script.src = '//dynamic.criteo.com/js/ld/ld.js?a=' + this.options.account;
+  script.async = 1;
+  script.onload = done;
+  document.getElementsByTagName('head')[0].appendChild(script);
 };
 
 /**
