@@ -63,11 +63,25 @@ describe('Criteo', function() {
       });
 
       it('should load the dynamic loader script into the head', function() {
+        var head = document.getElementsByTagName('head')[0];
+        var originalAppendChild = head.appendChild.bind(head);
+        var appendedScript;
+        head.appendChild = function(el) {
+          appendedScript = el;
+          return originalAppendChild(el);
+        };
         criteo.load = Criteo.prototype.load;
         analytics.initialize();
-        var scripts = document.getElementsByTagName('head')[0].querySelectorAll('script[src*="dynamic.criteo.com"]');
-        analytics.assert(scripts.length > 0);
-        analytics.assert(scripts[0].src.indexOf('//dynamic.criteo.com/js/ld/ld.js?a=' + options.account) !== -1);
+        head.appendChild = originalAppendChild;
+        analytics.assert(appendedScript);
+        analytics.assert(
+          appendedScript.src.indexOf(
+            '//dynamic.criteo.com/js/ld/ld.js?a=' + options.account
+          ) !== -1
+        );
+        if (appendedScript.parentNode) {
+          appendedScript.parentNode.removeChild(appendedScript);
+        }
       });
 
       it('should track setSiteType for desktop', function() {

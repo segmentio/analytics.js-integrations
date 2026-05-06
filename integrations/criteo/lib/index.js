@@ -44,7 +44,11 @@ Criteo.prototype.initialize = function() {
   window.criteo_q.push({ event: 'setAccount', account: account });
   window.criteo_q.push({ event: 'setSiteType', type: getDeviceType() });
 
-  this.load(this.ready);
+  this.load(
+    function() {
+      this.ready();
+    }.bind(this)
+  );
 };
 
 /**
