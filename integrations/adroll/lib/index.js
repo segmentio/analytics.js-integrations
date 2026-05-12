@@ -26,7 +26,8 @@ var AdRoll = (module.exports = integration('AdRoll')
   .option('advId', '')
   .option('pixId', '')
   .option('_version', 2)
-  .tag('<script src="{{protocol}}://{{host}}/j/{{advId}}/roundtrip.js">')
+  .tag('http', '<script src="http://a.adroll.com/j/{{advId}}/roundtrip.js">')
+  .tag('https', '<script src="https://s.adroll.com/j/{{advId}}/roundtrip.js">')
   .mapping('events'));
 
 /**
@@ -41,13 +42,8 @@ AdRoll.prototype.initialize = function() {
   window.adroll_adv_id = this.options.advId;
   window.adroll_pix_id = this.options.pixId;
   window.__adroll_loaded = true;
-  var protocol = useHttps() ? 'https' : 'http';
-  var host = protocol === 'https' ? 's.adroll.com' : 'a.adroll.com';
-  this.load({
-    protocol: protocol,
-    host: host,
-    advId: this.options.advId
-  }, this.ready);
+  var name = useHttps() ? 'https' : 'http';
+  this.load(name, { advId: this.options.advId }, this.ready);
 };
 
 /**
