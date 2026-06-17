@@ -9,7 +9,7 @@ steps:
     agents:
       queue: v1
     command:
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test
     plugins:
