@@ -19,7 +19,7 @@ steps:
           s3_bucket_name: "segment-buildkite-cache"
           save: true
       - docker#v3.3.0:
-          image: circleci/node:12.18-browsers
+          image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:16.20.2-alpine
           user: root
           environment:
             - NPM_TOKEN
@@ -31,7 +31,7 @@ steps:
     agents:
       queue: general-039
     command:
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test-master
     plugins:
@@ -41,7 +41,7 @@ steps:
           s3_bucket_name: "segment-buildkite-cache"
           save: true
       - docker#v3.3.0:
-          image: circleci/node:12.18-browsers
+          image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:16.20.2-alpine
           user: root
           environment:
             - NPM_TOKEN
@@ -52,7 +52,7 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test:ci
     plugins:
@@ -73,7 +73,7 @@ steps:
     branches: "master"
     soft_fail: true
     command:
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test-master:ci
     plugins:
