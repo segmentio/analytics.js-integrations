@@ -1,0 +1,20 @@
+# CI-only compose file used by the docker-compose Buildkite plugin in the
+# "Build and Test" steps (.buildkite/pipeline.yml). It builds the Chromium CI
+# image from .buildkite/Dockerfile.ci and runs the Karma test suite in the
+# `app` service with the repo mounted at /workdir.
+#
+# Building locally (rather than pulling a pre-pushed image) avoids needing a
+# Segment ECR repo + push credentials on the locked-down agents.
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .buildkite/Dockerfile.ci
+    working_dir: /workdir
+    environment:
+      - NPM_TOKEN
+      - SAUCE_USERNAME
+      - SAUCE_ACCESS_KEY
+      - CHROME_BIN=/usr/bin/chromium-browser
