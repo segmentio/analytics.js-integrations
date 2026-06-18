@@ -9,9 +9,11 @@
 # Dependency install (yarn) and the npm auth token are supplied at run time so
 # the token never lands in an image layer.
 #
-# Twilio's base-alpine mirror publishes the 3.20 tag (same as integrations
-# PR #3439), which is what we point apk at to install Chromium without egress.
-ARG NODE_IMAGE=018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:16.20.2-alpine
+# Node 20 is required by @aws-sdk/client-s3 (engines: node >=20). We pin the
+# alpine3.20 variant so the OS matches the Twilio base-alpine/3.20 apk mirror
+# we copy repos/keys from below (same 3.20 tag as integrations PR #3439), which
+# is what we point apk at to install Chromium without egress.
+ARG NODE_IMAGE=018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:20.18-alpine3.20
 FROM ${NODE_IMAGE}
 
 # Replace the (unreachable) public Alpine repos/keys with the Twilio mirror.
