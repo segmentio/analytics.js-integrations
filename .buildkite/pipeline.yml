@@ -13,11 +13,6 @@ steps:
       - yarn install --frozen-lockfile
       - yarn test
     plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
-          save: true
       - docker#v3.3.0:
           image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:16.20.2-alpine
           user: root
@@ -46,48 +41,6 @@ steps:
           environment:
             - NPM_TOKEN
             - CHROME-BIN=google-chrome
-
-  - label: "SauceLabs"
-    key: "sauce_labs"
-    branches: "!master"
-    soft_fail: true
-    command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
-      - yarn test:ci
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
-      - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-          user: root
-          environment:
-            - NPM_TOKEN
-            - SAUCE_USERNAME
-            - SAUCE_ACCESS_KEY
-
-  - label: "SauceLabs Master"
-    key: "sauce_labs_master"
-    branches: "master"
-    soft_fail: true
-    command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
-      - yarn test-master:ci
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: [ "node_modules/" ]
-          s3_bucket_name: "segment-buildkite-cache"
-      - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-          user: root
-          environment:
-            - NPM_TOKEN
-            - SAUCE_USERNAME
-            - SAUCE_ACCESS_KEY
 
   - wait: ~
     depends_on: ["build_master", "sauce_labs_master"]
