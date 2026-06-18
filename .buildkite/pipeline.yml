@@ -38,8 +38,44 @@ steps:
           mount-checkout: true
           propagate-environment: true
 
+  - label: "SauceLabs"
+    key: "sauce_labs"
+    branches: "!master"
+    soft_fail: true
+    agents:
+      queue: general-039
+    command:
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
+      - yarn install --ignore-engines
+      - yarn test:ci
+    plugins:
+      # Runs in the same compose CI image. SAUCE_USERNAME / SAUCE_ACCESS_KEY are
+      # propagated into the container for karma-sauce-launcher (remote browsers).
+      - docker-compose#v5.12.1:
+          run: app
+          config: docker-compose-ci.yml
+          mount-checkout: true
+          propagate-environment: true
+
+  - label: "SauceLabs Master"
+    key: "sauce_labs_master"
+    branches: "master"
+    soft_fail: true
+    agents:
+      queue: general-039
+    command:
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
+      - yarn install --ignore-engines
+      - yarn test-master:ci
+    plugins:
+      - docker-compose#v5.12.1:
+          run: app
+          config: docker-compose-ci.yml
+          mount-checkout: true
+          propagate-environment: true
+
   - wait: ~
-    depends_on: ["build_master"]
+    depends_on: ["build_master", "sauce_labs_master"]
 
   - label: ":cloud: Upload Assets to stage bucket"
     branches: master staging

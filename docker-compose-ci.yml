@@ -15,4 +15,6 @@ services:
     working_dir: /workdir
     environment:
       - NPM_TOKEN
+      - SAUCE_USERNAME
+      - SAUCE_ACCESS_KEY
       - CHROME_BIN=/usr/bin/chromium-browser
