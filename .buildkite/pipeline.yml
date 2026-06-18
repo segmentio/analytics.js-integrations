@@ -13,12 +13,14 @@ steps:
       - yarn install --frozen-lockfile
       - yarn test
     plugins:
-      - docker#v3.3.0:
-          image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:16.20.2-alpine
-          user: root
-          environment:
-            - NPM_TOKEN
-            - CHROME-BIN=google-chrome
+      # Builds .buildkite/Dockerfile.ci (node + Chromium from the Twilio
+      # mirrors) and runs the command inside it. Replaces the bare docker
+      # plugin, whose image had no browser for Karma's ChromeHeadless tests.
+      - docker-compose#v5.12.1:
+          run: app
+          config: docker-compose-ci.yml
+          mount-checkout: true
+          propagate-environment: true
 
   - label: ":hammer: Build and Test Master"
     key: "build_master"
@@ -30,20 +32,14 @@ steps:
       - yarn install --frozen-lockfile
       - yarn test-master
     plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: [ "node_modules/" ]
-          s3_bucket_name: "segment-buildkite-cache"
-          save: true
-      - docker#v3.3.0:
-          image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:16.20.2-alpine
-          user: root
-          environment:
-            - NPM_TOKEN
-            - CHROME-BIN=google-chrome
+      - docker-compose#v5.12.1:
+          run: app
+          config: docker-compose-ci.yml
+          mount-checkout: true
+          propagate-environment: true
 
   - wait: ~
-    depends_on: ["build_master", "sauce_labs_master"]
+    depends_on: ["build_master"]
 
   - label: ":cloud: Upload Assets to stage bucket"
     branches: master staging
@@ -52,11 +48,6 @@ steps:
     command:
       - echo "--- Upload"
       - NODE_ENV=production ./.buildkite/upload.sh
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
 
   - label: ":cloud: Upload Assets to production bucket"
     branches: master
@@ -65,8 +56,3 @@ steps:
     command:
       - echo "--- Upload"
       - NODE_ENV=production ./.buildkite/publish.sh
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
