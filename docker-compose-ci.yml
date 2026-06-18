@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  chrome:
+    image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/selenium/standalone-chrome:126.0-20250808
+    environment:
+      - SE_NODE_MAX_SESSIONS=5
+    shm_size: '2gb'
+
+  test:
+    image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:22.18.0-bookworm
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - NPM_TOKEN
+      - SELENIUM_HOST=chrome
+    depends_on:
+      - chrome
+    command: sh -c "yarn install --frozen-lockfile && yarn ${TEST_COMMAND:-test}"

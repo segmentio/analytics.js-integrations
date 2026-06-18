@@ -15,7 +15,19 @@ module.exports = function(config) {
 
     reporters: ['spec'],
 
-    browsers: ['ChromeHeadless'],
+    customLaunchers: {
+      ChromeRemote: {
+        base: 'WebDriver',
+        config: {
+          hostname: process.env.SELENIUM_HOST || 'localhost',
+          port: 4444
+        },
+        browserName: 'chrome',
+        pseudoActivityInterval: 30000
+      }
+    },
+
+    browsers: ['ChromeRemote'],
 
     middleware: ['server'],
     failOnFailingTestSuite: false,

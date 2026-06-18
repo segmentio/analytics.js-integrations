@@ -1,3 +1,5 @@
+'use strict';
+
 var base = require('./karma.conf');
 var testName = require('./package.json').name;
 
