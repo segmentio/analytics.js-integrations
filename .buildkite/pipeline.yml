@@ -12,6 +12,8 @@ steps:
           run: test
           config: docker-compose-ci.yml
           mount-buildkite-agent: true
+          environment:
+            - SELENIUM_HOST=chrome
 
   - label: ":hammer: Build and Test Master"
     key: "build_master"

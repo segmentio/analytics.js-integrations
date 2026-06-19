@@ -19,7 +19,8 @@ module.exports = function(config) {
       ChromeRemote: {
         base: 'WebDriver',
         config: {
-          url: 'http://' + (process.env.SELENIUM_HOST || 'localhost') + ':4444/wd/hub'
+          hostname: process.env.SELENIUM_HOST || 'localhost',
+          port: 4444
         },
         browserName: 'chrome',
         pseudoActivityInterval: 30000
