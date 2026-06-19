@@ -5,7 +5,15 @@ services:
     image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/selenium/standalone-chrome:126.0-20250808
     environment:
       - SE_NODE_MAX_SESSIONS=5
+      - SE_SESSION_REQUEST_TIMEOUT=300
+      - SE_SESSION_RETRY_INTERVAL=5
     shm_size: '2gb'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 15s
 
   test:
     image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:22.18.0-bookworm
@@ -16,5 +24,6 @@ services:
       - NPM_TOKEN
       - SELENIUM_HOST=chrome
     depends_on:
-      - chrome
+      chrome:
+        condition: service_healthy
     command: sh -c "yarn install --frozen-lockfile && yarn ${TEST_COMMAND:-test}"
