@@ -15,19 +15,17 @@ module.exports = function(config) {
 
     reporters: ['spec'],
 
+    // Run headless Chrome with --no-sandbox: the CI container runs as root,
+    // where Chrome's sandbox refuses to start. CHROME_BIN points at the
+    // Chromium installed in .buildkite/Dockerfile.ci.
+    browsers: ['ChromeHeadlessNoSandbox'],
+
     customLaunchers: {
-      ChromeRemote: {
-        base: 'WebDriver',
-        config: {
-          hostname: process.env.SELENIUM_HOST || 'localhost',
-          port: 4444
-        },
-        browserName: 'chrome',
-        pseudoActivityInterval: 30000
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage']
       }
     },
-
-    browsers: ['ChromeRemote'],
 
     middleware: ['server'],
     failOnFailingTestSuite: false,

@@ -1,29 +1,18 @@
-version: '3.8'
+# CI-only compose file used by the docker-compose Buildkite plugin in the
+# "Build and Test" steps (.buildkite/pipeline.yml). It builds the Chromium CI
+# image from .buildkite/Dockerfile.ci and runs the Karma test suite in the
+# `app` service with the repo mounted at /workdir.
+#
+# Building locally (rather than pulling a pre-pushed image) avoids needing a
+# Segment ECR repo + push credentials on the locked-down agents.
+version: '3'
 
 services:
-  chrome:
-    image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/selenium/standalone-chrome:126.0-20250808
-    environment:
-      - SE_NODE_MAX_SESSIONS=5
-      - SE_SESSION_REQUEST_TIMEOUT=300
-      - SE_SESSION_RETRY_INTERVAL=5
-    shm_size: '2gb'
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-      start_period: 15s
-
-  test:
-    image: 018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:22.18.0-bookworm
-    working_dir: /app
-    volumes:
-      - .:/app
+  app:
+    build:
+      context: .
+      dockerfile: .buildkite/Dockerfile.ci
+    working_dir: /workdir
     environment:
       - NPM_TOKEN
-      - SELENIUM_HOST=chrome
-    depends_on:
-      chrome:
-        condition: service_healthy
-    command: sh -c "yarn install --frozen-lockfile && yarn ${TEST_COMMAND:-test}"
+      - CHROME_BIN=/usr/bin/chromium-browser

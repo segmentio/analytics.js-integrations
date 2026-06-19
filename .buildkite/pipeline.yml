@@ -1,97 +1,58 @@
+env:
+  SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr,saucelabs,npm-publish"
+  SEGMENT_BUILDKITE_IMAGE: "analytics-next-ci-agent"
+
 steps:
   - label: ":hammer: Build and Test"
     key: "build"
-    env:
-      COMPOSE_PROFILES: "ci"
     branches: "!master"
+    agents:
+      queue: general-039
     command:
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test
     plugins:
+      # Builds .buildkite/Dockerfile.ci (node + Chromium from the Twilio
+      # mirrors) and runs the command inside it. Replaces the bare docker
+      # plugin, whose image had no browser for Karma's ChromeHeadless tests.
       - docker-compose#v5.12.1:
-          run: test
+          run: app
           config: docker-compose-ci.yml
-          mount-buildkite-agent: true
-          environment:
-            - SELENIUM_HOST=chrome
+          mount-checkout: true
+          propagate-environment: true
 
   - label: ":hammer: Build and Test Master"
     key: "build_master"
     branches: "master"
-    env:
-      TEST_COMMAND: test-master
+    agents:
+      queue: general-039
     command:
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - yarn test-master
     plugins:
       - docker-compose#v5.12.1:
-          run: e2e-runner
+          run: app
           config: docker-compose-ci.yml
-          mount-buildkite-agent: true
-
-  - label: "SauceLabs"
-    key: "sauce_labs"
-    branches: "!master"
-    soft_fail: true
-    command:
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
-      - yarn test:ci
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
-      - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-          user: root
-          environment:
-            - NPM_TOKEN
-            - SAUCE_USERNAME
-            - SAUCE_ACCESS_KEY
-
-  - label: "SauceLabs Master"
-    key: "sauce_labs_master"
-    branches: "master"
-    soft_fail: true
-    command:
-      - npm config set "//registry.npmjs.org/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
-      - yarn test-master:ci
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: [ "node_modules/" ]
-          s3_bucket_name: "segment-buildkite-cache"
-      - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-          user: root
-          environment:
-            - NPM_TOKEN
-            - SAUCE_USERNAME
-            - SAUCE_ACCESS_KEY
+          mount-checkout: true
+          propagate-environment: true
 
   - wait: ~
-    depends_on: ["build_master", "sauce_labs_master"]
+    depends_on: ["build_master"]
 
   - label: ":cloud: Upload Assets to stage bucket"
     branches: master staging
+    agents:
+      queue: general-039
     command:
       - echo "--- Upload"
       - NODE_ENV=production ./.buildkite/upload.sh
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
 
   - label: ":cloud: Upload Assets to production bucket"
     branches: master
+    agents:
+      queue: general-039
     command:
       - echo "--- Upload"
       - NODE_ENV=production ./.buildkite/publish.sh
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
