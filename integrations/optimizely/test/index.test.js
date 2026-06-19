@@ -1125,6 +1125,38 @@ describe('Optimizely', function() {
           window.optimizelyClientInstance.track.restore();
         });
 
+        context(
+          'when the Optimizely.FullStackClientInstance option is present',
+          function() {
+            beforeEach(function() {
+              window.otherClientInstance = {};
+              analytics.stub(window.otherClientInstance, 'track');
+            });
+            it('should prefer the specified client instance over the global one', function() {
+              analytics.identify('user1');
+              analytics.track(
+                'event',
+                { purchasePrice: 9.99, property: 'foo' },
+                {
+                  Optimizely: {
+                    userId: 'user1',
+                    attributes: { country: 'usa' },
+                    FullStackClientInstance: window.otherClientInstance
+                  }
+                }
+              );
+              analytics.didNotCall(window.optimizelyClientInstance.track);
+              analytics.called(
+                window.otherClientInstance.track,
+                'event',
+                'user1',
+                { country: 'usa' },
+                { purchasePrice: 9.99, property: 'foo' }
+              );
+            });
+          }
+        );
+
         it('should send an event through the Optimizely X Fullstack JS SDK using the logged in user', function() {
           analytics.identify('user1');
           analytics.track('event', { purchasePrice: 9.99, property: 'foo' });
