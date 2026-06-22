@@ -36,7 +36,6 @@
     "fs-extra": "^9.0.1",
     "husky": "^4.3.8",
     "karma-chrome-launcher": "^3.1.0",
-    "karma-webdriver-launcher": "^1.0.8",
     "lerna": "^3.15.0",
     "lint-staged": "^8.2.1",
     "prettier": "^1.18.2",
