@@ -1,94 +1,96 @@
+agents:
+  queue: general-039
+
 env:
   SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr,saucelabs,npm-publish"
-  SEGMENT_BUILDKITE_IMAGE: "analytics-next-ci-agent"
+  NODE_BROWSER_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/node-browser:22"
+  AJS_CI_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci:latest"
+  CHROME_BIN: "/usr/bin/chromium-browser"
 
 steps:
   - label: ":hammer: Build and Test"
     key: "build"
     branches: "!master"
-    agents:
-      queue: general-039
     command:
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
+      - make build
       - yarn test
+      - buildkite-agent artifact upload 'build/**/*'
     plugins:
-      # Builds .buildkite/Dockerfile.ci (node + Chromium from the Twilio
-      # mirrors) and runs the command inside it. Replaces the bare docker
-      # plugin, whose image had no browser for Karma's ChromeHeadless tests.
-      - docker-compose#v5.12.1:
-          run: app
-          config: docker-compose-ci.yml
-          mount-checkout: true
-          propagate-environment: true
+    - docker#v5.12.0:
+        image: '${NODE_BROWSER_IMAGE}'
+        mount-ssh-agent: true
+        mount-buildkite-agent: true
+        propagate-environment: true
 
   - label: ":hammer: Build and Test Master"
     key: "build_master"
     branches: "master"
-    agents:
-      queue: general-039
     command:
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
+      - make build
       - yarn test-master
+      - buildkite-agent artifact upload 'build/**/*'
     plugins:
-      - docker-compose#v5.12.1:
-          run: app
-          config: docker-compose-ci.yml
-          mount-checkout: true
-          propagate-environment: true
+    - docker#v5.12.0:
+        image: '${NODE_BROWSER_IMAGE}'
+        mount-ssh-agent: true
+        mount-buildkite-agent: true
+        propagate-environment: true
 
   - label: "SauceLabs"
     key: "sauce_labs"
     branches: "!master"
     soft_fail: true
-    agents:
-      queue: general-039
     command:
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test:ci
     plugins:
-      # Runs in the same compose CI image. SAUCE_USERNAME / SAUCE_ACCESS_KEY are
-      # propagated into the container for karma-sauce-launcher (remote browsers).
-      - docker-compose#v5.12.1:
-          run: app
-          config: docker-compose-ci.yml
-          mount-checkout: true
+      - docker#v5.12.0:
+          image: '${NODE_BROWSER_IMAGE}'
+          mount-ssh-agent: true
           propagate-environment: true
 
   - label: "SauceLabs Master"
     key: "sauce_labs_master"
     branches: "master"
     soft_fail: true
-    agents:
-      queue: general-039
     command:
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test-master:ci
     plugins:
-      - docker-compose#v5.12.1:
-          run: app
-          config: docker-compose-ci.yml
-          mount-checkout: true
+      - docker#v5.12.0:
+          image: '${AJS_CI_IMAGE}'
+          mount-ssh-agent: true
           propagate-environment: true
 
-  - wait: ~
-    depends_on: ["build_master", "sauce_labs_master"]
-
-  - label: ":cloud: Upload Assets to stage bucket"
-    branches: master staging
-    agents:
-      queue: general-039
-    command:
-      - echo "--- Upload"
-      - NODE_ENV=production ./.buildkite/upload.sh
-
-  - label: ":cloud: Upload Assets to production bucket"
+  - label: ":cloud: Upload Assets to stage bucket (from master branch)"
     branches: master
-    agents:
-      queue: general-039
+    depends_on:
+      - "build_master"
+      - "sauce_labs_master"
     command:
       - echo "--- Upload"
-      - NODE_ENV=production ./.buildkite/publish.sh
+      - ./.buildkite/upload.sh
+
+  - label: ":cloud: Upload Assets to stage bucket (from staging branch)"
+    branches: staging
+    depends_on:
+      - "build"
+      - "sauce_labs"
+    command:
+      - echo "--- Upload"
+      - ./.buildkite/upload.sh
+
+  - label: ":cloud: Upload Assets to production bucket (from master branch)"
+    branches: master
+    depends_on:
+      - "build_master"
+      - "sauce_labs_master"
+    command:
+      - echo "--- Upload"
+      - ./.buildkite/publish.sh

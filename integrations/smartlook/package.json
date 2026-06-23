@@ -45,7 +45,6 @@
     "istanbul": "1.1.0-alpha.1",
     "karma": "^4.1.0",
     "karma-browserify": "^6.0.0",
-    "karma-webdriver-launcher": "^1.0.8",
     "karma-coverage": "^1.1.2",
     "karma-junit-reporter": "^1.2.0",
     "karma-mocha": "^1.3.0",

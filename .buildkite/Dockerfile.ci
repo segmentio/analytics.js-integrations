@@ -1,26 +1,5 @@
-# CI image for running the Karma/ChromeHeadless test suite on Twilio
-# locked-down agents (queue general-039). These agents have no public internet
-# egress, so:
-#   - the base node image is pulled from the Twilio ECR docker.io mirror
-#   - apk installs Chromium from the Twilio base-alpine mirror (the public
-#     dl-cdn.alpinelinux.org repos baked into the node image are unreachable)
-#
-# This image only provides the runtime (node + Chromium + build toolchain).
-# Dependency install (yarn) and the npm auth token are supplied at run time so
-# the token never lands in an image layer.
-#
-# This container only runs Karma/ChromeHeadless tests — upload scripts run on
-# the host agent and don't need Node 20. Node 16 LTS is mirrored in the Twilio
-# ECR; node:20.18.3-alpine is not (returns "not found" on general-039 agents).
-ARG NODE_IMAGE=018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:16.20.2-alpine
-FROM ${NODE_IMAGE}
+FROM registry.twilio.com/library/base-node/22:22
 
-# Replace the (unreachable) public Alpine repos/keys with the Twilio mirror.
-COPY --from=registry.twilio.com/library/base-alpine/3.20:3.20 /etc/apk/repositories /etc/apk/repositories
-COPY --from=registry.twilio.com/library/base-alpine/3.20:3.20 /etc/apk/keys/ /etc/apk/keys/
-
-# Chromium + the fonts/libs it needs to run headless, plus the toolchain some
-# native node deps require to build (node-gyp).
 RUN apk update && apk add --no-cache \
       chromium \
       nss \
@@ -29,22 +8,7 @@ RUN apk update && apk add --no-cache \
       ca-certificates \
       ttf-freefont \
       git \
+      openssh-client \
       python3 \
       g++ \
       make
-
-# Karma's ChromeHeadlessNoSandbox launcher resolves the browser via CHROME_BIN.
-ENV CHROME_BIN=/usr/bin/chromium-browser
-
-# Several integrations still list phantomjs-prebuilt as a devDependency. Its
-# postinstall downloads a binary from a public CDN, which is unreachable on the
-# no-egress agents and fails `yarn install`. phantomjs-prebuilt has no
-# skip-download flag, but its installer (tryPhantomjsOnPath) skips the download
-# when a `phantomjs` already on PATH reports the expected version (2.1.1). The
-# tests only ever launch ChromeHeadless (karma.conf.js) -- the phantom launcher
-# is an unused devDependency -- so a stub that just answers `--version` is
-# enough to satisfy the installer without ever running as a browser.
-RUN printf '#!/bin/sh\necho 2.1.1\n' > /usr/local/bin/phantomjs && \
-    chmod +x /usr/local/bin/phantomjs
-
-WORKDIR /workdir
