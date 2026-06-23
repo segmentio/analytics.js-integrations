@@ -25,13 +25,17 @@ export AWS_ACCESS_KEY_ID=$(echo "$CREDS" | awk '{print $1}')
 export AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | awk '{print $2}')
 export AWS_SESSION_TOKEN=$(echo "$CREDS" | awk '{print $3}')
 
-echo "--- Build and upload assets inside the CI image"
-docker compose -f docker-compose-ci.yml run --rm \
+echo "--- Download build artifacts"
+buildkite-agent artifact download 'build/**/*' .
+
+echo "--- Upload assets to S3"
+docker run --rm \
   --volume "$PWD:/workdir" --workdir /workdir \
-  -e NPM_TOKEN -e NODE_ENV \
+  -e NPM_TOKEN \
+  -e NPM_CONFIG_REGISTRY -e YARN_REGISTRY -e YARN_NPM_REGISTRY_SERVER \
   -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
-  app sh -e -c '
+  "${NODE_BROWSER_IMAGE}" sh -e -c '
     npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" "${NPM_TOKEN}"
     yarn install --frozen-lockfile
-    make build-and-upload
+    make upload-assets
   '

@@ -4,6 +4,7 @@ agents:
 env:
   SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr,saucelabs,npm-publish"
   NODE_BROWSER_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/node-browser:22"
+  AJS_CI_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci:latest"
   CHROME_BIN: "/usr/bin/chromium-browser"
 
 steps:
@@ -13,11 +14,14 @@ steps:
     command:
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
+      - make build
       - yarn test
+      - buildkite-agent artifact upload 'build/**/*'
     plugins:
     - docker#v5.12.0:
         image: '${NODE_BROWSER_IMAGE}'
         mount-ssh-agent: true
+        mount-buildkite-agent: true
         propagate-environment: true
 
   - label: ":hammer: Build and Test Master"
@@ -26,11 +30,14 @@ steps:
     command:
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
+      - make build
       - yarn test-master
+      - buildkite-agent artifact upload 'build/**/*'
     plugins:
     - docker#v5.12.0:
         image: '${NODE_BROWSER_IMAGE}'
         mount-ssh-agent: true
+        mount-buildkite-agent: true
         propagate-environment: true
 
   - label: "SauceLabs"
@@ -38,62 +45,52 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test:ci
     plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
-      - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-          user: root
-          environment:
-            - NPM_TOKEN
-            - SAUCE_USERNAME
-            - SAUCE_ACCESS_KEY
+      - docker#v5.12.0:
+          image: '${NODE_BROWSER_IMAGE}'
+          mount-ssh-agent: true
+          propagate-environment: true
 
   - label: "SauceLabs Master"
     key: "sauce_labs_master"
     branches: "master"
     soft_fail: true
     command:
+      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test-master:ci
     plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
-      - docker#v3.3.0:
-          image: 528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci
-          user: root
-          environment:
-            - NPM_TOKEN
-            - SAUCE_USERNAME
-            - SAUCE_ACCESS_KEY
+      - docker#v5.12.0:
+          image: '${AJS_CI_IMAGE}'
+          mount-ssh-agent: true
+          propagate-environment: true
 
-  - wait: ~
-    depends_on: ["build_master", "sauce_labs_master"]
-
-  - label: ":cloud: Upload Assets to stage bucket"
-    branches: master staging
-    command:
-      - echo "--- Upload"
-      - NODE_ENV=production ./.buildkite/upload.sh
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
-
-  - label: ":cloud: Upload Assets to production bucket"
+  - label: ":cloud: Upload Assets to stage bucket (from master branch)"
     branches: master
+    depends_on:
+      - "build_master"
+      - "sauce_labs_master"
     command:
       - echo "--- Upload"
-      - NODE_ENV=production ./.buildkite/publish.sh
-    plugins:
-      - ssh://git@github.com/segmentio/cache-buildkite-plugin#v1.0.0:
-          key: "v1-cache-dev-{{ checksum 'yarn.lock' }}"
-          paths: ["node_modules/"]
-          s3_bucket_name: "segment-buildkite-cache"
+      - ./.buildkite/upload.sh
+
+  - label: ":cloud: Upload Assets to stage bucket (from staging branch)"
+    branches: staging
+    depends_on:
+      - "build"
+      - "sauce_labs"
+    command:
+      - echo "--- Upload"
+      - ./.buildkite/upload.sh
+
+  - label: ":cloud: Upload Assets to production bucket (from master branch)"
+    branches: master
+    depends_on:
+      - "build_master"
+      - "sauce_labs_master"
+    command:
+      - echo "--- Upload"
+      - ./.buildkite/publish.sh
