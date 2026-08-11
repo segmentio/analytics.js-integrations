@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "--- ECR login: Segment (assume role)"
+CREDS=$(aws sts assume-role \
+  --role-arn "arn:aws:iam::528451384384:role/buildkite-agent" \
+  --role-session-name "buildkite-${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_NUMBER}" \
+  --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+  --output text)
+export AWS_ACCESS_KEY_ID=$(echo "$CREDS" | awk '{print $1}')
+export AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | awk '{print $2}')
+export AWS_SESSION_TOKEN=$(echo "$CREDS" | awk '{print $3}')
+aws --region us-west-2 ecr get-login-password \
+  | docker login --username AWS --password-stdin 528451384384.dkr.ecr.us-west-2.amazonaws.com
