@@ -327,7 +327,10 @@ Amplitude.prototype.orderCompleted = function(track) {
     function(product) {
       var price = product.price;
       var quantity = product.quantity;
+      // This will blow away our properties.  Make sure to retain revenue and revenueType.
       clonedTrack.properties = product;
+      clonedTrack.properties.revenue = track.properties().revenue;
+      clonedTrack.properties.revenueType = track.properties().revenueType;
       clonedTrack.event = 'Product Purchased';
       // Price and quantity are both required by Amplitude:
       // https://amplitude.zendesk.com/hc/en-us/articles/115001361248#tracking-revenue
@@ -480,9 +483,9 @@ function mapRevenueAttributes(track) {
   return {
     price: track.price(),
     productId: track.productId(),
-    revenueType:
-      track.proxy('properties.revenueType') ||
-      mapRevenueType[track.event().toLowerCase()],
+    revenueType: track.proxy('properties.revenueType')
+      ? track.proxy('properties.revenueType')
+      : mapRevenueType[track.event().toLowerCase()],
     quantity: track.quantity(),
     eventProps: track.properties(),
     revenue: track.revenue()
