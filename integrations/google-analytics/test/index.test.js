@@ -59,6 +59,7 @@ describe('Google Analytics', function() {
         .option('nameTracker', false)
         .option('sampleRate', 100)
         .option('resetCustomDimensionsOnPage', [])
+        .option('secureCookie', false)
     );
   });
 
@@ -650,6 +651,25 @@ describe('Google Analytics', function() {
             page: window.location.pathname,
             title: document.title
           });
+        });
+
+        it('should add cookieFlags if secureCookie is true', function() {
+          ga.options.secureCookie = true;
+          analytics.initialize();
+          analytics.assert(
+            window.ga.args[0][2].cookieFlags === 'SameSite=None;Secure'
+          );
+        });
+
+        it('should add not add cookieFlags if secureCookie is false', function() {
+          ga.options.secureCookie = false;
+          analytics.initialize();
+          analytics.assert(window.ga.args[0][2].cookieFlags === undefined);
+        });
+
+        it('should add not add cookieFlags if secureCookie is not declared', function() {
+          analytics.initialize();
+          analytics.assert(window.ga.args[0][2].cookieFlags === undefined);
         });
       });
 
