@@ -36,6 +36,15 @@ var optimizelyContext = {
 };
 
 /**
+ * Event tag keys that Optimizely reserves. These must be sent under `tags` so
+ * Optimizely can consume them (e.g. Classic identifies revenue from `tags`).
+ * Everything else is sent under `properties` so it populates as event
+ * properties downstream rather than as attributes.
+ */
+
+var reservedEventTags = ['revenue', 'value'];
+
+/**
  * Initialize.
  *
  * https://www.optimizely.com/docs/api#function-calls
@@ -77,6 +86,10 @@ Optimizely.prototype.initialize = function() {
  *   - Classic will correctly consume the tags object to identify the revenue
  *   - In bundled mode, it will be forwarded along to the X API with the entire payload
  *
+ * Optimizely's reserved event tags (`revenue` and `value`) are sent under `tags`;
+ * all other track properties are sent under `properties` so they populate as
+ * event properties downstream instead of as attributes.
+ *
  * If the Optimizely X Fullstack JavaScript SDK is being used we should pass along
  * the event to it. Any properties in the track object will be passed along as event tags.
  * If the userId is not passed into the options object of the track call, we'll
@@ -110,11 +123,28 @@ Optimizely.prototype.track = function(track) {
 
   // Use the new-style API (which is compatible with Classic and X)
   var eventName = track.event().replace(/:/g, '_'); // can't have colons so replacing with underscores
+
+  // Split the reserved tags out of the properties, leaving `tags` off the
+  // payload entirely when the event has none of them.
+  var eventTags = {};
+  var eventPayloadProperties = {};
+  each(function(value, key) {
+    if (reservedEventTags.indexOf(key) > -1) {
+      eventTags[key] = value;
+    } else {
+      eventPayloadProperties[key] = value;
+    }
+  }, eventProperties);
+
   var payload = {
     type: 'event',
     eventName: eventName,
-    properties: eventProperties
+    properties: eventPayloadProperties
   };
+
+  if (keys(eventTags).length) {
+    payload.tags = eventTags;
+  }
 
   push(payload);
 
@@ -128,11 +158,13 @@ Optimizely.prototype.track = function(track) {
       track.traits() ||
       this.analytics.user().traits();
     if (userId) {
+      // The Fullstack SDK takes revenue/value alongside custom tags in its
+      // single `eventTags` argument, so pass the unsplit properties.
       optimizelyClientInstance.track(
         eventName,
         userId,
         attributes,
-        payload.properties
+        eventProperties
       );
     }
   }
