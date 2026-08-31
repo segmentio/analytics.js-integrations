@@ -558,7 +558,8 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          properties: {
+          properties: {},
+          tags: {
             revenue: 999
           }
         });
@@ -573,7 +574,8 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Checkout Started',
-          properties: {
+          properties: {},
+          tags: {
             revenue: 999
           }
         });
@@ -843,7 +845,8 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          properties: {
+          properties: {},
+          tags: {
             revenue: 999
           }
         });
@@ -858,7 +861,8 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Checkout Started',
-          properties: {
+          properties: {},
+          tags: {
             revenue: 999
           }
         });
@@ -1097,12 +1101,13 @@ describe('Optimizely', function() {
         });
       });
 
-      it('should change revenue to cents and include in properties', function() {
+      it('should change revenue to cents and send it as a reserved tag', function() {
         analytics.track('Order Completed', { revenue: 9.99 });
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          properties: { revenue: 999 }
+          properties: {},
+          tags: { revenue: 999 }
         });
       });
 
@@ -1111,7 +1116,27 @@ describe('Optimizely', function() {
         analytics.called(window.optimizely.push, {
           type: 'event',
           eventName: 'Order Completed',
-          properties: { revenue: 53431 }
+          properties: {},
+          tags: { revenue: 53431 }
+        });
+      });
+
+      it('should send `value` as a reserved tag and leave other properties as properties', function() {
+        analytics.track('event', { value: 2, Category: 'mens' });
+        analytics.called(window.optimizely.push, {
+          type: 'event',
+          eventName: 'event',
+          properties: { Category: 'mens' },
+          tags: { value: 2 }
+        });
+      });
+
+      it('should not add a tags object when the event has no reserved tags', function() {
+        analytics.track('event', { Category: 'mens' });
+        analytics.called(window.optimizely.push, {
+          type: 'event',
+          eventName: 'event',
+          properties: { Category: 'mens' }
         });
       });
 
