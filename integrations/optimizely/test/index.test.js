@@ -1140,6 +1140,26 @@ describe('Optimizely', function() {
         });
       });
 
+      it('should convert revenue, send both reserved tags, and preserve custom properties together', function() {
+        analytics.track('Order Completed', {
+          revenue: 27.99,
+          value: 2,
+          Category: 'mens',
+          Subcategory: 'shirts',
+          SKU: 'xx-xxx-xx'
+        });
+        analytics.called(window.optimizely.push, {
+          type: 'event',
+          eventName: 'Order Completed',
+          properties: {
+            Category: 'mens',
+            Subcategory: 'shirts',
+            SKU: 'xx-xxx-xx'
+          },
+          tags: { revenue: 2799, value: 2 }
+        });
+      });
+
       describe('the Optimizely X Fullstack JavaScript client is present', function() {
         beforeEach(function() {
           window.optimizelyClientInstance = {};
@@ -1216,6 +1236,36 @@ describe('Optimizely', function() {
             'user1',
             { country: 'usa' },
             { property: 'foo', purchasePrice: 9.99 }
+          );
+        });
+
+        it('should preserve `value` in the eventTags argument', function() {
+          analytics.track(
+            'event',
+            { value: 2, property: 'foo' },
+            { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } }
+          );
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'event',
+            'user1',
+            { country: 'usa' },
+            { value: 2, property: 'foo' }
+          );
+        });
+
+        it('should pass revenue, value and custom properties together in the unsplit eventTags argument', function() {
+          analytics.track(
+            'Order Completed',
+            { revenue: 27.99, value: 2, Category: 'mens' },
+            { Optimizely: { userId: 'user1', attributes: { country: 'usa' } } }
+          );
+          analytics.called(
+            window.optimizelyClientInstance.track,
+            'Order Completed',
+            'user1',
+            { country: 'usa' },
+            { revenue: 2799, value: 2, Category: 'mens' }
           );
         });
 
