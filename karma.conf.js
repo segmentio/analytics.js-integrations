@@ -15,7 +15,17 @@ module.exports = function(config) {
 
     reporters: ['spec'],
 
-    browsers: ['ChromeHeadless'],
+    // Run headless Chrome with --no-sandbox: the CI container runs as root,
+    // where Chrome's sandbox refuses to start. CHROME_BIN points at the
+    // Chromium installed in .buildkite/Dockerfile.ci.
+    browsers: ['ChromeHeadlessNoSandbox'],
+
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage']
+      }
+    },
 
     middleware: ['server'],
     failOnFailingTestSuite: false,

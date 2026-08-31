@@ -72,9 +72,9 @@
     "public": false,
     "redshift": null,
     "logos": {
-        "alt": "https://cdn.filepicker.io/api/file/I2O3t1yZQki3nVieSU5X",
-        "default": "https://cdn.filepicker.io/api/file/I2O3t1yZQki3nVieSU5X",
-        "mark": "https://cdn.filepicker.io/api/file/RHYPmbobTSGzpWZIYvHq"
+        "alt": "https://cdn-devcenter.segment.com/33478caf-a44d-4381-8147-0f3bec5c0cae.svg",
+        "default": "https://cdn-devcenter.segment.com/33478caf-a44d-4381-8147-0f3bec5c0cae.svg",
+        "mark": "https://cdn-devcenter.segment.com/33478caf-a44d-4381-8147-0f3bec5c0cae.svg"
     },
     "components": [
         {
