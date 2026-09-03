@@ -52,3 +52,6 @@ Please make sure your PR includes the new version in `package.json` as well as a
 
 ### Releasing
 All releases are handled by Segment engineers. Releases will be managed after a change has been approved and merged.
+
+### Publishing node-browser image (Segment Internal)
+Follow the instructions [here](https://twilio-productivity.atlassian.net/wiki/spaces/DA1/pages/1738014994/Segment+to+Twilio+Buildkite+Migration#Instructions-for-building-test-image-in-Analytics.js-Integrations) to build and publish the test image (if required).

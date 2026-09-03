@@ -40,7 +40,6 @@ describe('Criteo', function() {
         .option('homeUrl', '')
         .option('supportingUserData', {})
         .option('supportingPageData', {})
-        .tag('<script src="http://static.criteo.net/js/ld/ld.js">')
     );
   });
 
@@ -61,6 +60,28 @@ describe('Criteo', function() {
       it('should call load', function() {
         analytics.initialize();
         analytics.called(criteo.load);
+      });
+
+      it('should load the dynamic loader script into the head', function() {
+        var head = document.getElementsByTagName('head')[0];
+        var originalAppendChild = head.appendChild.bind(head);
+        var appendedScript;
+        head.appendChild = function(el) {
+          appendedScript = el;
+          return originalAppendChild(el);
+        };
+        criteo.load = Criteo.prototype.load;
+        analytics.initialize();
+        head.appendChild = originalAppendChild;
+        analytics.assert(appendedScript);
+        analytics.assert(
+          appendedScript.src.indexOf(
+            '//dynamic.criteo.com/js/ld/ld.js?a=' + options.account
+          ) !== -1
+        );
+        if (appendedScript.parentNode) {
+          appendedScript.parentNode.removeChild(appendedScript);
+        }
       });
 
       it('should track setSiteType for desktop', function() {

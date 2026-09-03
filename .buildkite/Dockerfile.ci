@@ -1,0 +1,14 @@
+FROM registry.twilio.com/library/base-node/22:22
+
+RUN apk update && apk add --no-cache \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ca-certificates \
+      ttf-freefont \
+      git \
+      openssh-client \
+      python3 \
+      g++ \
+      make
