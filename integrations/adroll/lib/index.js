@@ -26,15 +26,14 @@ var AdRoll = (module.exports = integration('AdRoll')
   .option('advId', '')
   .option('pixId', '')
   .option('_version', 2)
-  .tag('http', '<script src="http://a.adroll.com/j/roundtrip.js">')
-  .tag('https', '<script src="https://s.adroll.com/j/roundtrip.js">')
+  .tag('http', '<script src="http://a.adroll.com/j/{{advId}}/roundtrip.js">')
+  .tag('https', '<script src="https://s.adroll.com/j/{{advId}}/roundtrip.js">')
   .mapping('events'));
 
 /**
  * Initialize.
  *
- * http://support.adroll.com/getting-started-in-4-easy-steps/#step-one
- * http://support.adroll.com/enhanced-conversion-tracking/
+ * https://help.adroll.com/hc/en-us/articles/212629938-Enhanced-Conversion-Tracking
  *
  * @api public
  */
@@ -44,7 +43,7 @@ AdRoll.prototype.initialize = function() {
   window.adroll_pix_id = this.options.pixId;
   window.__adroll_loaded = true;
   var name = useHttps() ? 'https' : 'http';
-  this.load(name, this.ready);
+  this.load(name, { advId: this.options.advId }, this.ready);
 };
 
 /**
