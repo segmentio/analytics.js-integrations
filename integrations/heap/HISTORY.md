@@ -1,3 +1,8 @@
+==================
+2.2.0 / 2023-02-13
+
+  * Allow overriding heap loading snippet
+  * Allow configuring heap options
 
 2.1.1 / 2018-07-06
 ==================
