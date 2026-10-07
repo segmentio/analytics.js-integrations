@@ -46,7 +46,7 @@ https://docs.google.com/document/d/1N2MtcLtiI7MK_GgwEe1tXtDYrMZnbfJCVyFvVoof-Ss/
 
 ### Change Control Checklist
 
-<!-- Approval count and plan sections are enforced elsewhere (branch ruleset), so only items GitHub cannot enforce are listed. -->
+<!-- The approval count is enforced by a branch ruleset, so only items that need author action are listed. -->
 
 - [ ] [Segmenters] Deep review run before requesting review and again before merge, with critical/high findings addressed, and the attestation comment posted on the PR
 
