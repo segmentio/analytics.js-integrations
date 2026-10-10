@@ -21,7 +21,9 @@ var toString = Object.prototype.toString; // in case this method has been overri
 var Heap = (module.exports = integration('Heap')
   .global('heap')
   .option('appId', '')
-  .tag('<script src="//cdn.heapanalytics.com/js/heap-{{ appId }}.js">'));
+  .option('hostname', 'cdn.heapanalytics.com')
+  .option('options', {})
+  .tag('<script src="//{{ hostname }}/js/heap-{{ appId }}.js">'));
 
 /**
  * Initialize.
@@ -61,7 +63,7 @@ Heap.prototype.initialize = function() {
     });
   };
 
-  window.heap.load(this.options.appId);
+  window.heap.load(this.options.appId, this.options.options);
   this.load(this.ready);
 };
 
