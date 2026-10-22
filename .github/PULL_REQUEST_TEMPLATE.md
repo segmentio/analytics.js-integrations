@@ -41,7 +41,7 @@ Testing completed successfully in {env} via {how}
 
 <!-- The approval count is enforced by a branch ruleset, so only items that need author action are listed. -->
 
-- [ ] [Segmenters] Deep review run before requesting review and again before merge, with critical/high findings addressed
+- [ ] [Segmenters] Deep review run before requesting review and again before merge, with critical/high findings addressed, and the attestation comment posted on the PR
 
 **Existing Unit Tests**
 
