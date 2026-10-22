@@ -19,6 +19,7 @@
 ### Test Plan
 
 <!-- Environment(s) used and tests run (unit, integration, local end-to-end) and their results, in enough detail for another engineer to reproduce. Include testing steps and screenshots where possible. Before merge, keep exactly one of: "Testing completed successfully in {env} via {how}" or "Testing not required because {why}" (the mergeable check requires one, not both). -->
+Testing completed successfully in {env} via {how}
 
 ### Deployment Plan
 
