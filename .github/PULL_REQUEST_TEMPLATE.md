@@ -7,10 +7,13 @@
 
 ## Change Release Safety
 
-<!-- Per the Segment Change Release Safety guidelines, every PR that can reach production must
-     include the plans below plus risk mitigation, in enough detail that another engineer could
-     reproduce them. Vague entries ("Tested in stage", "Auto deployed", "Check dashboards",
-     "Revert PR and push", "N/A") are not acceptable and will be flagged in review.
+<!-- Per the Segment Change Release Safety guidelines, PRs that ship to customers and/or
+     publish artifacts (deployments, releases, versioned packages) must include the plans below
+     plus risk mitigation, in enough detail that another engineer could reproduce them.
+     For doc-only, tooling-only, or other non-shipping changes, briefly explain why testing and/or
+     deployment/verification/rollback plans are not required (e.g. "Testing not required because docs-only change").
+     Vague entries ("Tested in stage", "Auto deployed", "Check dashboards", "Revert PR and push", "N/A")
+     without justification are not acceptable and may be flagged in review.
      Guidelines: https://docs.google.com/document/d/1N2MtcLtiI7MK_GgwEe1tXtDYrMZnbfJCVyFvVoof-Ss/edit?tab=t.0 -->
 
 ### Test Plan
