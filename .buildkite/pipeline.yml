@@ -12,8 +12,8 @@ steps:
     key: "build"
     branches: "!master"
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --frozen-lockfile
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
+      - yarn install --immutable
       - make build
       - yarn test
       - buildkite-agent artifact upload 'build/**/*'
@@ -28,8 +28,8 @@ steps:
     key: "build_master"
     branches: "master"
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --frozen-lockfile
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
+      - yarn install --immutable
       - make build
       - yarn test-master
       - buildkite-agent artifact upload 'build/**/*'
@@ -45,8 +45,8 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
+      - yarn install --immutable
       - yarn test:ci
     plugins:
       - docker#v5.12.0:
@@ -59,8 +59,8 @@ steps:
     branches: "master"
     soft_fail: true
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
+      - yarn install --immutable
       - yarn test-master:ci
     plugins:
       - docker#v5.12.0:

@@ -35,7 +35,8 @@ docker run --rm \
   -e NPM_CONFIG_REGISTRY -e YARN_REGISTRY -e YARN_NPM_REGISTRY_SERVER \
   -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
   "${NODE_BROWSER_IMAGE}" sh -e -c '
-    npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" "${NPM_TOKEN}"
-    yarn install --frozen-lockfile
+    # Artifactory authorizes by agent identity; .yarnrc.yml sets the registry.
+    unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
+    yarn install --immutable
     make upload-assets
   '
