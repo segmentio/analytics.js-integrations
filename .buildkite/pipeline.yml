@@ -6,15 +6,13 @@ env:
   NODE_BROWSER_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/node-browser:22"
   AJS_CI_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci:latest"
   CHROME_BIN: "/usr/bin/chromium-browser"
-  YARN_NPM_REGISTRY_SERVER: "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/"
-  YARN_NPM_ALWAYS_AUTH: "true"
 
 steps:
   - label: ":hammer: Build and Test"
     key: "build"
     branches: "!master"
     command:
-      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
       - yarn install --immutable
       - make build
       - yarn test
@@ -30,7 +28,7 @@ steps:
     key: "build_master"
     branches: "master"
     command:
-      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
       - yarn install --immutable
       - make build
       - yarn test-master
@@ -47,7 +45,7 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
-      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
       - yarn install --immutable
       - yarn test:ci
     plugins:
@@ -61,7 +59,7 @@ steps:
     branches: "master"
     soft_fail: true
     command:
-      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
       - yarn install --immutable
       - yarn test-master:ci
     plugins:

@@ -32,11 +32,11 @@ echo "--- Upload assets to S3"
 docker run --rm \
   --volume "$PWD:/workdir" --workdir /workdir \
   -e NPM_TOKEN \
-  -e YARN_NPM_ALWAYS_AUTH \
   -e NPM_CONFIG_REGISTRY -e YARN_REGISTRY -e YARN_NPM_REGISTRY_SERVER \
   -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
   "${NODE_BROWSER_IMAGE}" sh -e -c '
-    export YARN_NPM_AUTH_TOKEN="${NPM_TOKEN}"
+    # Artifactory authorizes by agent identity; .yarnrc.yml sets the registry.
+    unset NPM_CONFIG_REGISTRY YARN_NPM_REGISTRY_SERVER YARN_REGISTRY
     yarn install --immutable
     make upload-assets
   '
