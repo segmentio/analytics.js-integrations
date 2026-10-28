@@ -66,7 +66,10 @@ describe('Google AdWords New', function() {
         }
       }
     ],
-    defaultPageConversion: 'qnCxCOvxq18Q1ta71QM'
+    defaultPageConversion: 'qnCxCOvxq18Q1ta71QM',
+    adUserDataConsentState :'granted',
+    adPersonalizationConsentState: 'denied',
+    waitTimeToUpdateConsentState:1000
   };
 
   beforeEach(function() {
@@ -95,6 +98,12 @@ describe('Google AdWords New', function() {
         .option('pageLoadConversions', {})
         .option('defaultPageConversion', '')
         .option('disableAdPersonalization', false)
+        .option('enableConsentMode',false)
+        .option('adUserDataConsentState',null)
+        .option('adPersonalizationConsentState',null)
+        .option('defaultAdsStorageConsentState',null)
+        .option('defaultAnalyticsStorageConsentState',null)
+        .option('waitTimeToUpdateConsentState',0)
         .tag(
           '<script src="https://www.googletagmanager.com/gtag/js?id={{ accountId }}">'
         )
@@ -157,6 +166,46 @@ describe('Google AdWords New', function() {
       analytics.once('ready', function() {
         analytics.deepEqual(window.gtag.args[1], ['config', floodlightAccountId, {}]);
         analytics.deepEqual(window.gtag.args[2], ['config', options.accountId, {}]);
+        done();
+      });
+      analytics.initialize();
+      analytics.spy(window, 'gtag');
+    });
+
+    it('should add consent signals only if enableConsentMode is set to true', function(done) {
+      googleadwordsnew.options.enableConsentMode = true;
+      analytics.once('ready', function() {
+        analytics.deepEqual(window.gtag.args[2], [
+          'consent',
+          'default',
+          {
+            wait_for_update: 1000,
+            ad_user_data: 'granted',
+            ad_personalization:'denied'
+          }
+        ]);
+        done();
+      });
+      analytics.initialize();
+      analytics.spy(window, 'gtag');
+    });
+
+
+    it('should skip adding those consent signal those are unspecified or null', function(done) {
+      googleadwordsnew.options.enableConsentMode = true;
+      googleadwordsnew.options.adPersonalizationConsentState = 'unspecified';
+      googleadwordsnew.options.defaultAnalyticsStorageConsentState='denied';
+      analytics.once('ready', function() {
+        analytics.deepEqual(window.gtag.args[2], [
+          'consent',
+          'default',
+          {
+            wait_for_update: 1000,
+            ad_user_data: 'granted',
+            analytics_storage:'denied'
+    
+          }
+        ]);
         done();
       });
       analytics.initialize();
