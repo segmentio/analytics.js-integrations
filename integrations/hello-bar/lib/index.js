@@ -18,7 +18,7 @@ var Hellobar = (module.exports = integration('Hello Bar')
 /**
  * Initialize.
  *
- * https://s3.amazonaws.com/scripts.hellobar.com/bb900665a3090a79ee1db98c3af21ea174bbc09f.js
+ * https://my.hellobar.com/a18c23dec1b87e9401465165eca61459d405684d.js
  *
  * @api public
  */
@@ -28,5 +28,20 @@ Hellobar.prototype.initialize = function() {
 };
 
 Hellobar.prototype.loaded = function() {
-  return typeof window.hellobar === 'function';
+  return !!window.hellobarSiteSettings;
+};
+
+/**
+ * Track.
+ *
+ * https://hellobarassist.freshdesk.com/support/solutions/articles/44002393650-triggering-popups-and-bars-on-a-user-event
+ *
+ * @api public
+ * @param {Track} track
+ */
+
+ Hellobar.prototype.track = function(track) {
+  var event = track.event();
+  var properties = track.properties();
+  window.hellobar.trigger.event(event, properties);
 };

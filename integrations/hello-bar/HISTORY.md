@@ -1,3 +1,8 @@
+3.0.2 / 2023-01-10
+==================
+
+  * Hook segment track events to hellobar event trigger
+
 3.0.0 / 2017-06-06
 ==================
 
