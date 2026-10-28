@@ -26,7 +26,7 @@
   "homepage": "https://github.com/segmentio/analytics.js-integrations/blob/master/integrations/nielsen-dcr#readme",
   "dependencies": {
     "@segment/analytics.js-integration": "^3.2.0",
-    "dateformat": "3.0.0",
+    "dateformat": "3.0.3",
     "do-when": "^1.0.0",
     "obj-case": "^0.2.0",
     "reject": "0.0.1"
