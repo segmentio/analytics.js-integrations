@@ -32,10 +32,11 @@ echo "--- Publish assets to S3"
 docker run --rm \
   --volume "$PWD:/workdir" --workdir /workdir \
   -e NPM_TOKEN \
+  -e YARN_NPM_ALWAYS_AUTH \
   -e NPM_CONFIG_REGISTRY -e YARN_REGISTRY -e YARN_NPM_REGISTRY_SERVER \
   -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
   "${NODE_BROWSER_IMAGE}" sh -e -c '
-    npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" "${NPM_TOKEN}"
-    yarn install --frozen-lockfile
+    export YARN_NPM_AUTH_TOKEN="${NPM_TOKEN}"
+    yarn install --immutable
     make publish-assets
   '

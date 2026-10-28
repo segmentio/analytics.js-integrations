@@ -6,14 +6,16 @@ env:
   NODE_BROWSER_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/node-browser:22"
   AJS_CI_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci:latest"
   CHROME_BIN: "/usr/bin/chromium-browser"
+  YARN_NPM_REGISTRY_SERVER: "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/"
+  YARN_NPM_ALWAYS_AUTH: "true"
 
 steps:
   - label: ":hammer: Build and Test"
     key: "build"
     branches: "!master"
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --frozen-lockfile
+      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - yarn install --immutable
       - make build
       - yarn test
       - buildkite-agent artifact upload 'build/**/*'
@@ -28,8 +30,8 @@ steps:
     key: "build_master"
     branches: "master"
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --frozen-lockfile
+      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - yarn install --immutable
       - make build
       - yarn test-master
       - buildkite-agent artifact upload 'build/**/*'
@@ -45,8 +47,8 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
+      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - yarn install --immutable
       - yarn test:ci
     plugins:
       - docker#v5.12.0:
@@ -59,8 +61,8 @@ steps:
     branches: "master"
     soft_fail: true
     command:
-      - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
-      - yarn install --ignore-engines
+      - export YARN_NPM_AUTH_TOKEN=$${NPM_TOKEN}
+      - yarn install --immutable
       - yarn test-master:ci
     plugins:
       - docker#v5.12.0:

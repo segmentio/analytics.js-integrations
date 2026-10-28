@@ -37,7 +37,7 @@ Each integration directory has an npm script called `test` that you can use to e
 To test changes locally you can run: 
 
 ```
-yarn --cwd tester install
+(cd tester && yarn install)
 yarn dev
 ```
 This will open the local development environment. To test a particular destination, enter a writeKey that has the destination connected, and the tool will load Analytics.js with the local version of the destinations connected, and the settings for the source. After the first load, you can referesh the page without having to load the writeKey each time. 

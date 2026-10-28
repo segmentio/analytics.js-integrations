@@ -6,7 +6,7 @@
   "author": "Segment",
   "license": "See LICENSE",
   "private": true,
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "yarn@4.9.2",
   "workspaces": [
     "integrations/*"
   ],
@@ -18,8 +18,8 @@
     "test:ci": "lerna run --concurrency 1 --stream --since master test:ci -- --log-level error",
     "test-master:ci": "lerna run --concurrency 1 --stream test:ci -- --log-level error",
     "compile": "webpack --config webpack.config.integrations.js && webpack --config webpack.config.middleware.js",
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider && rm -rf build && yarn compile",
-    "dev": "concurrently \"yarn --cwd tester serve\" \"webpack --config webpack.config.tester.js --watch\""
+    "build": "rm -rf build && NODE_OPTIONS=--openssl-legacy-provider yarn compile",
+    "dev": "concurrently \"cd tester && yarn serve\" \"webpack --config webpack.config.tester.js --watch\""
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

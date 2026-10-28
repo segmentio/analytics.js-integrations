@@ -8,3 +8,11 @@ yarn-error.log
 dist/
 build/
 /.idea/
+
+# Yarn Berry
+.yarn/*
+!.yarn/releases
+!.yarn/patches
+!.yarn/plugins
+.pnp.*
+tester/.yarn/
