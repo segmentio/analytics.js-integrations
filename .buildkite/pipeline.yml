@@ -3,8 +3,8 @@ agents:
 
 env:
   SEGMENT_CONTEXTS: "snyk,npm,aws-credentials,ecr,saucelabs,npm-publish"
-  NODE_BROWSER_IMAGE: "018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:22.23.4-alpine3.24"
-  AJS_CI_IMAGE: "018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:22.23.4-alpine3.24"
+  NODE_BROWSER_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/node-browser:22"
+  AJS_CI_IMAGE: "528451384384.dkr.ecr.us-west-2.amazonaws.com/analytics.js-integrations-ci:latest"
   CHROME_BIN: "/usr/bin/chromium-browser"
 
 steps:
@@ -12,7 +12,6 @@ steps:
     key: "build"
     branches: "!master"
     command:
-      - apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont git openssh-client python3 g++ make
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - make build
@@ -29,7 +28,6 @@ steps:
     key: "build_master"
     branches: "master"
     command:
-      - apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont git openssh-client python3 g++ make
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --frozen-lockfile
       - make build
@@ -47,7 +45,6 @@ steps:
     branches: "!master"
     soft_fail: true
     command:
-      - apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont git openssh-client python3 g++ make
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test:ci
@@ -62,7 +59,6 @@ steps:
     branches: "master"
     soft_fail: true
     command:
-      - apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont git openssh-client python3 g++ make
       - npm config set "//npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/:_authToken" $${NPM_TOKEN}
       - yarn install --ignore-engines
       - yarn test-master:ci
