@@ -1,0 +1,141 @@
+name: CI
+on:
+  push:
+    branches: [master, staging]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # Repo variable, same as analytics-next (see its publish.yml).
+  ARTIFACTORY_URL: ${{ vars.ARTIFACTORY_URL }}
+  # `yarn build` sets this itself; kept for direct webpack invocations.
+  NODE_OPTIONS: --openssl-legacy-provider
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest-large
+    permissions:
+      contents: read
+      id-token: write # Artifactory OIDC
+    steps:
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0 # `lerna --since master` needs history
+      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+        with:
+          node-version: 22
+      # Fork PRs get no OIDC token, so they resolve from the default registry.
+      - name: Artifactory OIDC Auth
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: ./.github/actions/artifactory-oidc
+      - run: yarn install --immutable
+      - run: make build
+      - name: Test
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/master" ]; then
+            yarn test-master
+          else
+            git fetch --no-tags origin master:master || true
+            yarn test
+          fi
+      - name: Archive build
+        run: tar -czf build.tar.gz build
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: build-${{ github.run_id }}
+          path: build.tar.gz
+          retention-days: 7
+
+  saucelabs:
+    name: SauceLabs
+    # Needs secrets, which fork PRs don't get. Non-blocking, like soft_fail in Buildkite.
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
+    runs-on: ubuntu-latest-large
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+        with:
+          node-version: 22
+      - uses: ./.github/actions/artifactory-oidc
+      - run: yarn install --immutable
+      - name: Test on SauceLabs
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/master" ]; then
+            yarn test-master:ci
+          else
+            git fetch --no-tags origin master:master || true
+            yarn test:ci
+          fi
+
+  # Stage bucket: master and staging pushes (Buildkite: upload.sh).
+  deploy-stage:
+    name: Upload to stage bucket
+    needs: [build-and-test, saucelabs]
+    if: ${{ always() && needs.build-and-test.result == 'success' && github.event_name == 'push' }}
+    runs-on: ubuntu-latest-large
+    permissions:
+      contents: read
+      id-token: write # Artifactory + AWS OIDC
+    env:
+      BUILDKITE_BRANCH: ${{ github.ref_name }} # read by scripts/upload-assets.js
+    steps:
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+        with:
+          node-version: 22
+      - uses: ./.github/actions/artifactory-oidc
+      - run: yarn install --immutable
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: build-${{ github.run_id }}
+      - run: tar -xzf build.tar.gz && rm build.tar.gz
+      - uses: ./.github/actions/aws-oidc-assume-role
+        with:
+          role-arn: arn:aws:iam::812113486725:role/ajs_next_destinations_upload-stage
+          role-session-name: gha-ajs-integrations-stage-${{ github.run_id }}
+          aws-region: us-west-2
+      - run: make upload-assets
+
+  # Production bucket: master only, behind an environment approval (Buildkite: publish.sh).
+  deploy-production:
+    name: Publish to production bucket
+    needs: [build-and-test, saucelabs]
+    if: ${{ always() && needs.build-and-test.result == 'success' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest-large
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      BUILDKITE_BRANCH: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+        with:
+          node-version: 22
+      - uses: ./.github/actions/artifactory-oidc
+      - run: yarn install --immutable
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: build-${{ github.run_id }}
+      - run: tar -xzf build.tar.gz && rm build.tar.gz
+      - uses: ./.github/actions/aws-oidc-assume-role
+        with:
+          role-arn: arn:aws:iam::812113486725:role/ajs_next_destinations_upload-production
+          role-session-name: gha-ajs-integrations-prod-${{ github.run_id }}
+          aws-region: us-west-2
+      - run: make publish-assets
