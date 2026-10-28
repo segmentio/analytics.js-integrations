@@ -1,4 +1,4 @@
-const S3 = require('aws-sdk/clients/s3');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const fs = require('fs-extra');
 const path = require('path');
 const logUpdate = require('log-update');
@@ -48,11 +48,13 @@ async function uploadAssets() {
     throw new Error('Local Path required');
   }
 
-  const s3 = new S3({
-    accessKeyId,
-    secretAccessKey,
-    sessionToken,
-    region: 'us-west-2'
+  const s3 = new S3Client({
+    region: 'us-west-2',
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+      sessionToken
+    }
   });
 
   const absolutePaths = await getFiles(localPath);
@@ -95,7 +97,7 @@ async function uploadAssets() {
       options.CacheControl = 'public,max-age=31536000,immutable';
     }
 
-    return s3.putObject(options).promise();
+    return s3.send(new PutObjectCommand(options));
   };
 
   const uploads = relativeFiles.map(async fileName => {
@@ -159,30 +161,26 @@ async function uploadAssets() {
 
   await Promise.all(uploads);
 
-  await s3 // upload "latest" manifest file
-    .putObject({
-      Bucket: bucket,
-      Key: key('/manifest-latest.json'),
-      Body: zlib.gzipSync(JSON.stringify(manifest)),
-      ContentEncoding: process.env.CONTENT_ENCODING,
-      CacheControl: 'public, max-age=120',
-      GrantRead: cfCanonicalUserIdsParsed,
-      GrantFullControl: `id=${platformCanonicalUserId}`,
-      ContentType: 'application/json'
-    })
-    .promise();
+  await s3.send(new PutObjectCommand({ // upload "latest" manifest file
+    Bucket: bucket,
+    Key: key('/manifest-latest.json'),
+    Body: zlib.gzipSync(JSON.stringify(manifest)),
+    ContentEncoding: process.env.CONTENT_ENCODING,
+    CacheControl: 'public, max-age=120',
+    GrantRead: cfCanonicalUserIdsParsed,
+    GrantFullControl: `id=${platformCanonicalUserId}`,
+    ContentType: 'application/json'
+  }));
 
-  await s3 // upload hash manifest file
-    .putObject({
-      Bucket: bucket,
-      Key: key(`/manifest-${sha}.json`),
-      Body: zlib.gzipSync(JSON.stringify(manifest)),
-      ContentEncoding: process.env.CONTENT_ENCODING,
-      GrantRead: cfCanonicalUserIdsParsed,
-      GrantFullControl: `id=${platformCanonicalUserId}`,
-      ContentType: 'application/json'
-    })
-    .promise();
+  await s3.send(new PutObjectCommand({ // upload hash manifest file
+    Bucket: bucket,
+    Key: key(`/manifest-${sha}.json`),
+    Body: zlib.gzipSync(JSON.stringify(manifest)),
+    ContentEncoding: process.env.CONTENT_ENCODING,
+    GrantRead: cfCanonicalUserIdsParsed,
+    GrantFullControl: `id=${platformCanonicalUserId}`,
+    ContentType: 'application/json'
+  }));
 }
 
 (async function main() {
